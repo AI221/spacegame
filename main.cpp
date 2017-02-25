@@ -116,9 +116,13 @@ void PhysicsObject::tickMyPhysics() //the fun part
 		{
 			int posx = x+grid.x;
 			int posy = y+grid.y;
-			if (sGrid[posx][posy] == myNumber) //TODO: Check if necisary
+			if (sGrid[posx][posy] == myNumber) //TODO: Check if necisary -- it might be okay to set other's grids to 0 because we'll detect collision and start an accurate simulation anyway
 			{
 				sGrid[posx][posy] = 0;
+			}
+			else if (sGrid[posx][posy] != 0)
+			{
+				std::cout << "osht we gots collision im: " << myNumber << " its: " << sGrid[posx][posy] << " differenciation: " << rand() << std::endl;
 			}
 		}
 	}
@@ -126,7 +130,7 @@ void PhysicsObject::tickMyPhysics() //the fun part
 	//TODO: keep track of the last position, or maybe not because it could be reverse by minusing our position by our speed maybe?
 	//first set velocity
 	
-	if (setNewVelocity) //TODO this doesn't seem to work
+	if (setNewVelocity) 
 	{
 		velocity = newVelocity;
 		setNewVelocity = false;
@@ -153,12 +157,12 @@ void PhysicsObject::tickMyPhysics() //the fun part
 
 
 
-	grid.x = (int) position.x;
-	grid.y = (int) position.y;
+	grid.x = (int) position.x/10;
+	grid.y = (int) position.y/10;
 
 	//Calculate how the shape warps. The shape will stretch as you move faster to avoid clipping
-	warpedShape.x = ((velocity.x/10)+1)*(grid.shapex/10);
-	warpedShape.y = ((velocity.y/10)+1)*(grid.shapey/10);
+	warpedShape.x = ((std::abs(velocity.x)/10)+1)*(grid.shapex/10);
+	warpedShape.y = ((std::abs(velocity.y)/10)+1)*(grid.shapey/10);
 
 	for (int x = 0; x < warpedShape.x; x++) 
 	{
@@ -326,6 +330,7 @@ void render()
 		physicsObjects[i]->render();
 		//TODO: Physics tied to framerate. REEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
 		physicsObjects[i]->tickMyPhysics();
+		//std::cout << "-------------------------------" << std::endl;
 	}
 }
 
@@ -336,24 +341,26 @@ void debug_render()
 { //pulled from my prototype
 	somethingHere->blit({0,0},{10,10});
 	camera = physicsObjects[camFocusedObj]->myPhysicsObject->getPosition();
-//	camera.x -= 640/2;
-//	camera.y -= 580/2;
+	camera.x -= 640/2;
+	camera.y -= 580/2;
 	camera.x = camera.x/10;
 	camera.y = camera.y/10;
-	int camerax = 0;//(int) camera.x;
-	int cameray = 0;//(int) camera.y;
+	int camerax = (int) camera.x;
+	int cameray = (int) camera.y;
 	for (int i = 0; i < 70; i++) { 
 		for (int o = 0; o < 70; o++) {
 			//std::cout << "i " << i <<" t " << i+camerax << std::endl;
-			if ( sGrid[i+camerax][o+cameray] != 0)
-			{
-				somethingHere->blit({i*10,o*10},{0,0});
-				//std::cout << "nothingHere; ";
-			} 
-			else 
-			{
-				nothingHere->blit({i*10,o*10},{0,0});
-				//std::cout << "somethingHere; ";
+			if ((i+camerax < 0) || (o+cameray < 0)) {} else {
+				if ( sGrid[i+camerax][o+cameray] != 0)
+				{
+					somethingHere->blit({i*10,o*10},{0,0});
+					//std::cout << "nothingHere; ";`
+				} 
+				else 
+				{
+					nothingHere->blit({i*10,o*10},{0,0});
+					//std::cout << "somethingHere; ";
+				}
 			}
 		}
 	}
@@ -361,7 +368,7 @@ void debug_render()
 
 }
 	
- 	
+	
 
 
 int main()
@@ -393,7 +400,7 @@ int main()
 	myRenderer = SDL_CreateRenderer(myWindow, -1, SDL_RENDERER_ACCELERATED);
 
 	//debug bullshit
- 	nothingHere = new Sprite(myRenderer,"DEBUG_nothingHere.bmp",{10,10});
+	nothingHere = new Sprite(myRenderer,"DEBUG_nothingHere.bmp",{10,10});
 	somethingHere = new Sprite(myRenderer,"DEBUG_somethingHere.bmp",{10,10});
 	
 	Sprite* mySprite = new Sprite(myRenderer,"simple.bmp",{25,25});
