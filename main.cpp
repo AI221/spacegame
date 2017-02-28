@@ -3,6 +3,7 @@
 #include <string>
 #include <iostream>
 #include <math.h>
+#include <vector>
 
 //Definitions
 #define MAX_PHYSICS_OBJECTS 256000000
@@ -23,7 +24,7 @@ struct GridInfo //info for the inaccurate physics pre-calculation
 	int shapey; 
 };
 
-int sGrid[2000][2000]; //TODO: Dynamically sized arrays for both of these
+std::vector< std::vector<int> > sGrid = {}; //TODO: Dynamically sized arrays for both of these
 int dbGrid[2000][2000]; //TODO: Remove this!
 
 int collisionSpots[2000][1]; 
@@ -462,8 +463,10 @@ int main()
 		}
 		if(keysHeld[SDLK_q])
 		{
-			std::cout <<"x: " << physicsObjects[camFocusedObj]->myPhysicsObject->velocity.x << std::endl;
-			std::cout <<"y: " << physicsObjects[camFocusedObj]->myPhysicsObject->velocity.y << std::endl;
+			std::cout <<"velx: " << physicsObjects[camFocusedObj]->myPhysicsObject->velocity.x << std::endl;
+			std::cout <<"vely: " << physicsObjects[camFocusedObj]->myPhysicsObject->velocity.y << std::endl;
+			std::cout <<"posx: " << physicsObjects[camFocusedObj]->myPhysicsObject->position.x << std::endl;
+			std::cout <<"posy: " << physicsObjects[camFocusedObj]->myPhysicsObject->position.y << std::endl;
 		}
 		if(keysHeld[SDLK_e])
 		{
