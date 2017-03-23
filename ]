@@ -5,7 +5,6 @@
 #include <iostream>
 #include <math.h>
 #include <vector>
-#include <functional>
 
 //Definitions
 #define MAX_PHYSICS_OBJECTS 256000000 //maximum ammount of physics objects in the game
@@ -376,7 +375,7 @@ void debug_render()
 
 
 #ifdef debug
-	/* Debug code should be as isolated as possible except when pulling values from things. It should use its own UI library that shouldn't ever see updates unless really necessary */
+	/* Debug code should be as isolated as possible except when pulling values from things. It should use its own UI library that shouldn't ever see updates unless really necisary */
 
 	class debugUIElement
 	{
@@ -384,10 +383,16 @@ void debug_render()
 		 /*	debugUIElement(SDL_Renderer* renderer, Vector2 position);
 			Vector2 position;
 			SDL_Renderer* renderer;*/
-			virtual void render(Vector2 parrentPosition) = 0;
-			virtual void giveEvent(Vector2 parrentPosition, SDL_Event event) = 0;
-			bool wantsEvents;
+			virtual void render(Vector2 parrentPosition);
 	};
+	void debugUIElement::render(Vector2 parrentPosition)
+	{
+	}
+	/*debugUIElement::debugUIElement(SDL_Renderer* renderer, Vector2 position)
+	{
+		this->renderer = renderer;
+		this->position = position;
+	}*/
 
 
 
@@ -399,9 +404,6 @@ void debug_render()
 			void render(Vector2 parrentPosition);
 			void render();
 			void setText(const char* text);
-			void giveEvent(Vector2 parrentPosition, SDL_Event event);
-		//	bool wantsEvents;
-
 		private:
 			TTF_Font* Sans = TTF_OpenFont("/usr/share/fonts/truetype/freefont/FreeSans.ttf", 24);
 			SDL_Color color = {0, 255, 0}; //GREEN TXT FOR HACKERS
@@ -427,7 +429,6 @@ void debug_render()
 		Message_rect.y = position.y;
 		this->myRenderer = renderer;
 		setText(text.c_str());
-		this->wantsEvents = false;
 	}
 	void debugText::render(Vector2 parrentPosition)
 	{
@@ -440,104 +441,6 @@ void debug_render()
 	{
 		render({0,0});
 	}
-	void debugText::giveEvent(Vector2 parrentPosition, SDL_Event event) //shouldn't ever be ran; look into finding ways to avoid implementing this
-	{
-	}
-
-
-
-
-
-	class debugButton : public debugUIElement
-	{
-		public:
-			debugButton(SDL_Renderer* myRenderer, Vector2 position, Vector2 size, std::string text);
-			void render(Vector2 parrentPosition);
-			void render();
-			void giveEvent(Vector2 parrentPosition, SDL_Event event);
-			std::function< void () > C_Pressed; //Callback  
-
-
-			Vector2 position;
-			SDL_Rect positionAndSize;
-			bool pressed = false;
-		private:
-			debugText* myText;
-			SDL_Renderer* myRenderer;
-	};
-	debugButton::debugButton(SDL_Renderer* myRenderer, Vector2 position, Vector2 size, std::string text)
-	{
-		myText = new debugText(myRenderer,position,text);
-		this->myRenderer = myRenderer;
-		this->position = position;
-		positionAndSize.x = position.x;
-		positionAndSize.y = position.y;
-		positionAndSize.w = size.x;
-		positionAndSize.h = size.y;
-		this->wantsEvents = true;
-	}
-	void debugButton::render(Vector2 parrentPosition)
-	{
-		SDL_Rect translatedRect = positionAndSize;
-		translatedRect.x += parrentPosition.x;
-		translatedRect.y += parrentPosition.y;
-
-		if (pressed)
-		{
-			SDL_SetRenderDrawColor( myRenderer, 0x00, 0x00, 0x00, 0x00 );
-		}
-		else
-		{
-			SDL_SetRenderDrawColor( myRenderer, 0xFF, 0x00, 0x00, 0xFF ); 
-		}
-		SDL_RenderFillRect( myRenderer, &translatedRect ); 
-		myText->render(parrentPosition);
-	}
-	void debugButton::render()
-	{
-		render({0,0});
-	}
-	void debugButton::giveEvent(Vector2 parrentPosition, SDL_Event event)
-	{
-		Vector2 actualPosition = position;
-		actualPosition.x += parrentPosition.x;
-		actualPosition.y += parrentPosition.y;
-
-		if (event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_MOUSEBUTTONUP)
-		{
-			if (event.button.button == SDL_BUTTON_LEFT)
-			{
-				
-				int x,y;
-				SDL_GetMouseState(&x,&y);
-				//std::cout << "x: " << x << " y: << " << y << " b: "<<actualPosition.x+positionAndSize.w << std::endl;
-				if (actualPosition.x <= x && actualPosition.y <= y && actualPosition.x+positionAndSize.w >= x && actualPosition.y+positionAndSize.h >= y)
-				{
-					std::cout << "BINGO" << std::endl;
-					if (event.type == SDL_MOUSEBUTTONDOWN)
-					{
-						pressed = true;
-					}
-					else
-					{
-						if ( C_Pressed)
-						{
-							C_Pressed();
-						}
-						pressed = false;
-					}
-					
-				}
-				else if (event.type == SDL_MOUSEBUTTONUP)
-				{
-					pressed = false;
-				}
-			}
-		}		
-	}
-
-
-
 
 		
 
@@ -547,43 +450,23 @@ void debug_render()
 	class debugWindow
 	{
 		public:
-			debugWindow(SDL_Renderer* myRenderer, Vector2 position, Vector2 size);
+			debugWindow(SDL_Rect positionAndSize);
 			void render();
 			int addElement(debugUIElement* element);
 			debugUIElement* getElement(int elementID);
-			void giveEvent(SDL_Event event);
-			bool isOpen = false;
 
 			Vector2 position;
 			SDL_Rect positionAndSize;
-			
 		private:
 			debugUIElement* elements[256];
 			int nextUIElement = 0;
-			SDL_Renderer* myRenderer;
-			debugButton* xbutton;
-			debugButton* dbutton;
 			
 	};
-	debugWindow::debugWindow(SDL_Renderer* myRenderer,Vector2 position, Vector2 size)
+	debugWindow::debugWindow(SDL_Rect positionAndSize)
 	{
-		this->position = position;
-		this->positionAndSize.x = position.x;
-		this->positionAndSize.y = position.y;
-		this->positionAndSize.w = size.x;
-		this->positionAndSize.h = size.y;
-		this->myRenderer = myRenderer;
-		//add x button
-		xbutton = new debugButton(myRenderer, {size.x-25,0},{25,25},"X");
-
-		auto closeCallback = [&] () { isOpen = false; };
-		xbutton->C_Pressed = closeCallback;
-
-		addElement(xbutton);
-
-		//add drag button
-		dbutton = new debugButton(myRenderer, {0,0},{25,25},"D");
-		addElement(dbutton);
+		this->position.x = positionAndSize.x;
+		this->position.y = positionAndSize.y;
+		this->positionAndSize = positionAndSize
 	}
 	int debugWindow::addElement(debugUIElement* element)
 	{
@@ -597,32 +480,12 @@ void debug_render()
 	}
 	void debugWindow::render()
 	{
-		SDL_SetRenderDrawColor( myRenderer, 0xFF, 0xFF, 0xFF, 0xFF ); 
+		SDL_SetRenderDrawColor( myRenderer, 0xFF, 0x00, 0x00, 0xFF ); 
 		SDL_RenderFillRect( myRenderer, &positionAndSize ); 
-		for (int i=0;i<nextUIElement;i++)
+		for (int i;i<nextUIElement-1;i++)
 		{
 			elements[i]->render(position);
 		}
-	}
-	void debugWindow::giveEvent(SDL_Event event)
-	{
-		for (int i=0;i<nextUIElement;i++)
-		{
-			if (elements[i]->wantsEvents)
-			{
-				elements[i]->giveEvent(position,event);
-			}
-		}
-		if (dbutton->pressed) //improper use of buttons but whatever, it's a debug system
-		{
-			int x,y;
-			SDL_GetMouseState(&x,&y);
-			position.x = x;
-			position.y = y;
-			positionAndSize.x = x;
-			positionAndSize.y = y;
-		}
-
 	}
 
 		
@@ -693,42 +556,22 @@ int main()
 	physicsObjects[numPhysicsObjs] = new RenderedPhysicsObject(myRenderer,otherSprite,&camera,{200,200});	
 	physicsObjects[numPhysicsObjs]->myPhysicsObject->setVelocity({0,1});
 
-
+	debugText* texttest = new debugText(myRenderer,{25,25},"texttext");
 	
 	
-	bool keysHeld[323] = {false}; 
+	bool keysHeld[323] = {false};
 	bool isDebugRender = false;
-	#ifdef debug
-		debugText* texttest = new debugText(myRenderer,{25,25},"texttext");
-		debugButton* testbutton = new debugButton(myRenderer,{50,50},{100,25},"texttext");
-		debugWindow* interface1_menu = new debugWindow(myRenderer,{100,100},{320,240});
-		interface1_menu->addElement(texttest);
-		interface1_menu->addElement(testbutton);
-	#endif
 	while (true)
 	{
 		if(SDL_PollEvent(&event))
 		{
 			if (event.type == SDL_KEYDOWN)
 			{
-				if (event.key.keysym.sym <= 323)
-				{
-					keysHeld[event.key.keysym.sym] = true;
-				}
-				#ifdef debug
-					std::cout << event.key.keysym.sym << std::endl;
-					if (event.key.keysym.sym == SDLK_SCROLLLOCK)
-					{
-						interface1_menu->isOpen = true;
-					}
-				#endif
+				keysHeld[event.key.keysym.sym] = true;
 			}
 			if (event.type == SDL_KEYUP)
 			{
-				if (event.key.keysym.sym <= 323)
-				{
-					keysHeld[event.key.keysym.sym] = false;
-				}
+				keysHeld[event.key.keysym.sym] = false;
 			}
 		}
 		if(keysHeld[SDLK_w])
@@ -782,18 +625,11 @@ int main()
 		bg->blit({0,0},{0,0});
 		
 		render();
-		#ifdef debug
-				interface1_menu->giveEvent(event);
-				if(isDebugRender) //ineffecient but who the fuck cares, it's a goddamn debug render.
-				{
-					debug_render();
-				}
-				if (interface1_menu->isOpen)
-				{
-					interface1_menu->render();
-				}
-		#endif
-					
+		if(isDebugRender) //ineffecient but who the fuck cares, it's a goddamn debug render.
+		{
+			debug_render();
+		}
+		texttest->render();
 		SDL_RenderPresent(myRenderer);
 		SDL_Delay(16);
 	}
