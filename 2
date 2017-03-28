@@ -43,16 +43,6 @@ struct Vector2r
 	double x;
 	double y;
 	double r;
-	void addRelativeVelocity(double inx, double iny)
-	{
-		double sin_rotation = sin(r);
-		double cos_rotation = cos(r);
-		double new_x = (inx*cos_rotation)-(iny*sin_rotation);
-		double new_y = (inx*sin_rotation)+(iny*cos_rotation);
-		x += new_x;
-		y += new_y;
-	}
-		
 };
 struct GridInfo //info for the inaccurate physics pre-calculation
 {
@@ -65,13 +55,14 @@ struct GridInfo //info for the inaccurate physics pre-calculation
 Vector2r Vector2ToVector2r(Vector2 convert)
 {
 	Vector2r newV;
-	newV.x = convert.x;
-	newV.y = convert.y;
+	//Vector2r.x = convert.x;
+	//Vector2r.y = convert.y;
 	
 	return newV;
 }
 
 int sGrid[2000][2000]; //TODO: Dynamically sized arrays for both of these
+int dbGrid[2000][2000]; //TODO: Remove this!
 
 int collisionSpots[2000][1]; 
 int nextCollisionSpot = 0;
@@ -87,7 +78,6 @@ class PhysicsObject
 		void setPosition(Vector2r newPosition);
 		void setVelocity(Vector2r newVelocity);
 		void addVelocity(Vector2r moreVelocity);
-		void addRelativeVelocity(Vector2r moreVelocity);
 
 		void setShape(Vector2 shape);
 
@@ -154,15 +144,6 @@ void PhysicsObject::addVelocity(Vector2r moreVelocity)
 	newVelocity.r = velocity.r+moreVelocity.r;
 	setNewVelocity = true;
 }
-#define TEN_DIVIDED_BY_NINE 1.1111111111111111
-void PhysicsObject::addRelativeVelocity(Vector2r moreVelocity)
-{
-	/*newVelocity.y = velocity.x+(moreVelocity.y*(((100-(position.r*TEN_DIVIDED_BY_NINE)))/100));
-	newVelocity.x = velocity.y+(moreVelocity.y*(((position.r*TEN_DIVIDED_BY_NINE))/100));*/
-	newVelocity.r = velocity.r+moreVelocity.r;
-	newVelocity.addRelativeVelocity(moreVelocity.x,moreVelocity.y);
-	setNewVelocity = true;
-}
 Vector2r PhysicsObject::getVelocity()
 {
 	return velocity;
@@ -212,7 +193,6 @@ void PhysicsObject::tickMyPhysics() //the fun part
 
 	position.x += velocity.x;
 	position.y += velocity.y;
-	position.r += velocity.r;
 	//TODO multiple grids, but right now we can't have you go <0 (or 2000< but that'll be fixed too and doesnt happen as much)
 	if (position.x < 0)
 	{
@@ -425,12 +405,12 @@ void debug_render()
 			if ((i+camerax < 0) || (o+cameray < 0)) {} else {
 				if ( sGrid[i+camerax][o+cameray] != 0)
 				{
-					somethingHere->blit({i*10,o*10,0},{0,0});
+					somethingHere->blit({i*10,o*10},{0,0});
 					//std::cout << "nothingHere; ";`
 				} 
 				else 
 				{
-					nothingHere->blit({i*10,o*10,0},{0,0});
+					nothingHere->blit({i*10,o*10},{0,0});
 					//std::cout << "somethingHere; ";
 				}
 			}
@@ -465,7 +445,6 @@ void debug_render()
 			void render(Vector2 parrentPosition);
 			void render();
 			void setText(const char* text);
-			void setText(std::string text);
 			void giveEvent(Vector2 parrentPosition, SDL_Event event);
 		//	bool wantsEvents;
 
@@ -487,10 +466,6 @@ void debug_render()
 		SDL_FreeSurface(surfaceMessage);
 
 
-	}
-	void debugText::setText(std::string text)
-	{
-		setText(text.c_str());
 	}	
 	debugText::debugText(SDL_Renderer* renderer, Vector2 position, std::string text)
 	{
@@ -570,7 +545,6 @@ void debug_render()
 	}
 	void debugButton::giveEvent(Vector2 parrentPosition, SDL_Event event)
 	{
-		
 		Vector2 actualPosition = position;
 		actualPosition.x += parrentPosition.x;
 		actualPosition.y += parrentPosition.y;
@@ -590,7 +564,7 @@ void debug_render()
 					{
 						pressed = true;
 					}
-					else if (pressed)
+					else
 					{
 						if ( C_Pressed)
 						{
@@ -678,10 +652,6 @@ void debug_render()
 	}
 	void debugWindow::giveEvent(SDL_Event event)
 	{
-		if (!isOpen)
-		{
-			return;
-		}
 		for (int i=0;i<nextUIElement;i++)
 		{
 			if (elements[i]->wantsEvents)
@@ -719,7 +689,7 @@ int main()
 {
 	if (TTF_Init() < 0) 
 	{
-		//TODO: Handle error...
+	// Handle error...
 		std::cout << "!!!TFT_Init Error!" << std::endl;
 	}
 	for (int i = 0; i < 200; i++)
@@ -727,9 +697,13 @@ int main()
 		for( int o = 0; o < 200; o++)
 		{
 			sGrid[i][o] = 0;
+			dbGrid[i][o] = 0;
 		}
 	}
 	physicsObjects[0] = NULL;
+
+
+	sGrid[10][10] = 1; //TODO: Remove this!
 
 	SDL_Window* myWindow;
 	SDL_Event event;
@@ -771,17 +745,11 @@ int main()
 	bool keysHeld[323] = {false}; 
 	bool isDebugRender = false;
 	#ifdef debug
-		debugWindow* interface1_menu = new debugWindow(myRenderer,{100,100},{320,240});
-
 		debugText* texttest = new debugText(myRenderer,{25,25},"texttext");
+		debugButton* testbutton = new debugButton(myRenderer,{50,50},{100,25},"texttext");
+		debugWindow* interface1_menu = new debugWindow(myRenderer,{100,100},{320,240});
 		interface1_menu->addElement(texttest);
-
-		debugButton* cubeRenderButton = new debugButton(myRenderer,{0,50},{100,50},"cubeRenderer");
-
-		auto callback = [&] () { isDebugRender = !isDebugRender; };
-		cubeRenderButton->C_Pressed = callback;
-		interface1_menu->addElement(cubeRenderButton);
-
+		interface1_menu->addElement(testbutton);
 	#endif
 	while (true)
 	{
@@ -811,7 +779,7 @@ int main()
 		}
 		if(keysHeld[SDLK_w])
 		{
-			physicsObjects[camFocusedObj]->myPhysicsObject->addRelativeVelocity({0,-0.5});
+			physicsObjects[camFocusedObj]->myPhysicsObject->addVelocity({0,-0.5});
 		}
 		if(keysHeld[SDLK_s])
 		{
@@ -825,14 +793,6 @@ int main()
 		{
 			physicsObjects[camFocusedObj]->myPhysicsObject->addVelocity({-0.5,0});
 		}
-		if(keysHeld[SDLK_q])
-		{
-			physicsObjects[camFocusedObj]->myPhysicsObject->addVelocity({0,0,-1});
-		}
-		if(keysHeld[SDLK_e])
-		{
-			physicsObjects[camFocusedObj]->myPhysicsObject->addVelocity({0,0,1});
-		}
 		if(keysHeld[SDLK_1])
 		{
 			camFocusedObj=2;
@@ -841,14 +801,14 @@ int main()
 		{
 			camFocusedObj=1;
 		}
-		if(keysHeld[SDLK_z])
+		if(keysHeld[SDLK_q])
 		{
 			std::cout <<"velx: " << physicsObjects[camFocusedObj]->myPhysicsObject->velocity.x << std::endl;
 			std::cout <<"vely: " << physicsObjects[camFocusedObj]->myPhysicsObject->velocity.y << std::endl;
 			std::cout <<"posx: " << physicsObjects[camFocusedObj]->myPhysicsObject->position.x << std::endl;
 			std::cout <<"posy: " << physicsObjects[camFocusedObj]->myPhysicsObject->position.y << std::endl;
 		}
-		if(keysHeld[SDLK_t])
+		if(keysHeld[SDLK_e])
 		{
 			isDebugRender = true;
 		}
@@ -856,11 +816,6 @@ int main()
 		{
 			isDebugRender = false;
 		}
-		if (keysHeld[SDLK_f])
-		{
-			physicsObjects[camFocusedObj]->myPhysicsObject->setVelocity({0,0,0});
-		}
-			
 		
 
 						
@@ -870,11 +825,10 @@ int main()
 
 
 
-		bg->blit({0,0,0},{0,0});
+		bg->blit({0,0},{0,0});
 		
 		render();
 		#ifdef debug
-				texttest->setText(std::to_string(physicsObjects[camFocusedObj]->myPhysicsObject->position.r).c_str());
 				interface1_menu->giveEvent(event);
 				if(isDebugRender) //ineffecient but who the fuck cares, it's a goddamn debug render.
 				{
