@@ -394,22 +394,13 @@ void RenderedPhysicsObject::tickMyPhysics()
 }
 void RenderedPhysicsObject::render()
 {
-	Vector2r position = myPhysicsObject->getPosition();
-	Vector2r cammed_position = position; 
+	Vector2r cammed_position = myPhysicsObject->getPosition();
 	cammed_position.x -= camera->x;
 	cammed_position.y -= camera->y;
 	cammed_position.r -= camera->r;
 
-	std::cout << "1| " << camera->x << std::endl;
-	std::cout << "2| " << camera->y << std::endl;
+	cammed_position.x = distance(camera->x,camera->y,cammed_position.x,cammed_position.y)*std::cos(cammed_position.x);
 
-	double dist = distance(camera->x*-1,camera->y*-1,position.x,position.y);
-
-	std::cout << "dist" << dist << std::endl;
-
-	cammed_position.x = dist*(std::sin(asin(position.x-camera->x)/dist));
-
-	std::cout << "abc" << (double) asin((position.x+camera->x)) << std::endl;
 	
 	sprite->blit(cammed_position,{0,0});
 }
@@ -794,9 +785,9 @@ int main()
 	numPhysicsObjs++;
 	physicsObjects[numPhysicsObjs] = new RenderedPhysicsObject(myRenderer,mySprite,&camera,{200,200,0});	
 
-	/*numPhysicsObjs++;
+	numPhysicsObjs++;
 	physicsObjects[numPhysicsObjs] = new RenderedPhysicsObject(myRenderer,otherSprite,&camera,{200,200,0});	
-	physicsObjects[numPhysicsObjs]->myPhysicsObject->setVelocity({0,1});*/
+	physicsObjects[numPhysicsObjs]->myPhysicsObject->setVelocity({0,1});
 
 
 	
