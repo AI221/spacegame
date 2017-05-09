@@ -28,10 +28,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //Definitions
 #define MAX_PHYSICS_OBJECTS 256000000 //maximum ammount of physics objects in the game
 
+#define DEG_TO_RAD 57.2958
+
 #define debug true //wheather debug draws, menus, etc. is included. 
 
 
 
+
+/*LONG-TERM TODO
+
+*Lagged camera? 
+
+*/
 
 struct Vector2
 {
@@ -45,8 +53,8 @@ struct Vector2r
 	double r;
 	void addRelativeVelocity(double inx, double iny,double posr)
 	{
-		double sin_rotation = std::sin(posr/180); //posr must be used because this vector is a velocity vector, not a position vector
-		double cos_rotation = std::cos(posr/180);
+		double sin_rotation = std::sin(posr/90); //posr must be used because this vector is a velocity vector, not a position vector
+		double cos_rotation = std::cos(posr/90);
 		double new_x = (inx*cos_rotation)-(iny*sin_rotation);
 		double new_y = (inx*sin_rotation)+(iny*cos_rotation);
 		std::cout << "r " << posr << std::endl;
@@ -396,6 +404,7 @@ void RenderedPhysicsObject::render()
 {
 	Vector2r position = myPhysicsObject->getPosition();
 	Vector2r cammed_position = position; 
+	
 	cammed_position.x -= camera->x;
 	cammed_position.y -= camera->y;
 	cammed_position.r -= camera->r;
@@ -407,9 +416,32 @@ void RenderedPhysicsObject::render()
 
 	std::cout << "dist" << dist << std::endl;
 
-	cammed_position.x = dist*(std::sin(asin(position.x-camera->x)/dist));
+//	std::co
+
+	std::cout << "2 "<<(camera->x) << std::endl;
+	std::cout << "1 "<<(camera->y) << std::endl;
+
+	double angle = (atan(abs(position.y-camera->x)/abs(position.x-camera->y)))*DEG_TO_RAD;
+	std::cout << "angle" << angle << std::endl;
 
 	std::cout << "abc" << (double) asin((position.x+camera->x)) << std::endl;
+
+	double sin_angle = sin((camera->r/DEG_TO_RAD));
+	double cos_angle = cos((camera->r/DEG_TO_RAD));
+
+	cammed_position.x = (position.x-camera->x-320)*cos_angle - (position.y-camera->y-290)*sin_angle;
+	cammed_position.y = (position.x-camera->x-320)*sin_angle + (position.y-camera->y-290)*cos_angle;
+
+	cammed_position.x += 320;
+	cammed_position.y += 290;
+
+/*	cammed_position.x -= camera->x-320;
+cammed_position.y -= camera->y-290;*/
+
+
+
+
+	
 	
 	sprite->blit(cammed_position,{0,0});
 }
