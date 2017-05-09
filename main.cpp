@@ -37,7 +37,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /*LONG-TERM TODO
 
-*Lagged camera? 
+*Lagged camera? ("chasecam") 
+*Standard implementation for rotation matrix instead of spamming it everywhere?
+
+*Possible "engine demo game" would be an asteroid field with constant collisions. Would demo the effeciency of the physics engine very well.
+
 
 */
 
@@ -53,15 +57,15 @@ struct Vector2r
 	double r;
 	void addRelativeVelocity(double inx, double iny,double posr)
 	{
-		double sin_rotation = std::sin(posr/90); //posr must be used because this vector is a velocity vector, not a position vector
-		double cos_rotation = std::cos(posr/90);
+		double sin_rotation = std::sin(posr/DEG_TO_RAD); //posr must be used because this vector is a velocity vector, not a position vector
+		double cos_rotation = std::cos(posr/DEG_TO_RAD);
 		double new_x = (inx*cos_rotation)-(iny*sin_rotation);
 		double new_y = (inx*sin_rotation)+(iny*cos_rotation);
-		std::cout << "r " << posr << std::endl;
+		/*std::cout << "r " << posr << std::endl;
 		std::cout << "cin " << sin_rotation << std::endl;
 		std::cout << "cos " << cos_rotation << std::endl;
 		std::cout << "new_x " << new_x << std::endl;
-		std::cout << "new_y " << new_y << std::endl;
+		std::cout << "new_y " << new_y << std::endl;*/
 		x += new_x;
 		y += new_y;
 	}
@@ -213,7 +217,7 @@ void PhysicsObject::tickMyPhysics() //the fun part
 			}
 			else if (sGrid[posx][posy] != 0)
 			{
-				std::cout << "osht we gots collision im: " << myNumber << " its: " << sGrid[posx][posy] << " differenciation: " << rand() << std::endl;
+				//std::cout << "osht we gots collision im: " << myNumber << " its: " << sGrid[posx][posy] << " differenciation: " << rand() << std::endl;
 			}
 		}
 	}
@@ -407,7 +411,7 @@ void RenderedPhysicsObject::render()
 	
 	cammed_position.x -= camera->x;
 	cammed_position.y -= camera->y;
-	cammed_position.r -= camera->r;
+	//cammed_position.r -= camera->r;
 
 	std::cout << "1| " << camera->x << std::endl;
 	std::cout << "2| " << camera->y << std::endl;
@@ -421,11 +425,13 @@ void RenderedPhysicsObject::render()
 	std::cout << "2 "<<(camera->x) << std::endl;
 	std::cout << "1 "<<(camera->y) << std::endl;
 
-	double angle = (atan(abs(position.y-camera->x)/abs(position.x-camera->y)))*DEG_TO_RAD;
+	double angle = (atan(abs(position.y-camera->x-320)/abs(position.x-camera->y-290)))*DEG_TO_RAD;
+	cammed_position.r = angle;
+
 	std::cout << "angle" << angle << std::endl;
 
 	std::cout << "abc" << (double) asin((position.x+camera->x)) << std::endl;
-
+	
 	double sin_angle = sin((camera->r/DEG_TO_RAD));
 	double cos_angle = cos((camera->r/DEG_TO_RAD));
 
@@ -450,7 +456,7 @@ cammed_position.y -= camera->y-290;*/
 SDL_Renderer* myRenderer;
 
 
-RenderedPhysicsObject* physicsObjects[100] = {}; //TODO dimensions and what not
+RenderedPhysicsObject* physicsObjects[1000] = {}; //TODO dimensions and what not
 int numPhysicsObjs = 1; //Starts at 1 because sGrid uses 0 for 'nothing here'
 
 Vector2r camera;
@@ -826,9 +832,9 @@ int main()
 	numPhysicsObjs++;
 	physicsObjects[numPhysicsObjs] = new RenderedPhysicsObject(myRenderer,mySprite,&camera,{200,200,0});	
 
-	/*numPhysicsObjs++;
+	numPhysicsObjs++;
 	physicsObjects[numPhysicsObjs] = new RenderedPhysicsObject(myRenderer,otherSprite,&camera,{200,200,0});	
-	physicsObjects[numPhysicsObjs]->myPhysicsObject->setVelocity({0,1});*/
+	physicsObjects[numPhysicsObjs]->myPhysicsObject->setVelocity({0,1});
 
 
 	
@@ -845,7 +851,22 @@ int main()
 
 		auto callback = [&] () { isDebugRender = !isDebugRender; };
 		cubeRenderButton->C_Pressed = callback;
-		interface1_menu->addElement(cubeRenderButton);
+		interface1_menu->addElement(cubeRenderButton);	
+		
+		debugButton* spawnButton = new debugButton(myRenderer,{175,50},{100,50},"spawn phys. obj.");
+
+		auto callback2 = [&] () { 
+			Vector2r pos = physicsObjects[camFocusedObj]->myPhysicsObject->getPosition();
+			for (int i=0;i < 20;i++)
+			{
+				numPhysicsObjs++;
+				physicsObjects[numPhysicsObjs] = new RenderedPhysicsObject(myRenderer,otherSprite,&camera,{pos.x,pos.y,0});	
+				physicsObjects[numPhysicsObjs]->myPhysicsObject->setVelocity({(double)(rand() % 101)/100,(double)(rand() % 11)/10}); //random between 0-1 w/ 2 decimals
+			}
+		};
+		spawnButton->C_Pressed = callback2;
+		interface1_menu->addElement(spawnButton);
+
 
 	#endif
 	while (true)
@@ -924,6 +945,10 @@ int main()
 		if (keysHeld[SDLK_f])
 		{
 			physicsObjects[camFocusedObj]->myPhysicsObject->setVelocity({0,0,0});
+		}
+		if (keysHeld[SDLK_ESCAPE])
+		{
+			break;
 		}
 			
 		
