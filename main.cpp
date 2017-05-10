@@ -177,7 +177,7 @@ void PhysicsObject::addVelocity(Vector2r moreVelocity)
 {
 	newVelocity.x = velocity.x+moreVelocity.x;
 	newVelocity.y = velocity.y+moreVelocity.y;
-	newVelocity.r = velocity.r+moreVelocity.r;
+	newVelocity.r = velocity.r-moreVelocity.r;
 	setNewVelocity = true;
 }
 #define TEN_DIVIDED_BY_NINE 1.1111111111111111
@@ -185,7 +185,7 @@ void PhysicsObject::addRelativeVelocity(Vector2r moreVelocity)
 {
 	/*newVelocity.y = velocity.x+(moreVelocity.y*(((100-(position.r*TEN_DIVIDED_BY_NINE)))/100));
 	newVelocity.x = velocity.y+(moreVelocity.y*(((position.r*TEN_DIVIDED_BY_NINE))/100));*/
-	newVelocity.r = velocity.r+moreVelocity.r;
+	newVelocity.r = velocity.r-moreVelocity.r;
 	newVelocity.addRelativeVelocity(moreVelocity.x,moreVelocity.y,this->position.r);
 	setNewVelocity = true;
 }
@@ -865,7 +865,7 @@ int main()
 			{
 				numPhysicsObjs++;
 				physicsObjects[numPhysicsObjs] = new RenderedPhysicsObject(myRenderer,otherSprite,&camera,{pos.x,pos.y,0});	
-				physicsObjects[numPhysicsObjs]->myPhysicsObject->setVelocity({(double)(rand() % 101)/100,(double)(rand() % 11)/10}); //random between 0-1 w/ 2 decimals
+				physicsObjects[numPhysicsObjs]->myPhysicsObject->setVelocity({(double)(rand() % 101)/100,(double)(rand() % 101)/100}); //random between 0-1 w/ 2 decimals
 			}
 		};
 		spawnButton->C_Pressed = callback2;
