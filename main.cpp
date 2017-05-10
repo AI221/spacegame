@@ -57,10 +57,10 @@ struct Vector2r
 	double r;
 	void addRelativeVelocity(double inx, double iny,double posr)
 	{
-		double sin_rotation = std::sin(posr/DEG_TO_RAD); //posr must be used because this vector is a velocity vector, not a position vector
-		double cos_rotation = std::cos(posr/DEG_TO_RAD);
-		double new_x = (inx*cos_rotation)-(iny*sin_rotation);
-		double new_y = (inx*sin_rotation)+(iny*cos_rotation);
+		double sin_rotation = sin(posr/DEG_TO_RAD); //posr must be used because this vector is a velocity vector, not a position vector
+		double cos_rotation = cos(posr/DEG_TO_RAD);
+		double new_x = (inx*cos_rotation)+(iny*sin_rotation);
+		double new_y = -(inx*sin_rotation)+(iny*cos_rotation);
 		/*std::cout << "r " << posr << std::endl;
 		std::cout << "cin " << sin_rotation << std::endl;
 		std::cout << "cos " << cos_rotation << std::endl;
@@ -425,10 +425,9 @@ void RenderedPhysicsObject::render()
 	std::cout << "2 "<<(camera->x) << std::endl;
 	std::cout << "1 "<<(camera->y) << std::endl;
 
-	double angle = (atan(abs(position.y-camera->x-320)/abs(position.x-camera->y-290)))*DEG_TO_RAD;
-	cammed_position.r = angle;
+	/*double angle = (atan(abs(position.y-camera->x-320)/abs(position.x-camera->y-290)))*DEG_TO_RAD;
 
-	std::cout << "angle" << angle << std::endl;
+	std::cout << "angle" << angle << std::endl;*/
 
 	std::cout << "abc" << (double) asin((position.x+camera->x)) << std::endl;
 	
@@ -440,10 +439,15 @@ void RenderedPhysicsObject::render()
 
 	cammed_position.x += 320;
 	cammed_position.y += 290;
+	cammed_position.r = (camera->r-360)-position.r;
+	/*if (cammed_position.r <0) {
+		cammed_position.r *= -1;
+	}*/
 
 /*	cammed_position.x -= camera->x-320;
 cammed_position.y -= camera->y-290;*/
 
+	cammed_position.r -= floor(cammed_position.r/360)*360;
 
 
 
@@ -881,7 +885,7 @@ int main()
 				}
 				#ifdef debug
 					std::cout << event.key.keysym.sym << std::endl;
-					if (event.key.keysym.sym == SDLK_SCROLLLOCK)
+					if (event.key.keysym.sym == SDLK_INSERT) //SDLK_SCROLLLOCK
 					{
 						interface1_menu->isOpen = true;
 					}
