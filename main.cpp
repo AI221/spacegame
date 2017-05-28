@@ -16,6 +16,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
+
+
+
 #include<SDL2/SDL.h>
 #include<SDL2/SDL_ttf.h>
 #include <stdio.h>
@@ -28,7 +31,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "vector2.h"
 #include "debugUI.h"
 #include "sprite.h"
-#include "physics.h"
 
 
 
@@ -68,40 +70,213 @@ Vector2r Vector2ToVector2r(Vector2 convert)
 	return newV;
 }
 
+//TODO: Re-integrate into physics.h/cpp
+#define MAX_PHYSICS_OBJECTS 256000000 //maximum ammount of physics objects in the game
+struct GridInfo //info for the inaccurate physics pre-calculation
+{
+	int x;
+	int y;
+	int shapex;
+	int shapey; 
+};
 
+int sGrid[2000][2000]; //TODO: Dynamically sized arrays for both of these
 
+int collisionSpots[2000][1]; 
+int nextCollisionSpot = 0;
 
-
-
-
-
-
-
-class PositionedSprite //positioned sprites are more for interfaces
+class PhysicsObject
 {
 	public:
-		void blit(); 
-		void setPos(Vector2 position);
-		void setAnimation(Vector2 animation);
-		PositionedSprite(Vector2 position, Sprite* sprite);
+		Vector2r getPosition();
+		Vector2r getVelocity();
+		GridInfo getGridInfo();
+		PhysicsObject(Vector2r newPosition, Vector2 shape);
+
+		void setPosition(Vector2r newPosition);
+		void setVelocity(Vector2r newVelocity);
+		void addVelocity(Vector2r moreVelocity);
+		void addRelativeVelocity(Vector2r moreVelocity);
+
+		void setShape(Vector2 shape);
+
+		void tickMyPhysics(); //important: this should NOT have collision detection. that would result on instances where things would collide even though the object they collide with would've moved next tick
+		Vector2r position;
+		Vector2r velocity; 
+
 	private:
-		Vector2 position;
-		Vector2 animation;
-		Sprite* mySprite;
+
+		Vector2r newPosition;
+		bool setNewPosition = false;
+
+		Vector2r newVelocity;
+		bool setNewVelocity = false;
+
+		GridInfo grid;
+		Vector2 warpedShape;
+
+		int myNumber;
+
+
 };
-void PositionedSprite::setPos(Vector2 position)
+
+
+
+PhysicsObject* allPhysicsObjects[MAX_PHYSICS_OBJECTS];
+int nextPhysicsObject = 1; //TODO: Merge with the physicsObjects
+//probably will change this to a dynamically sized array later
+
+
+//Physics.cpp:
+
+PhysicsObject::PhysicsObject(Vector2r newPosition, Vector2 shape)
 {
-	this->position = position;
+	allPhysicsObjects[nextPhysicsObject] = this;
+	myNumber = nextPhysicsObject;
+	nextPhysicsObject++;
+
+	position.x = newPosition.x;
+	position.y = newPosition.y;
+	velocity = {0,0};
+	grid = {0,0,0,0};
+	warpedShape = {0,0};
+
+	
+
+	//setPosition(newPosition); //commented this out b/c it waits till next physics tick to update position
+	
+	setShape(shape);
 }
-void PositionedSprite::blit()
+void PhysicsObject::setPosition(Vector2r newPosition)
 {
-	mySprite->blit(position,animation);
+	this->newPosition = newPosition;
+	setNewPosition = true;
 }
-PositionedSprite::PositionedSprite(Vector2 position, Sprite* sprite)
+void PhysicsObject::setVelocity(Vector2r newVelocity)
 {
-	this->position = position;
-	mySprite = sprite;
+	this->newVelocity = newVelocity;
+	setNewVelocity = true;
 }
+void PhysicsObject::addVelocity(Vector2r moreVelocity)
+{
+	newVelocity.x = velocity.x+moreVelocity.x;
+	newVelocity.y = velocity.y+moreVelocity.y;
+	newVelocity.r = velocity.r-moreVelocity.r;
+	setNewVelocity = true;
+}
+void PhysicsObject::addRelativeVelocity(Vector2r moreVelocity)
+{
+	newVelocity.r = velocity.r-moreVelocity.r;
+	newVelocity.addRelativeVelocity(moreVelocity.x,moreVelocity.y,this->position.r);
+	setNewVelocity = true;
+}
+Vector2r PhysicsObject::getVelocity()
+{
+	return velocity;
+}
+Vector2r PhysicsObject::getPosition()
+{
+	return position;
+}
+
+void PhysicsObject::setShape(Vector2 shape)
+{
+	grid.shapex = shape.x;
+	grid.shapey = shape.y;
+}
+void PhysicsObject::tickMyPhysics() //the fun part
+{
+	for (int x = 0; x < warpedShape.x; x++) 
+	{
+		for (int y = 0; y < warpedShape.y; y++) 
+		{
+			int posx = x+grid.x;
+			int posy = y+grid.y;
+			if (sGrid[posx][posy] == myNumber) //TODO: Check if necisary -- it might be okay to set other's grids to 0 because we'll detect collision and start an accurate simulation anyway
+			{
+				sGrid[posx][posy] = 0;
+			}
+			else if (sGrid[posx][posy] != 0)
+			{
+				//std::cout << "osht we gots collision im: " << myNumber << " its: " << sGrid[posx][posy] << " differenciation: " << rand() << std::endl;
+			}
+		}
+	}
+	//move ourselves forward
+	//TODO: keep track of the last position, or maybe not because it could be reverse by minusing our position by our speed maybe?
+	//first set velocity
+	
+	if (setNewVelocity) 
+	{
+		velocity = newVelocity;
+		setNewVelocity = false;
+	}
+	if (setNewPosition)
+	{
+		position = newPosition;
+		setNewPosition = false;
+	}
+
+	position.x += velocity.x;
+	position.y += velocity.y;
+	position.r += velocity.r;
+
+	//prevent rotation from being >360
+	position.r -= floor(position.r/360)*360;
+#include "physics.h"
+
+
+	//TODO multiple grids, but right now we can't have you go <0 (or 2000< but that'll be fixed too and doesnt happen as much)
+	if (position.x < 0)
+	{
+		position.x = 0;
+	}
+	if (position.y < 0)
+	{
+		position.y = 0;
+	}
+
+
+
+
+
+	grid.x = (int) position.x/10;
+	grid.y = (int) position.y/10;
+
+	//Calculate how the shape warps. The shape will stretch as you move faster to avoid clipping
+	warpedShape.x = ((abs(velocity.x)/10)+2)*(grid.shapex/10);
+	warpedShape.y = ((abs(velocity.y)/10)+2)*(grid.shapey/10);
+
+	for (int x = 0; x < warpedShape.x; x++) 
+	{
+		for (int y = 0; y < warpedShape.y; y++) 
+		{
+			int posx = x+grid.x;
+			int posy = y+grid.y;
+			if (sGrid[posx][posy] == 0) 
+			{
+				sGrid[posx][posy] = myNumber;
+			}
+			else
+			{
+				collisionSpots[nextCollisionSpot][0] = posx;
+				collisionSpots[nextCollisionSpot][1] = posy;
+				nextCollisionSpot++;
+			}
+		}
+	}
+
+
+
+
+
+}
+
+
+
+
+
+
 
 
 
@@ -185,7 +360,7 @@ cammed_position.y -= camera->y-290;*/
 
 	
 	
-	sprite->blit(cammed_position,{0,0});
+	GE_BlitSprite(sprite,cammed_position,{0,0});
 }
 
 
@@ -207,7 +382,7 @@ void render()
 	{
 		physicsObjects[i]->render();
 		//TODO: Physics tied to framerate. REEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
-		physicsObjects[i]->tickMyPhysics();
+		//physicsObjects[i]->tickMyPhysics();
 		//std::cout << "-------------------------------" << std::endl;
 	}
 }
@@ -218,7 +393,7 @@ Sprite* somethingHere;
 
 void debug_render()
 { //pulled from my prototype
-	somethingHere->blit({0,0,0},{10,10});
+	GE_BlitSprite(somethingHere,{0,0,0},{10,10});
 	camera = physicsObjects[camFocusedObj]->myPhysicsObject->getPosition();
 	camera.x -= 640/2;
 	camera.y -= 580/2;
@@ -232,12 +407,12 @@ void debug_render()
 			if ((i+camerax < 0) || (o+cameray < 0)) {} else {
 				if ( sGrid[i+camerax][o+cameray] != 0)
 				{
-					somethingHere->blit({i*10,o*10,0},{0,0});
+					GE_BlitSprite(somethingHere,{i*10,o*10,0},{0,0});
 					//std::cout << "nothingHere; ";`
 				} 
 				else 
 				{
-					nothingHere->blit({i*10,o*10,0},{0,0});
+					GE_BlitSprite(nothingHere,{i*10,o*10,0},{0,0});
 					//std::cout << "somethingHere; ";
 				}
 			}
@@ -278,16 +453,16 @@ int main()
 	myRenderer = SDL_CreateRenderer(myWindow, -1, SDL_RENDERER_ACCELERATED);
 
 	//debug bullshit
-	nothingHere = new Sprite(myRenderer,"DEBUG_nothingHere.bmp",{10,10});
-	somethingHere = new Sprite(myRenderer,"DEBUG_somethingHere.bmp",{10,10});
+	nothingHere = new Sprite{myRenderer,GE_PathToImg(myRenderer, "DEBUG_nothingHere.bmp"),10,10};
+	somethingHere = new Sprite{myRenderer,GE_PathToImg(myRenderer, "DEBUG_somethingHere.bmp"),10,10};
 	
-	Sprite* mySprite = new Sprite(myRenderer,"simple.bmp",{25,25});
+	Sprite* mySprite = new Sprite{myRenderer,GE_PathToImg(myRenderer, "simple.bmp"),25,25};
 
-	Sprite* otherSprite = new Sprite(myRenderer,"DEBUG_somethingHere.bmp",{25,25});
+	Sprite* otherSprite = new Sprite{myRenderer,GE_PathToImg(myRenderer, "DEBUG_somethingHere.bmp"),25,25};
 
-	Sprite* shoddySpaceship = new Sprite(myRenderer,"shottyspaceship.bmp",{25,25});
+	Sprite* shoddySpaceship = new Sprite{myRenderer,GE_PathToImg(myRenderer, "shottyspaceship.bmp"),25,25};
 
-	Sprite* bg = new Sprite(myRenderer,"DEBUG_nothingHere.bmp",{640,580});
+	Sprite* bg = new Sprite{myRenderer,GE_PathToImg(myRenderer, "DEBUG_nothingHere.bmp"),640,580};
 		
 	physicsObjects[numPhysicsObjs] = new RenderedPhysicsObject(myRenderer,shoddySpaceship,&camera,{50,50,0});	
 
@@ -422,7 +597,7 @@ int main()
 
 
 
-		bg->blit({0,0,0},{0,0});
+		GE_BlitSprite(bg,{0,0,0},{0,0});
 		
 		render();
 		#ifdef debug

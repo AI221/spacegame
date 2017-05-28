@@ -1,5 +1,16 @@
 #include "physics.h"
 
+//nextCollisionSpot = 0;
+/*nextPhysicsObject = 1; //TODO: Merge with the physicsObjects
+nextCollisionSpot = 0;
+
+collisionSpots[2000][1]; 
+sGrid[2000][2000]; //TODO: Dynamically sized arrays for both of these
+*/
+
+//sGrid = new int[2000][2000];
+//collisionSpots = new int[2000][1]; 
+
 PhysicsObject::PhysicsObject(Vector2r newPosition, Vector2 shape)
 {
 	allPhysicsObjects[nextPhysicsObject] = this;
@@ -141,5 +152,6 @@ void PhysicsObject::tickMyPhysics() //the fun part
 
 
 }
+
 
 

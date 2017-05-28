@@ -15,7 +15,6 @@ struct GridInfo //info for the inaccurate physics pre-calculation
 	int shapey; 
 };
 
-
 int sGrid[2000][2000]; //TODO: Dynamically sized arrays for both of these
 
 int collisionSpots[2000][1]; 
