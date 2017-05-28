@@ -80,6 +80,8 @@ struct GridInfo //info for the inaccurate physics pre-calculation
 	int shapey; 
 };
 
+
+
 int sGrid[2000][2000]; //TODO: Dynamically sized arrays for both of these
 
 int collisionSpots[2000][1]; 
@@ -127,7 +129,6 @@ int nextPhysicsObject = 1; //TODO: Merge with the physicsObjects
 //probably will change this to a dynamically sized array later
 
 
-//Physics.cpp:
 
 PhysicsObject::PhysicsObject(Vector2r newPosition, Vector2 shape)
 {
@@ -164,8 +165,11 @@ void PhysicsObject::addVelocity(Vector2r moreVelocity)
 	newVelocity.r = velocity.r-moreVelocity.r;
 	setNewVelocity = true;
 }
+#define TEN_DIVIDED_BY_NINE 1.1111111111111111
 void PhysicsObject::addRelativeVelocity(Vector2r moreVelocity)
 {
+	/*newVelocity.y = velocity.x+(moreVelocity.y*(((100-(position.r*TEN_DIVIDED_BY_NINE)))/100));
+	newVelocity.x = velocity.y+(moreVelocity.y*(((position.r*TEN_DIVIDED_BY_NINE))/100));*/
 	newVelocity.r = velocity.r-moreVelocity.r;
 	newVelocity.addRelativeVelocity(moreVelocity.x,moreVelocity.y,this->position.r);
 	setNewVelocity = true;
@@ -223,7 +227,6 @@ void PhysicsObject::tickMyPhysics() //the fun part
 
 	//prevent rotation from being >360
 	position.r -= floor(position.r/360)*360;
-#include "physics.h"
 
 
 	//TODO multiple grids, but right now we can't have you go <0 (or 2000< but that'll be fixed too and doesnt happen as much)
@@ -271,11 +274,6 @@ void PhysicsObject::tickMyPhysics() //the fun part
 
 
 }
-
-
-
-
-
 
 
 
@@ -382,7 +380,7 @@ void render()
 	{
 		physicsObjects[i]->render();
 		//TODO: Physics tied to framerate. REEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
-		//physicsObjects[i]->tickMyPhysics();
+		physicsObjects[i]->tickMyPhysics();
 		//std::cout << "-------------------------------" << std::endl;
 	}
 }
