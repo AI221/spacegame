@@ -12,6 +12,12 @@
 	myAnimation.h = size.y;
 	
 }*/
+Sprite* GE_CreateSprite(SDL_Renderer* renderer, std::string path, int w, int h)
+{
+	return new Sprite{renderer,GE_PathToImg(renderer,path),w,h};
+}
+
+
 void GE_BlitSprite(Sprite* sprite, Vector2r position,Vector2 animation)	
 {
 	GE_BlitSprite(sprite,{position.x,position.y},animation,position.r);
@@ -29,7 +35,7 @@ void GE_BlitSprite(Sprite* sprite, Vector2 position,Vector2 animation,double rot
 	renderAnimation.w = sprite->w;
 	renderAnimation.h = sprite->h;
 	
-	SDL_RenderCopyEx(sprite->renderer, sprite->texture, /*&renderAnimation,*/NULL, &renderPosition,rotation,NULL,SDL_FLIP_NONE);
+	SDL_RenderCopyEx(sprite->renderer, sprite->texture, &renderAnimation, &renderPosition,rotation,NULL,SDL_FLIP_NONE);
 }
 
 void GE_FreeSprite(Sprite* sprite) //sprite MUST be allocated with new. 

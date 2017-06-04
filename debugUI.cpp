@@ -1,4 +1,3 @@
-
 #include "debugUI.h"
 	/* Debug code should be as isolated as possible except when pulling values from things. It should use its own UI library that shouldn't ever see updates unless really necessary */
 void debugText::setText(const char* text)

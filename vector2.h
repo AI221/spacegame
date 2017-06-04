@@ -3,12 +3,12 @@
 #ifndef __VECTOR2_INCLUDED
 #define __VECTOR2_INCLUDED
 #define DEG_TO_RAD 57.2958
-struct Vector2
+typedef struct Vector2
 {
 	double x;
 	double y;
 };
-struct Vector2r
+typedef struct Vector2r
 {
 	double x;
 	double y;
@@ -26,6 +26,14 @@ struct Vector2r
 		std::cout << "new_y " << new_y << std::endl;*/
 		x += new_x;
 		y += new_y;
+	}
+	Vector2r operator+(Vector2r other)
+	{
+		Vector2r newVector = {this->x+other.x,this->y+other.y,this->r+other.r};
+		//prevent rotation from being >360
+		newVector.r -= floor(newVector.r/360)*360;
+
+		return newVector;
 	}
 		
 };
