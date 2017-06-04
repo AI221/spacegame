@@ -148,6 +148,7 @@ void render()
 	{
 		GE_BlitRenderedPhysicsObject(physicsObjects[i]);
 	}
+	GE_TickPhysics();
 }
 
 

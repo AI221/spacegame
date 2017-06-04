@@ -35,6 +35,10 @@ typedef struct Vector2r
 
 		return newVector;
 	}
+	Vector2r operator+=(Vector2r other)
+	{
+		return operator+(other);
+	}
 		
 };
 

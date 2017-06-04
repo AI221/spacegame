@@ -1,26 +1,25 @@
-#include "physics.h"
+#include "physics.h" 
+int sGrid[2000][2000]; //TODO: Dynamically sized arrays for both of these
+int collisionSpots[2000][1]; 
+int nextCollisionSpot = 0;
+PhysicsObject* allPhysicsObjects[MAX_PHYSICS_OBJECTS];
+int nextPhysicsObject = 0; 
+bool deadPhysicsObjects[MAX_PHYSICS_OBJECTS];
 
-//nextCollisionSpot = 0;
-/*nextPhysicsObject = 1; //TODO: Merge with the physicsObjects
-nextCollisionSpot = 0;
 
-collisionSpots[2000][1]; 
-sGrid[2000][2000]; //TODO: Dynamically sized arrays for both of these
-*/
 
-//sGrid = new int[2000][2000];
-//collisionSpots = new int[2000][1]; 
 
-Vector2r emptyVector2r = {0,0,0};
-Vector2 emptyVector2 = {0,0};
-/*PhysicsObject* GE_CreatePhysicsObject(Vector2r newPosition, Vector2r newVelocity, Vector2 shape)
+
+
+PhysicsObject* GE_CreatePhysicsObject(Vector2r newPosition, Vector2r newVelocity, Vector2 shape)
 {
 	
-	PhysicsObject* newPhysicsObject = new PhysicsObject{emptyVector2r,emptyVector2r,newPosition,true,newVelocity,true,{0,0,shape.x,shape.y},emptyVector2,nextPhysicsObject};
+	PhysicsObject* newPhysicsObject = new PhysicsObject{{0,0,0},{0,0,0},newPosition,true,newVelocity,true,{0,0,shape.x,shape.y},{0,0},nextPhysicsObject};
 	allPhysicsObjects[nextPhysicsObject] = newPhysicsObject;
 	nextPhysicsObject++;
+	return newPhysicsObject;
 }
-*/
+
 
 /*void GE_SetPosition(Vector2r newPosition)
 {
@@ -45,16 +44,16 @@ void GE_AddRelativeVelocity(PhysicsObject* physicsObject, Vector2r moreVelocity)
 }
 void GE_TickPhysics()
 {
-	for (i=0,nextPhysicsObject-1,i++)
+	for (int i=0;i < (nextPhysicsObject-1); i++)
 	{
-		PhysicsObject* cObj = nextPhysicsObject[i]; 		
+		PhysicsObject* cObj = allPhysicsObjects[i];			
 		for (int x = 0; x < cObj->warpedShape.x; x++) 
 		{
 			for (int y = 0; y < cObj->warpedShape.y; y++) 
 			{
-				int posx = cObj->x+cObj->grid.x;
-				int posy = cObj->y+cObj->grid.y;
-				if (sGrid[posx][posy] == myNumber) //TODO: Check if necisary -- it might be okay to set other's grids to 0 because we'll detect collision and start an accurate simulation anyway
+				int posx = x+cObj->grid.x;
+				int posy = y+cObj->grid.y;
+				if (sGrid[posx][posy] == cObj->ID) //TODO: Check if necisary -- it might be okay to set other's grids to 0 because we'll detect collision and start an accurate simulation anyway
 				{
 					sGrid[posx][posy] = 0;
 				}
@@ -79,7 +78,7 @@ void GE_TickPhysics()
 			cObj->setNewPosition = false;
 		}
 
-		cObj->position += velocity;
+		cObj->position += cObj->velocity;
 
 
 
@@ -108,8 +107,8 @@ void GE_TickPhysics()
 		{
 			for (int y = 0; y < cObj->warpedShape.y; y++) 
 			{
-				int posx = cObj->x+cObj->grid.x;
-				int posy = cObj->y+cObj->grid.y;
+				int posx = x+cObj->grid.x;
+				int posy = y+cObj->grid.y;
 				if (sGrid[posx][posy] == 0) 
 				{
 					sGrid[posx][posy] = cObj->ID;
@@ -123,7 +122,6 @@ void GE_TickPhysics()
 			}
 		}
 	}
-
 
 
 }
