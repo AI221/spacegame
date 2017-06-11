@@ -7,7 +7,7 @@
 #define __PHYSICS_INCLUDED
 
 #define MAX_PHYSICS_OBJECTS 256000000 //maximum ammount of physics objects in the game
-struct GridInfo //info for the inaccurate physics pre-calculation
+typedef struct GridInfo //info for the inaccurate physics pre-calculation
 {
 	int x;
 	int y;
@@ -15,30 +15,30 @@ struct GridInfo //info for the inaccurate physics pre-calculation
 	int shapey; 
 };
 
-extern int sGrid[2000][2000]; //TODO: Dynamically sized arrays for both of these
+int sGrid[2000][2000]; //TODO: Dynamically sized arrays for both of these
 
-extern int collisionSpots[2000][1]; 
-extern int nextCollisionSpot;
+int collisionSpots[2000][1]; 
+int nextCollisionSpot;
 
 struct PhysicsObject
 {
-	struct Vector2r position;
-	struct Vector2r velocity;
-	struct Vector2r newPosition;
+	Vector2r position;
+	Vector2r velocity;
+	Vector2r newPosition;
 	bool setNewPosition;
-	struct Vector2r newVelocity;
+	Vector2r newVelocity;
 	bool setNewVelocity;
-	struct GridInfo grid;
-	struct Vector2 warpedShape;
+	GridInfo grid;
+	Vector2 warpedShape;
 	int ID;
 };
 
 
 
-extern PhysicsObject* allPhysicsObjects[MAX_PHYSICS_OBJECTS];
-extern int nextPhysicsObject; 
+PhysicsObject* allPhysicsObjects[MAX_PHYSICS_OBJECTS];
+int nextPhysicsObject; 
 
-extern bool deadPhysicsObjects[MAX_PHYSICS_OBJECTS];
+bool deadPhysicsObjects[MAX_PHYSICS_OBJECTS];
 
 
 PhysicsObject* GE_CreatePhysicsObject(Vector2r newPosition, Vector2r newVelocity, Vector2 shape);

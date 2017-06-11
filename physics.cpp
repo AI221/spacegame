@@ -1,10 +1,10 @@
 #include "physics.h" 
-int sGrid[2000][2000]; //TODO: Dynamically sized arrays for both of these
-int collisionSpots[2000][1]; 
-int nextCollisionSpot = 0;
+//int sGrid[2000][2000]; //TODO: Dynamically sized arrays for both of these
+//int collisionSpots[2000][1]; 
+nextCollisionSpot = 0;
 PhysicsObject* allPhysicsObjects[MAX_PHYSICS_OBJECTS];
-int nextPhysicsObject = 0; 
-bool deadPhysicsObjects[MAX_PHYSICS_OBJECTS];
+nextPhysicsObject = 0; 
+//bool deadPhysicsObjects[MAX_PHYSICS_OBJECTS];
 
 
 
