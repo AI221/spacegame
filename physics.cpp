@@ -1,35 +1,27 @@
-#include "physics.h"
-
-//nextCollisionSpot = 0;
-/*nextPhysicsObject = 1; //TODO: Merge with the physicsObjects
+#include "physics.h" 
+//int sGrid[2000][2000]; //TODO: Dynamically sized arrays for both of these
+//int collisionSpots[2000][1]; 
 nextCollisionSpot = 0;
+PhysicsObject* allPhysicsObjects[MAX_PHYSICS_OBJECTS];
+nextPhysicsObject = 0; 
+//bool deadPhysicsObjects[MAX_PHYSICS_OBJECTS];
 
-collisionSpots[2000][1]; 
-sGrid[2000][2000]; //TODO: Dynamically sized arrays for both of these
-*/
 
-//sGrid = new int[2000][2000];
-//collisionSpots = new int[2000][1]; 
 
-PhysicsObject::PhysicsObject(Vector2r newPosition, Vector2 shape)
+
+
+
+PhysicsObject* GE_CreatePhysicsObject(Vector2r newPosition, Vector2r newVelocity, Vector2 shape)
 {
-	allPhysicsObjects[nextPhysicsObject] = this;
-	myNumber = nextPhysicsObject;
+	
+	PhysicsObject* newPhysicsObject = new PhysicsObject{{0,0,0},{0,0,0},newPosition,true,newVelocity,true,{0,0,shape.x,shape.y},{0,0},nextPhysicsObject};
+	allPhysicsObjects[nextPhysicsObject] = newPhysicsObject;
 	nextPhysicsObject++;
-
-	position.x = newPosition.x;
-	position.y = newPosition.y;
-	velocity = {0,0};
-	grid = {0,0,0,0};
-	warpedShape = {0,0};
-
-	
-
-	//setPosition(newPosition); //commented this out b/c it waits till next physics tick to update position
-	
-	setShape(shape);
+	return newPhysicsObject;
 }
-void PhysicsObject::setPosition(Vector2r newPosition)
+
+
+/*void GE_SetPosition(Vector2r newPosition)
 {
 	this->newPosition = newPosition;
 	setNewPosition = true;
@@ -38,120 +30,103 @@ void PhysicsObject::setVelocity(Vector2r newVelocity)
 {
 	this->newVelocity = newVelocity;
 	setNewVelocity = true;
-}
-void PhysicsObject::addVelocity(Vector2r moreVelocity)
+}*/
+void GE_AddVelocity(PhysicsObject* physicsObject, Vector2r moreVelocity)
 {
-	newVelocity.x = velocity.x+moreVelocity.x;
-	newVelocity.y = velocity.y+moreVelocity.y;
-	newVelocity.r = velocity.r-moreVelocity.r;
-	setNewVelocity = true;
+	physicsObject->newVelocity.x = physicsObject->velocity.x+moreVelocity.x;
+	physicsObject->newVelocity.y = physicsObject->velocity.y+moreVelocity.y;
+	physicsObject->newVelocity.r = physicsObject->velocity.r-moreVelocity.r;
 }
-void PhysicsObject::addRelativeVelocity(Vector2r moreVelocity)
+void GE_AddRelativeVelocity(PhysicsObject* physicsObject, Vector2r moreVelocity)
 {
-	newVelocity.r = velocity.r-moreVelocity.r;
-	newVelocity.addRelativeVelocity(moreVelocity.x,moreVelocity.y,this->position.r);
-	setNewVelocity = true;
+	physicsObject->newVelocity.r = physicsObject->velocity.r-moreVelocity.r;
+	physicsObject->newVelocity.addRelativeVelocity(moreVelocity.x,moreVelocity.y,physicsObject->position.r);
 }
-Vector2r PhysicsObject::getVelocity()
+void GE_TickPhysics()
 {
-	return velocity;
-}
-Vector2r PhysicsObject::getPosition()
-{
-	return position;
-}
-
-void PhysicsObject::setShape(Vector2 shape)
-{
-	grid.shapex = shape.x;
-	grid.shapey = shape.y;
-}
-void PhysicsObject::tickMyPhysics() //the fun part
-{
-	for (int x = 0; x < warpedShape.x; x++) 
+	for (int i=0;i < (nextPhysicsObject-1); i++)
 	{
-		for (int y = 0; y < warpedShape.y; y++) 
+		PhysicsObject* cObj = allPhysicsObjects[i];			
+		for (int x = 0; x < cObj->warpedShape.x; x++) 
 		{
-			int posx = x+grid.x;
-			int posy = y+grid.y;
-			if (sGrid[posx][posy] == myNumber) //TODO: Check if necisary -- it might be okay to set other's grids to 0 because we'll detect collision and start an accurate simulation anyway
+			for (int y = 0; y < cObj->warpedShape.y; y++) 
 			{
-				sGrid[posx][posy] = 0;
-			}
-			else if (sGrid[posx][posy] != 0)
-			{
-				//std::cout << "osht we gots collision im: " << myNumber << " its: " << sGrid[posx][posy] << " differenciation: " << rand() << std::endl;
+				int posx = x+cObj->grid.x;
+				int posy = y+cObj->grid.y;
+				if (sGrid[posx][posy] == cObj->ID) //TODO: Check if necisary -- it might be okay to set other's grids to 0 because we'll detect collision and start an accurate simulation anyway
+				{
+					sGrid[posx][posy] = 0;
+				}
+				else if (sGrid[posx][posy] != 0)
+				{
+					//std::cout << "osht we gots collision im: " << myNumber << " its: " << sGrid[posx][posy] << " differenciation: " << rand() << std::endl;
+				}
 			}
 		}
-	}
-	//move ourselves forward
-	//TODO: keep track of the last position, or maybe not because it could be reverse by minusing our position by our speed maybe?
-	//first set velocity
-	
-	if (setNewVelocity) 
-	{
-		velocity = newVelocity;
-		setNewVelocity = false;
-	}
-	if (setNewPosition)
-	{
-		position = newPosition;
-		setNewPosition = false;
-	}
-
-	position.x += velocity.x;
-	position.y += velocity.y;
-	position.r += velocity.r;
-
-	//prevent rotation from being >360
-	position.r -= floor(position.r/360)*360;
-
-
-	//TODO multiple grids, but right now we can't have you go <0 (or 2000< but that'll be fixed too and doesnt happen as much)
-	if (position.x < 0)
-	{
-		position.x = 0;
-	}
-	if (position.y < 0)
-	{
-		position.y = 0;
-	}
-
-
-
-
-
-	grid.x = (int) position.x/10;
-	grid.y = (int) position.y/10;
-
-	//Calculate how the shape warps. The shape will stretch as you move faster to avoid clipping
-	warpedShape.x = ((abs(velocity.x)/10)+2)*(grid.shapex/10);
-	warpedShape.y = ((abs(velocity.y)/10)+2)*(grid.shapey/10);
-
-	for (int x = 0; x < warpedShape.x; x++) 
-	{
-		for (int y = 0; y < warpedShape.y; y++) 
+		//move ourselves forward
+		//TODO: keep track of the last position, or maybe not because it could be reverse by minusing our position by our speed maybe?
+		//first set velocity
+		
+		if (cObj->setNewVelocity) 
 		{
-			int posx = x+grid.x;
-			int posy = y+grid.y;
-			if (sGrid[posx][posy] == 0) 
+			cObj->velocity = cObj->newVelocity;
+			cObj->setNewVelocity = false;
+		}
+		if (cObj->setNewPosition)
+		{
+			cObj->position = cObj->newPosition;
+			cObj->setNewPosition = false;
+		}
+
+		cObj->position += cObj->velocity;
+
+
+
+		//TODO multiple grids, but right now we can't have you go <0 (or 2000< but that'll be fixed too and doesnt happen as much)
+		if (cObj->position.x < 0)
+		{
+			cObj->position.x = 0;
+		}
+		if (cObj->position.y < 0)
+		{
+			cObj->position.y = 0;
+		}
+
+
+
+
+
+		cObj->grid.x = (int) cObj->position.x/10;
+		cObj->grid.y = (int) cObj->position.y/10;
+
+		//Calculate how the shape warps. The shape will stretch as you move faster to avoid clipping
+		cObj->warpedShape.x = ((abs(cObj->velocity.x)/10)+2)*(cObj->grid.shapex/10);
+		cObj->warpedShape.y = ((abs(cObj->velocity.y)/10)+2)*(cObj->grid.shapey/10);
+
+		for (int x = 0; x < cObj->warpedShape.x; x++) 
+		{
+			for (int y = 0; y < cObj->warpedShape.y; y++) 
 			{
-				sGrid[posx][posy] = myNumber;
-			}
-			else
-			{
-				collisionSpots[nextCollisionSpot][0] = posx;
-				collisionSpots[nextCollisionSpot][1] = posy;
-				nextCollisionSpot++;
+				int posx = x+cObj->grid.x;
+				int posy = y+cObj->grid.y;
+				if (sGrid[posx][posy] == 0) 
+				{
+					sGrid[posx][posy] = cObj->ID;
+				}
+				else
+				{
+					collisionSpots[nextCollisionSpot][0] = posx;
+					collisionSpots[nextCollisionSpot][1] = posy;
+					nextCollisionSpot++;
+				}
 			}
 		}
 	}
 
 
-
-
-
 }
-
-
-
+void GE_FreePhysicsObject(PhysicsObject* physicsObject) //MUST be allocated with new
+{
+	deadPhysicsObjects[physicsObject->ID] = true;
+	delete physicsObject;
+}

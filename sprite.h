@@ -11,6 +11,7 @@ struct Sprite
 	int w;
 	int h;
 };
+Sprite* GE_CreateSprite(SDL_Renderer* renderer, std::string path, int w, int h);
 SDL_Texture* GE_PathToImg(SDL_Renderer* renderer, std::string path);
 void GE_BlitSprite(Sprite* sprite, Vector2r position,Vector2 animation);
 void GE_BlitSprite(Sprite* sprite, Vector2 position,Vector2 animation, double rotation);

@@ -12,7 +12,7 @@ void add1(int* urint)
 
 int main()
 {
-	int* test ;
+	/*int* test ;
 	int tests_b;
 
 	//test = &tests_b;
@@ -21,12 +21,14 @@ int main()
 	
 	cout << "1: " << *test << endl;	
 
-	/*
+	
 	add1(test);
 
 	cout << "2: " << test << endl;	
 *test++;
 	cout << "3: " << test << endl;	*/
+
+	cout << 2-2-1 <<std::endl;
 	return 1;
 }
 
