@@ -114,6 +114,7 @@ void GE_AddVelocity(PhysicsObject* physicsObject, Vector2r moreVelocity)
 void GE_AddRelativeVelocity(PhysicsObject* physicsObject, Vector2r moreVelocity)
 {
 	std::cout << "A " << physicsObject->newVelocity.x << std::endl;
+	physicsObject->newVelocity = physicsObject->velocity;
 	physicsObject->newVelocity.r = physicsObject->velocity.r-moreVelocity.r;
 	physicsObject->newVelocity.addRelativeVelocity(moreVelocity.x,moreVelocity.y,physicsObject->position.r);
 	physicsObject->setNewVelocity = true;
@@ -231,8 +232,8 @@ void GE_FreePhysicsObject(PhysicsObject* physicsObject) //MUST be allocated with
 
 //Options
 
-int screenWidth = 640;
-int screenHeight = 580;
+int screenWidth = 1024;
+int screenHeight = 720;
 
 
 //MATH FUNCTIONS
@@ -315,10 +316,10 @@ int camFocusedObj = 1;
 
 void render()
 {
-	camera = physicsObjects[camFocusedObj]->physicsObject->position;
+	camera = allPhysicsObjects[camFocusedObj]->position;
 	//camera.x += 0.1;
 	//camera.y += 0.1;
-	for (int i=1; i <= numPhysicsObjs; i++)
+	for (int i=0; i <= numPhysicsObjs; i++)
 	{
 		GE_BlitRenderedPhysicsObject(physicsObjects[i],&camera);
 	}
@@ -366,6 +367,7 @@ int main()
 	{
 		//TODO: Handle error...
 		std::cout << "!!!TFT_Init Error!" << std::endl;
+		return 0;
 	}
 	for (int i = 0; i < 200; i++)
 	{
@@ -374,17 +376,15 @@ int main()
 			sGrid[i][o] = 0;
 		}
 	}
-	physicsObjects[0] = NULL;
 
 	SDL_Window* myWindow;
 	SDL_Event event;
 
 
 	camera = {200,200,0};
-	camFocusedObj = 1;
 
 	
-	myWindow = SDL_CreateWindow("Spacegame", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 580, 0);
+	myWindow = SDL_CreateWindow("Spacegame", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screenWidth, screenHeight, 0);
 
 	myRenderer = SDL_CreateRenderer(myWindow, -1, SDL_RENDERER_ACCELERATED);
 
@@ -398,9 +398,10 @@ int main()
 
 	Sprite* shoddySpaceship = GE_CreateSprite(myRenderer, "shottyspaceship.bmp",25,25);
 
-	Sprite* bg = GE_CreateSprite(myRenderer,"DEBUG_nothingHere.bmp",640,580);
+	Sprite* bg = GE_CreateSprite(myRenderer,"DEBUG_nothingHere.bmp",screenWidth,screenHeight);
 		
 	physicsObjects[numPhysicsObjs] = GE_CreateRenderedPhysicsObject(myRenderer,shoddySpaceship,{50,50,0},{0,0,0},{25,25});	
+	camFocusedObj = physicsObjects[numPhysicsObjs]->physicsObject->ID;
 
 	numPhysicsObjs++;
 	physicsObjects[numPhysicsObjs] = GE_CreateRenderedPhysicsObject(myRenderer,mySprite,{200,200,0},{0,0,0},{25,25});	
@@ -470,27 +471,27 @@ int main()
 		}
 		if(keysHeld[SDLK_w])
 		{
-			GE_AddRelativeVelocity(physicsObjects[camFocusedObj]->physicsObject,{0,-0.5,0});
+			GE_AddRelativeVelocity(allPhysicsObjects[camFocusedObj],{0,-0.5,0});
 		}
 		if(keysHeld[SDLK_s])
 		{
-			GE_AddRelativeVelocity(physicsObjects[camFocusedObj]->physicsObject,{0,0.5,0});
+			GE_AddRelativeVelocity(allPhysicsObjects[camFocusedObj],{0,0.5,0});
 		}
 		if(keysHeld[SDLK_d])
 		{
-			GE_AddRelativeVelocity(physicsObjects[camFocusedObj]->physicsObject,{0.5,0,0});
+			GE_AddRelativeVelocity(allPhysicsObjects[camFocusedObj],{0.5,0,0});
 		}
 		if(keysHeld[SDLK_a])
 		{
-			GE_AddRelativeVelocity(physicsObjects[camFocusedObj]->physicsObject,{-0.5,0,0});
+			GE_AddRelativeVelocity(allPhysicsObjects[camFocusedObj],{-0.5,0,0});
 		}
 		if(keysHeld[SDLK_q])
 		{
-			GE_AddRelativeVelocity(physicsObjects[camFocusedObj]->physicsObject,{0,0,-0.25});
+			GE_AddRelativeVelocity(allPhysicsObjects[camFocusedObj],{0,0,-0.25});
 		}
 		if(keysHeld[SDLK_e])
 		{
-			GE_AddRelativeVelocity(physicsObjects[camFocusedObj]->physicsObject,{0,0,0.25});
+			GE_AddRelativeVelocity(allPhysicsObjects[camFocusedObj],{0,0,0.25});
 		}
 		if(keysHeld[SDLK_1])
 		{
@@ -502,10 +503,10 @@ int main()
 		}
 		if(keysHeld[SDLK_z])
 		{
-			std::cout <<"velx: " << physicsObjects[camFocusedObj]->physicsObject->velocity.x << std::endl;
-			std::cout <<"vely: " << physicsObjects[camFocusedObj]->physicsObject->velocity.y << std::endl;
-			std::cout <<"posx: " << physicsObjects[camFocusedObj]->physicsObject->position.x << std::endl;
-			std::cout <<"posy: " << physicsObjects[camFocusedObj]->physicsObject->position.y << std::endl;
+			std::cout <<"velx: " << allPhysicsObjects[camFocusedObj]->velocity.x << std::endl;
+			std::cout <<"vely: " << allPhysicsObjects[camFocusedObj]->velocity.y << std::endl;
+			std::cout <<"posx: " << allPhysicsObjects[camFocusedObj]->position.x << std::endl;
+			std::cout <<"posy: " << allPhysicsObjects[camFocusedObj]->position.y << std::endl;
 		}
 		if(keysHeld[SDLK_t])
 		{
@@ -535,12 +536,12 @@ int main()
 
 		GE_BlitSprite(bg,{0,0,0},{0,0});
 		
-		render();
 		GE_TickPhysics();
+		render();
 		#ifdef debug
 				texttest->setText(std::to_string(physicsObjects[camFocusedObj]->physicsObject->position.r).c_str());
 				interface1_menu->giveEvent(event);
-				if(isDebugRender) //ineffecient but who the fuck cares, it's a goddamn debug render.
+				if(isDebugRender) 
 				{
 					debug_render();
 				}
