@@ -293,7 +293,7 @@ int main()
 		}
 		if (keysHeld[SDLK_f])
 		{
-			physicsObjects[camFocusedObj]->physicsObject->velocity = Vector2r{0,0,0};
+			allPhysicsObjects[camFocusedObj]->velocity = Vector2r{0,0,0};
 		}
 		if (keysHeld[SDLK_ESCAPE])
 		{
