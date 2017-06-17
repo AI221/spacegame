@@ -31,187 +31,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "vector2.h"
 #include "debugUI.h"
 #include "sprite.h"
+#include "camera.h"
+#include "physics.h"
+#include "renderedPhysicsObject.h"
 
 
-#define MAX_PHYSICS_OBJECTS 256//256000000 //maximum ammount of physics objects in the game
 #define SPRITE_DIR "../sprites/"
 
-typedef struct GridInfo //info for the inaccurate physics pre-calculation
-{
-	int x;
-	int y;
-	int shapex;
-	int shapey; 
-};
 
-int sGrid[2000][2000]; //TODO: Dynamically sized arrays for both of these
-
-int collisionSpots[2000][1]; 
-int nextCollisionSpot = 0;
-
-struct PhysicsObject
-{
-	Vector2r position;
-	Vector2r velocity;
-	Vector2r newPosition;
-	bool setNewPosition;
-	Vector2r newVelocity;
-	bool setNewVelocity;
-	GridInfo grid;
-	Vector2 warpedShape;
-	int ID;
-};
-
-
-
-PhysicsObject* allPhysicsObjects[MAX_PHYSICS_OBJECTS];
-int nextPhysicsObject =0; 
-
-bool deadPhysicsObjects[MAX_PHYSICS_OBJECTS];
-
-
-PhysicsObject* GE_CreatePhysicsObject(Vector2r newPosition, Vector2r newVelocity, Vector2 shape);
-void GE_AddVelocity(PhysicsObject* physicsObject, Vector2r moreVelocity);
-void GE_AddRelativeVelocity(PhysicsObject* physicsObject, Vector2r moreVelocity);
-void GE_TickPhysics();
-void GE_FreePhysicsObject(PhysicsObject* physicsObject); //MUST be allocated with new
-//int sGrid[2000][2000]; //TODO: Dynamically sized arrays for both of these
-//int collisionSpots[2000][1]; 
-//nextCollisionSpot = 0;
-//nextPhysicsObject = 0; 
-//bool deadPhysicsObjects[MAX_PHYSICS_OBJECTS];
-
-
-
-
-
-
-PhysicsObject* GE_CreatePhysicsObject(Vector2r newPosition, Vector2r newVelocity, Vector2 shape)
-{
-	
-	PhysicsObject* newPhysicsObject = new PhysicsObject{{0,0,0},{0,0,0},newPosition,true,newVelocity,true,{0,0,shape.x,shape.y},{0,0},nextPhysicsObject};
-	allPhysicsObjects[nextPhysicsObject] = newPhysicsObject;
-	nextPhysicsObject++;
-	return newPhysicsObject;
-}
-
-
-/*void GE_SetPosition(Vector2r newPosition)
-{
-	this->newPosition = newPosition;
-	setNewPosition = true;
-}
-void PhysicsObject::setVelocity(Vector2r newVelocity)
-{
-	this->newVelocity = newVelocity;
-	setNewVelocity = true;
-}*/
-void GE_AddVelocity(PhysicsObject* physicsObject, Vector2r moreVelocity)
-{
-	physicsObject->newVelocity.x = physicsObject->velocity.x+moreVelocity.x;
-	physicsObject->newVelocity.y = physicsObject->velocity.y+moreVelocity.y;
-	physicsObject->newVelocity.r = physicsObject->velocity.r-moreVelocity.r;
-	physicsObject->setNewVelocity = true;
-}
-void GE_AddRelativeVelocity(PhysicsObject* physicsObject, Vector2r moreVelocity)
-{
-	std::cout << "A " << physicsObject->newVelocity.x << std::endl;
-	physicsObject->newVelocity = physicsObject->velocity;
-	physicsObject->newVelocity.r = physicsObject->velocity.r-moreVelocity.r;
-	physicsObject->newVelocity.addRelativeVelocity(moreVelocity.x,moreVelocity.y,physicsObject->position.r);
-	physicsObject->setNewVelocity = true;
-	std::cout << "A " << physicsObject->newVelocity.x << "ID " << physicsObject->ID << std::endl;
-}
-void GE_TickPhysics()
-{
-	for (int i=0;i < (nextPhysicsObject-1); i++)
-	{
-		PhysicsObject* cObj = allPhysicsObjects[i];			
-		for (int x = 0; x < cObj->warpedShape.x; x++) 
-		{
-			for (int y = 0; y < cObj->warpedShape.y; y++) 
-			{
-				int posx = x+cObj->grid.x;
-				int posy = y+cObj->grid.y;
-				if (sGrid[posx][posy] == cObj->ID) //TODO: Check if necisary -- it might be okay to set other's grids to 0 because we'll detect collision and start an accurate simulation anyway
-				{
-					sGrid[posx][posy] = 0;
-				}
-				else if (sGrid[posx][posy] != 0)
-				{
-					//std::cout << "osht we gots collision im: " << myNumber << " its: " << sGrid[posx][posy] << " differenciation: " << rand() << std::endl;
-				}
-			}
-		}
-		//move ourselves forward
-		//TODO: keep track of the last position, or maybe not because it could be reverse by minusing our position by our speed maybe?
-		//first set velocity
-		
-		if (cObj->setNewVelocity) 
-		{
-			cObj->velocity = cObj->newVelocity;
-			cObj->newVelocity = {0,0,0};
-			cObj->setNewVelocity = false;
-		}
-		if (cObj->setNewPosition)
-		{
-			cObj->position = cObj->newPosition;
-			cObj->newPosition = {0,0,0};
-			cObj->setNewPosition = false;
-		}
-
-		cObj->position = cObj->position+cObj->velocity;
-
-
-
-		//TODO multiple grids, but right now we can't have you go <0 (or 2000< but that'll be fixed too and doesnt happen as much)
-		if (cObj->position.x < 0)
-		{
-			cObj->position.x = 0;
-		}
-		if (cObj->position.y < 0)
-		{
-			cObj->position.y = 0;
-		}
-
-
-
-
-
-		cObj->grid.x = (int) cObj->position.x/10;
-		cObj->grid.y = (int) cObj->position.y/10;
-
-		//Calculate how the shape warps. The shape will stretch as you move faster to avoid clipping
-		cObj->warpedShape.x = ((abs(cObj->velocity.x)/10)+2)*(cObj->grid.shapex/10);
-		cObj->warpedShape.y = ((abs(cObj->velocity.y)/10)+2)*(cObj->grid.shapey/10);
-
-		for (int x = 0; x < cObj->warpedShape.x; x++) 
-		{
-			for (int y = 0; y < cObj->warpedShape.y; y++) 
-			{
-				int posx = x+cObj->grid.x;
-				int posy = y+cObj->grid.y;
-				if (sGrid[posx][posy] == 0) 
-				{
-					sGrid[posx][posy] = cObj->ID;
-				}
-				else
-				{
-					collisionSpots[nextCollisionSpot][0] = posx;
-					collisionSpots[nextCollisionSpot][1] = posy;
-					nextCollisionSpot++;
-				}
-			}
-		}
-	}
-
-
-}
-void GE_FreePhysicsObject(PhysicsObject* physicsObject) //MUST be allocated with new
-{
-	deadPhysicsObjects[physicsObject->ID] = true;
-	delete physicsObject;
-}
 
 
 //Definitions
@@ -234,8 +61,6 @@ void GE_FreePhysicsObject(PhysicsObject* physicsObject) //MUST be allocated with
 
 //Options
 
-int screenWidth = 1024;
-int screenHeight = 720;
 
 
 //MATH FUNCTIONS
@@ -245,30 +70,7 @@ double distance(double x1, double y1, double x2, double y2) //tested & working
 	return sqrt((pow(x2-x1,2))+(pow(y2-y1,2)));
 }
 
-Vector2r GE_ApplyCameraOffset(Vector2r* camera, Vector2r* subject)
-{
-	Vector2r newPosition;
-	
-	double sin_angle = sin((camera->r/DEG_TO_RAD));
-	double cos_angle = cos((camera->r/DEG_TO_RAD));
 
-	newPosition.x = ((subject->x-camera->x))*cos_angle - ((subject->y-camera->y))*sin_angle;
-	newPosition.y = ((subject->x-camera->x))*sin_angle + ((subject->y-camera->y))*cos_angle;
-
-	newPosition.x += (screenWidth)/2;
-	newPosition.y += (screenHeight)/2;
-
-	std::cout << newPosition.x << std::endl;
-	std::cout << newPosition.y << std::endl;
-
-	newPosition.r = (camera->r-360)-subject->r; //last newPosition.r might not be correct
-
-	newPosition.r -= floor(newPosition.r/360)*360;
-
-	return newPosition;
-
-
-}
 
 
 
@@ -282,46 +84,15 @@ Vector2r Vector2ToVector2r(Vector2 convert)
 }
 
 
-struct RenderedPhysicsObject
-{
-	SDL_Renderer* renderer;
-	Sprite* sprite;
-	PhysicsObject* physicsObject;
-};
-RenderedPhysicsObject* GE_CreateRenderedPhysicsObject(SDL_Renderer* renderer, Sprite* sprite,Vector2r newPosition, Vector2r newVelocity, Vector2 shape)
-{
-	PhysicsObject* physicsObject = GE_CreatePhysicsObject(newPosition, newVelocity, shape);
-	RenderedPhysicsObject* renderedPhysicsObject = new RenderedPhysicsObject{renderer, sprite, physicsObject };
-	return renderedPhysicsObject;
-}
-void GE_BlitRenderedPhysicsObject(RenderedPhysicsObject* subject, Vector2r* camera)
-{
-	Vector2r position = GE_ApplyCameraOffset(camera,&subject->physicsObject->position);
-	GE_BlitSprite(subject->sprite,position,{0,0}); //TODO
-
-}
-void GE_FreeRenderedPhysicsObject(RenderedPhysicsObject* renderedPhysicsObject) //will not destroy renderer,or sprite. MUST be allocated with new
-{
-	GE_FreePhysicsObject(renderedPhysicsObject->physicsObject);
-	delete renderedPhysicsObject;
-}
-
-
 SDL_Renderer* myRenderer;
 
-
-RenderedPhysicsObject* physicsObjects[1000] = {}; //TODO dimensions and what not
-int numPhysicsObjs = 0; //Starts at 1 because sGrid uses 0 for 'nothing here'
-
-Vector2r camera;
+Camera camera;
 int camFocusedObj = 1;
 
 void render()
 {
-	camera = allPhysicsObjects[camFocusedObj]->position;
-	//camera.x += 0.1;
-	//camera.y += 0.1;
-	for (int i=0; i <= numPhysicsObjs; i++)
+	camera.pos = allPhysicsObjects[camFocusedObj]->position;
+	for (int i=1; i <= numPhysicsObjs; i++)
 	{
 		GE_BlitRenderedPhysicsObject(physicsObjects[i],&camera);
 	}
@@ -334,13 +105,13 @@ Sprite* somethingHere;
 void debug_render()
 { //pulled from my prototype
 	GE_BlitSprite(somethingHere,{0,0,0},{10,10});
-	camera = physicsObjects[camFocusedObj]->physicsObject->position;
-	camera.x -= 640/2;
-	camera.y -= 580/2;
-	camera.x = camera.x/10;
-	camera.y = camera.y/10;
-	int camerax = (int) camera.x;
-	int cameray = (int) camera.y;
+	camera.pos = physicsObjects[camFocusedObj]->physicsObject->position;
+	camera.pos.x -= 640/2;
+	camera.pos.y -= 580/2;
+	camera.pos.x = camera.pos.x/10;
+	camera.pos.y = camera.pos.y/10;
+	int camerax = (int) camera.pos.x;
+	int cameray = (int) camera.pos.y;
 	for (int i = 0; i < 70; i++) { 
 		for (int o = 0; o < 70; o++) {
 			//std::cout << "i " << i <<" t " << i+camerax << std::endl;
@@ -383,10 +154,12 @@ int main()
 	SDL_Event event;
 
 
-	camera = {200,200,0};
+	camera.pos = {200,200,0};
+	camera.screenWidth = 1080;
+	camera.screenHeight = 720;
 
 	
-	myWindow = SDL_CreateWindow("Spacegame", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screenWidth, screenHeight, 0);
+	myWindow = SDL_CreateWindow("Spacegame", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, camera.screenWidth, camera.screenHeight, 0);
 
 	myRenderer = SDL_CreateRenderer(myWindow, -1, SDL_RENDERER_ACCELERATED);
 
@@ -400,7 +173,7 @@ int main()
 
 	Sprite* shoddySpaceship = GE_CreateSprite(myRenderer, SPRITE_DIR"shottyspaceship.bmp",25,25);
 
-	Sprite* bg = GE_CreateSprite(myRenderer,SPRITE_DIR"DEBUG_nothingHere.bmp",screenWidth,screenHeight);
+	Sprite* bg = GE_CreateSprite(myRenderer,SPRITE_DIR"DEBUG_nothingHere.bmp",camera.screenWidth,camera.screenHeight);
 		
 	physicsObjects[numPhysicsObjs] = GE_CreateRenderedPhysicsObject(myRenderer,shoddySpaceship,{50,50,0},{0,0,0},{25,25});	
 	camFocusedObj = physicsObjects[numPhysicsObjs]->physicsObject->ID;
@@ -456,7 +229,7 @@ int main()
 					keysHeld[event.key.keysym.sym] = true;
 				}
 				#ifdef debug
-					std::cout << event.key.keysym.sym << std::endl;
+					//std::cout << event.key.keysym.sym << std::endl;
 					if (event.key.keysym.sym == SDLK_INSERT) //SDLK_SCROLLLOCK
 					{
 						interface1_menu->isOpen = true;
@@ -541,7 +314,7 @@ int main()
 		GE_TickPhysics(); //TODO: Seperate physics & renderer threads.
 		render();
 		#ifdef debug
-				texttest->setText(std::to_string(physicsObjects[camFocusedObj]->physicsObject->position.r).c_str());
+				texttest->setText(std::to_string(allPhysicsObjects[camFocusedObj]->position.r).c_str());
 				interface1_menu->giveEvent(event);
 				if(isDebugRender) 
 				{
@@ -557,6 +330,8 @@ int main()
 		SDL_Delay(16);
 	}
 	TTF_Quit();
+
+	
 
 	GE_FreeSprite(bg);
 	GE_FreeSprite(nothingHere);

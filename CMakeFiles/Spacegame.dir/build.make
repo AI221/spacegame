@@ -57,9 +57,33 @@ include CMakeFiles/Spacegame.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/Spacegame.dir/flags.make
 
+CMakeFiles/Spacegame.dir/src/camera.cpp.o: CMakeFiles/Spacegame.dir/flags.make
+CMakeFiles/Spacegame.dir/src/camera.cpp.o: src/camera.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/jackson/spacegame/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/Spacegame.dir/src/camera.cpp.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Spacegame.dir/src/camera.cpp.o -c /home/jackson/spacegame/src/camera.cpp
+
+CMakeFiles/Spacegame.dir/src/camera.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Spacegame.dir/src/camera.cpp.i"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/jackson/spacegame/src/camera.cpp > CMakeFiles/Spacegame.dir/src/camera.cpp.i
+
+CMakeFiles/Spacegame.dir/src/camera.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Spacegame.dir/src/camera.cpp.s"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jackson/spacegame/src/camera.cpp -o CMakeFiles/Spacegame.dir/src/camera.cpp.s
+
+CMakeFiles/Spacegame.dir/src/camera.cpp.o.requires:
+
+.PHONY : CMakeFiles/Spacegame.dir/src/camera.cpp.o.requires
+
+CMakeFiles/Spacegame.dir/src/camera.cpp.o.provides: CMakeFiles/Spacegame.dir/src/camera.cpp.o.requires
+	$(MAKE) -f CMakeFiles/Spacegame.dir/build.make CMakeFiles/Spacegame.dir/src/camera.cpp.o.provides.build
+.PHONY : CMakeFiles/Spacegame.dir/src/camera.cpp.o.provides
+
+CMakeFiles/Spacegame.dir/src/camera.cpp.o.provides.build: CMakeFiles/Spacegame.dir/src/camera.cpp.o
+
+
 CMakeFiles/Spacegame.dir/src/debugUI.cpp.o: CMakeFiles/Spacegame.dir/flags.make
 CMakeFiles/Spacegame.dir/src/debugUI.cpp.o: src/debugUI.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/jackson/spacegame/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/Spacegame.dir/src/debugUI.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/jackson/spacegame/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/Spacegame.dir/src/debugUI.cpp.o"
 	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Spacegame.dir/src/debugUI.cpp.o -c /home/jackson/spacegame/src/debugUI.cpp
 
 CMakeFiles/Spacegame.dir/src/debugUI.cpp.i: cmake_force
@@ -83,7 +107,7 @@ CMakeFiles/Spacegame.dir/src/debugUI.cpp.o.provides.build: CMakeFiles/Spacegame.
 
 CMakeFiles/Spacegame.dir/src/main.cpp.o: CMakeFiles/Spacegame.dir/flags.make
 CMakeFiles/Spacegame.dir/src/main.cpp.o: src/main.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/jackson/spacegame/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/Spacegame.dir/src/main.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/jackson/spacegame/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/Spacegame.dir/src/main.cpp.o"
 	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Spacegame.dir/src/main.cpp.o -c /home/jackson/spacegame/src/main.cpp
 
 CMakeFiles/Spacegame.dir/src/main.cpp.i: cmake_force
@@ -105,9 +129,57 @@ CMakeFiles/Spacegame.dir/src/main.cpp.o.provides: CMakeFiles/Spacegame.dir/src/m
 CMakeFiles/Spacegame.dir/src/main.cpp.o.provides.build: CMakeFiles/Spacegame.dir/src/main.cpp.o
 
 
+CMakeFiles/Spacegame.dir/src/physics.cpp.o: CMakeFiles/Spacegame.dir/flags.make
+CMakeFiles/Spacegame.dir/src/physics.cpp.o: src/physics.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/jackson/spacegame/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/Spacegame.dir/src/physics.cpp.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Spacegame.dir/src/physics.cpp.o -c /home/jackson/spacegame/src/physics.cpp
+
+CMakeFiles/Spacegame.dir/src/physics.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Spacegame.dir/src/physics.cpp.i"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/jackson/spacegame/src/physics.cpp > CMakeFiles/Spacegame.dir/src/physics.cpp.i
+
+CMakeFiles/Spacegame.dir/src/physics.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Spacegame.dir/src/physics.cpp.s"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jackson/spacegame/src/physics.cpp -o CMakeFiles/Spacegame.dir/src/physics.cpp.s
+
+CMakeFiles/Spacegame.dir/src/physics.cpp.o.requires:
+
+.PHONY : CMakeFiles/Spacegame.dir/src/physics.cpp.o.requires
+
+CMakeFiles/Spacegame.dir/src/physics.cpp.o.provides: CMakeFiles/Spacegame.dir/src/physics.cpp.o.requires
+	$(MAKE) -f CMakeFiles/Spacegame.dir/build.make CMakeFiles/Spacegame.dir/src/physics.cpp.o.provides.build
+.PHONY : CMakeFiles/Spacegame.dir/src/physics.cpp.o.provides
+
+CMakeFiles/Spacegame.dir/src/physics.cpp.o.provides.build: CMakeFiles/Spacegame.dir/src/physics.cpp.o
+
+
+CMakeFiles/Spacegame.dir/src/renderedPhysicsObject.cpp.o: CMakeFiles/Spacegame.dir/flags.make
+CMakeFiles/Spacegame.dir/src/renderedPhysicsObject.cpp.o: src/renderedPhysicsObject.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/jackson/spacegame/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/Spacegame.dir/src/renderedPhysicsObject.cpp.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Spacegame.dir/src/renderedPhysicsObject.cpp.o -c /home/jackson/spacegame/src/renderedPhysicsObject.cpp
+
+CMakeFiles/Spacegame.dir/src/renderedPhysicsObject.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Spacegame.dir/src/renderedPhysicsObject.cpp.i"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/jackson/spacegame/src/renderedPhysicsObject.cpp > CMakeFiles/Spacegame.dir/src/renderedPhysicsObject.cpp.i
+
+CMakeFiles/Spacegame.dir/src/renderedPhysicsObject.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Spacegame.dir/src/renderedPhysicsObject.cpp.s"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jackson/spacegame/src/renderedPhysicsObject.cpp -o CMakeFiles/Spacegame.dir/src/renderedPhysicsObject.cpp.s
+
+CMakeFiles/Spacegame.dir/src/renderedPhysicsObject.cpp.o.requires:
+
+.PHONY : CMakeFiles/Spacegame.dir/src/renderedPhysicsObject.cpp.o.requires
+
+CMakeFiles/Spacegame.dir/src/renderedPhysicsObject.cpp.o.provides: CMakeFiles/Spacegame.dir/src/renderedPhysicsObject.cpp.o.requires
+	$(MAKE) -f CMakeFiles/Spacegame.dir/build.make CMakeFiles/Spacegame.dir/src/renderedPhysicsObject.cpp.o.provides.build
+.PHONY : CMakeFiles/Spacegame.dir/src/renderedPhysicsObject.cpp.o.provides
+
+CMakeFiles/Spacegame.dir/src/renderedPhysicsObject.cpp.o.provides.build: CMakeFiles/Spacegame.dir/src/renderedPhysicsObject.cpp.o
+
+
 CMakeFiles/Spacegame.dir/src/sprite.cpp.o: CMakeFiles/Spacegame.dir/flags.make
 CMakeFiles/Spacegame.dir/src/sprite.cpp.o: src/sprite.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/jackson/spacegame/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/Spacegame.dir/src/sprite.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/jackson/spacegame/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/Spacegame.dir/src/sprite.cpp.o"
 	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Spacegame.dir/src/sprite.cpp.o -c /home/jackson/spacegame/src/sprite.cpp
 
 CMakeFiles/Spacegame.dir/src/sprite.cpp.i: cmake_force
@@ -131,19 +203,25 @@ CMakeFiles/Spacegame.dir/src/sprite.cpp.o.provides.build: CMakeFiles/Spacegame.d
 
 # Object files for target Spacegame
 Spacegame_OBJECTS = \
+"CMakeFiles/Spacegame.dir/src/camera.cpp.o" \
 "CMakeFiles/Spacegame.dir/src/debugUI.cpp.o" \
 "CMakeFiles/Spacegame.dir/src/main.cpp.o" \
+"CMakeFiles/Spacegame.dir/src/physics.cpp.o" \
+"CMakeFiles/Spacegame.dir/src/renderedPhysicsObject.cpp.o" \
 "CMakeFiles/Spacegame.dir/src/sprite.cpp.o"
 
 # External object files for target Spacegame
 Spacegame_EXTERNAL_OBJECTS =
 
+bin/Spacegame: CMakeFiles/Spacegame.dir/src/camera.cpp.o
 bin/Spacegame: CMakeFiles/Spacegame.dir/src/debugUI.cpp.o
 bin/Spacegame: CMakeFiles/Spacegame.dir/src/main.cpp.o
+bin/Spacegame: CMakeFiles/Spacegame.dir/src/physics.cpp.o
+bin/Spacegame: CMakeFiles/Spacegame.dir/src/renderedPhysicsObject.cpp.o
 bin/Spacegame: CMakeFiles/Spacegame.dir/src/sprite.cpp.o
 bin/Spacegame: CMakeFiles/Spacegame.dir/build.make
 bin/Spacegame: CMakeFiles/Spacegame.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/jackson/spacegame/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX executable bin/Spacegame"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/jackson/spacegame/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX executable bin/Spacegame"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/Spacegame.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -151,8 +229,11 @@ CMakeFiles/Spacegame.dir/build: bin/Spacegame
 
 .PHONY : CMakeFiles/Spacegame.dir/build
 
+CMakeFiles/Spacegame.dir/requires: CMakeFiles/Spacegame.dir/src/camera.cpp.o.requires
 CMakeFiles/Spacegame.dir/requires: CMakeFiles/Spacegame.dir/src/debugUI.cpp.o.requires
 CMakeFiles/Spacegame.dir/requires: CMakeFiles/Spacegame.dir/src/main.cpp.o.requires
+CMakeFiles/Spacegame.dir/requires: CMakeFiles/Spacegame.dir/src/physics.cpp.o.requires
+CMakeFiles/Spacegame.dir/requires: CMakeFiles/Spacegame.dir/src/renderedPhysicsObject.cpp.o.requires
 CMakeFiles/Spacegame.dir/requires: CMakeFiles/Spacegame.dir/src/sprite.cpp.o.requires
 
 .PHONY : CMakeFiles/Spacegame.dir/requires

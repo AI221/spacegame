@@ -3,12 +3,12 @@
 #ifndef __VECTOR2_INCLUDED
 #define __VECTOR2_INCLUDED
 #define DEG_TO_RAD 57.2958
-typedef struct Vector2
+struct Vector2
 {
 	double x;
 	double y;
 };
-typedef struct Vector2r
+struct Vector2r
 {
 	double x;
 	double y;

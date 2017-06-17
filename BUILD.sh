@@ -3,5 +3,5 @@ if [ ! -f Makefile ]; then
 	cmake .
 fi
 echo ";;			Running make clean & make "
-make clean
+#make clean
 make

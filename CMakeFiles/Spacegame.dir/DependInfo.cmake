@@ -4,8 +4,11 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
+  "/home/jackson/spacegame/src/camera.cpp" "/home/jackson/spacegame/CMakeFiles/Spacegame.dir/src/camera.cpp.o"
   "/home/jackson/spacegame/src/debugUI.cpp" "/home/jackson/spacegame/CMakeFiles/Spacegame.dir/src/debugUI.cpp.o"
   "/home/jackson/spacegame/src/main.cpp" "/home/jackson/spacegame/CMakeFiles/Spacegame.dir/src/main.cpp.o"
+  "/home/jackson/spacegame/src/physics.cpp" "/home/jackson/spacegame/CMakeFiles/Spacegame.dir/src/physics.cpp.o"
+  "/home/jackson/spacegame/src/renderedPhysicsObject.cpp" "/home/jackson/spacegame/CMakeFiles/Spacegame.dir/src/renderedPhysicsObject.cpp.o"
   "/home/jackson/spacegame/src/sprite.cpp" "/home/jackson/spacegame/CMakeFiles/Spacegame.dir/src/sprite.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")

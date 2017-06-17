@@ -6,6 +6,16 @@
 
 #IncludeRegexTransform: 
 
+/home/jackson/spacegame/src/camera.cpp
+camera.h
+/home/jackson/spacegame/src/camera.h
+
+/home/jackson/spacegame/src/camera.h
+math.h
+-
+vector2.h
+/home/jackson/spacegame/src/vector2.h
+
 /home/jackson/spacegame/src/debugUI.cpp
 debugUI.h
 /home/jackson/spacegame/src/debugUI.h
@@ -49,6 +59,36 @@ debugUI.h
 /home/jackson/spacegame/src/debugUI.h
 sprite.h
 /home/jackson/spacegame/src/sprite.h
+camera.h
+/home/jackson/spacegame/src/camera.h
+physics.h
+/home/jackson/spacegame/src/physics.h
+renderedPhysicsObject.h
+/home/jackson/spacegame/src/renderedPhysicsObject.h
+
+/home/jackson/spacegame/src/physics.cpp
+physics.h
+/home/jackson/spacegame/src/physics.h
+
+/home/jackson/spacegame/src/physics.h
+math.h
+-
+vector2.h
+/home/jackson/spacegame/src/vector2.h
+
+/home/jackson/spacegame/src/renderedPhysicsObject.cpp
+renderedPhysicsObject.h
+/home/jackson/spacegame/src/renderedPhysicsObject.h
+
+/home/jackson/spacegame/src/renderedPhysicsObject.h
+physics.h
+/home/jackson/spacegame/src/physics.h
+vector2.h
+/home/jackson/spacegame/src/vector2.h
+sprite.h
+/home/jackson/spacegame/src/sprite.h
+camera.h
+/home/jackson/spacegame/src/camera.h
 
 /home/jackson/spacegame/src/sprite.cpp
 sprite.h
