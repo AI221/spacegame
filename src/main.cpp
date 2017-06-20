@@ -105,14 +105,17 @@ Sprite* somethingHere;
 void debug_render()
 { //pulled from my prototype
 	GE_BlitSprite(somethingHere,{0,0,0},{10,10});
-	camera.pos = physicsObjects[camFocusedObj]->physicsObject->position;
+	camera.pos = allPhysicsObjects[camFocusedObj]->position;
 	camera.pos.x -= 640/2;
 	camera.pos.y -= 580/2;
 	camera.pos.x = camera.pos.x/10;
 	camera.pos.y = camera.pos.y/10;
+	
+	//camera.pos.x = 10;
+	//camera.pos.y = 10;
 	int camerax = (int) camera.pos.x;
 	int cameray = (int) camera.pos.y;
-	for (int i = 0; i < 70; i++) { 
+	for (int i = 0; i < 70; i++) { //start from camera position, increase forward 
 		for (int o = 0; o < 70; o++) {
 			//std::cout << "i " << i <<" t " << i+camerax << std::endl;
 			if ((i+camerax < 0) || (o+cameray < 0)) {} else {
@@ -149,6 +152,7 @@ int main()
 			sGrid[i][o] = 0;
 		}
 	}
+	sGrid[10][10] = 1;
 
 	SDL_Window* myWindow;
 	SDL_Event event;
@@ -175,15 +179,28 @@ int main()
 
 	Sprite* bg = GE_CreateSprite(myRenderer,SPRITE_DIR"DEBUG_nothingHere.bmp",camera.screenWidth,camera.screenHeight);
 		
-	physicsObjects[numPhysicsObjs] = GE_CreateRenderedPhysicsObject(myRenderer,shoddySpaceship,{50,50,0},{0,0,0},{25,25});	
+	physicsObjects[numPhysicsObjs] = GE_CreateRenderedPhysicsObject(myRenderer,/*shoddySpaceship*/mySprite,{50,50,0},{0,0,0},{25,25});	
 	camFocusedObj = physicsObjects[numPhysicsObjs]->physicsObject->ID;
+
+	int me;
+	me = physicsObjects[numPhysicsObjs]->physicsObject->ID;
+	allPhysicsObjects[me]->collisionRectangles[allPhysicsObjects[me]->numCollisionRectangles] = {0,0,25,25};
+	allPhysicsObjects[me]->numCollisionRectangles++;
 
 	numPhysicsObjs++;
 	physicsObjects[numPhysicsObjs] = GE_CreateRenderedPhysicsObject(myRenderer,mySprite,{200,200,0},{0,0,0},{25,25});	
+	
+	me = physicsObjects[numPhysicsObjs]->physicsObject->ID;
+	allPhysicsObjects[me]->collisionRectangles[allPhysicsObjects[me]->numCollisionRectangles] = {0,0,25,25};
+	allPhysicsObjects[me]->numCollisionRectangles++;
 
 	numPhysicsObjs++;
 	physicsObjects[numPhysicsObjs] =  GE_CreateRenderedPhysicsObject(myRenderer,otherSprite,{200,200,0},{0,0,0},{25,25});	
 	
+	me = physicsObjects[numPhysicsObjs]->physicsObject->ID;
+	allPhysicsObjects[me]->collisionRectangles[allPhysicsObjects[me]->numCollisionRectangles] = {0,0,25,25};
+	allPhysicsObjects[me]->numCollisionRectangles++;
+
 
 
 	
@@ -282,6 +299,11 @@ int main()
 			std::cout <<"vely: " << allPhysicsObjects[camFocusedObj]->velocity.y << std::endl;
 			std::cout <<"posx: " << allPhysicsObjects[camFocusedObj]->position.x << std::endl;
 			std::cout <<"posy: " << allPhysicsObjects[camFocusedObj]->position.y << std::endl;
+		}
+		if(keysHeld[SDLK_x])
+		{
+			std::cout <<"2posx: " << camera.pos.x << std::endl;
+			std::cout <<"2posy: " << camera.pos.y << std::endl;
 		}
 		if(keysHeld[SDLK_t])
 		{

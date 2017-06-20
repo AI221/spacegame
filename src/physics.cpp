@@ -1,5 +1,6 @@
 #include "physics.h"
 
+										#include<SDL2/SDL.h>
 
 PhysicsObject* allPhysicsObjects[MAX_PHYSICS_OBJECTS];
 int nextPhysicsObject = 0; 
@@ -12,7 +13,7 @@ int nextCollisionSpot = 0;
 PhysicsObject* GE_CreatePhysicsObject(Vector2r newPosition, Vector2r newVelocity, Vector2 shape)
 {
 	
-	PhysicsObject* newPhysicsObject = new PhysicsObject{{0,0,0},{0,0,0},newPosition,true,newVelocity,true,{0,0,shape.x,shape.y},{0,0},nextPhysicsObject};
+	PhysicsObject* newPhysicsObject = new PhysicsObject{{0,0,0},{0,0,0},newPosition,true,newVelocity,true,{0,0,shape.x,shape.y},{0,0},nextPhysicsObject,{},0};
 	allPhysicsObjects[nextPhysicsObject] = newPhysicsObject;
 	nextPhysicsObject++;
 	return newPhysicsObject;
@@ -45,9 +46,12 @@ void GE_AddRelativeVelocity(PhysicsObject* physicsObject, Vector2r moreVelocity)
 }
 void GE_TickPhysics()
 {
+	
 	for (int i=0;i < (nextPhysicsObject-1); i++)
 	{
 		PhysicsObject* cObj = allPhysicsObjects[i];			
+		
+		//remove our old grid 
 		for (int x = 0; x < cObj->warpedShape.x; x++) 
 		{
 			for (int y = 0; y < cObj->warpedShape.y; y++) 
@@ -58,14 +62,9 @@ void GE_TickPhysics()
 				{
 					sGrid[posx][posy] = 0;
 				}
-				else if (sGrid[posx][posy] != 0)
-				{
-					//std::cout << "osht we gots collision im: " << myNumber << " its: " << sGrid[posx][posy] << " differenciation: " << rand() << std::endl;
-				}
 			}
 		}
 		//move ourselves forward
-		//TODO: keep track of the last position, or maybe not because it could be reverse by minusing our position by our speed maybe?
 		//first set velocity
 		
 		if (cObj->setNewVelocity) 
@@ -124,6 +123,95 @@ void GE_TickPhysics()
 				}
 			}
 		}
+
+	
+		for (int x = 0; x < cObj->warpedShape.x; x++) 
+		{
+			for (int y = 0; y < cObj->warpedShape.y; y++) 
+			{
+				int posx = x+cObj->grid.x;
+				int posy = y+cObj->grid.y;
+				if (sGrid[posx][posy] != 0 && sGrid[posx][posy] != cObj->ID)
+				{
+					//collision full-check
+					
+					std::cout << "osht we gots collision im: " << cObj->ID << " its: " << sGrid[posx][posy] << " differenciation: " << rand() << std::endl;
+					std::cout << " im x " << cObj->position.x << " y " << cObj->position.y << std::endl;
+				
+					PhysicsObject* victimObj = allPhysicsObjects[sGrid[posx][posy]];
+
+					std::cout << "my rect count " << cObj->numCollisionRectangles << std::endl;
+
+					std::cout << "their rect count " << victimObj->numCollisionRectangles << std::endl;
+
+					for (int a=0; a < cObj->numCollisionRectangles;a++)
+					{
+						//iterate through each of our rectangles...
+
+						//The left two points are simply the location of the rectangle relative to the location of cObj. The right 2 points are the location of the rectangle relative to the location of cObj plus the width or height of the rectangle.
+						//TODO: incorportate rotation
+
+						Rectangle currentRectangle = cObj->collisionRectangles[a];
+						//double myPoints[4] = {currentRectangle.x+cObj->position.x,currentRectangle.x+currentRectangle.w+cObj->position.x,currentRectangle.y+cObj->position.y,currentRectangle.y+currentRectangle.h+cObj->position.y};
+
+						Vector2 myPoints[4] = {
+							{currentRectangle.x+cObj->position.x , currentRectangle.y+cObj->position.y}, //top left
+							{currentRectangle.x+currentRectangle.w+cObj->position.x , currentRectangle.y+cObj->position.y}, //top right
+							{currentRectangle.x+cObj->position.x , currentRectangle.y+currentRectangle.h+cObj->position.y}, //bottom left
+							{currentRectangle.x+currentRectangle.w+cObj->position.x , currentRectangle.y+currentRectangle.h+cObj->position.y} //bottom right
+						};
+
+
+
+						for (int b=0; b < cObj->numCollisionRectangles;b++)
+						{
+
+							Rectangle victimRectangle = victimObj->collisionRectangles[b];
+							Vector2 theirPoints[4] = {
+								{victimRectangle.x+victimObj->position.x , victimRectangle.y+victimObj->position.y}, //top left
+								{victimRectangle.x+victimRectangle.w+victimObj->position.x , victimRectangle.y+victimObj->position.y}, //top right
+								{victimRectangle.x+victimObj->position.x , victimRectangle.y+victimRectangle.h+victimObj->position.y}, //bottom left
+								{victimRectangle.x+victimRectangle.w+victimObj->position.x , victimRectangle.y+victimRectangle.h+victimObj->position.y} //bottom right
+							};
+							
+
+							//iterate through each of my points, checking it against each victim point.
+							for (int me;me < 4; me++)
+							{
+								std::cout << me << " x " << myPoints[me].x << " y " << myPoints[me].y  << std::endl;
+								
+								bool check1 = (myPoints[me].x > theirPoints[0].x) && (myPoints[me].y > theirPoints[0].y);
+								bool check2 = true;//(myPoints[me].x > theirPoints[0].
+								bool check3 = true;
+								bool check4 = (myPoints[me].x < theirPoints[3].x) && (myPoints[me].y < theirPoints[3].y);
+
+								std::cout << "c1 " << check1 << " c4 " << check4 << std::endl;
+
+								if (check1 && check2 && check3 && check4)
+								{
+									std::cout << "FULL COLLISION DETECTED" << std::endl;
+									cObj->velocity = {0,0,0};
+								}
+								for (int victim;victim <4; victim++)
+								{
+									//jesus christ this is a lot of for loops. i feel sorry for the sucker who has to debug this
+									//...oh...
+
+									/*if ((myPoints[me].x > theirPoints[victim].x) && (myPoints[me].y > theirPoints[victim].y))
+									{
+										std::cout << "FULL COLLISION DETECTED" << std::endl;
+									}*/
+									
+
+								}
+							}
+						}
+					}
+
+				}
+			}
+		}
+
 	}
 
 
@@ -131,6 +219,7 @@ void GE_TickPhysics()
 void GE_FreePhysicsObject(PhysicsObject* physicsObject) //MUST be allocated with new
 {
 	deadPhysicsObjects[physicsObject->ID] = true;
+	delete physicsObject->collisionRectangles;
 	delete physicsObject;
 }
 

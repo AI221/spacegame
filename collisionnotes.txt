@@ -1,0 +1,34 @@
+
+
+A:
+points:
+
+xleft1: 1
+yleft2: 1
+xright1: 10
+yright2: 10
+
+B:
+points:
+
+xleft1: 9
+yleft2: 9
+xright1: 19
+yright2: 19
+
+COLLISION CHECKS:
+
+A->B
+
+if pointA is greater than pointB then collide.
+
+
+
+B->A
+
+if pointB is less than pointA then collide
+
+AMBIGOUS:
+
+//Rotation might not be an element in this example, but it certainly could be. A trangle 
+

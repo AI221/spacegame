@@ -1,10 +1,12 @@
 #include <math.h>
 #include "vector2.h"
+#include <iostream>
 
 #ifndef __PHYSICS_INCLUDED
 #define __PHYSICS_INCLUDED
 
 #define MAX_PHYSICS_OBJECTS 256//256000000 //maximum ammount of physics objects in the game
+#define MAX_COLLISION_RECTANGLES_PER_OBJECT 25 //TODO: test if this is a good limit in practice
 struct GridInfo //info for the inaccurate physics pre-calculation
 {
 	int x;
@@ -12,6 +14,33 @@ struct GridInfo //info for the inaccurate physics pre-calculation
 	int shapex;
 	int shapey; 
 };
+
+
+/*
+	x=0;y=0;w=10;h=10;
+
+	   width
+	x,y-----|
+	|       |
+	|       |
+  h |       |
+  e |       |
+  i |       | 
+  g |       |
+  h |       |
+  t |       |
+	|-------|<-- 10,10 (0+10,0+10)
+
+*/
+
+struct Rectangle
+{
+	double x;
+	double y;
+	double w;
+	double h;
+};
+
 struct PhysicsObject
 {
 	Vector2r position;
@@ -23,6 +52,8 @@ struct PhysicsObject
 	GridInfo grid;
 	Vector2 warpedShape;
 	int ID;
+	Rectangle collisionRectangles[MAX_COLLISION_RECTANGLES_PER_OBJECT];
+	int numCollisionRectangles;
 };
 
 extern PhysicsObject* allPhysicsObjects[MAX_PHYSICS_OBJECTS];
