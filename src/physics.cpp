@@ -1,14 +1,13 @@
 #include "physics.h"
 
-										#include<SDL2/SDL.h>
 
 PhysicsObject* allPhysicsObjects[MAX_PHYSICS_OBJECTS];
-int nextPhysicsObject = 0; 
+int nextPhysicsObject = 1; 
 bool deadPhysicsObjects[MAX_PHYSICS_OBJECTS];
 
 int sGrid[2000][2000]; //TODO: Dynamically sized arrays for both of these
-int collisionSpots[2000][1]; 
-int nextCollisionSpot = 0;
+//int collisionSpots[2000][1]; 
+//int nextCollisionSpot = 0;
 
 PhysicsObject* GE_CreatePhysicsObject(Vector2r newPosition, Vector2r newVelocity, Vector2 shape)
 {
@@ -44,10 +43,11 @@ void GE_AddRelativeVelocity(PhysicsObject* physicsObject, Vector2r moreVelocity)
 	physicsObject->newVelocity.addRelativeVelocity(moreVelocity.x,moreVelocity.y,physicsObject->position.r);
 	physicsObject->setNewVelocity = true;
 }
+int numCollisionsTemp = 0;
 void GE_TickPhysics()
 {
 	
-	for (int i=0;i < (nextPhysicsObject-1); i++)
+	for (int i=1;i < (nextPhysicsObject-1); i++)
 	{
 		PhysicsObject* cObj = allPhysicsObjects[i];			
 		
@@ -58,7 +58,7 @@ void GE_TickPhysics()
 			{
 				int posx = x+cObj->grid.x;
 				int posy = y+cObj->grid.y;
-				if (sGrid[posx][posy] == cObj->ID) //TODO: Check if necisary -- it might be okay to set other's grids to 0 because we'll detect collision and start an accurate simulation anyway
+				if (sGrid[posx][posy] == cObj->ID) //do not remove other's sGrid entries. if we did, we wouldn't ever detect collision.
 				{
 					sGrid[posx][posy] = 0;
 				}
@@ -105,7 +105,7 @@ void GE_TickPhysics()
 		cObj->warpedShape.x = ((abs(cObj->velocity.x)/10)+2)*(cObj->grid.shapex/10);
 		cObj->warpedShape.y = ((abs(cObj->velocity.y)/10)+2)*(cObj->grid.shapey/10);
 
-		for (int x = 0; x < cObj->warpedShape.x; x++) 
+		/*for (int x = 0; x < cObj->warpedShape.x; x++) 
 		{
 			for (int y = 0; y < cObj->warpedShape.y; y++) 
 			{
@@ -122,7 +122,7 @@ void GE_TickPhysics()
 					nextCollisionSpot++;
 				}
 			}
-		}
+		}*/
 
 	
 		for (int x = 0; x < cObj->warpedShape.x; x++) 
@@ -131,6 +131,10 @@ void GE_TickPhysics()
 			{
 				int posx = x+cObj->grid.x;
 				int posy = y+cObj->grid.y;
+				if (sGrid[posx][posy] == 0) 
+				{
+					sGrid[posx][posy] = cObj->ID;
+				}
 				if (sGrid[posx][posy] != 0 && sGrid[posx][posy] != cObj->ID)
 				{
 					//collision full-check
@@ -163,7 +167,7 @@ void GE_TickPhysics()
 
 
 
-						for (int b=0; b < cObj->numCollisionRectangles;b++)
+						for (int b=0; b < victimObj->numCollisionRectangles;b++)
 						{
 
 							Rectangle victimRectangle = victimObj->collisionRectangles[b];
@@ -176,9 +180,10 @@ void GE_TickPhysics()
 							
 
 							//iterate through each of my points, checking it against each victim point.
-							for (int me;me < 4; me++)
+							for (int me = 0;me < 4; me++)
 							{
-								std::cout << me << " x " << myPoints[me].x << " y " << myPoints[me].y  << std::endl;
+								std::cout << me << std::endl;
+								std:: cout << " x " << myPoints[me].x << " y " << myPoints[me].y  << std::endl;
 								
 								bool check1 = (myPoints[me].x > theirPoints[0].x) && (myPoints[me].y > theirPoints[0].y);
 								bool check2 = true;//(myPoints[me].x > theirPoints[0].
@@ -189,10 +194,33 @@ void GE_TickPhysics()
 
 								if (check1 && check2 && check3 && check4)
 								{
-									std::cout << "FULL COLLISION DETECTED" << std::endl;
-									cObj->velocity = {0,0,0};
+									numCollisionsTemp++;
+									std::cout << "FULL COLLISION DETECTED #" << numCollisionsTemp << std::endl;
+
+									Vector2r newVelocity;
+
+									newVelocity.x = (cObj->velocity.x*.5)+(victimObj->velocity.x*.5);
+									newVelocity.y = (cObj->velocity.y*.5)+(victimObj->velocity.y*.5);
+									newVelocity.r = (cObj->velocity.r*.5)+(victimObj->velocity.r*.5);
+
+
+									/*cObj->velocity.x = (cObj->velocity.x*.5)+(victimObj->velocity.x*(-0.5));
+									cObj->velocity.y = (cObj->velocity.y*.5)+(victimObj->velocity.y*(-0.5));
+									cObj->velocity.r = (cObj->velocity.r*.5)+(victimObj->velocity.r*(-0.5));
+
+
+									victimObj->velocity.x = (victimObj->velocity.x*(-0.5))+(oldVelocity.x*(0.5));
+									victimObj->velocity.y = (victimObj->velocity.y*(-0.5))+(oldVelocity.y*(0.5));
+									victimObj->velocity.r = (victimObj->velocity.r*(-0.5))+(oldVelocity.r*(0.5));*/
+
+									cObj->velocity.x = newVelocity.x*-1;
+									cObj->velocity.y = newVelocity.y*-1;
+									cObj->velocity.r = newVelocity.r*-1;
+									cObj->velocity = newVelocity;
+									victimObj->velocity = newVelocity;
+
 								}
-								for (int victim;victim <4; victim++)
+								for (int victim = 0;victim <4; victim++)
 								{
 									//jesus christ this is a lot of for loops. i feel sorry for the sucker who has to debug this
 									//...oh...

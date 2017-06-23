@@ -21,14 +21,14 @@ struct GridInfo //info for the inaccurate physics pre-calculation
 
 	   width
 	x,y-----|
-	|       |
-	|       |
-  h |       |
-  e |       |
-  i |       | 
-  g |       |
-  h |       |
-  t |       |
+	|		|
+	|		|
+  h |		|
+  e |		|
+  i |		| 
+  g |		|
+  h |		|
+  t |		|
 	|-------|<-- 10,10 (0+10,0+10)
 
 */
@@ -64,8 +64,8 @@ extern bool deadPhysicsObjects[MAX_PHYSICS_OBJECTS];
 
 extern int sGrid[2000][2000]; //TODO: Dynamically sized arrays for both of these
 
-extern int collisionSpots[2000][1]; 
-extern int nextCollisionSpot;
+//extern int collisionSpots[2000][1]; 
+//extern int nextCollisionSpot;
 
 
 

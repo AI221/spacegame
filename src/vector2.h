@@ -35,6 +35,16 @@ struct Vector2r
 
 		return newVector;
 	}
+	Vector2r operator*(Vector2r other)
+	{	
+		Vector2r newVector = {this->x*other.x,this->y*other.y,this->r*other.r};
+		newVector.r -= floor(newVector.r/360)*360;
+	}
+	Vector2r operator*(int other)
+	{
+		Vector2r newVector = {this->x*other,this->y*other,this->r*other};
+		newVector.r -= floor(newVector.r/360)*360;
+	}
 	Vector2r operator+=(Vector2r other)
 	{
 		return operator+(other);

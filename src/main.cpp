@@ -179,15 +179,21 @@ int main()
 
 	Sprite* bg = GE_CreateSprite(myRenderer,SPRITE_DIR"DEBUG_nothingHere.bmp",camera.screenWidth,camera.screenHeight);
 		
-	physicsObjects[numPhysicsObjs] = GE_CreateRenderedPhysicsObject(myRenderer,/*shoddySpaceship*/mySprite,{50,50,0},{0,0,0},{25,25});	
-	camFocusedObj = physicsObjects[numPhysicsObjs]->physicsObject->ID;
-
 	int me;
+	
+
+	for (int i=0;i<20;i++)
+	{
+	physicsObjects[numPhysicsObjs] = GE_CreateRenderedPhysicsObject(myRenderer,mySprite,{200,200+(i*35),0},{0,0,0},{25,25});	
+	
 	me = physicsObjects[numPhysicsObjs]->physicsObject->ID;
 	allPhysicsObjects[me]->collisionRectangles[allPhysicsObjects[me]->numCollisionRectangles] = {0,0,25,25};
 	allPhysicsObjects[me]->numCollisionRectangles++;
 
-	numPhysicsObjs++;
+		numPhysicsObjs++;
+	}
+
+	//numPhysicsObjs++;
 	physicsObjects[numPhysicsObjs] = GE_CreateRenderedPhysicsObject(myRenderer,mySprite,{200,200,0},{0,0,0},{25,25});	
 	
 	me = physicsObjects[numPhysicsObjs]->physicsObject->ID;
@@ -195,12 +201,20 @@ int main()
 	allPhysicsObjects[me]->numCollisionRectangles++;
 
 	numPhysicsObjs++;
-	physicsObjects[numPhysicsObjs] =  GE_CreateRenderedPhysicsObject(myRenderer,otherSprite,{200,200,0},{0,0,0},{25,25});	
+	physicsObjects[numPhysicsObjs] =  GE_CreateRenderedPhysicsObject(myRenderer,otherSprite,{0,0,0},{0,0,0},{25,25});	
 	
 	me = physicsObjects[numPhysicsObjs]->physicsObject->ID;
 	allPhysicsObjects[me]->collisionRectangles[allPhysicsObjects[me]->numCollisionRectangles] = {0,0,25,25};
 	allPhysicsObjects[me]->numCollisionRectangles++;
 
+
+	numPhysicsObjs++;
+	physicsObjects[numPhysicsObjs] = GE_CreateRenderedPhysicsObject(myRenderer,/*shoddySpaceship*/mySprite,{50,50,0},{0,0,0},{25,25});	
+	camFocusedObj = physicsObjects[numPhysicsObjs]->physicsObject->ID;
+
+	me = physicsObjects[numPhysicsObjs]->physicsObject->ID;
+	allPhysicsObjects[me]->collisionRectangles[allPhysicsObjects[me]->numCollisionRectangles] = {0,0,25,25};
+	allPhysicsObjects[me]->numCollisionRectangles++;
 
 
 	
@@ -222,17 +236,22 @@ int main()
 		debugButton* spawnButton = new debugButton(myRenderer,{175,50},{100,50},"spawn phys. obj.");
 
 		auto callback2 = [&] () { 
-			Vector2r pos = physicsObjects[camFocusedObj]->physicsObject->position;
+			Vector2r pos = allPhysicsObjects[camFocusedObj]->position;
 			for (int i=0;i < 20;i++)
 			{
 				numPhysicsObjs++;
 				physicsObjects[numPhysicsObjs] = GE_CreateRenderedPhysicsObject(myRenderer,otherSprite,{pos.x,pos.y,0},{(double)(rand() % 101)/100,(double)(rand() % 101)/100,0},{25,25});	
 				//physicsObjects[numPhysicsObjs]->myPhysicsObject->setVelocity({(double)(rand() % 101)/100,(double)(rand() % 101)/100}); //random between 0-1 w/ 2 decimals
+				int me = physicsObjects[numPhysicsObjs]->physicsObject->ID;
+				allPhysicsObjects[me]->collisionRectangles[allPhysicsObjects[me]->numCollisionRectangles] = {0,0,25,25};
+				allPhysicsObjects[me]->numCollisionRectangles++;
 			}
 		};
 		spawnButton->C_Pressed = callback2;
 		interface1_menu->addElement(spawnButton);
 
+
+		
 
 	#endif
 	while (true)
@@ -287,7 +306,7 @@ int main()
 		}
 		if(keysHeld[SDLK_1])
 		{
-			camFocusedObj=2;
+			camFocusedObj=15;
 		}
 		if(keysHeld[SDLK_0])
 		{
