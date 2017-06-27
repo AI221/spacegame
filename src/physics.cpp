@@ -1,6 +1,8 @@
 #include "physics.h"
 
 
+
+
 PhysicsObject* allPhysicsObjects[MAX_PHYSICS_OBJECTS];
 int nextPhysicsObject = 1; 
 bool deadPhysicsObjects[MAX_PHYSICS_OBJECTS];
@@ -40,7 +42,7 @@ void GE_AddRelativeVelocity(PhysicsObject* physicsObject, Vector2r moreVelocity)
 {
 	physicsObject->newVelocity = physicsObject->velocity;
 	physicsObject->newVelocity.r = physicsObject->velocity.r-moreVelocity.r;
-	physicsObject->newVelocity.addRelativeVelocity(moreVelocity.x,moreVelocity.y,physicsObject->position.r);
+	physicsObject->newVelocity.addRelativeVelocity({moreVelocity.x,moreVelocity.y,physicsObject->position.r});
 	physicsObject->setNewVelocity = true;
 }
 int numCollisionsTemp = 0;
@@ -139,69 +141,46 @@ void GE_TickPhysics()
 				{
 					//collision full-check
 					
-					std::cout << "osht we gots collision im: " << cObj->ID << " its: " << sGrid[posx][posy] << " differenciation: " << rand() << std::endl;
-					std::cout << " im x " << cObj->position.x << " y " << cObj->position.y << std::endl;
-				
 					PhysicsObject* victimObj = allPhysicsObjects[sGrid[posx][posy]];
-
-					std::cout << "my rect count " << cObj->numCollisionRectangles << std::endl;
-
-					std::cout << "their rect count " << victimObj->numCollisionRectangles << std::endl;
 
 					for (int a=0; a < cObj->numCollisionRectangles;a++)
 					{
 						//iterate through each of our rectangles...
 
-						//The left two points are simply the location of the rectangle relative to the location of cObj. The right 2 points are the location of the rectangle relative to the location of cObj plus the width or height of the rectangle.
-						//TODO: incorportate rotation
-
-						Rectangle currentRectangle = cObj->collisionRectangles[a];
-						//double myPoints[4] = {currentRectangle.x+cObj->position.x,currentRectangle.x+currentRectangle.w+cObj->position.x,currentRectangle.y+cObj->position.y,currentRectangle.y+currentRectangle.h+cObj->position.y};
-
-						Vector2 myPoints[4] = {
-							{currentRectangle.x+cObj->position.x , currentRectangle.y+cObj->position.y}, //top left
-							{currentRectangle.x+currentRectangle.w+cObj->position.x , currentRectangle.y+cObj->position.y}, //top right
-							{currentRectangle.x+cObj->position.x , currentRectangle.y+currentRectangle.h+cObj->position.y}, //bottom left
-							{currentRectangle.x+currentRectangle.w+cObj->position.x , currentRectangle.y+currentRectangle.h+cObj->position.y} //bottom right
-						};
-
-
+						Vector2 myPoints[4] = {};
+						GE_RectangleToPoints(cObj->collisionRectangles[a],myPoints,cObj->position);
 
 						for (int b=0; b < victimObj->numCollisionRectangles;b++)
 						{
 
-							Rectangle victimRectangle = victimObj->collisionRectangles[b];
-							Vector2 theirPoints[4] = {
-								{victimRectangle.x+victimObj->position.x , victimRectangle.y+victimObj->position.y}, //top left
-								{victimRectangle.x+victimRectangle.w+victimObj->position.x , victimRectangle.y+victimObj->position.y}, //top right
-								{victimRectangle.x+victimObj->position.x , victimRectangle.y+victimRectangle.h+victimObj->position.y}, //bottom left
-								{victimRectangle.x+victimRectangle.w+victimObj->position.x , victimRectangle.y+victimRectangle.h+victimObj->position.y} //bottom right
-							};
+							Vector2 theirPoints[4] = {};
+							GE_RectangleToPoints(victimObj->collisionRectangles[b],theirPoints,victimObj->position);
 							
 
 							//iterate through each of my points, checking it against each victim point.
 							for (int me = 0;me < 4; me++)
 							{
-								std::cout << me << std::endl;
-								std:: cout << " x " << myPoints[me].x << " y " << myPoints[me].y  << std::endl;
 								
-								bool check1 = (myPoints[me].x > theirPoints[0].x) && (myPoints[me].y > theirPoints[0].y);
-								bool check2 = true;//(myPoints[me].x > theirPoints[0].
-								bool check3 = true;
-								bool check4 = (myPoints[me].x < theirPoints[3].x) && (myPoints[me].y < theirPoints[3].y);
+								bool check1 = (myPoints[me].x >= theirPoints[0].x) && (myPoints[me].y >= theirPoints[0].y);
+								bool check2 = (myPoints[me].x <= theirPoints[3].x) && (myPoints[me].y <= theirPoints[3].y);
 
-								std::cout << "c1 " << check1 << " c4 " << check4 << std::endl;
-
-								if (check1 && check2 && check3 && check4)
+								if (check1 && check2)
 								{
 									numCollisionsTemp++;
 									std::cout << "FULL COLLISION DETECTED #" << numCollisionsTemp << std::endl;
 
 									Vector2r newVelocity;
 
-									newVelocity.x = (cObj->velocity.x*.5)+(victimObj->velocity.x*.5);
+									/*newVelocity.x = (cObj->velocity.x*.5)+(victimObj->velocity.x*.5);
 									newVelocity.y = (cObj->velocity.y*.5)+(victimObj->velocity.y*.5);
-									newVelocity.r = (cObj->velocity.r*.5)+(victimObj->velocity.r*.5);
+									newVelocity.r = (cObj->velocity.r*.5)+(victimObj->velocity.r*.5);*/
+
+									//velocity should be based on the _difference_ of the two velocities
+									
+									//newVelocity = (cObj->velocity-victimObj->velocity)*0.5;
+
+
+
 
 
 									/*cObj->velocity.x = (cObj->velocity.x*.5)+(victimObj->velocity.x*(-0.5));
@@ -213,23 +192,46 @@ void GE_TickPhysics()
 									victimObj->velocity.y = (victimObj->velocity.y*(-0.5))+(oldVelocity.y*(0.5));
 									victimObj->velocity.r = (victimObj->velocity.r*(-0.5))+(oldVelocity.r*(0.5));*/
 
-									cObj->velocity.x = newVelocity.x*-1;
+									/*cObj->velocity.x = newVelocity.x*-1;
 									cObj->velocity.y = newVelocity.y*-1;
 									cObj->velocity.r = newVelocity.r*-1;
 									cObj->velocity = newVelocity;
-									victimObj->velocity = newVelocity;
+									//cObj->position += newVelocity;
 
-								}
-								for (int victim = 0;victim <4; victim++)
-								{
-									//jesus christ this is a lot of for loops. i feel sorry for the sucker who has to debug this
-									//...oh...
+									victimObj->velocity.x = newVelocity.x*-1;
+									victimObj->velocity.y = newVelocity.y*-1;
+									victimObj->velocity.r = newVelocity.r*-1;
+									*/
+								/*	newVelocity.x = (victimObj->velocity.x-cObj->velocity.x)*0.5;
+									newVelocity.y = (victimObj->velocity.y-cObj->velocity.y)*0.5;
+									newVelocity.r = (victimObj->velocity.r-cObj->velocity.r)*0.5;
 
-									/*if ((myPoints[me].x > theirPoints[victim].x) && (myPoints[me].y > theirPoints[victim].y))
-									{
-										std::cout << "FULL COLLISION DETECTED" << std::endl;
-									}*/
+
+									Vector2r otherNewVelocity;
+
+									otherNewVelocity.x = (cObj->velocity.x-victimObj->velocity.x)*0.5;
+									otherNewVelocity.y = (cObj->velocity.y-victimObj->velocity.y)*0.5;
+									otherNewVelocity.r = (cObj->velocity.r-victimObj->velocity.r)*0.5;
+
+									std::cout << "x " << otherNewVelocity.x << " y " << otherNewVelocity.y << " r " << otherNewVelocity.r << std::endl;
+
+									victimObj->velocity.x -= otherNewVelocity.x;
+									victimObj->velocity.y -= otherNewVelocity.y;
+									victimObj->velocity.r -= otherNewVelocity.r;
 									
+									cObj->velocity.x -= newVelocity.x;
+									cObj->velocity.y -= newVelocity.y;
+									cObj->velocity.r -= newVelocity.r;
+*/
+									/*cObj->velocity = cObj->velocity+newVelocity;
+
+									victimObj->velocity = victimObj->velocity-newVelocity;
+*/
+									//SDL_Delay(250);
+
+									Vector2r cObjsVelocity = cObj->velocity;
+									cObj->velocity = victimObj->velocity;
+									victimObj->velocity = cObjsVelocity;
 
 								}
 							}
@@ -241,8 +243,6 @@ void GE_TickPhysics()
 		}
 
 	}
-
-
 }
 void GE_FreePhysicsObject(PhysicsObject* physicsObject) //MUST be allocated with new
 {
@@ -251,4 +251,59 @@ void GE_FreePhysicsObject(PhysicsObject* physicsObject) //MUST be allocated with
 	delete physicsObject;
 }
 
+#ifdef physics_debug
 
+	SDL_Renderer* debugRenderer;
+	Camera* debugCamera;
+
+	void GE_DEBUG_PassRendererToPhysicsEngine(SDL_Renderer* yourRenderer, Camera* yourCamera)
+	{
+		debugRenderer = yourRenderer;
+		debugCamera = yourCamera;
+	}
+#endif
+
+
+void GE_RectangleToPoints(Rectangle rect, Vector2* points, Vector2r hostPosition)
+{
+
+	points[0] = {rect.x , rect.y}; //top left
+	points[1] = {rect.x+rect.w , rect.y}; //top right
+	points[2] = {rect.x , rect.y+rect.h}; //bottom left
+	points[3] = {rect.x+rect.w , rect.y+rect.h}; //bottom right
+
+	double halfrectw = rect.w/2;
+	double halfrecth = rect.h/2;
+	for (int i =0; i < 4; i++)
+	{
+		points[i].x -= halfrectw;
+		points[i].y -= halfrecth;
+		GE_Vector2RotationCCW(&points[i],hostPosition.r);
+		points[i].x += halfrectw+hostPosition.x;
+		points[i].y += halfrecth+hostPosition.y;
+
+
+		#ifdef physics_debug
+
+			//note that the physics debugRender does NOT include rotation of the screen, and probably never will. it is good enough for its purpose.
+			SDL_SetRenderDrawColor( debugRenderer, 0xFF, 0xFF, 0x00, 0xFF ); 
+
+			SDL_Rect debugRect;
+
+			debugRect.x = points[i].x;
+			debugRect.y = points[i].y;
+			debugRect.w = 3;
+			debugRect.h = 3;
+
+			//counter for the 3-sized rectangle
+			debugRect.x -=1;
+			debugRect.y -=1;
+
+			debugRect.x -= (debugCamera->pos.x-debugCamera->screenWidth/2);
+			debugRect.y -= (debugCamera->pos.y-debugCamera->screenHeight/2);
+
+			SDL_RenderFillRect( debugRenderer, &debugRect ); 
+		#endif
+
+	}
+}

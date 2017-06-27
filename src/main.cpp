@@ -38,7 +38,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define SPRITE_DIR "../sprites/"
 
-
+#define NO_CAMERA_ROTATE true
 
 
 //Definitions
@@ -92,6 +92,9 @@ int camFocusedObj = 1;
 void render()
 {
 	camera.pos = allPhysicsObjects[camFocusedObj]->position;
+	#ifdef NO_CAMERA_ROTATE
+		camera.pos.r = 0;
+	#endif
 	for (int i=1; i <= numPhysicsObjs; i++)
 	{
 		GE_BlitRenderedPhysicsObject(physicsObjects[i],&camera);
@@ -165,7 +168,7 @@ int main()
 	
 	myWindow = SDL_CreateWindow("Spacegame", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, camera.screenWidth, camera.screenHeight, 0);
 
-	myRenderer = SDL_CreateRenderer(myWindow, -1, SDL_RENDERER_ACCELERATED);
+	myRenderer = SDL_CreateRenderer(myWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
 	//debug 
 	nothingHere = GE_CreateSprite(myRenderer,SPRITE_DIR"DEBUG_nothingHere.bmp",10,10);
@@ -184,16 +187,16 @@ int main()
 
 	for (int i=0;i<20;i++)
 	{
-	physicsObjects[numPhysicsObjs] = GE_CreateRenderedPhysicsObject(myRenderer,mySprite,{200,200+(i*35),0},{0,0,0},{25,25});	
-	
-	me = physicsObjects[numPhysicsObjs]->physicsObject->ID;
-	allPhysicsObjects[me]->collisionRectangles[allPhysicsObjects[me]->numCollisionRectangles] = {0,0,25,25};
-	allPhysicsObjects[me]->numCollisionRectangles++;
+		physicsObjects[numPhysicsObjs] = GE_CreateRenderedPhysicsObject(myRenderer,mySprite,{200,200+(i*35),0},{0,0,0},{25,25});	
+		
+		me = physicsObjects[numPhysicsObjs]->physicsObject->ID;
+		allPhysicsObjects[me]->collisionRectangles[allPhysicsObjects[me]->numCollisionRectangles] = {0,0,25,25};
+		allPhysicsObjects[me]->numCollisionRectangles++;
 
 		numPhysicsObjs++;
 	}
 
-	//numPhysicsObjs++;
+	/*numPhysicsObjs++;
 	physicsObjects[numPhysicsObjs] = GE_CreateRenderedPhysicsObject(myRenderer,mySprite,{200,200,0},{0,0,0},{25,25});	
 	
 	me = physicsObjects[numPhysicsObjs]->physicsObject->ID;
@@ -209,6 +212,7 @@ int main()
 
 
 	numPhysicsObjs++;
+	*/
 	physicsObjects[numPhysicsObjs] = GE_CreateRenderedPhysicsObject(myRenderer,/*shoddySpaceship*/mySprite,{50,50,0},{0,0,0},{25,25});	
 	camFocusedObj = physicsObjects[numPhysicsObjs]->physicsObject->ID;
 
@@ -216,6 +220,8 @@ int main()
 	allPhysicsObjects[me]->collisionRectangles[allPhysicsObjects[me]->numCollisionRectangles] = {0,0,25,25};
 	allPhysicsObjects[me]->numCollisionRectangles++;
 
+
+	nextPhysicsObject++;
 
 	
 	
@@ -234,6 +240,8 @@ int main()
 		interface1_menu->addElement(cubeRenderButton);	
 		
 		debugButton* spawnButton = new debugButton(myRenderer,{175,50},{100,50},"spawn phys. obj.");
+
+
 
 		auto callback2 = [&] () { 
 			Vector2r pos = allPhysicsObjects[camFocusedObj]->position;
@@ -254,6 +262,11 @@ int main()
 		
 
 	#endif
+
+	#ifdef physics_debug
+		GE_DEBUG_PassRendererToPhysicsEngine(myRenderer,&camera);
+	#endif
+
 	while (true)
 	{
 		if(SDL_PollEvent(&event))
@@ -352,9 +365,18 @@ int main()
 
 		GE_BlitSprite(bg,{0,0,0},{0,0});
 		
-		GE_TickPhysics(); //TODO: Seperate physics & renderer threads.
+		#ifndef physics_debug
+			GE_TickPhysics(); //TODO: Seperate physics & renderer threads.
+		#endif
+		
 		render();
+		
+		#ifdef physics_debug
+			GE_TickPhysics();
+		#endif
+
 		#ifdef debug
+
 				texttest->setText(std::to_string(allPhysicsObjects[camFocusedObj]->position.r).c_str());
 				interface1_menu->giveEvent(event);
 				if(isDebugRender) 
@@ -368,7 +390,7 @@ int main()
 		#endif
 					
 		SDL_RenderPresent(myRenderer);
-		SDL_Delay(16);
+		//SDL_Delay(16);
 	}
 	TTF_Quit();
 
@@ -380,6 +402,8 @@ int main()
 	GE_FreeSprite(shoddySpaceship);
 	GE_FreeSprite(mySprite);
 	GE_FreeSprite(otherSprite);
+
+	SDL_DestroyRenderer(myRenderer);
 
 	return 0;
 }

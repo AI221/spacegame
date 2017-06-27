@@ -1,6 +1,14 @@
 #include <math.h>
-#include "vector2.h"
 #include <iostream>
+#include "vector2.h"
+
+#define physics_debug true
+
+#ifdef physics_debug
+	#include<SDL2/SDL.h>
+	#include "camera.h"
+	void GE_DEBUG_PassRendererToPhysicsEngine(SDL_Renderer* yourRenderer, Camera* yourCamera);
+#endif
 
 #ifndef __PHYSICS_INCLUDED
 #define __PHYSICS_INCLUDED
@@ -76,6 +84,6 @@ void GE_AddRelativeVelocity(PhysicsObject* physicsObject, Vector2r moreVelocity)
 void GE_TickPhysics();
 void GE_FreePhysicsObject(PhysicsObject* physicsObject); //MUST be allocated with new
 
-
+void GE_RectangleToPoints(Rectangle rect, Vector2* points, Vector2r hostPosition);
 
 #endif //PHYSICS_INCLUDED

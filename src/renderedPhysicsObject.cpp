@@ -11,7 +11,7 @@ RenderedPhysicsObject* GE_CreateRenderedPhysicsObject(SDL_Renderer* renderer, Sp
 }
 void GE_BlitRenderedPhysicsObject(RenderedPhysicsObject* subject, Camera* camera)
 {
-	Vector2r position = GE_ApplyCameraOffset(camera,&subject->physicsObject->position);
+	Vector2r position = GE_ApplyCameraOffset(camera,subject->physicsObject->position);
 	GE_BlitSprite(subject->sprite,position,{0,0}); //TODO
 
 }
