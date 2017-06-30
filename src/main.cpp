@@ -34,11 +34,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "camera.h"
 #include "physics.h"
 #include "renderedPhysicsObject.h"
+#include "UI.h"
 
 
 #define SPRITE_DIR "../sprites/"
 
-#define NO_CAMERA_ROTATE true
+//#define NO_CAMERA_ROTATE true
 
 
 //Definitions
@@ -95,7 +96,7 @@ void render()
 	#ifdef NO_CAMERA_ROTATE
 		camera.pos.r = 0;
 	#endif
-	for (int i=1; i <= numPhysicsObjs; i++)
+	for (int i=0; i <= numPhysicsObjs; i++)
 	{
 		GE_BlitRenderedPhysicsObject(physicsObjects[i],&camera);
 	}
@@ -187,33 +188,15 @@ int main()
 
 	for (int i=0;i<20;i++)
 	{
-		physicsObjects[numPhysicsObjs] = GE_CreateRenderedPhysicsObject(myRenderer,mySprite,{200,200+(i*35),0},{0,0,0},{25,25});	
+		GE_CreateRenderedPhysicsObject(myRenderer,mySprite,{200+(i*3),200+(i*35),0},{0,0,0},{25,25});	
 		
 		me = physicsObjects[numPhysicsObjs]->physicsObject->ID;
 		allPhysicsObjects[me]->collisionRectangles[allPhysicsObjects[me]->numCollisionRectangles] = {0,0,25,25};
 		allPhysicsObjects[me]->numCollisionRectangles++;
 
-		numPhysicsObjs++;
 	}
 
-	/*numPhysicsObjs++;
-	physicsObjects[numPhysicsObjs] = GE_CreateRenderedPhysicsObject(myRenderer,mySprite,{200,200,0},{0,0,0},{25,25});	
-	
-	me = physicsObjects[numPhysicsObjs]->physicsObject->ID;
-	allPhysicsObjects[me]->collisionRectangles[allPhysicsObjects[me]->numCollisionRectangles] = {0,0,25,25};
-	allPhysicsObjects[me]->numCollisionRectangles++;
-
-	numPhysicsObjs++;
-	physicsObjects[numPhysicsObjs] =  GE_CreateRenderedPhysicsObject(myRenderer,otherSprite,{0,0,0},{0,0,0},{25,25});	
-	
-	me = physicsObjects[numPhysicsObjs]->physicsObject->ID;
-	allPhysicsObjects[me]->collisionRectangles[allPhysicsObjects[me]->numCollisionRectangles] = {0,0,25,25};
-	allPhysicsObjects[me]->numCollisionRectangles++;
-
-
-	numPhysicsObjs++;
-	*/
-	physicsObjects[numPhysicsObjs] = GE_CreateRenderedPhysicsObject(myRenderer,/*shoddySpaceship*/mySprite,{50,50,0},{0,0,0},{25,25});	
+	GE_CreateRenderedPhysicsObject(myRenderer,/*shoddySpaceship*/mySprite,{200,150,0},{0,0.1,0},{25,25});	
 	camFocusedObj = physicsObjects[numPhysicsObjs]->physicsObject->ID;
 
 	me = physicsObjects[numPhysicsObjs]->physicsObject->ID;
@@ -221,7 +204,6 @@ int main()
 	allPhysicsObjects[me]->numCollisionRectangles++;
 
 
-	nextPhysicsObject++;
 
 	
 	
@@ -247,9 +229,10 @@ int main()
 			Vector2r pos = allPhysicsObjects[camFocusedObj]->position;
 			for (int i=0;i < 20;i++)
 			{
-				numPhysicsObjs++;
-				physicsObjects[numPhysicsObjs] = GE_CreateRenderedPhysicsObject(myRenderer,otherSprite,{pos.x,pos.y,0},{(double)(rand() % 101)/100,(double)(rand() % 101)/100,0},{25,25});	
+				GE_CreateRenderedPhysicsObject(myRenderer,otherSprite,{pos.x,pos.y,0},{(double)(rand() % 11)/100,(double)(rand() % 11)/100,0},{25,25});	
+
 				//physicsObjects[numPhysicsObjs]->myPhysicsObject->setVelocity({(double)(rand() % 101)/100,(double)(rand() % 101)/100}); //random between 0-1 w/ 2 decimals
+
 				int me = physicsObjects[numPhysicsObjs]->physicsObject->ID;
 				allPhysicsObjects[me]->collisionRectangles[allPhysicsObjects[me]->numCollisionRectangles] = {0,0,25,25};
 				allPhysicsObjects[me]->numCollisionRectangles++;
@@ -267,9 +250,11 @@ int main()
 		GE_DEBUG_PassRendererToPhysicsEngine(myRenderer,&camera);
 	#endif
 
+	GE_UI_TextInput* myTextIn = new GE_UI_TextInput(myRenderer,{0,0},{50,50},SDL_Color{255,255,255},SDL_Color{0,0,0});
+
 	while (true)
 	{
-		if(SDL_PollEvent(&event))
+		if(SDL_PollEvent(&event) && (!myTextIn->isFocused))
 		{
 			if (event.type == SDL_KEYDOWN)
 			{
@@ -353,6 +338,7 @@ int main()
 		{
 			break;
 		}
+		myTextIn->giveEvent({0,0},event);
 			
 		
 
@@ -388,13 +374,29 @@ int main()
 					interface1_menu->render();
 				}
 		#endif
+
+		//#define shittyunittest true
+		#ifdef shittyunittest
+			Vector2r myTest = {1,2,3};
+
+			std::cout << myTest.x << " y " << myTest.y << " r " << myTest.r  << std::endl;
+
+			myTest = myTest+Vector2r{1,1,1};
+			
+			std::cout << myTest.x << " y " << myTest.y << " r " << myTest.r  << std::endl;
+
+		#endif
+
+		myTextIn->render();
 					
 		SDL_RenderPresent(myRenderer);
 		//SDL_Delay(16);
+		//SDL_Delay(500);
 	}
 	TTF_Quit();
 
 	
+	delete myTextIn;
 
 	GE_FreeSprite(bg);
 	GE_FreeSprite(nothingHere);

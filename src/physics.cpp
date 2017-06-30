@@ -5,7 +5,7 @@
 
 PhysicsObject* allPhysicsObjects[MAX_PHYSICS_OBJECTS];
 int nextPhysicsObject = 1; 
-bool deadPhysicsObjects[MAX_PHYSICS_OBJECTS];
+bool deadPhysicsObjects[MAX_PHYSICS_OBJECTS]; //TODO shift all elements down instead of this patch
 
 int sGrid[2000][2000]; //TODO: Dynamically sized arrays for both of these
 //int collisionSpots[2000][1]; 
@@ -14,10 +14,16 @@ int sGrid[2000][2000]; //TODO: Dynamically sized arrays for both of these
 PhysicsObject* GE_CreatePhysicsObject(Vector2r newPosition, Vector2r newVelocity, Vector2 shape)
 {
 	
-	PhysicsObject* newPhysicsObject = new PhysicsObject{{0,0,0},{0,0,0},newPosition,true,newVelocity,true,{0,0,shape.x,shape.y},{0,0},nextPhysicsObject,{},0};
+	PhysicsObject* newPhysicsObject = new PhysicsObject{{0,0,0},{0,0,0},newPosition,true,newVelocity,true,{0,0,shape.x,shape.y},{0,0},nextPhysicsObject,{},0,{0,0,0},false};
 	allPhysicsObjects[nextPhysicsObject] = newPhysicsObject;
 	nextPhysicsObject++;
 	return newPhysicsObject;
+}
+void GE_AddPhysicsObjectCollisionCallback(PhysicsObject* subject, std::function< bool (PhysicsObject* cObj, PhysicsObject* victimObj)> C_Collision, bool callCallbackBeforeCollisionFunction)
+{
+	subject->C_Collision = C_Collision;
+	subject->callCallbackBeforeCollisionFunction = callCallbackBeforeCollisionFunction;
+	subject->callCallbackAfterCollisionFunction = !callCallbackBeforeCollisionFunction;
 }
 
 
@@ -42,208 +48,276 @@ void GE_AddRelativeVelocity(PhysicsObject* physicsObject, Vector2r moreVelocity)
 {
 	physicsObject->newVelocity = physicsObject->velocity;
 	physicsObject->newVelocity.r = physicsObject->velocity.r-moreVelocity.r;
-	physicsObject->newVelocity.addRelativeVelocity({moreVelocity.x,moreVelocity.y,physicsObject->position.r});
+	physicsObject->newVelocity.addRelativeVelocity({moreVelocity.x,moreVelocity.y,physicsObject->position.r}); //TODO: De-OOify
 	physicsObject->setNewVelocity = true;
 }
 int numCollisionsTemp = 0;
 void GE_TickPhysics()
 {
-	
-	for (int i=1;i < (nextPhysicsObject-1); i++)
+	for (int i=1;i < (nextPhysicsObject); i++)
 	{
-		PhysicsObject* cObj = allPhysicsObjects[i];			
-		
-		//remove our old grid 
-		for (int x = 0; x < cObj->warpedShape.x; x++) 
+		GE_TickPhysics_ForObject(allPhysicsObjects[i]);
+	}
+}
+void GE_TickPhysics_ForObject(PhysicsObject* cObj)
+{
+	//remove our old grid 
+	for (int x = 0; x < cObj->warpedShape.x; x++) 
+	{
+		for (int y = 0; y < cObj->warpedShape.y; y++) 
 		{
-			for (int y = 0; y < cObj->warpedShape.y; y++) 
+			int posx = x+cObj->grid.x;
+			int posy = y+cObj->grid.y;
+			if (sGrid[posx][posy] == cObj->ID) //do not remove other's sGrid entries. if we did, we wouldn't ever detect collision.
 			{
-				int posx = x+cObj->grid.x;
-				int posy = y+cObj->grid.y;
-				if (sGrid[posx][posy] == cObj->ID) //do not remove other's sGrid entries. if we did, we wouldn't ever detect collision.
-				{
-					sGrid[posx][posy] = 0;
-				}
+				sGrid[posx][posy] = 0;
 			}
 		}
-		//move ourselves forward
-		//first set velocity
-		
-		if (cObj->setNewVelocity) 
-		{
-			cObj->velocity = cObj->newVelocity;
-			cObj->newVelocity = {0,0,0};
-			cObj->setNewVelocity = false;
-		}
-		if (cObj->setNewPosition)
-		{
-			cObj->position = cObj->newPosition;
-			cObj->newPosition = {0,0,0};
-			cObj->setNewPosition = false;
-		}
-
-		cObj->position = cObj->position+cObj->velocity;
-
-
-
-		//TODO multiple grids, but right now we can't have you go <0 (or 2000< but that'll be fixed too and doesnt happen as much)
-		if (cObj->position.x < 0)
-		{
-			cObj->position.x = 0;
-		}
-		if (cObj->position.y < 0)
-		{
-			cObj->position.y = 0;
-		}
-
-
-
-
-
-		cObj->grid.x = (int) cObj->position.x/10;
-		cObj->grid.y = (int) cObj->position.y/10;
-
-		//Calculate how the shape warps. The shape will stretch as you move faster to avoid clipping
-		cObj->warpedShape.x = ((abs(cObj->velocity.x)/10)+2)*(cObj->grid.shapex/10);
-		cObj->warpedShape.y = ((abs(cObj->velocity.y)/10)+2)*(cObj->grid.shapey/10);
-
-		/*for (int x = 0; x < cObj->warpedShape.x; x++) 
-		{
-			for (int y = 0; y < cObj->warpedShape.y; y++) 
-			{
-				int posx = x+cObj->grid.x;
-				int posy = y+cObj->grid.y;
-				if (sGrid[posx][posy] == 0) 
-				{
-					sGrid[posx][posy] = cObj->ID;
-				}
-				else
-				{
-					collisionSpots[nextCollisionSpot][0] = posx;
-					collisionSpots[nextCollisionSpot][1] = posy;
-					nextCollisionSpot++;
-				}
-			}
-		}*/
-
+	}
+	//move ourselves forward
+	//first set velocity
 	
-		for (int x = 0; x < cObj->warpedShape.x; x++) 
+	if (cObj->setNewVelocity) 
+	{
+		cObj->velocity = cObj->newVelocity;
+		cObj->newVelocity = {0,0,0};
+		cObj->setNewVelocity = false;
+	}
+	if (cObj->setNewPosition)
+	{
+		cObj->position = cObj->newPosition;
+		cObj->newPosition = {0,0,0};
+		cObj->setNewPosition = false;
+	}
+
+	cObj->position = cObj->position+cObj->velocity;
+
+
+
+	//TODO multiple grids, but right now we can't have you go <0 
+	if (cObj->position.x < 0)
+	{
+		cObj->position.x = 0;
+		cObj->velocity.x = 0;
+	}
+	if (cObj->position.y < 0)
+	{
+		cObj->position.y = 0;
+		cObj->velocity.y = 0;
+	}
+	//..or >2000
+	if (cObj->position.x > 2000)
+	{
+		cObj->position.x = 2000;
+		cObj->velocity.x = 0;
+	}
+	if (cObj->position.y > 2000)
+	{
+		cObj->position.y = 2000;
+		cObj->velocity.y = 0;
+	}
+
+
+
+
+
+	cObj->grid.x = (int) cObj->position.x/10;
+	cObj->grid.y = (int) cObj->position.y/10;
+
+	//Calculate how the shape warps. The shape will stretch as you move faster to avoid clipping
+	cObj->warpedShape.x = ((abs(cObj->velocity.x)/10)+2)*(cObj->grid.shapex/10);
+	cObj->warpedShape.y = ((abs(cObj->velocity.y)/10)+2)*(cObj->grid.shapey/10);
+
+	//TODO: Increase object sGrid size for rotation as well. Might need to be pre-computed
+
+	/*for (int x = 0; x < cObj->warpedShape.x; x++) 
+	{
+		for (int y = 0; y < cObj->warpedShape.y; y++) 
 		{
-			for (int y = 0; y < cObj->warpedShape.y; y++) 
+			int posx = x+cObj->grid.x;
+			int posy = y+cObj->grid.y;
+			if (sGrid[posx][posy] == 0) 
 			{
-				int posx = x+cObj->grid.x;
-				int posy = y+cObj->grid.y;
-				if (sGrid[posx][posy] == 0) 
-				{
-					sGrid[posx][posy] = cObj->ID;
-				}
-				if (sGrid[posx][posy] != 0 && sGrid[posx][posy] != cObj->ID)
-				{
-					//collision full-check
-					
-					PhysicsObject* victimObj = allPhysicsObjects[sGrid[posx][posy]];
+				sGrid[posx][posy] = cObj->ID;
+			}
+			else
+			{
+				collisionSpots[nextCollisionSpot][0] = posx;
+				collisionSpots[nextCollisionSpot][1] = posy;
+				nextCollisionSpot++;
+			}
+		}
+	}*/
 
-					for (int a=0; a < cObj->numCollisionRectangles;a++)
+
+	for (int x = 0; x < cObj->warpedShape.x; x++) 
+	{
+		for (int y = 0; y < cObj->warpedShape.y; y++) 
+		{
+			int posx = x+cObj->grid.x;
+			int posy = y+cObj->grid.y;
+			if (sGrid[posx][posy] == 0) 
+			{
+				sGrid[posx][posy] = cObj->ID;
+			}
+			if (sGrid[posx][posy] != 0 && sGrid[posx][posy] != cObj->ID)
+			{
+				GE_CollisionFullCheck(cObj,allPhysicsObjects[sGrid[posx][posy]]);
+			}
+		}
+	}
+	cObj->lastGoodPosition = cObj->position;
+}
+void GE_CollisionFullCheck(PhysicsObject* cObj, PhysicsObject* victimObj)
+{
+	for (int a=0; a < cObj->numCollisionRectangles;a++)
+	{
+		//iterate through each of our rectangles...
+
+		Vector2 myPoints[4] = {};
+		GE_RectangleToPoints(cObj->collisionRectangles[a],myPoints,cObj->position);
+
+		for (int b=0; b < victimObj->numCollisionRectangles;b++)
+		{
+
+			Vector2 theirPoints[4] = {};
+			GE_RectangleToPoints(victimObj->collisionRectangles[b],theirPoints,victimObj->position);
+			
+
+			//iterate through each of my points, checking it against each victim point.
+			for (int me = 0;me < 4; me++)
+			{
+				
+				bool check1 = (myPoints[me].x >= theirPoints[0].x) && (myPoints[me].y >= theirPoints[0].y);
+				bool check2 = (myPoints[me].x <= theirPoints[3].x) && (myPoints[me].y <= theirPoints[3].y);
+				if (cObj->callCallbackBeforeCollisionFunction)
+				{
+					if (cObj->C_Collision(cObj,victimObj))
 					{
-						//iterate through each of our rectangles...
-
-						Vector2 myPoints[4] = {};
-						GE_RectangleToPoints(cObj->collisionRectangles[a],myPoints,cObj->position);
-
-						for (int b=0; b < victimObj->numCollisionRectangles;b++)
-						{
-
-							Vector2 theirPoints[4] = {};
-							GE_RectangleToPoints(victimObj->collisionRectangles[b],theirPoints,victimObj->position);
-							
-
-							//iterate through each of my points, checking it against each victim point.
-							for (int me = 0;me < 4; me++)
-							{
-								
-								bool check1 = (myPoints[me].x >= theirPoints[0].x) && (myPoints[me].y >= theirPoints[0].y);
-								bool check2 = (myPoints[me].x <= theirPoints[3].x) && (myPoints[me].y <= theirPoints[3].y);
-
-								if (check1 && check2)
-								{
-									numCollisionsTemp++;
-									std::cout << "FULL COLLISION DETECTED #" << numCollisionsTemp << std::endl;
-
-									Vector2r newVelocity;
-
-									/*newVelocity.x = (cObj->velocity.x*.5)+(victimObj->velocity.x*.5);
-									newVelocity.y = (cObj->velocity.y*.5)+(victimObj->velocity.y*.5);
-									newVelocity.r = (cObj->velocity.r*.5)+(victimObj->velocity.r*.5);*/
-
-									//velocity should be based on the _difference_ of the two velocities
-									
-									//newVelocity = (cObj->velocity-victimObj->velocity)*0.5;
-
-
-
-
-
-									/*cObj->velocity.x = (cObj->velocity.x*.5)+(victimObj->velocity.x*(-0.5));
-									cObj->velocity.y = (cObj->velocity.y*.5)+(victimObj->velocity.y*(-0.5));
-									cObj->velocity.r = (cObj->velocity.r*.5)+(victimObj->velocity.r*(-0.5));
-
-
-									victimObj->velocity.x = (victimObj->velocity.x*(-0.5))+(oldVelocity.x*(0.5));
-									victimObj->velocity.y = (victimObj->velocity.y*(-0.5))+(oldVelocity.y*(0.5));
-									victimObj->velocity.r = (victimObj->velocity.r*(-0.5))+(oldVelocity.r*(0.5));*/
-
-									/*cObj->velocity.x = newVelocity.x*-1;
-									cObj->velocity.y = newVelocity.y*-1;
-									cObj->velocity.r = newVelocity.r*-1;
-									cObj->velocity = newVelocity;
-									//cObj->position += newVelocity;
-
-									victimObj->velocity.x = newVelocity.x*-1;
-									victimObj->velocity.y = newVelocity.y*-1;
-									victimObj->velocity.r = newVelocity.r*-1;
-									*/
-								/*	newVelocity.x = (victimObj->velocity.x-cObj->velocity.x)*0.5;
-									newVelocity.y = (victimObj->velocity.y-cObj->velocity.y)*0.5;
-									newVelocity.r = (victimObj->velocity.r-cObj->velocity.r)*0.5;
-
-
-									Vector2r otherNewVelocity;
-
-									otherNewVelocity.x = (cObj->velocity.x-victimObj->velocity.x)*0.5;
-									otherNewVelocity.y = (cObj->velocity.y-victimObj->velocity.y)*0.5;
-									otherNewVelocity.r = (cObj->velocity.r-victimObj->velocity.r)*0.5;
-
-									std::cout << "x " << otherNewVelocity.x << " y " << otherNewVelocity.y << " r " << otherNewVelocity.r << std::endl;
-
-									victimObj->velocity.x -= otherNewVelocity.x;
-									victimObj->velocity.y -= otherNewVelocity.y;
-									victimObj->velocity.r -= otherNewVelocity.r;
-									
-									cObj->velocity.x -= newVelocity.x;
-									cObj->velocity.y -= newVelocity.y;
-									cObj->velocity.r -= newVelocity.r;
-*/
-									/*cObj->velocity = cObj->velocity+newVelocity;
-
-									victimObj->velocity = victimObj->velocity-newVelocity;
-*/
-									//SDL_Delay(250);
-
-									Vector2r cObjsVelocity = cObj->velocity;
-									cObj->velocity = victimObj->velocity;
-									victimObj->velocity = cObjsVelocity;
-
-								}
-							}
-						}
+						//return TODO when collisionCheck is branched to a seperate function
+					}
+				}
+				if (victimObj->callCallbackBeforeCollisionFunction)
+				{
+					if (victimObj->C_Collision(victimObj,cObj))
+					{
+						//return
 					}
 
 				}
+
+				if (check1 && check2)
+				{
+					numCollisionsTemp++;
+					std::cout << "FULL COLLISION DETECTED #" << numCollisionsTemp << std::endl;
+
+					Vector2r newVelocity;
+
+					/*newVelocity.x = (cObj->velocity.x*.5)+(victimObj->velocity.x*.5);
+					newVelocity.y = (cObj->velocity.y*.5)+(victimObj->velocity.y*.5);
+					newVelocity.r = (cObj->velocity.r*.5)+(victimObj->velocity.r*.5);*/
+
+					//velocity should be based on the _difference_ of the two velocities
+					
+					//newVelocity = (cObj->velocity-victimObj->velocity)*0.5;
+
+
+
+
+
+					/*cObj->velocity.x = (cObj->velocity.x*.5)+(victimObj->velocity.x*(-0.5));
+					cObj->velocity.y = (cObj->velocity.y*.5)+(victimObj->velocity.y*(-0.5));
+					cObj->velocity.r = (cObj->velocity.r*.5)+(victimObj->velocity.r*(-0.5));
+
+
+					victimObj->velocity.x = (victimObj->velocity.x*(-0.5))+(oldVelocity.x*(0.5));
+					victimObj->velocity.y = (victimObj->velocity.y*(-0.5))+(oldVelocity.y*(0.5));
+					victimObj->velocity.r = (victimObj->velocity.r*(-0.5))+(oldVelocity.r*(0.5));*/
+
+					/*cObj->velocity.x = newVelocity.x*-1;
+					cObj->velocity.y = newVelocity.y*-1;
+					cObj->velocity.r = newVelocity.r*-1;
+					cObj->velocity = newVelocity;
+					//cObj->position += newVelocity;
+
+					victimObj->velocity.x = newVelocity.x*-1;
+					victimObj->velocity.y = newVelocity.y*-1;
+					victimObj->velocity.r = newVelocity.r*-1;
+					*/
+				/*	newVelocity.x = (victimObj->velocity.x-cObj->velocity.x)*0.5;
+					newVelocity.y = (victimObj->velocity.y-cObj->velocity.y)*0.5;
+					newVelocity.r = (victimObj->velocity.r-cObj->velocity.r)*0.5;
+
+
+					Vector2r otherNewVelocity;
+
+					otherNewVelocity.x = (cObj->velocity.x-victimObj->velocity.x)*0.5;
+					otherNewVelocity.y = (cObj->velocity.y-victimObj->velocity.y)*0.5;
+					otherNewVelocity.r = (cObj->velocity.r-victimObj->velocity.r)*0.5;
+
+					std::cout << "x " << otherNewVelocity.x << " y " << otherNewVelocity.y << " r " << otherNewVelocity.r << std::endl;
+
+					victimObj->velocity.x -= otherNewVelocity.x;
+					victimObj->velocity.y -= otherNewVelocity.y;
+					victimObj->velocity.r -= otherNewVelocity.r;
+					
+					cObj->velocity.x -= newVelocity.x;
+					cObj->velocity.y -= newVelocity.y;
+					cObj->velocity.r -= newVelocity.r;
+*/
+					/*cObj->velocity = cObj->velocity+newVelocity;
+
+					victimObj->velocity = victimObj->velocity-newVelocity;
+*/
+					//SDL_Delay(250);
+
+					/*cObj->position = cObj->position-cObj->velocity;
+					victimObj->position = victimObj->position-victimObj->velocity;
+					//I was completely expecting this to cause everything to flip its shit BUT IT WORKS REALLY WELL! Certified Good Enough!
+					//just kidding it flips its shit
+					*/
+
+					//SDL_Delay(256);
+					
+					
+					cObj->position = cObj->lastGoodPosition;
+					victimObj->position = victimObj->lastGoodPosition;
+
+
+					Vector2r cObjsVelocity = cObj->velocity;
+					cObj->velocity = victimObj->velocity;
+					victimObj->velocity = cObjsVelocity;
+
+
+					//TODO: is it possible that the object order (the victimObj's tick might not have occured yet) could be causing our troubles?
+
+					if (cObj->callCallbackAfterCollisionFunction)
+					{
+						if (cObj->C_Collision(cObj,victimObj))
+						{
+							//return TODO when collisionCheck is branched to a seperate function
+						}
+					}
+					if (victimObj->callCallbackAfterCollisionFunction)
+					{
+						if (victimObj->C_Collision(victimObj,cObj))
+						{
+							//return
+						}
+
+					}
+				}
+				else
+				{
+					//std::cout << "No collision detected" << std::endl;
+				}
+				
 			}
 		}
-
 	}
 }
+
+
 void GE_FreePhysicsObject(PhysicsObject* physicsObject) //MUST be allocated with new
 {
 	deadPhysicsObjects[physicsObject->ID] = true;

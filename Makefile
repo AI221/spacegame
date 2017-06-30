@@ -123,6 +123,33 @@ Spacegame/fast:
 	$(MAKE) -f CMakeFiles/Spacegame.dir/build.make CMakeFiles/Spacegame.dir/build
 .PHONY : Spacegame/fast
 
+src/UI.o: src/UI.cpp.o
+
+.PHONY : src/UI.o
+
+# target to build an object file
+src/UI.cpp.o:
+	$(MAKE) -f CMakeFiles/Spacegame.dir/build.make CMakeFiles/Spacegame.dir/src/UI.cpp.o
+.PHONY : src/UI.cpp.o
+
+src/UI.i: src/UI.cpp.i
+
+.PHONY : src/UI.i
+
+# target to preprocess a source file
+src/UI.cpp.i:
+	$(MAKE) -f CMakeFiles/Spacegame.dir/build.make CMakeFiles/Spacegame.dir/src/UI.cpp.i
+.PHONY : src/UI.cpp.i
+
+src/UI.s: src/UI.cpp.s
+
+.PHONY : src/UI.s
+
+# target to generate assembly for a file
+src/UI.cpp.s:
+	$(MAKE) -f CMakeFiles/Spacegame.dir/build.make CMakeFiles/Spacegame.dir/src/UI.cpp.s
+.PHONY : src/UI.cpp.s
+
 src/camera.o: src/camera.cpp.o
 
 .PHONY : src/camera.o
@@ -285,6 +312,33 @@ src/sprite.cpp.s:
 	$(MAKE) -f CMakeFiles/Spacegame.dir/build.make CMakeFiles/Spacegame.dir/src/sprite.cpp.s
 .PHONY : src/sprite.cpp.s
 
+src/vector2.o: src/vector2.cpp.o
+
+.PHONY : src/vector2.o
+
+# target to build an object file
+src/vector2.cpp.o:
+	$(MAKE) -f CMakeFiles/Spacegame.dir/build.make CMakeFiles/Spacegame.dir/src/vector2.cpp.o
+.PHONY : src/vector2.cpp.o
+
+src/vector2.i: src/vector2.cpp.i
+
+.PHONY : src/vector2.i
+
+# target to preprocess a source file
+src/vector2.cpp.i:
+	$(MAKE) -f CMakeFiles/Spacegame.dir/build.make CMakeFiles/Spacegame.dir/src/vector2.cpp.i
+.PHONY : src/vector2.cpp.i
+
+src/vector2.s: src/vector2.cpp.s
+
+.PHONY : src/vector2.s
+
+# target to generate assembly for a file
+src/vector2.cpp.s:
+	$(MAKE) -f CMakeFiles/Spacegame.dir/build.make CMakeFiles/Spacegame.dir/src/vector2.cpp.s
+.PHONY : src/vector2.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -294,6 +348,9 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
 	@echo "... Spacegame"
+	@echo "... src/UI.o"
+	@echo "... src/UI.i"
+	@echo "... src/UI.s"
 	@echo "... src/camera.o"
 	@echo "... src/camera.i"
 	@echo "... src/camera.s"
@@ -312,6 +369,9 @@ help:
 	@echo "... src/sprite.o"
 	@echo "... src/sprite.i"
 	@echo "... src/sprite.s"
+	@echo "... src/vector2.o"
+	@echo "... src/vector2.i"
+	@echo "... src/vector2.s"
 .PHONY : help
 
 

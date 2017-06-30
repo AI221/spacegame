@@ -6,6 +6,26 @@
 
 #IncludeRegexTransform: 
 
+/home/jackson/spacegame/src/UI.cpp
+UI.h
+/home/jackson/spacegame/src/UI.h
+
+/home/jackson/spacegame/src/UI.h
+vector2.h
+/home/jackson/spacegame/src/vector2.h
+SDL2/SDL.h
+-
+SDL2/SDL_ttf.h
+-
+math.h
+-
+iostream
+-
+string
+-
+functional
+-
+
 /home/jackson/spacegame/src/camera.cpp
 camera.h
 /home/jackson/spacegame/src/camera.h
@@ -65,6 +85,8 @@ physics.h
 /home/jackson/spacegame/src/physics.h
 renderedPhysicsObject.h
 /home/jackson/spacegame/src/renderedPhysicsObject.h
+UI.h
+/home/jackson/spacegame/src/UI.h
 
 /home/jackson/spacegame/src/physics.cpp
 physics.h
@@ -73,10 +95,16 @@ physics.h
 /home/jackson/spacegame/src/physics.h
 math.h
 -
-vector2.h
-/home/jackson/spacegame/src/vector2.h
 iostream
 -
+functional
+-
+vector2.h
+/home/jackson/spacegame/src/vector2.h
+SDL2/SDL.h
+-
+camera.h
+/home/jackson/spacegame/src/camera.h
 
 /home/jackson/spacegame/src/renderedPhysicsObject.cpp
 renderedPhysicsObject.h
@@ -103,6 +131,10 @@ SDL2/SDL.h
 -
 string
 -
+
+/home/jackson/spacegame/src/vector2.cpp
+vector2.h
+/home/jackson/spacegame/src/vector2.h
 
 /home/jackson/spacegame/src/vector2.h
 math.h
