@@ -45,7 +45,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //Definitions
 
 
-#define debug true //wheather debug draws, menus, etc. is included. 
+//#define debug //wheather debug draws, menus, etc. is included. 
 
 
 
@@ -188,7 +188,7 @@ int main()
 
 	for (int i=0;i<20;i++)
 	{
-		GE_CreateRenderedPhysicsObject(myRenderer,mySprite,{200+(i*3),200+(i*35),0},{0,0,0},{25,25});	
+		GE_CreateRenderedPhysicsObject(myRenderer,mySprite,{200+(i*1),200+(i*35),0},{0,0,0},{25,25});	
 		
 		me = physicsObjects[numPhysicsObjs]->physicsObject->ID;
 		allPhysicsObjects[me]->collisionRectangles[allPhysicsObjects[me]->numCollisionRectangles] = {0,0,25,25};

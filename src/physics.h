@@ -4,7 +4,7 @@
 
 #include "vector2.h"
 
-#define physics_debug true
+//#define physics_debug 
 
 #ifdef physics_debug
 	#include<SDL2/SDL.h>

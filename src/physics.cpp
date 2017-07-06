@@ -166,6 +166,14 @@ void GE_TickPhysics_ForObject(PhysicsObject* cObj)
 			}
 		}
 	}
+	/*for (int i=1;i < (nextPhysicsObject); i++) //uncomment to isolate collision checker from sGrid checker
+	{
+		if (allPhysicsObjects[i] != cObj)
+		{
+			GE_CollisionFullCheck(cObj,allPhysicsObjects[i]);
+		}
+	}*/
+	
 	cObj->lastGoodPosition = cObj->position;
 }
 void GE_CollisionFullCheck(PhysicsObject* cObj, PhysicsObject* victimObj)
@@ -194,14 +202,14 @@ void GE_CollisionFullCheck(PhysicsObject* cObj, PhysicsObject* victimObj)
 				{
 					if (cObj->C_Collision(cObj,victimObj))
 					{
-						//return TODO when collisionCheck is branched to a seperate function
+						return;
 					}
 				}
 				if (victimObj->callCallbackBeforeCollisionFunction)
 				{
 					if (victimObj->C_Collision(victimObj,cObj))
 					{
-						//return
+						return;
 					}
 
 				}
@@ -306,6 +314,7 @@ void GE_CollisionFullCheck(PhysicsObject* cObj, PhysicsObject* victimObj)
 						}
 
 					}
+					return;
 				}
 				else
 				{
