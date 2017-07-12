@@ -3,7 +3,7 @@
 #ifndef __VECTOR2_INCLUDED
 #define __VECTOR2_INCLUDED
 #define DEG_TO_RAD 57.2958
-struct Vector2
+struct Vector2 //Vector2s are for describing points such as in the physics engine, where rotation is impossible
 {
 	double x;
 	double y;

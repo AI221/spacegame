@@ -33,7 +33,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "sprite.h"
 #include "camera.h"
 #include "physics.h"
-#include "renderedPhysicsObject.h"
+#include "renderedObject.h"
 #include "UI.h"
 
 
@@ -60,29 +60,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-//Options
-
-
-
-//MATH FUNCTIONS
-
-double distance(double x1, double y1, double x2, double y2) //tested & working
-{
-	return sqrt((pow(x2-x1,2))+(pow(y2-y1,2)));
-}
 
 
 
 
 
-Vector2r Vector2ToVector2r(Vector2 convert)
-{
-	Vector2r newV;
-	newV.x = convert.x;
-	newV.y = convert.y;
-	
-	return newV;
-}
 
 
 SDL_Renderer* myRenderer;
@@ -96,12 +78,14 @@ void render()
 	#ifdef NO_CAMERA_ROTATE
 		camera.pos.r = 0;
 	#endif
-	for (int i=0; i <= numPhysicsObjs; i++)
+	for (int i=0; i <= countRenderedObjects; i++)
 	{
-		GE_BlitRenderedPhysicsObject(physicsObjects[i],&camera);
+		GE_BlitRenderedObject(renderedObjects[i],&camera);
 	}
 }
 
+
+//shittiest part of the code
 
 Sprite* nothingHere;
 Sprite* somethingHere;
@@ -140,6 +124,7 @@ void debug_render()
 
 }
 
+//end shittiest part of the code... jk main.cpp has become shitty as the engine has been developed
 
 int main()
 {
@@ -149,7 +134,7 @@ int main()
 		std::cout << "!!!TFT_Init Error!" << std::endl;
 		return 0;
 	}
-	for (int i = 0; i < 200; i++)
+	for (int i = 0; i < 200; i++) //TODO: remove this and see what happens. migrate if this is needed.
 	{
 		for( int o = 0; o < 200; o++)
 		{
@@ -171,35 +156,33 @@ int main()
 
 	myRenderer = SDL_CreateRenderer(myWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
-	//debug 
+	//debug. shitty debug code still needs this
 	nothingHere = GE_CreateSprite(myRenderer,SPRITE_DIR"DEBUG_nothingHere.bmp",10,10);
 	somethingHere = GE_CreateSprite(myRenderer, SPRITE_DIR"DEBUG_somethingHere.bmp",10,10);
-	
-	Sprite* mySprite = GE_CreateSprite(myRenderer, SPRITE_DIR"simple.bmp",25,25);
+	//end debug
 
-	Sprite* otherSprite = GE_CreateSprite(myRenderer, SPRITE_DIR"DEBUG_somethingHere.bmp",25,25);
 
-	Sprite* shoddySpaceship = GE_CreateSprite(myRenderer, SPRITE_DIR"shottyspaceship.bmp",25,25);
+	GE_LoadSpritesFromDir(myRenderer, SPRITE_DIR);
 
-	Sprite* bg = GE_CreateSprite(myRenderer,SPRITE_DIR"DEBUG_nothingHere.bmp",camera.screenWidth,camera.screenHeight);
+
 		
 	int me;
 	
 
 	for (int i=0;i<20;i++)
 	{
-		GE_CreateRenderedPhysicsObject(myRenderer,mySprite,{200+(i*1),200+(i*35),0},{0,0,0},{25,25});	
+		GE_CreateRenderedObject(myRenderer,SPRITE_DIR"simple.bmp");	
 		
-		me = physicsObjects[numPhysicsObjs]->physicsObject->ID;
+		//TODO me = renderedObjects[countRenderedObjects]->physicsObject->ID;
 		allPhysicsObjects[me]->collisionRectangles[allPhysicsObjects[me]->numCollisionRectangles] = {0,0,25,25};
 		allPhysicsObjects[me]->numCollisionRectangles++;
 
 	}
 
-	GE_CreateRenderedPhysicsObject(myRenderer,/*shoddySpaceship*/mySprite,{200,150,0},{0,0.1,0},{25,25});	
-	camFocusedObj = physicsObjects[numPhysicsObjs]->physicsObject->ID;
+	GE_CreateRenderedObject(myRenderer,SPRITE_DIR"shottyspaceship.bmp");	
+	//TODO camFocusedObj = renderedObjects[countRenderedObjects]->physicsObject->ID;
 
-	me = physicsObjects[numPhysicsObjs]->physicsObject->ID;
+	//TODO me = renderedObjects[countRenderedObjects]->physicsObject->ID;
 	allPhysicsObjects[me]->collisionRectangles[allPhysicsObjects[me]->numCollisionRectangles] = {0,0,25,25};
 	allPhysicsObjects[me]->numCollisionRectangles++;
 
@@ -229,11 +212,11 @@ int main()
 			Vector2r pos = allPhysicsObjects[camFocusedObj]->position;
 			for (int i=0;i < 20;i++)
 			{
-				GE_CreateRenderedPhysicsObject(myRenderer,otherSprite,{pos.x,pos.y,0},{(double)(rand() % 11)/100,(double)(rand() % 11)/100,0},{25,25});	
+				GE_CreateRenderedObject(myRenderer,otherSprite,{pos.x,pos.y,0},{(double)(rand() % 11)/100,(double)(rand() % 11)/100,0},{25,25});	
 
-				//physicsObjects[numPhysicsObjs]->myPhysicsObject->setVelocity({(double)(rand() % 101)/100,(double)(rand() % 101)/100}); //random between 0-1 w/ 2 decimals
+				//renderedObjects[countRenderedObjects]->myPhysicsObject->setVelocity({(double)(rand() % 101)/100,(double)(rand() % 101)/100}); //random between 0-1 w/ 2 decimals
 
-				int me = physicsObjects[numPhysicsObjs]->physicsObject->ID;
+				int me = renderedObjects[countRenderedObjects]->physicsObject->ID;
 				allPhysicsObjects[me]->collisionRectangles[allPhysicsObjects[me]->numCollisionRectangles] = {0,0,25,25};
 				allPhysicsObjects[me]->numCollisionRectangles++;
 			}
@@ -349,7 +332,7 @@ int main()
 
 
 
-		GE_BlitSprite(bg,{0,0,0},{0,0});
+		// GE_BlitSprite(bg,{0,0,0},{0,0}); TODO: update
 		
 		#ifndef physics_debug
 			GE_TickPhysics(); //TODO: Seperate physics & renderer threads.
@@ -398,12 +381,11 @@ int main()
 	
 	delete myTextIn;
 
-	GE_FreeSprite(bg);
+	//needed by shitty debug code
 	GE_FreeSprite(nothingHere);
 	GE_FreeSprite(somethingHere);
-	GE_FreeSprite(shoddySpaceship);
-	GE_FreeSprite(mySprite);
-	GE_FreeSprite(otherSprite);
+	//end needed
+
 
 	SDL_DestroyRenderer(myRenderer);
 

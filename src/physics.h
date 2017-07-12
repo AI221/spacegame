@@ -1,4 +1,5 @@
 #include <math.h>
+#include <pthread.h>
 #include <iostream>
 #include <functional>
 
@@ -6,8 +7,9 @@
 
 //#define physics_debug 
 
+#include<SDL2/SDL.h> //TODO temp
 #ifdef physics_debug
-	#include<SDL2/SDL.h>
+	//#include<SDL2/SDL.h>
 	#include "camera.h"
 	void GE_DEBUG_PassRendererToPhysicsEngine(SDL_Renderer* yourRenderer, Camera* yourCamera);
 #endif
@@ -46,7 +48,7 @@ struct GridInfo //info for the inaccurate physics pre-calculation
 
 */
 
-struct Rectangle
+struct Rectangle //TODO allow rectangles themselves to be rotated relative to their owners
 {
 	double x;
 	double y;
@@ -73,6 +75,7 @@ struct PhysicsObject
 	std::function< bool (PhysicsObject* cObj, PhysicsObject* victimObj)> C_Collision; //if return true, skip this physicsObject ( useful if you delete yourself)
 };
 
+extern pthread_mutex_t PhysicsEngineMutex;
 extern PhysicsObject* allPhysicsObjects[MAX_PHYSICS_OBJECTS];
 extern int nextPhysicsObject; 
 
@@ -91,6 +94,7 @@ PhysicsObject* GE_CreatePhysicsObject(Vector2r newPosition, Vector2r newVelocity
 void GE_AddVelocity(PhysicsObject* physicsObject, Vector2r moreVelocity);
 void GE_AddRelativeVelocity(PhysicsObject* physicsObject, Vector2r moreVelocity);
 
+void GE_physicsThreadMain(); 
 void GE_TickPhysics();
 void GE_TickPhysics_ForObject(PhysicsObject* cObj);
 void GE_CollisionFullCheck(PhysicsObject* cObj, PhysicsObject* victimObj);

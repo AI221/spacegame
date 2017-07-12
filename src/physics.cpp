@@ -1,8 +1,25 @@
+/*
+Copyright 2017 Jackson Reed McNeill
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 #include "physics.h"
 
 
 
 
+pthread_mutex_t PhysicsEngineMutex= PTHREAD_MUTEX_INITIALIZER;
 PhysicsObject* allPhysicsObjects[MAX_PHYSICS_OBJECTS];
 int nextPhysicsObject = 1; 
 bool deadPhysicsObjects[MAX_PHYSICS_OBJECTS]; //TODO shift all elements down instead of this patch
@@ -51,13 +68,30 @@ void GE_AddRelativeVelocity(PhysicsObject* physicsObject, Vector2r moreVelocity)
 	physicsObject->newVelocity.addRelativeVelocity({moreVelocity.x,moreVelocity.y,physicsObject->position.r}); //TODO: De-OOify
 	physicsObject->setNewVelocity = true;
 }
+
+
+void GE_physicsThreadMain(); 
+{
+	while(true)
+	{
+		pthread_mutex_lock(&PhysicsEngineMutex);	
+		GE_TickPhysics()
+
+
+		pthread_mutex_unlock(&PhysicsEngineMutex);
+	}
+}
+
+
 int numCollisionsTemp = 0;
 void GE_TickPhysics()
 {
+	pthread_mutex_lock(&PhysicsEngineMutex);	
 	for (int i=1;i < (nextPhysicsObject); i++)
 	{
 		GE_TickPhysics_ForObject(allPhysicsObjects[i]);
 	}
+	pthread_mutex_unlock(&PhysicsEngineMutex);
 }
 void GE_TickPhysics_ForObject(PhysicsObject* cObj)
 {
@@ -196,98 +230,31 @@ void GE_CollisionFullCheck(PhysicsObject* cObj, PhysicsObject* victimObj)
 			for (int me = 0;me < 4; me++)
 			{
 				
+				
 				bool check1 = (myPoints[me].x >= theirPoints[0].x) && (myPoints[me].y >= theirPoints[0].y);
 				bool check2 = (myPoints[me].x <= theirPoints[3].x) && (myPoints[me].y <= theirPoints[3].y);
-				if (cObj->callCallbackBeforeCollisionFunction)
-				{
-					if (cObj->C_Collision(cObj,victimObj))
-					{
-						return;
-					}
-				}
-				if (victimObj->callCallbackBeforeCollisionFunction)
-				{
-					if (victimObj->C_Collision(victimObj,cObj))
-					{
-						return;
-					}
-
-				}
 
 				if (check1 && check2)
 				{
+					if (cObj->callCallbackBeforeCollisionFunction)
+					{
+						if (cObj->C_Collision(cObj,victimObj))
+						{
+							return;
+						}
+					}
+					if (victimObj->callCallbackBeforeCollisionFunction)
+					{
+						if (victimObj->C_Collision(victimObj,cObj))
+						{
+							return;
+						}
+
+					}
 					numCollisionsTemp++;
 					std::cout << "FULL COLLISION DETECTED #" << numCollisionsTemp << std::endl;
 
 					Vector2r newVelocity;
-
-					/*newVelocity.x = (cObj->velocity.x*.5)+(victimObj->velocity.x*.5);
-					newVelocity.y = (cObj->velocity.y*.5)+(victimObj->velocity.y*.5);
-					newVelocity.r = (cObj->velocity.r*.5)+(victimObj->velocity.r*.5);*/
-
-					//velocity should be based on the _difference_ of the two velocities
-					
-					//newVelocity = (cObj->velocity-victimObj->velocity)*0.5;
-
-
-
-
-
-					/*cObj->velocity.x = (cObj->velocity.x*.5)+(victimObj->velocity.x*(-0.5));
-					cObj->velocity.y = (cObj->velocity.y*.5)+(victimObj->velocity.y*(-0.5));
-					cObj->velocity.r = (cObj->velocity.r*.5)+(victimObj->velocity.r*(-0.5));
-
-
-					victimObj->velocity.x = (victimObj->velocity.x*(-0.5))+(oldVelocity.x*(0.5));
-					victimObj->velocity.y = (victimObj->velocity.y*(-0.5))+(oldVelocity.y*(0.5));
-					victimObj->velocity.r = (victimObj->velocity.r*(-0.5))+(oldVelocity.r*(0.5));*/
-
-					/*cObj->velocity.x = newVelocity.x*-1;
-					cObj->velocity.y = newVelocity.y*-1;
-					cObj->velocity.r = newVelocity.r*-1;
-					cObj->velocity = newVelocity;
-					//cObj->position += newVelocity;
-
-					victimObj->velocity.x = newVelocity.x*-1;
-					victimObj->velocity.y = newVelocity.y*-1;
-					victimObj->velocity.r = newVelocity.r*-1;
-					*/
-				/*	newVelocity.x = (victimObj->velocity.x-cObj->velocity.x)*0.5;
-					newVelocity.y = (victimObj->velocity.y-cObj->velocity.y)*0.5;
-					newVelocity.r = (victimObj->velocity.r-cObj->velocity.r)*0.5;
-
-
-					Vector2r otherNewVelocity;
-
-					otherNewVelocity.x = (cObj->velocity.x-victimObj->velocity.x)*0.5;
-					otherNewVelocity.y = (cObj->velocity.y-victimObj->velocity.y)*0.5;
-					otherNewVelocity.r = (cObj->velocity.r-victimObj->velocity.r)*0.5;
-
-					std::cout << "x " << otherNewVelocity.x << " y " << otherNewVelocity.y << " r " << otherNewVelocity.r << std::endl;
-
-					victimObj->velocity.x -= otherNewVelocity.x;
-					victimObj->velocity.y -= otherNewVelocity.y;
-					victimObj->velocity.r -= otherNewVelocity.r;
-					
-					cObj->velocity.x -= newVelocity.x;
-					cObj->velocity.y -= newVelocity.y;
-					cObj->velocity.r -= newVelocity.r;
-*/
-					/*cObj->velocity = cObj->velocity+newVelocity;
-
-					victimObj->velocity = victimObj->velocity-newVelocity;
-*/
-					//SDL_Delay(250);
-
-					/*cObj->position = cObj->position-cObj->velocity;
-					victimObj->position = victimObj->position-victimObj->velocity;
-					//I was completely expecting this to cause everything to flip its shit BUT IT WORKS REALLY WELL! Certified Good Enough!
-					//just kidding it flips its shit
-					*/
-
-					//SDL_Delay(256);
-					
-					
 					cObj->position = cObj->lastGoodPosition;
 					victimObj->position = victimObj->lastGoodPosition;
 
@@ -303,14 +270,14 @@ void GE_CollisionFullCheck(PhysicsObject* cObj, PhysicsObject* victimObj)
 					{
 						if (cObj->C_Collision(cObj,victimObj))
 						{
-							//return TODO when collisionCheck is branched to a seperate function
+							return;
 						}
 					}
 					if (victimObj->callCallbackAfterCollisionFunction)
 					{
 						if (victimObj->C_Collision(victimObj,cObj))
 						{
-							//return
+							return;
 						}
 
 					}
@@ -347,8 +314,10 @@ void GE_FreePhysicsObject(PhysicsObject* physicsObject) //MUST be allocated with
 #endif
 
 
-void GE_RectangleToPoints(Rectangle rect, Vector2* points, Vector2r hostPosition)
+void GE_RectangleToPoints(Rectangle rect, Vector2* points, Vector2r hostPosition) 
 {
+		
+	//Points make collision checking easy because you cannot rotate a point in space (or rather, rotating it would have no effect)
 
 	points[0] = {rect.x , rect.y}; //top left
 	points[1] = {rect.x+rect.w , rect.y}; //top right
