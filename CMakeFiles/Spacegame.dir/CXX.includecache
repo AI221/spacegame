@@ -133,6 +133,8 @@ physics.h
 /home/jackson/spacegame/src/physics.h
 vector2.h
 /home/jackson/spacegame/src/vector2.h
+renderedObject.h
+/home/jackson/spacegame/src/renderedObject.h
 
 /home/jackson/spacegame/src/main.cpp
 SDL2/SDL.h
@@ -213,11 +215,11 @@ math.h
 -
 pthread.h
 -
+stdio.h
+-
 iostream
 -
 functional
--
-stdio.h
 -
 vector2.h
 /home/jackson/spacegame/src/vector2.h
@@ -231,6 +233,8 @@ renderedObject.h
 /home/jackson/spacegame/src/renderedObject.h
 
 /home/jackson/spacegame/src/renderedObject.h
+pthread.h
+-
 physics.h
 /home/jackson/spacegame/src/physics.h
 vector2.h

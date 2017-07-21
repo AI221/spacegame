@@ -29,10 +29,14 @@ CMakeFiles/Spacegame.dir/src/debugUI.cpp.o: src/debugUI.cpp
 CMakeFiles/Spacegame.dir/src/debugUI.cpp.o: src/debugUI.h
 CMakeFiles/Spacegame.dir/src/debugUI.cpp.o: src/vector2.h
 
+CMakeFiles/Spacegame.dir/src/gluePhysicsObject.cpp.o: src/FS.h
+CMakeFiles/Spacegame.dir/src/gluePhysicsObject.cpp.o: src/GeneralEngineCPP.h
 CMakeFiles/Spacegame.dir/src/gluePhysicsObject.cpp.o: src/camera.h
 CMakeFiles/Spacegame.dir/src/gluePhysicsObject.cpp.o: src/gluePhysicsObject.cpp
 CMakeFiles/Spacegame.dir/src/gluePhysicsObject.cpp.o: src/gluePhysicsObject.h
 CMakeFiles/Spacegame.dir/src/gluePhysicsObject.cpp.o: src/physics.h
+CMakeFiles/Spacegame.dir/src/gluePhysicsObject.cpp.o: src/renderedObject.h
+CMakeFiles/Spacegame.dir/src/gluePhysicsObject.cpp.o: src/sprite.h
 CMakeFiles/Spacegame.dir/src/gluePhysicsObject.cpp.o: src/vector2.h
 
 CMakeFiles/Spacegame.dir/src/main.cpp.o: src/FS.h

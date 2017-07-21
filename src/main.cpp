@@ -80,6 +80,7 @@ int camFocusedObj = 1;
 
 void render()
 {
+	pthread_mutex_lock(&RenderEngineMutex);
 	camera.pos = allPhysicsObjects[camFocusedObj]->position;
 	#ifdef NO_CAMERA_ROTATE
 		camera.pos.r = 0;
@@ -88,14 +89,15 @@ void render()
 	{
 		GE_BlitRenderedObject(renderedObjects[i],&camera);
 	}
+	pthread_mutex_unlock(&RenderEngineMutex);
 }
 
 
 
 //#define regular
 //#define spritetest
-//#define gluetest
-#define nettest
+#define gluetest
+//#define nettest
 
 #ifdef regular
 int main()
@@ -435,27 +437,6 @@ int main()
 	allPhysicsObjects[me]->collisionRectangles[allPhysicsObjects[me]->numCollisionRectangles] = {0,0,25,25};
 	allPhysicsObjects[me]->numCollisionRectangles++;
 	GE_addGlueSubject(&ro->position,me);
-
-	/*GE_NetworkSocket* mySocket = new GE_NetworkSocket{5667};
-	printf("NETWORK: %d\n",GE_BindServer(mySocket));
-
-	GE_NetworkClient* myClient = new GE_NetworkClient{}; 
-	printf("Waiting 4 client...\n");
-	GE_ConnectClient(myClient,mySocket);
-
-	char buffer[50] = "";
-	GE_ReadClient(myClient,buffer,sizeof(buffer));
-
-	printf("Response:");
-	printf(buffer);
-	
-	GE_WriteClient(myClient,buffer,sizeof(buffer));
-
-	
-	GE_Close(myClient);
-	GE_Close(mySocket);
-
-	SDL_Delay(3000);*/
 
 	pthread_t PhysicsThread, GlueThread;
 	pthread_create(&PhysicsThread,NULL,GE_physicsThreadMain,NULL );

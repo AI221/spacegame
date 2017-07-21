@@ -30,6 +30,7 @@ void* GE_glueThreadMain(void* )
 		if (physicsEngineDone)
 		{
 			pthread_mutex_lock(&PhysicsEngineMutex);
+			pthread_mutex_lock(&RenderEngineMutex);
 			printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!                            glueThread\n");
 			
 			for (int i = 0; i < countGlueTargets+1; i++)
@@ -37,6 +38,7 @@ void* GE_glueThreadMain(void* )
 				(*(targets[i].subject)) = allPhysicsObjects[targets[i].physicsObjectID]->position;
 				printf("X: %f \n",targets[i].subject->x);
 			}
+			pthread_mutex_unlock(&RenderEngineMutex);
 			pthread_mutex_unlock(&PhysicsEngineMutex);
 			physicsEngineDone = false;
 		}

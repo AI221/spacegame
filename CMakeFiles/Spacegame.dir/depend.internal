@@ -30,10 +30,14 @@ CMakeFiles/Spacegame.dir/src/debugUI.cpp.o
  /home/jackson/spacegame/src/debugUI.h
  /home/jackson/spacegame/src/vector2.h
 CMakeFiles/Spacegame.dir/src/gluePhysicsObject.cpp.o
+ /home/jackson/spacegame/src/FS.h
+ /home/jackson/spacegame/src/GeneralEngineCPP.h
  /home/jackson/spacegame/src/camera.h
  /home/jackson/spacegame/src/gluePhysicsObject.cpp
  /home/jackson/spacegame/src/gluePhysicsObject.h
  /home/jackson/spacegame/src/physics.h
+ /home/jackson/spacegame/src/renderedObject.h
+ /home/jackson/spacegame/src/sprite.h
  /home/jackson/spacegame/src/vector2.h
 CMakeFiles/Spacegame.dir/src/main.cpp.o
  /home/jackson/spacegame/src/FS.h

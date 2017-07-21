@@ -1,3 +1,5 @@
+#include <pthread.h>
+
 #include "physics.h"
 #include "vector2.h"
 #include "sprite.h"
@@ -12,6 +14,9 @@ enum LinkedType
 	LINKED_PHYSICS_OBJECT,
 	LINKED_NETWORK_OBJECT
 };
+
+extern pthread_mutex_t RenderEngineMutex;
+
 
 struct RenderedObject
 {

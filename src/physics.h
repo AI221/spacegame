@@ -1,9 +1,10 @@
 #include <pthread.h>
 #include <math.h>
 #include <pthread.h>
+#include <stdio.h>
+
 #include <iostream>
 #include <functional>
-#include <stdio.h>
 
 #include "vector2.h"
 

@@ -1,7 +1,9 @@
 #include <pthread.h>
+
 #include "stdio.h"
 #include "physics.h"
 #include "vector2.h"
+#include "renderedObject.h"
 
 //LIMITS
 

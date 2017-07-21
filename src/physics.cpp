@@ -83,7 +83,7 @@ void* GE_physicsThreadMain(void *)
 			pthread_mutex_lock(&PhysicsEngineMutex);	
 			printf("Physics\n");
 			GE_TickPhysics();
-			SDL_Delay(16);
+			//SDL_Delay(16);
 			
 
 			pthread_mutex_unlock(&PhysicsEngineMutex);

@@ -16,6 +16,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "renderedObject.h"
 
+pthread_mutex_t RenderEngineMutex = PTHREAD_MUTEX_INITIALIZER;
+
 RenderedObject* renderedObjects[1000]; //TODO dimensions and what not
 int countRenderedObjects = -1; 
 
