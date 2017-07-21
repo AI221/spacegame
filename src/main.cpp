@@ -22,20 +22,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include<SDL2/SDL.h>
 #include<SDL2/SDL_ttf.h>
 #include <stdio.h>
-#include <string>
-#include <iostream>
+#include <pthread.h>
 #include <math.h>
+
 #include <vector>
 #include <functional>
+#include <string>
+#include <iostream>
+
 //Local includes
 #include "vector2.h"
+#include "camera.h"
 #include "debugUI.h"
 #include "sprite.h"
-#include "camera.h"
 #include "physics.h"
 #include "renderedObject.h"
 #include "UI.h"
+#include "gluePhysicsObject.h"
 
+//tmp
+#include "network.h"
 
 #define SPRITE_DIR "../sprites/"
 
@@ -85,47 +91,13 @@ void render()
 }
 
 
-//shittiest part of the code
 
-Sprite* nothingHere;
-Sprite* somethingHere;
+//#define regular
+//#define spritetest
+//#define gluetest
+#define nettest
 
-void debug_render()
-{ //pulled from my prototype
-	GE_BlitSprite(somethingHere,{0,0,0},{10,10});
-	camera.pos = allPhysicsObjects[camFocusedObj]->position;
-	camera.pos.x -= 640/2;
-	camera.pos.y -= 580/2;
-	camera.pos.x = camera.pos.x/10;
-	camera.pos.y = camera.pos.y/10;
-	
-	//camera.pos.x = 10;
-	//camera.pos.y = 10;
-	int camerax = (int) camera.pos.x;
-	int cameray = (int) camera.pos.y;
-	for (int i = 0; i < 70; i++) { //start from camera position, increase forward 
-		for (int o = 0; o < 70; o++) {
-			//std::cout << "i " << i <<" t " << i+camerax << std::endl;
-			if ((i+camerax < 0) || (o+cameray < 0)) {} else {
-				if ( sGrid[i+camerax][o+cameray] != 0)
-				{
-					GE_BlitSprite(somethingHere,{i*10,o*10,0},{0,0});
-					//std::cout << "nothingHere; ";`
-				} 
-				else 
-				{
-					GE_BlitSprite(nothingHere,{i*10,o*10,0},{0,0});
-					//std::cout << "somethingHere; ";
-				}
-			}
-		}
-	}
-
-
-}
-
-//end shittiest part of the code... jk main.cpp has become shitty as the engine has been developed
-
+#ifdef regular
 int main()
 {
 	if (TTF_Init() < 0) 
@@ -134,14 +106,6 @@ int main()
 		std::cout << "!!!TFT_Init Error!" << std::endl;
 		return 0;
 	}
-	for (int i = 0; i < 200; i++) //TODO: remove this and see what happens. migrate if this is needed.
-	{
-		for( int o = 0; o < 200; o++)
-		{
-			sGrid[i][o] = 0;
-		}
-	}
-	sGrid[10][10] = 1;
 
 	SDL_Window* myWindow;
 	SDL_Event event;
@@ -155,11 +119,6 @@ int main()
 	myWindow = SDL_CreateWindow("Spacegame", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, camera.screenWidth, camera.screenHeight, 0);
 
 	myRenderer = SDL_CreateRenderer(myWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-
-	//debug. shitty debug code still needs this
-	nothingHere = GE_CreateSprite(myRenderer,SPRITE_DIR"DEBUG_nothingHere.bmp",10,10);
-	somethingHere = GE_CreateSprite(myRenderer, SPRITE_DIR"DEBUG_somethingHere.bmp",10,10);
-	//end debug
 
 
 	GE_LoadSpritesFromDir(myRenderer, SPRITE_DIR);
@@ -391,3 +350,176 @@ int main()
 
 	return 0;
 }
+#endif //regular
+#ifdef spritetest
+
+int main()
+{
+	if (TTF_Init() < 0) 
+	{
+		//TODO: Handle error...
+		std::cout << "!!!TFT_Init Error!" << std::endl;
+		return 0;
+	}
+
+	SDL_Window* myWindow;
+	SDL_Event event;
+
+
+	camera.pos = {200,200,0};
+	camera.screenWidth = 1080;
+	camera.screenHeight = 720;
+
+	
+	myWindow = SDL_CreateWindow("Spacegame", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, camera.screenWidth, camera.screenHeight, 0);
+
+	myRenderer = SDL_CreateRenderer(myWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+
+	GE_LoadSpritesFromDir(myRenderer, SPRITE_DIR);
+
+	int spriteID;
+	
+	spriteID = GE_SpriteNameToID(SPRITE_DIR"simple-animation.bmp");
+	int t = 0;
+	while (true)
+	{
+			t++;
+			if (t==2)
+				t= 0;
+			GE_BlitSprite(Sprites[spriteID],{0,0,0},{25,25},{t*8,0,8,9}, FLIP_NONE);
+			SDL_RenderPresent(myRenderer);
+			SDL_Delay(100);
+	}
+
+	return 0;
+}
+
+#endif //spritetest
+#ifdef gluetest
+int main()
+{
+	if (TTF_Init() < 0) 
+	{
+		//TODO: Handle error...
+		std::cout << "!!!TFT_Init Error!" << std::endl;
+		return 0;
+	}
+
+	SDL_Window* myWindow;
+	SDL_Event event;
+
+
+	camera.pos = {0,0,0};
+	camera.screenWidth = 1080;
+	camera.screenHeight = 720;
+
+	
+	myWindow = SDL_CreateWindow("Spacegame", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, camera.screenWidth, camera.screenHeight, 0);
+
+	myRenderer = SDL_CreateRenderer(myWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+
+	GE_LoadSpritesFromDir(myRenderer, SPRITE_DIR);
+
+	
+	RenderedObject* ro = GE_CreateRenderedObject(myRenderer, SPRITE_DIR"simple.bmp");
+	ro->size = {25,25};
+	ro->animation = {0,0,8,9};
+	ro->position = {0,0,0};
+
+	PhysicsObject* po = GE_CreatePhysicsObject({25,0,0},{1,1,0},{25,25});
+
+
+
+
+	int me = po->ID;
+	allPhysicsObjects[me]->collisionRectangles[allPhysicsObjects[me]->numCollisionRectangles] = {0,0,25,25};
+	allPhysicsObjects[me]->numCollisionRectangles++;
+	GE_addGlueSubject(&ro->position,me);
+
+	/*GE_NetworkSocket* mySocket = new GE_NetworkSocket{5667};
+	printf("NETWORK: %d\n",GE_BindServer(mySocket));
+
+	GE_NetworkClient* myClient = new GE_NetworkClient{}; 
+	printf("Waiting 4 client...\n");
+	GE_ConnectClient(myClient,mySocket);
+
+	char buffer[50] = "";
+	GE_ReadClient(myClient,buffer,sizeof(buffer));
+
+	printf("Response:");
+	printf(buffer);
+	
+	GE_WriteClient(myClient,buffer,sizeof(buffer));
+
+	
+	GE_Close(myClient);
+	GE_Close(mySocket);
+
+	SDL_Delay(3000);*/
+
+	pthread_t PhysicsThread, GlueThread;
+	pthread_create(&PhysicsThread,NULL,GE_physicsThreadMain,NULL );
+	pthread_create(&GlueThread,NULL,GE_glueThreadMain,NULL);
+
+	
+
+	while (true)
+	{
+			GE_BlitRenderedObject(ro,&camera);
+			SDL_RenderPresent(myRenderer);
+			//SDL_Delay(100);
+			printf("am not kill \n");
+	}
+	GE_FreeAllSprites();
+	GE_FreePhysicsObject(po);
+	GE_FreeRenderedObject(ro);
+
+	return 0;
+}
+
+#endif //gluetest
+#ifdef nettest
+
+
+int main(int argc, char *argv[]) 
+{
+	
+	GE_NetworkSocket* mySocket = GE_CreateNetworkSocket();
+
+	GE_FillNetworkSocket(mySocket,5668);
+	if (argc == 2)
+	{
+		printf("Am client\n");
+		printf(" cs %d\n",GE_ConnectServer(mySocket,"127.0.0.1"));
+
+		GE_Write(mySocket, "hi",3);
+		char buff[255] = "";
+
+		GE_Read(mySocket, buff,sizeof(buff));
+
+		printf("Response: %s\n",buff);
+		
+	}
+	else
+	{
+		printf("Am server\n");
+		GE_BindServer(mySocket);
+		GE_NetworkSocket* theirSocket = GE_CreateNetworkSocket();
+		printf(" cc %d\n",GE_ConnectClient(theirSocket,mySocket));
+
+		char buff[255] = "";
+
+		GE_Read(theirSocket, buff,sizeof(buff));
+		printf("Response: %s\n",buff);
+		
+		GE_Write(theirSocket, "bye",4);
+
+		GE_FreeNetworkSocket(theirSocket);
+
+	}
+
+	GE_FreeNetworkSocket(mySocket);
+
+}
+
+#endif

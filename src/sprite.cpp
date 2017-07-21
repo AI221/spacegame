@@ -20,9 +20,9 @@ std::string Sprite_Names[MAX_SPRITES_LOADED];
 int countSprites = -1;
 
 
-Sprite* GE_CreateSprite(SDL_Renderer* renderer, std::string path, int w, int h)
+Sprite* GE_CreateSprite(SDL_Renderer* renderer, std::string path)
 {
-	return new Sprite{renderer,GE_PathToImg(renderer,path),w,h};
+	return new Sprite{renderer,GE_PathToImg(renderer,path)};
 }
 
 
@@ -38,7 +38,7 @@ int GE_LoadSpritesFromDir(SDL_Renderer* renderer, std::string directory)
 	};
 	for (int i = 0; i < list.list.size(); i++)
 	{
-		GE_LoadSpriteFromPath(renderer, list.list[i]);	
+		GE_LoadSpriteFromPath(renderer, directory+list.list[i]);
 	}
 	return 0;
 
@@ -47,12 +47,18 @@ int GE_LoadSpritesFromDir(SDL_Renderer* renderer, std::string directory)
 int GE_LoadSpriteFromPath(SDL_Renderer* renderer, std::string path)
 {
 	countSprites++;
-	Sprites[countSprites] = GE_CreateSprite(renderer, path, 25, 25); //TODO: There needs to be a seperate file describing properties of the sprite
+#ifdef outdatedOS
+	Sprites[countSprites] = GE_CreateSprite(renderer, GE_ReverseSlashes(path)); 
+#else
+	Sprites[countSprites] = GE_CreateSprite(renderer, path); //TODO: There needs to be a seperate file describing properties of the sprite
+#endif
 	Sprite_Names[countSprites] = path; //sprite names are relative paths to simplify things
 }
 int GE_SpriteNameToID(std::string name)
 {
-	for (int i = 0; i < countSprites; i++)
+
+	std::string sn[1024] = Sprite_Names;
+	for (int i = 0; i < countSprites+1; i++)
 	{
 		if (Sprite_Names[i] == name)
 		{
@@ -63,30 +69,63 @@ int GE_SpriteNameToID(std::string name)
 }
 
 
-void GE_BlitSprite(Sprite* sprite, Vector2r position,Vector2 animation)	
+void GE_BlitSprite(Sprite* sprite, Vector2r position,Vector2 size, Animation animation, Flip flip)	
 {
-	GE_BlitSprite(sprite,{position.x,position.y},animation,position.r);
-}
-void GE_BlitSprite(Sprite* sprite, Vector2 position,Vector2 animation,double rotation)	
-{
-	SDL_Rect renderPosition = {0,0,25,25};
-	SDL_Rect renderAnimation = {0,0,0,0};
+	SDL_Rect renderPosition = {};
+	SDL_Rect renderAnimation = {};
 	renderPosition.x = position.x;
 	renderPosition.y = position.y;
-	renderPosition.w = sprite->w;
-	renderPosition.h = sprite->h;
+	renderPosition.w = size.x;
+	renderPosition.h = size.y;
+
+	/*renderAnimation.x = animation.x;
+	renderAnimation.y = animation.y;
+	renderAnimation.w = size.x;
+	renderAnimation.h = size.y;*/
+
 	renderAnimation.x = animation.x;
 	renderAnimation.y = animation.y;
-	renderAnimation.w = sprite->w;
-	renderAnimation.h = sprite->h;
-	
-	SDL_RenderCopyEx(sprite->renderer, sprite->texture, &renderAnimation, &renderPosition,rotation,NULL,SDL_FLIP_NONE);
+	renderAnimation.w = animation.w;
+	renderAnimation.h = animation.h;
+
+	SDL_RendererFlip flip_real;
+
+	switch(flip)
+	{
+		case FLIP_NONE:
+			flip_real = SDL_FLIP_NONE;
+			break;
+		case FLIP_HORIZONTAL:
+			flip_real = SDL_FLIP_HORIZONTAL;
+			break;
+		case FLIP_VERTICAL:
+			flip_real = SDL_FLIP_VERTICAL;
+			break;
+		case FLIP_DIAGONAL:
+			flip_real = (SDL_RendererFlip) ((SDL_RendererFlip) SDL_FLIP_HORIZONTAL | (SDL_RendererFlip) SDL_FLIP_VERTICAL);
+			break;
+	}
+
+	GE_BlitSprite(sprite,renderPosition,renderAnimation,position.r,flip_real);
+}
+void GE_BlitSprite(Sprite* sprite, SDL_Rect renderPosition, SDL_Rect renderAnimation,double rotation, SDL_RendererFlip flip) //not super recommended to invoke this function directly
+{
+		
+	SDL_RenderCopyEx(sprite->renderer, sprite->texture, &renderAnimation, &renderPosition,rotation,NULL,flip); //RenderCopyEx copies the data from the pointers to the SDL_Rects, meaning they can be discarded immediatly following the function call.
 }
 
 void GE_FreeSprite(Sprite* sprite) //sprite MUST be allocated with new. 
 {
 	SDL_DestroyTexture(sprite->texture);
 	delete sprite;
+}
+void GE_FreeAllSprites()
+{
+	for (int i=0;i < countSprites+1;i++)
+	{
+		GE_FreeSprite(Sprites[i]);
+	}
+	
 }
 
 SDL_Texture* GE_PathToImg(SDL_Renderer* renderer, std::string path)

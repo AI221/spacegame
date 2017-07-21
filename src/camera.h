@@ -5,9 +5,9 @@
 #ifndef __CAMERA_INCLUDED
 #define __CAMERA_INCLUDED
 
-struct Camera
+typedef struct Camera
 {
-	Vector2r pos; //position
+	Vector2r pos; 
 	int screenHeight;
 	int screenWidth;
 };

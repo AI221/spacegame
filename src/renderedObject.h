@@ -6,11 +6,23 @@
 #ifndef __RENDEREDPHYSICSOBJECT_INCLUDED
 #define __RENDEREDPHYSICSOBJECT_INCLUDED
 
+enum LinkedType
+{
+	LINKED_NONE,
+	LINKED_PHYSICS_OBJECT,
+	LINKED_NETWORK_OBJECT
+};
+
 struct RenderedObject
 {
 	SDL_Renderer* renderer;
 	int spriteID;
-	Vector2r position; //we will receive our position either through networking, the physics engine, or through random generation if you want i guess
+	Vector2r position; //start linked data ; we will receive our position either through networking, the physics engine, or by beaming radiation at the exact position this value is stored in RAM
+	Vector2 size;
+	Animation animation; //end linked data
+
+	LinkedType linkedType;
+	int linkedID;
 };
 
 extern RenderedObject* renderedObjects[1000]; //TODO dimensions and what not

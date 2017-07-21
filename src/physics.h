@@ -1,7 +1,9 @@
+#include <pthread.h>
 #include <math.h>
 #include <pthread.h>
 #include <iostream>
 #include <functional>
+#include <stdio.h>
 
 #include "vector2.h"
 
@@ -76,6 +78,10 @@ struct PhysicsObject
 };
 
 extern pthread_mutex_t PhysicsEngineMutex;
+extern bool syncWithPhysicsEngine;
+extern bool physicsEngineDone;
+
+
 extern PhysicsObject* allPhysicsObjects[MAX_PHYSICS_OBJECTS];
 extern int nextPhysicsObject; 
 
@@ -94,7 +100,7 @@ PhysicsObject* GE_CreatePhysicsObject(Vector2r newPosition, Vector2r newVelocity
 void GE_AddVelocity(PhysicsObject* physicsObject, Vector2r moreVelocity);
 void GE_AddRelativeVelocity(PhysicsObject* physicsObject, Vector2r moreVelocity);
 
-void GE_physicsThreadMain(); 
+void* GE_physicsThreadMain(void* ); 
 void GE_TickPhysics();
 void GE_TickPhysics_ForObject(PhysicsObject* cObj);
 void GE_CollisionFullCheck(PhysicsObject* cObj, PhysicsObject* victimObj);

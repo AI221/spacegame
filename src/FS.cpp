@@ -17,6 +17,44 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "FS.h"
 #include <iostream>
 
+
+#ifdef outdatedOS
+
+//SOURCE: https://stackoverflow.com/questions/612097/how-can-i-get-the-list-of-files-in-a-directory-using-c-or-c#612176
+DirList GE_ListInDir(std::string directory) //TODO: Test this. 
+{
+	std::string folder = GE_ReverseSlashes(directory);
+	DirList list;	
+
+	//SO code
+	std::vector<std::string> names;
+    std::string search_path = folder + "/*.*";
+    WIN32_FIND_DATA fd; 
+    HANDLE hFind = ::FindFirstFile(search_path.c_str(), &fd); 
+    if(hFind != INVALID_HANDLE_VALUE) { 
+        do { 
+            // read all (real) files in current folder
+            // , delete '!' read other 2 default folder . and ..
+            if(! (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) ) {
+                names.push_back(fd.cFileName);
+            }
+        }while(::FindNextFile(hFind, &fd)); 
+        ::FindClose(hFind); 
+    } 
+	//end SO code
+	
+	list.error = 0;
+	list.list = names;
+}
+
+std::string GE_ReverseSlashes(std::string victim) //  / -> \
+{
+	//sigh... why must windows do everything backwards? In this case, LITERALLY backwards?
+	return std::regex_replace(victim, std::regex("/"), (std::string) "\\");
+}
+
+
+#else 
 DirList GE_ListInDir(std::string directory)
 {
 	DIR* dir;
@@ -53,4 +91,4 @@ DirList GE_ListInDir(std::string directory)
 	return list;
 
 }
-
+#endif //outdatedOS

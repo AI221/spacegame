@@ -1,6 +1,5 @@
 #include <pthread.h>
-
-
+#include "stdio.h"
 #include "physics.h"
 #include "vector2.h"
 
@@ -20,7 +19,7 @@ struct glueTarget
 extern glueTarget targets[MAX_GLUE_TARGETS];
 extern int countGlueTargets;
 
-void GE_glueThreadMain();
-void GE_addSubject(Vector2r* subject, int physicsID);
+void* GE_glueThreadMain(void* );
+void GE_addGlueSubject(Vector2r* subject, int physicsID);
 
 #endif //__GLUE_PHYSICS_OBJECT_INCLUDED

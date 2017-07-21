@@ -65,5 +65,7 @@ void GE_Vector2Rotation(Vector2r* subject, double rotation);
 void GE_Vector2Rotation(Vector2* subject, double rotation);
 void GE_Vector2Rotation(double* x, double* y, double rotation);
 
+double GE_Distance(Vector2 subject, Vector2 subject2);
+double GE_Distance(double x1, double y1, double x2, double y2);
 
 #endif //__VECTOR2_INCLUDED

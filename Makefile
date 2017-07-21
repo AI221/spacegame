@@ -204,6 +204,33 @@ src/camera.cpp.s:
 	$(MAKE) -f CMakeFiles/Spacegame.dir/build.make CMakeFiles/Spacegame.dir/src/camera.cpp.s
 .PHONY : src/camera.cpp.s
 
+src/debugRenders.o: src/debugRenders.cpp.o
+
+.PHONY : src/debugRenders.o
+
+# target to build an object file
+src/debugRenders.cpp.o:
+	$(MAKE) -f CMakeFiles/Spacegame.dir/build.make CMakeFiles/Spacegame.dir/src/debugRenders.cpp.o
+.PHONY : src/debugRenders.cpp.o
+
+src/debugRenders.i: src/debugRenders.cpp.i
+
+.PHONY : src/debugRenders.i
+
+# target to preprocess a source file
+src/debugRenders.cpp.i:
+	$(MAKE) -f CMakeFiles/Spacegame.dir/build.make CMakeFiles/Spacegame.dir/src/debugRenders.cpp.i
+.PHONY : src/debugRenders.cpp.i
+
+src/debugRenders.s: src/debugRenders.cpp.s
+
+.PHONY : src/debugRenders.s
+
+# target to generate assembly for a file
+src/debugRenders.cpp.s:
+	$(MAKE) -f CMakeFiles/Spacegame.dir/build.make CMakeFiles/Spacegame.dir/src/debugRenders.cpp.s
+.PHONY : src/debugRenders.cpp.s
+
 src/debugUI.o: src/debugUI.cpp.o
 
 .PHONY : src/debugUI.o
@@ -284,6 +311,60 @@ src/main.s: src/main.cpp.s
 src/main.cpp.s:
 	$(MAKE) -f CMakeFiles/Spacegame.dir/build.make CMakeFiles/Spacegame.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
+
+src/network.o: src/network.cpp.o
+
+.PHONY : src/network.o
+
+# target to build an object file
+src/network.cpp.o:
+	$(MAKE) -f CMakeFiles/Spacegame.dir/build.make CMakeFiles/Spacegame.dir/src/network.cpp.o
+.PHONY : src/network.cpp.o
+
+src/network.i: src/network.cpp.i
+
+.PHONY : src/network.i
+
+# target to preprocess a source file
+src/network.cpp.i:
+	$(MAKE) -f CMakeFiles/Spacegame.dir/build.make CMakeFiles/Spacegame.dir/src/network.cpp.i
+.PHONY : src/network.cpp.i
+
+src/network.s: src/network.cpp.s
+
+.PHONY : src/network.s
+
+# target to generate assembly for a file
+src/network.cpp.s:
+	$(MAKE) -f CMakeFiles/Spacegame.dir/build.make CMakeFiles/Spacegame.dir/src/network.cpp.s
+.PHONY : src/network.cpp.s
+
+src/networkObject.o: src/networkObject.cpp.o
+
+.PHONY : src/networkObject.o
+
+# target to build an object file
+src/networkObject.cpp.o:
+	$(MAKE) -f CMakeFiles/Spacegame.dir/build.make CMakeFiles/Spacegame.dir/src/networkObject.cpp.o
+.PHONY : src/networkObject.cpp.o
+
+src/networkObject.i: src/networkObject.cpp.i
+
+.PHONY : src/networkObject.i
+
+# target to preprocess a source file
+src/networkObject.cpp.i:
+	$(MAKE) -f CMakeFiles/Spacegame.dir/build.make CMakeFiles/Spacegame.dir/src/networkObject.cpp.i
+.PHONY : src/networkObject.cpp.i
+
+src/networkObject.s: src/networkObject.cpp.s
+
+.PHONY : src/networkObject.s
+
+# target to generate assembly for a file
+src/networkObject.cpp.s:
+	$(MAKE) -f CMakeFiles/Spacegame.dir/build.make CMakeFiles/Spacegame.dir/src/networkObject.cpp.s
+.PHONY : src/networkObject.cpp.s
 
 src/physics.o: src/physics.cpp.o
 
@@ -400,8 +481,8 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... rebuild_cache"
-	@echo "... edit_cache"
 	@echo "... Spacegame"
+	@echo "... edit_cache"
 	@echo "... src/FS.o"
 	@echo "... src/FS.i"
 	@echo "... src/FS.s"
@@ -411,6 +492,9 @@ help:
 	@echo "... src/camera.o"
 	@echo "... src/camera.i"
 	@echo "... src/camera.s"
+	@echo "... src/debugRenders.o"
+	@echo "... src/debugRenders.i"
+	@echo "... src/debugRenders.s"
 	@echo "... src/debugUI.o"
 	@echo "... src/debugUI.i"
 	@echo "... src/debugUI.s"
@@ -420,6 +504,12 @@ help:
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
+	@echo "... src/network.o"
+	@echo "... src/network.i"
+	@echo "... src/network.s"
+	@echo "... src/networkObject.o"
+	@echo "... src/networkObject.i"
+	@echo "... src/networkObject.s"
 	@echo "... src/physics.o"
 	@echo "... src/physics.i"
 	@echo "... src/physics.s"

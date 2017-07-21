@@ -19,7 +19,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
-pthread_mutex_t PhysicsEngineMutex= PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t PhysicsEngineMutex = PTHREAD_MUTEX_INITIALIZER;
+bool syncWithPhysicsEngine = false;
+bool physicsEngineDone = false;
+
+
 PhysicsObject* allPhysicsObjects[MAX_PHYSICS_OBJECTS];
 int nextPhysicsObject = 1; 
 bool deadPhysicsObjects[MAX_PHYSICS_OBJECTS]; //TODO shift all elements down instead of this patch
@@ -30,7 +34,7 @@ int sGrid[2000][2000]; //TODO: Dynamically sized arrays for both of these
 
 PhysicsObject* GE_CreatePhysicsObject(Vector2r newPosition, Vector2r newVelocity, Vector2 shape)
 {
-	
+	//TODO: Auto-generate shape.
 	PhysicsObject* newPhysicsObject = new PhysicsObject{{0,0,0},{0,0,0},newPosition,true,newVelocity,true,{0,0,shape.x,shape.y},{0,0},nextPhysicsObject,{},0,{0,0,0},false};
 	allPhysicsObjects[nextPhysicsObject] = newPhysicsObject;
 	nextPhysicsObject++;
@@ -70,15 +74,21 @@ void GE_AddRelativeVelocity(PhysicsObject* physicsObject, Vector2r moreVelocity)
 }
 
 
-void GE_physicsThreadMain(); 
+void* GE_physicsThreadMain(void *)
 {
 	while(true)
 	{
-		pthread_mutex_lock(&PhysicsEngineMutex);	
-		GE_TickPhysics()
+		if ((!syncWithPhysicsEngine ) || (!physicsEngineDone) ) //if nothing's syncing with us or they're done with their stuff
+		{
+			pthread_mutex_lock(&PhysicsEngineMutex);	
+			printf("Physics\n");
+			GE_TickPhysics();
+			SDL_Delay(16);
+			
 
-
-		pthread_mutex_unlock(&PhysicsEngineMutex);
+			pthread_mutex_unlock(&PhysicsEngineMutex);
+			physicsEngineDone = true;
+		}
 	}
 }
 
@@ -86,12 +96,12 @@ void GE_physicsThreadMain();
 int numCollisionsTemp = 0;
 void GE_TickPhysics()
 {
-	pthread_mutex_lock(&PhysicsEngineMutex);	
 	for (int i=1;i < (nextPhysicsObject); i++)
 	{
+		//printf("i %d\n",i);
 		GE_TickPhysics_ForObject(allPhysicsObjects[i]);
+		//printf("x %d y %d\n",allPhysicsObjects[i]->position.x,allPhysicsObjects[i]->position.y);
 	}
-	pthread_mutex_unlock(&PhysicsEngineMutex);
 }
 void GE_TickPhysics_ForObject(PhysicsObject* cObj)
 {
