@@ -21,8 +21,9 @@
 #define __PHYSICS_INCLUDED
 
 //LIMITS:
-#define MAX_PHYSICS_OBJECTS 1024//256000000 //maximum ammount of physics objects in the game
+#define MAX_PHYSICS_OBJECTS 1024 //maximum ammount of physics objects in the game
 #define MAX_COLLISION_RECTANGLES_PER_OBJECT 32 //TODO: test if this is a good limit in practice
+#define MAX_PHYSICS_ENGINE_DONE_CALLBACKS 64
 
 
 struct GridInfo //info for the inaccurate physics pre-calculation
@@ -78,13 +79,21 @@ struct PhysicsObject
 	std::function< bool (PhysicsObject* cObj, PhysicsObject* victimObj)> C_Collision; //if return true, skip this physicsObject ( useful if you delete yourself)
 };
 
+
+extern pthread_t PhysicsEngineThread;
+
 extern pthread_mutex_t PhysicsEngineMutex;
-extern bool syncWithPhysicsEngine;
-extern bool physicsEngineDone;
 
+	//pthread_create(&GlueThread,NULL,GE_glueThreadMain,NULL);
 
-extern PhysicsObject* allPhysicsObjects[MAX_PHYSICS_OBJECTS];
-extern int nextPhysicsObject; 
+extern PhysicsObject* physicsObjects[MAX_PHYSICS_OBJECTS];
+extern int numPhysicsObjects; 
+
+extern int fakeToRealPhysicsID[MAX_PHYSICS_OBJECTS]; 
+extern int numFakePhysicsIDs;
+
+extern std::function< void ()> C_PhysicsTickDoneCallbacks[MAX_PHYSICS_ENGINE_DONE_CALLBACKS];
+extern int numPhysicsTickDoneCallbacks;
 
 extern bool deadPhysicsObjects[MAX_PHYSICS_OBJECTS];
 
@@ -97,7 +106,14 @@ extern int sGrid[2000][2000]; //TODO: Dynamically sized arrays for both of these
 
 
 
+int GE_PhysicsInit();
+
 PhysicsObject* GE_CreatePhysicsObject(Vector2r newPosition, Vector2r newVelocity, Vector2 shape);
+int GE_GetPhysicsObjectFromID(int fakeID, PhysicsObject** physicsObjectPointer);
+
+void GE_AddPhysicsDoneCallback(std::function<void ()> callback);
+void GE_AddPhysicsObjectCollisionCallback(PhysicsObject* subject, std::function< bool (PhysicsObject* cObj, PhysicsObject* victimObj)> C_Collision, bool callCallbackBeforeCollisionFunction);
+
 void GE_AddVelocity(PhysicsObject* physicsObject, Vector2r moreVelocity);
 void GE_AddRelativeVelocity(PhysicsObject* physicsObject, Vector2r moreVelocity);
 

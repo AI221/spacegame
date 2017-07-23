@@ -13,7 +13,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+*/ 
 
 #include "gluePhysicsObject.h"
 
@@ -21,28 +21,35 @@ glueTarget targets[MAX_GLUE_TARGETS];
 int countGlueTargets = -1;
 
 #include<SDL2/SDL.h>
-void* GE_glueThreadMain(void* )
+int GE_GlueInit()
 {
-	syncWithPhysicsEngine = true;
-	printf("I'm here!");
-	while(true)
+	GE_AddPhysicsDoneCallback(GE_GlueCallback);
+}
+void GE_GlueCallback()
+{
+	pthread_mutex_lock(&PhysicsEngineMutex);
+	printf("PE Mutex locked\n");
+	pthread_mutex_lock(&RenderEngineMutex);
+	printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!							  glueThread\n");
+	
+	PhysicsObject* cObj;
+	for (int i = 0; i < countGlueTargets+1; i++)
 	{
-		if (physicsEngineDone)
+		printf("1\n");
+		if (GE_GetPhysicsObjectFromID(targets[i].physicsObjectID,&cObj) == 0) //if no error from getting the ID
 		{
-			pthread_mutex_lock(&PhysicsEngineMutex);
-			pthread_mutex_lock(&RenderEngineMutex);
-			printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!                            glueThread\n");
-			
-			for (int i = 0; i < countGlueTargets+1; i++)
-			{
-				(*(targets[i].subject)) = allPhysicsObjects[targets[i].physicsObjectID]->position;
-				printf("X: %f \n",targets[i].subject->x);
-			}
-			pthread_mutex_unlock(&RenderEngineMutex);
-			pthread_mutex_unlock(&PhysicsEngineMutex);
-			physicsEngineDone = false;
+			(*(targets[i].subject)) = cObj->position;
+			printf("X: %f \n",targets[i].subject->x);
 		}
+		else
+		{
+			printf("[temp err - handle] failed to get po from id\n");
+		}
+		printf("2\n");
+		
 	}
+	pthread_mutex_unlock(&RenderEngineMutex);
+	pthread_mutex_unlock(&PhysicsEngineMutex);
 }
 void GE_addGlueSubject(Vector2r* subject, int physicsID)
 {

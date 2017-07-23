@@ -31,7 +31,7 @@ struct RenderedObject
 };
 
 extern RenderedObject* renderedObjects[1000]; //TODO dimensions and what not
-extern int countRenderedObjects;
+extern int numRenderedObjects;
 
 RenderedObject* GE_CreateRenderedObject(SDL_Renderer* renderer, std::string spriteName);
 void GE_BlitRenderedObject(RenderedObject* subject, Camera* camera);

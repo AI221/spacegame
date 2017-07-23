@@ -19,32 +19,77 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
+pthread_t PhysicsEngineThread;
+
 pthread_mutex_t PhysicsEngineMutex = PTHREAD_MUTEX_INITIALIZER;
-bool syncWithPhysicsEngine = false;
-bool physicsEngineDone = false;
 
 
-PhysicsObject* allPhysicsObjects[MAX_PHYSICS_OBJECTS];
-int nextPhysicsObject = 1; 
+PhysicsObject* physicsObjects[MAX_PHYSICS_OBJECTS];
+int numPhysicsObjects = -1; 
 bool deadPhysicsObjects[MAX_PHYSICS_OBJECTS]; //TODO shift all elements down instead of this patch
+int fakeToRealPhysicsID[MAX_PHYSICS_OBJECTS]; 
+int numFakePhysicsIDs = -1;
+
+std::function< void ()> C_PhysicsTickDoneCallbacks[MAX_PHYSICS_ENGINE_DONE_CALLBACKS];
+int numPhysicsTickDoneCallbacks = -1;
 
 int sGrid[2000][2000]; //TODO: Dynamically sized arrays for both of these
 //int collisionSpots[2000][1]; 
 //int nextCollisionSpot = 0;
 
+
+
+
+int GE_PhysicsInit()
+{
+	pthread_create(&PhysicsEngineThread,NULL,GE_physicsThreadMain,NULL );
+	return 0;
+}
 PhysicsObject* GE_CreatePhysicsObject(Vector2r newPosition, Vector2r newVelocity, Vector2 shape)
 {
 	//TODO: Auto-generate shape.
-	PhysicsObject* newPhysicsObject = new PhysicsObject{{0,0,0},{0,0,0},newPosition,true,newVelocity,true,{0,0,shape.x,shape.y},{0,0},nextPhysicsObject,{},0,{0,0,0},false};
-	allPhysicsObjects[nextPhysicsObject] = newPhysicsObject;
-	nextPhysicsObject++;
+
+	numFakePhysicsIDs++;
+	numPhysicsObjects++;
+	PhysicsObject* newPhysicsObject = new PhysicsObject{{0,0,0},{0,0,0},newPosition,true,newVelocity,true,{0,0,shape.x,shape.y},{0,0},numFakePhysicsIDs,{},0,{0,0,0},false};
+
+	fakeToRealPhysicsID[numFakePhysicsIDs] = numPhysicsObjects;
+	physicsObjects[numPhysicsObjects] = newPhysicsObject;
 	return newPhysicsObject;
 }
+
+int GE_GetPhysicsObjectFromID(int fakeID, PhysicsObject** physicsObjectPointer)
+{
+	if (fakeID > numFakePhysicsIDs)
+	{
+		return 1;
+	}
+	else if (fakeToRealPhysicsID[fakeID] == -1)
+	{
+		return 2;
+	}
+	int physicsObjectID = fakeToRealPhysicsID[fakeID];
+	if (physicsObjectID == -1)
+	{
+		return -1;
+	}
+	(*physicsObjectPointer) = physicsObjects[physicsObjectID];
+
+
+	return 0;
+}
+ 
+
 void GE_AddPhysicsObjectCollisionCallback(PhysicsObject* subject, std::function< bool (PhysicsObject* cObj, PhysicsObject* victimObj)> C_Collision, bool callCallbackBeforeCollisionFunction)
 {
 	subject->C_Collision = C_Collision;
 	subject->callCallbackBeforeCollisionFunction = callCallbackBeforeCollisionFunction;
 	subject->callCallbackAfterCollisionFunction = !callCallbackBeforeCollisionFunction;
+}
+void GE_AddPhysicsDoneCallback(std::function<void ()> callback)
+{
+	numPhysicsTickDoneCallbacks++;
+	C_PhysicsTickDoneCallbacks[numPhysicsTickDoneCallbacks] = callback;
 }
 
 
@@ -78,16 +123,13 @@ void* GE_physicsThreadMain(void *)
 {
 	while(true)
 	{
-		if ((!syncWithPhysicsEngine ) || (!physicsEngineDone) ) //if nothing's syncing with us or they're done with their stuff
+		pthread_mutex_lock(&PhysicsEngineMutex);	
+		GE_TickPhysics();
+		SDL_Delay(16);
+		pthread_mutex_unlock(&PhysicsEngineMutex);
+		for (int i=0;i<numPhysicsTickDoneCallbacks+1;i++)
 		{
-			pthread_mutex_lock(&PhysicsEngineMutex);	
-			printf("Physics\n");
-			GE_TickPhysics();
-			//SDL_Delay(16);
-			
-
-			pthread_mutex_unlock(&PhysicsEngineMutex);
-			physicsEngineDone = true;
+			C_PhysicsTickDoneCallbacks[i]();
 		}
 	}
 }
@@ -96,11 +138,11 @@ void* GE_physicsThreadMain(void *)
 int numCollisionsTemp = 0;
 void GE_TickPhysics()
 {
-	for (int i=1;i < (nextPhysicsObject); i++)
+	for (int i=0;i < (numPhysicsObjects+1); i++)
 	{
 		//printf("i %d\n",i);
-		GE_TickPhysics_ForObject(allPhysicsObjects[i]);
-		//printf("x %d y %d\n",allPhysicsObjects[i]->position.x,allPhysicsObjects[i]->position.y);
+		GE_TickPhysics_ForObject(physicsObjects[i]);
+		//printf("x %d y %d\n",physicsObjects[i]->position.x,physicsObjects[i]->position.y);
 	}
 }
 void GE_TickPhysics_ForObject(PhysicsObject* cObj)
@@ -206,15 +248,15 @@ void GE_TickPhysics_ForObject(PhysicsObject* cObj)
 			}
 			if (sGrid[posx][posy] != 0 && sGrid[posx][posy] != cObj->ID)
 			{
-				GE_CollisionFullCheck(cObj,allPhysicsObjects[sGrid[posx][posy]]);
+				GE_CollisionFullCheck(cObj,physicsObjects[sGrid[posx][posy]]);
 			}
 		}
 	}
 	/*for (int i=1;i < (nextPhysicsObject); i++) //uncomment to isolate collision checker from sGrid checker
 	{
-		if (allPhysicsObjects[i] != cObj)
+		if (physicsObjects[i] != cObj)
 		{
-			GE_CollisionFullCheck(cObj,allPhysicsObjects[i]);
+			GE_CollisionFullCheck(cObj,physicsObjects[i]);
 		}
 	}*/
 	

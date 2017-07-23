@@ -76,22 +76,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 SDL_Renderer* myRenderer;
 
 Camera camera;
-int camFocusedObj = 1;
+PhysicsObject* camFocusedObj = 1;
 
 void render()
 {
 	pthread_mutex_lock(&RenderEngineMutex);
-	camera.pos = allPhysicsObjects[camFocusedObj]->position;
+	camera.pos = physicsObjects[camFocusedObj]->position;
 	#ifdef NO_CAMERA_ROTATE
 		camera.pos.r = 0;
 	#endif
-	for (int i=0; i <= countRenderedObjects; i++)
+	for (int i=0; i <= numRenderedObjects; i++)
 	{
 		GE_BlitRenderedObject(renderedObjects[i],&camera);
 	}
 	pthread_mutex_unlock(&RenderEngineMutex);
 }
-
 
 
 //#define regular
@@ -134,18 +133,22 @@ int main()
 	{
 		GE_CreateRenderedObject(myRenderer,SPRITE_DIR"simple.bmp");	
 		
-		//TODO me = renderedObjects[countRenderedObjects]->physicsObject->ID;
-		allPhysicsObjects[me]->collisionRectangles[allPhysicsObjects[me]->numCollisionRectangles] = {0,0,25,25};
-		allPhysicsObjects[me]->numCollisionRectangles++;
+
+		PhysicsObject* me = GE_CreatePhysicsObject({0,0,0},{0,0,0},{25,25});
+		me->collisionRectangles[physicsObjects[me]->numCollisionRectangles] = {0,0,25,25};
+		me->numCollisionRectangles++;
+		GE_addGlueSubject(&renderedObjects[numRenderedObjects].position,me->ID);
 
 	}
 
-	GE_CreateRenderedObject(myRenderer,SPRITE_DIR"shottyspaceship.bmp");	
-	//TODO camFocusedObj = renderedObjects[countRenderedObjects]->physicsObject->ID;
+	//GE_CreateRenderedObject(myRenderer,SPRITE_DIR"shottyspaceship.bmp");	
+	//TODO camFocusedObj = renderedObjects[numRenderedObjects]->physicsObject->ID;
 
-	//TODO me = renderedObjects[countRenderedObjects]->physicsObject->ID;
-	allPhysicsObjects[me]->collisionRectangles[allPhysicsObjects[me]->numCollisionRectangles] = {0,0,25,25};
-	allPhysicsObjects[me]->numCollisionRectangles++;
+	//TODO me = renderedObjects[numRenderedObjects]->physicsObject->ID;
+	//physicsObjects[me]->collisionRectangles[physicsObjects[me]->numCollisionRectangles] = {0,0,25,25};
+	//physicsObjects[me]->numCollisionRectangles++;
+
+	
 
 
 
@@ -170,16 +173,16 @@ int main()
 
 
 		auto callback2 = [&] () { 
-			Vector2r pos = allPhysicsObjects[camFocusedObj]->position;
+			Vector2r pos = physicsObjects[camFocusedObj]->position;
 			for (int i=0;i < 20;i++)
 			{
 				GE_CreateRenderedObject(myRenderer,otherSprite,{pos.x,pos.y,0},{(double)(rand() % 11)/100,(double)(rand() % 11)/100,0},{25,25});	
 
-				//renderedObjects[countRenderedObjects]->myPhysicsObject->setVelocity({(double)(rand() % 101)/100,(double)(rand() % 101)/100}); //random between 0-1 w/ 2 decimals
+				//renderedObjects[numRenderedObjects]->myPhysicsObject->setVelocity({(double)(rand() % 101)/100,(double)(rand() % 101)/100}); //random between 0-1 w/ 2 decimals
 
-				int me = renderedObjects[countRenderedObjects]->physicsObject->ID;
-				allPhysicsObjects[me]->collisionRectangles[allPhysicsObjects[me]->numCollisionRectangles] = {0,0,25,25};
-				allPhysicsObjects[me]->numCollisionRectangles++;
+				int me = renderedObjects[numRenderedObjects]->physicsObject->ID;
+				physicsObjects[me]->collisionRectangles[physicsObjects[me]->numCollisionRectangles] = {0,0,25,25};
+				physicsObjects[me]->numCollisionRectangles++;
 			}
 		};
 		spawnButton->C_Pressed = callback2;
@@ -224,27 +227,27 @@ int main()
 		}
 		if(keysHeld[SDLK_w])
 		{
-			GE_AddRelativeVelocity(allPhysicsObjects[camFocusedObj],{0,-0.5,0});
+			GE_AddRelativeVelocity(physicsObjects[camFocusedObj],{0,-0.5,0});
 		}
 		if(keysHeld[SDLK_s])
 		{
-			GE_AddRelativeVelocity(allPhysicsObjects[camFocusedObj],{0,0.5,0});
+			GE_AddRelativeVelocity(physicsObjects[camFocusedObj],{0,0.5,0});
 		}
 		if(keysHeld[SDLK_d])
 		{
-			GE_AddRelativeVelocity(allPhysicsObjects[camFocusedObj],{0.5,0,0});
+			GE_AddRelativeVelocity(physicsObjects[camFocusedObj],{0.5,0,0});
 		}
 		if(keysHeld[SDLK_a])
 		{
-			GE_AddRelativeVelocity(allPhysicsObjects[camFocusedObj],{-0.5,0,0});
+			GE_AddRelativeVelocity(physicsObjects[camFocusedObj],{-0.5,0,0});
 		}
 		if(keysHeld[SDLK_q])
 		{
-			GE_AddRelativeVelocity(allPhysicsObjects[camFocusedObj],{0,0,-0.25});
+			GE_AddRelativeVelocity(physicsObjects[camFocusedObj],{0,0,-0.25});
 		}
 		if(keysHeld[SDLK_e])
 		{
-			GE_AddRelativeVelocity(allPhysicsObjects[camFocusedObj],{0,0,0.25});
+			GE_AddRelativeVelocity(physicsObjects[camFocusedObj],{0,0,0.25});
 		}
 		if(keysHeld[SDLK_1])
 		{
@@ -256,10 +259,10 @@ int main()
 		}
 		if(keysHeld[SDLK_z])
 		{
-			std::cout <<"velx: " << allPhysicsObjects[camFocusedObj]->velocity.x << std::endl;
-			std::cout <<"vely: " << allPhysicsObjects[camFocusedObj]->velocity.y << std::endl;
-			std::cout <<"posx: " << allPhysicsObjects[camFocusedObj]->position.x << std::endl;
-			std::cout <<"posy: " << allPhysicsObjects[camFocusedObj]->position.y << std::endl;
+			std::cout <<"velx: " << physicsObjects[camFocusedObj]->velocity.x << std::endl;
+			std::cout <<"vely: " << physicsObjects[camFocusedObj]->velocity.y << std::endl;
+			std::cout <<"posx: " << physicsObjects[camFocusedObj]->position.x << std::endl;
+			std::cout <<"posy: " << physicsObjects[camFocusedObj]->position.y << std::endl;
 		}
 		if(keysHeld[SDLK_x])
 		{
@@ -276,7 +279,7 @@ int main()
 		}
 		if (keysHeld[SDLK_f])
 		{
-			allPhysicsObjects[camFocusedObj]->velocity = Vector2r{0,0,0};
+			physicsObjects[camFocusedObj]->velocity = Vector2r{0,0,0};
 		}
 		if (keysHeld[SDLK_ESCAPE])
 		{
@@ -307,7 +310,7 @@ int main()
 
 		#ifdef debug
 
-				texttest->setText(std::to_string(allPhysicsObjects[camFocusedObj]->position.r).c_str());
+				texttest->setText(std::to_string(physicsObjects[camFocusedObj]->position.r).c_str());
 				interface1_menu->giveEvent(event);
 				if(isDebugRender) 
 				{
@@ -421,7 +424,6 @@ int main()
 	myRenderer = SDL_CreateRenderer(myWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
 	GE_LoadSpritesFromDir(myRenderer, SPRITE_DIR);
-
 	
 	RenderedObject* ro = GE_CreateRenderedObject(myRenderer, SPRITE_DIR"simple.bmp");
 	ro->size = {25,25};
@@ -432,15 +434,17 @@ int main()
 
 
 
+	PhysicsObject* pot; 
+	printf("idsys err %d\n",GE_GetPhysicsObjectFromID(po->ID,&pot)); //test of fakeID->ID system
+	printf("id %d\n",pot->ID);
+	pot->collisionRectangles[pot->numCollisionRectangles] = {0,0,25,25};
+	pot->numCollisionRectangles++;
+	GE_addGlueSubject(&ro->position,pot->ID);
 
-	int me = po->ID;
-	allPhysicsObjects[me]->collisionRectangles[allPhysicsObjects[me]->numCollisionRectangles] = {0,0,25,25};
-	allPhysicsObjects[me]->numCollisionRectangles++;
-	GE_addGlueSubject(&ro->position,me);
+	
+	GE_PhysicsInit();
+	GE_GlueInit();
 
-	pthread_t PhysicsThread, GlueThread;
-	pthread_create(&PhysicsThread,NULL,GE_physicsThreadMain,NULL );
-	pthread_create(&GlueThread,NULL,GE_glueThreadMain,NULL);
 
 	
 
@@ -448,7 +452,6 @@ int main()
 	{
 			GE_BlitRenderedObject(ro,&camera);
 			SDL_RenderPresent(myRenderer);
-			//SDL_Delay(100);
 			printf("am not kill \n");
 	}
 	GE_FreeAllSprites();

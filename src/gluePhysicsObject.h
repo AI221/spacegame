@@ -21,7 +21,8 @@ struct glueTarget
 extern glueTarget targets[MAX_GLUE_TARGETS];
 extern int countGlueTargets;
 
-void* GE_glueThreadMain(void* );
+int GE_GlueInit();
+void GE_GlueCallback();
 void GE_addGlueSubject(Vector2r* subject, int physicsID);
 
 #endif //__GLUE_PHYSICS_OBJECT_INCLUDED
