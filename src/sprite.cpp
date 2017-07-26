@@ -22,7 +22,10 @@ int countSprites = -1;
 
 Sprite* GE_CreateSprite(SDL_Renderer* renderer, std::string path)
 {
-	return new Sprite{renderer,GE_PathToImg(renderer,path)};
+	SDL_Texture* spriteTexture;
+	int error = GE_PathToImg(spriteTexture, renderer,path);
+
+	return new Sprite{renderer,spriteTexture};
 }
 
 
@@ -34,6 +37,9 @@ int GE_LoadSpritesFromDir(SDL_Renderer* renderer, std::string directory)
 	{
 		case 1:
 			return 1;
+			break;
+		default: 
+			return list.error;
 			break;
 	};
 	for (int i = 0; i < list.list.size(); i++)
@@ -53,11 +59,11 @@ int GE_LoadSpriteFromPath(SDL_Renderer* renderer, std::string path)
 	Sprites[countSprites] = GE_CreateSprite(renderer, path); //TODO: There needs to be a seperate file describing properties of the sprite
 #endif
 	Sprite_Names[countSprites] = path; //sprite names are relative paths to simplify things
+
+	return 0;
 }
 int GE_SpriteNameToID(std::string name)
 {
-
-	std::string sn[1024] = Sprite_Names;
 	for (int i = 0; i < countSprites+1; i++)
 	{
 		if (Sprite_Names[i] == name)
@@ -128,11 +134,22 @@ void GE_FreeAllSprites()
 	
 }
 
-SDL_Texture* GE_PathToImg(SDL_Renderer* renderer, std::string path)
+int GE_BMPPathToImg(SDL_Texture* result, SDL_Renderer* renderer, std::string path)
 {
 	SDL_Surface* LoadingSurface;
 	LoadingSurface = SDL_LoadBMP(path.c_str());
-	SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, LoadingSurface);	
+	if (LoadingSurface == NULL)
+	{
+		SDL_FreeSurface(LoadingSurface);
+		return 1; 
+	}
+	result = SDL_CreateTextureFromSurface(renderer, LoadingSurface);	
 	SDL_FreeSurface(LoadingSurface);
-	return texture;
+	if (result == NULL)
+	{
+		return 2;
+	}
+	return 0;
+
+	
 }

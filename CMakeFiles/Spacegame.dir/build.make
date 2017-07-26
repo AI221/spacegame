@@ -60,15 +60,15 @@ include CMakeFiles/Spacegame.dir/flags.make
 CMakeFiles/Spacegame.dir/src/FS.cpp.o: CMakeFiles/Spacegame.dir/flags.make
 CMakeFiles/Spacegame.dir/src/FS.cpp.o: src/FS.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/jackson/spacegame/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/Spacegame.dir/src/FS.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Spacegame.dir/src/FS.cpp.o -c /home/jackson/spacegame/src/FS.cpp
+	/usr/bin/clang   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Spacegame.dir/src/FS.cpp.o -c /home/jackson/spacegame/src/FS.cpp
 
 CMakeFiles/Spacegame.dir/src/FS.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Spacegame.dir/src/FS.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/jackson/spacegame/src/FS.cpp > CMakeFiles/Spacegame.dir/src/FS.cpp.i
+	/usr/bin/clang  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/jackson/spacegame/src/FS.cpp > CMakeFiles/Spacegame.dir/src/FS.cpp.i
 
 CMakeFiles/Spacegame.dir/src/FS.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Spacegame.dir/src/FS.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jackson/spacegame/src/FS.cpp -o CMakeFiles/Spacegame.dir/src/FS.cpp.s
+	/usr/bin/clang  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jackson/spacegame/src/FS.cpp -o CMakeFiles/Spacegame.dir/src/FS.cpp.s
 
 CMakeFiles/Spacegame.dir/src/FS.cpp.o.requires:
 
@@ -84,15 +84,15 @@ CMakeFiles/Spacegame.dir/src/FS.cpp.o.provides.build: CMakeFiles/Spacegame.dir/s
 CMakeFiles/Spacegame.dir/src/UI.cpp.o: CMakeFiles/Spacegame.dir/flags.make
 CMakeFiles/Spacegame.dir/src/UI.cpp.o: src/UI.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/jackson/spacegame/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/Spacegame.dir/src/UI.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Spacegame.dir/src/UI.cpp.o -c /home/jackson/spacegame/src/UI.cpp
+	/usr/bin/clang   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Spacegame.dir/src/UI.cpp.o -c /home/jackson/spacegame/src/UI.cpp
 
 CMakeFiles/Spacegame.dir/src/UI.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Spacegame.dir/src/UI.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/jackson/spacegame/src/UI.cpp > CMakeFiles/Spacegame.dir/src/UI.cpp.i
+	/usr/bin/clang  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/jackson/spacegame/src/UI.cpp > CMakeFiles/Spacegame.dir/src/UI.cpp.i
 
 CMakeFiles/Spacegame.dir/src/UI.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Spacegame.dir/src/UI.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jackson/spacegame/src/UI.cpp -o CMakeFiles/Spacegame.dir/src/UI.cpp.s
+	/usr/bin/clang  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jackson/spacegame/src/UI.cpp -o CMakeFiles/Spacegame.dir/src/UI.cpp.s
 
 CMakeFiles/Spacegame.dir/src/UI.cpp.o.requires:
 
@@ -108,15 +108,15 @@ CMakeFiles/Spacegame.dir/src/UI.cpp.o.provides.build: CMakeFiles/Spacegame.dir/s
 CMakeFiles/Spacegame.dir/src/camera.cpp.o: CMakeFiles/Spacegame.dir/flags.make
 CMakeFiles/Spacegame.dir/src/camera.cpp.o: src/camera.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/jackson/spacegame/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/Spacegame.dir/src/camera.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Spacegame.dir/src/camera.cpp.o -c /home/jackson/spacegame/src/camera.cpp
+	/usr/bin/clang   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Spacegame.dir/src/camera.cpp.o -c /home/jackson/spacegame/src/camera.cpp
 
 CMakeFiles/Spacegame.dir/src/camera.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Spacegame.dir/src/camera.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/jackson/spacegame/src/camera.cpp > CMakeFiles/Spacegame.dir/src/camera.cpp.i
+	/usr/bin/clang  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/jackson/spacegame/src/camera.cpp > CMakeFiles/Spacegame.dir/src/camera.cpp.i
 
 CMakeFiles/Spacegame.dir/src/camera.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Spacegame.dir/src/camera.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jackson/spacegame/src/camera.cpp -o CMakeFiles/Spacegame.dir/src/camera.cpp.s
+	/usr/bin/clang  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jackson/spacegame/src/camera.cpp -o CMakeFiles/Spacegame.dir/src/camera.cpp.s
 
 CMakeFiles/Spacegame.dir/src/camera.cpp.o.requires:
 
@@ -132,15 +132,15 @@ CMakeFiles/Spacegame.dir/src/camera.cpp.o.provides.build: CMakeFiles/Spacegame.d
 CMakeFiles/Spacegame.dir/src/debugRenders.cpp.o: CMakeFiles/Spacegame.dir/flags.make
 CMakeFiles/Spacegame.dir/src/debugRenders.cpp.o: src/debugRenders.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/jackson/spacegame/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/Spacegame.dir/src/debugRenders.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Spacegame.dir/src/debugRenders.cpp.o -c /home/jackson/spacegame/src/debugRenders.cpp
+	/usr/bin/clang   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Spacegame.dir/src/debugRenders.cpp.o -c /home/jackson/spacegame/src/debugRenders.cpp
 
 CMakeFiles/Spacegame.dir/src/debugRenders.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Spacegame.dir/src/debugRenders.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/jackson/spacegame/src/debugRenders.cpp > CMakeFiles/Spacegame.dir/src/debugRenders.cpp.i
+	/usr/bin/clang  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/jackson/spacegame/src/debugRenders.cpp > CMakeFiles/Spacegame.dir/src/debugRenders.cpp.i
 
 CMakeFiles/Spacegame.dir/src/debugRenders.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Spacegame.dir/src/debugRenders.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jackson/spacegame/src/debugRenders.cpp -o CMakeFiles/Spacegame.dir/src/debugRenders.cpp.s
+	/usr/bin/clang  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jackson/spacegame/src/debugRenders.cpp -o CMakeFiles/Spacegame.dir/src/debugRenders.cpp.s
 
 CMakeFiles/Spacegame.dir/src/debugRenders.cpp.o.requires:
 
@@ -156,15 +156,15 @@ CMakeFiles/Spacegame.dir/src/debugRenders.cpp.o.provides.build: CMakeFiles/Space
 CMakeFiles/Spacegame.dir/src/debugUI.cpp.o: CMakeFiles/Spacegame.dir/flags.make
 CMakeFiles/Spacegame.dir/src/debugUI.cpp.o: src/debugUI.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/jackson/spacegame/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/Spacegame.dir/src/debugUI.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Spacegame.dir/src/debugUI.cpp.o -c /home/jackson/spacegame/src/debugUI.cpp
+	/usr/bin/clang   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Spacegame.dir/src/debugUI.cpp.o -c /home/jackson/spacegame/src/debugUI.cpp
 
 CMakeFiles/Spacegame.dir/src/debugUI.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Spacegame.dir/src/debugUI.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/jackson/spacegame/src/debugUI.cpp > CMakeFiles/Spacegame.dir/src/debugUI.cpp.i
+	/usr/bin/clang  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/jackson/spacegame/src/debugUI.cpp > CMakeFiles/Spacegame.dir/src/debugUI.cpp.i
 
 CMakeFiles/Spacegame.dir/src/debugUI.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Spacegame.dir/src/debugUI.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jackson/spacegame/src/debugUI.cpp -o CMakeFiles/Spacegame.dir/src/debugUI.cpp.s
+	/usr/bin/clang  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jackson/spacegame/src/debugUI.cpp -o CMakeFiles/Spacegame.dir/src/debugUI.cpp.s
 
 CMakeFiles/Spacegame.dir/src/debugUI.cpp.o.requires:
 
@@ -180,15 +180,15 @@ CMakeFiles/Spacegame.dir/src/debugUI.cpp.o.provides.build: CMakeFiles/Spacegame.
 CMakeFiles/Spacegame.dir/src/gluePhysicsObject.cpp.o: CMakeFiles/Spacegame.dir/flags.make
 CMakeFiles/Spacegame.dir/src/gluePhysicsObject.cpp.o: src/gluePhysicsObject.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/jackson/spacegame/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/Spacegame.dir/src/gluePhysicsObject.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Spacegame.dir/src/gluePhysicsObject.cpp.o -c /home/jackson/spacegame/src/gluePhysicsObject.cpp
+	/usr/bin/clang   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Spacegame.dir/src/gluePhysicsObject.cpp.o -c /home/jackson/spacegame/src/gluePhysicsObject.cpp
 
 CMakeFiles/Spacegame.dir/src/gluePhysicsObject.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Spacegame.dir/src/gluePhysicsObject.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/jackson/spacegame/src/gluePhysicsObject.cpp > CMakeFiles/Spacegame.dir/src/gluePhysicsObject.cpp.i
+	/usr/bin/clang  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/jackson/spacegame/src/gluePhysicsObject.cpp > CMakeFiles/Spacegame.dir/src/gluePhysicsObject.cpp.i
 
 CMakeFiles/Spacegame.dir/src/gluePhysicsObject.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Spacegame.dir/src/gluePhysicsObject.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jackson/spacegame/src/gluePhysicsObject.cpp -o CMakeFiles/Spacegame.dir/src/gluePhysicsObject.cpp.s
+	/usr/bin/clang  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jackson/spacegame/src/gluePhysicsObject.cpp -o CMakeFiles/Spacegame.dir/src/gluePhysicsObject.cpp.s
 
 CMakeFiles/Spacegame.dir/src/gluePhysicsObject.cpp.o.requires:
 
@@ -204,15 +204,15 @@ CMakeFiles/Spacegame.dir/src/gluePhysicsObject.cpp.o.provides.build: CMakeFiles/
 CMakeFiles/Spacegame.dir/src/main.cpp.o: CMakeFiles/Spacegame.dir/flags.make
 CMakeFiles/Spacegame.dir/src/main.cpp.o: src/main.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/jackson/spacegame/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/Spacegame.dir/src/main.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Spacegame.dir/src/main.cpp.o -c /home/jackson/spacegame/src/main.cpp
+	/usr/bin/clang   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Spacegame.dir/src/main.cpp.o -c /home/jackson/spacegame/src/main.cpp
 
 CMakeFiles/Spacegame.dir/src/main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Spacegame.dir/src/main.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/jackson/spacegame/src/main.cpp > CMakeFiles/Spacegame.dir/src/main.cpp.i
+	/usr/bin/clang  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/jackson/spacegame/src/main.cpp > CMakeFiles/Spacegame.dir/src/main.cpp.i
 
 CMakeFiles/Spacegame.dir/src/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Spacegame.dir/src/main.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jackson/spacegame/src/main.cpp -o CMakeFiles/Spacegame.dir/src/main.cpp.s
+	/usr/bin/clang  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jackson/spacegame/src/main.cpp -o CMakeFiles/Spacegame.dir/src/main.cpp.s
 
 CMakeFiles/Spacegame.dir/src/main.cpp.o.requires:
 
@@ -228,15 +228,15 @@ CMakeFiles/Spacegame.dir/src/main.cpp.o.provides.build: CMakeFiles/Spacegame.dir
 CMakeFiles/Spacegame.dir/src/network.cpp.o: CMakeFiles/Spacegame.dir/flags.make
 CMakeFiles/Spacegame.dir/src/network.cpp.o: src/network.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/jackson/spacegame/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/Spacegame.dir/src/network.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Spacegame.dir/src/network.cpp.o -c /home/jackson/spacegame/src/network.cpp
+	/usr/bin/clang   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Spacegame.dir/src/network.cpp.o -c /home/jackson/spacegame/src/network.cpp
 
 CMakeFiles/Spacegame.dir/src/network.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Spacegame.dir/src/network.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/jackson/spacegame/src/network.cpp > CMakeFiles/Spacegame.dir/src/network.cpp.i
+	/usr/bin/clang  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/jackson/spacegame/src/network.cpp > CMakeFiles/Spacegame.dir/src/network.cpp.i
 
 CMakeFiles/Spacegame.dir/src/network.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Spacegame.dir/src/network.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jackson/spacegame/src/network.cpp -o CMakeFiles/Spacegame.dir/src/network.cpp.s
+	/usr/bin/clang  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jackson/spacegame/src/network.cpp -o CMakeFiles/Spacegame.dir/src/network.cpp.s
 
 CMakeFiles/Spacegame.dir/src/network.cpp.o.requires:
 
@@ -252,15 +252,15 @@ CMakeFiles/Spacegame.dir/src/network.cpp.o.provides.build: CMakeFiles/Spacegame.
 CMakeFiles/Spacegame.dir/src/networkObject.cpp.o: CMakeFiles/Spacegame.dir/flags.make
 CMakeFiles/Spacegame.dir/src/networkObject.cpp.o: src/networkObject.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/jackson/spacegame/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/Spacegame.dir/src/networkObject.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Spacegame.dir/src/networkObject.cpp.o -c /home/jackson/spacegame/src/networkObject.cpp
+	/usr/bin/clang   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Spacegame.dir/src/networkObject.cpp.o -c /home/jackson/spacegame/src/networkObject.cpp
 
 CMakeFiles/Spacegame.dir/src/networkObject.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Spacegame.dir/src/networkObject.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/jackson/spacegame/src/networkObject.cpp > CMakeFiles/Spacegame.dir/src/networkObject.cpp.i
+	/usr/bin/clang  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/jackson/spacegame/src/networkObject.cpp > CMakeFiles/Spacegame.dir/src/networkObject.cpp.i
 
 CMakeFiles/Spacegame.dir/src/networkObject.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Spacegame.dir/src/networkObject.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jackson/spacegame/src/networkObject.cpp -o CMakeFiles/Spacegame.dir/src/networkObject.cpp.s
+	/usr/bin/clang  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jackson/spacegame/src/networkObject.cpp -o CMakeFiles/Spacegame.dir/src/networkObject.cpp.s
 
 CMakeFiles/Spacegame.dir/src/networkObject.cpp.o.requires:
 
@@ -276,15 +276,15 @@ CMakeFiles/Spacegame.dir/src/networkObject.cpp.o.provides.build: CMakeFiles/Spac
 CMakeFiles/Spacegame.dir/src/physics.cpp.o: CMakeFiles/Spacegame.dir/flags.make
 CMakeFiles/Spacegame.dir/src/physics.cpp.o: src/physics.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/jackson/spacegame/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/Spacegame.dir/src/physics.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Spacegame.dir/src/physics.cpp.o -c /home/jackson/spacegame/src/physics.cpp
+	/usr/bin/clang   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Spacegame.dir/src/physics.cpp.o -c /home/jackson/spacegame/src/physics.cpp
 
 CMakeFiles/Spacegame.dir/src/physics.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Spacegame.dir/src/physics.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/jackson/spacegame/src/physics.cpp > CMakeFiles/Spacegame.dir/src/physics.cpp.i
+	/usr/bin/clang  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/jackson/spacegame/src/physics.cpp > CMakeFiles/Spacegame.dir/src/physics.cpp.i
 
 CMakeFiles/Spacegame.dir/src/physics.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Spacegame.dir/src/physics.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jackson/spacegame/src/physics.cpp -o CMakeFiles/Spacegame.dir/src/physics.cpp.s
+	/usr/bin/clang  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jackson/spacegame/src/physics.cpp -o CMakeFiles/Spacegame.dir/src/physics.cpp.s
 
 CMakeFiles/Spacegame.dir/src/physics.cpp.o.requires:
 
@@ -300,15 +300,15 @@ CMakeFiles/Spacegame.dir/src/physics.cpp.o.provides.build: CMakeFiles/Spacegame.
 CMakeFiles/Spacegame.dir/src/renderedObject.cpp.o: CMakeFiles/Spacegame.dir/flags.make
 CMakeFiles/Spacegame.dir/src/renderedObject.cpp.o: src/renderedObject.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/jackson/spacegame/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/Spacegame.dir/src/renderedObject.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Spacegame.dir/src/renderedObject.cpp.o -c /home/jackson/spacegame/src/renderedObject.cpp
+	/usr/bin/clang   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Spacegame.dir/src/renderedObject.cpp.o -c /home/jackson/spacegame/src/renderedObject.cpp
 
 CMakeFiles/Spacegame.dir/src/renderedObject.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Spacegame.dir/src/renderedObject.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/jackson/spacegame/src/renderedObject.cpp > CMakeFiles/Spacegame.dir/src/renderedObject.cpp.i
+	/usr/bin/clang  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/jackson/spacegame/src/renderedObject.cpp > CMakeFiles/Spacegame.dir/src/renderedObject.cpp.i
 
 CMakeFiles/Spacegame.dir/src/renderedObject.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Spacegame.dir/src/renderedObject.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jackson/spacegame/src/renderedObject.cpp -o CMakeFiles/Spacegame.dir/src/renderedObject.cpp.s
+	/usr/bin/clang  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jackson/spacegame/src/renderedObject.cpp -o CMakeFiles/Spacegame.dir/src/renderedObject.cpp.s
 
 CMakeFiles/Spacegame.dir/src/renderedObject.cpp.o.requires:
 
@@ -324,15 +324,15 @@ CMakeFiles/Spacegame.dir/src/renderedObject.cpp.o.provides.build: CMakeFiles/Spa
 CMakeFiles/Spacegame.dir/src/sprite.cpp.o: CMakeFiles/Spacegame.dir/flags.make
 CMakeFiles/Spacegame.dir/src/sprite.cpp.o: src/sprite.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/jackson/spacegame/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/Spacegame.dir/src/sprite.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Spacegame.dir/src/sprite.cpp.o -c /home/jackson/spacegame/src/sprite.cpp
+	/usr/bin/clang   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Spacegame.dir/src/sprite.cpp.o -c /home/jackson/spacegame/src/sprite.cpp
 
 CMakeFiles/Spacegame.dir/src/sprite.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Spacegame.dir/src/sprite.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/jackson/spacegame/src/sprite.cpp > CMakeFiles/Spacegame.dir/src/sprite.cpp.i
+	/usr/bin/clang  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/jackson/spacegame/src/sprite.cpp > CMakeFiles/Spacegame.dir/src/sprite.cpp.i
 
 CMakeFiles/Spacegame.dir/src/sprite.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Spacegame.dir/src/sprite.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jackson/spacegame/src/sprite.cpp -o CMakeFiles/Spacegame.dir/src/sprite.cpp.s
+	/usr/bin/clang  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jackson/spacegame/src/sprite.cpp -o CMakeFiles/Spacegame.dir/src/sprite.cpp.s
 
 CMakeFiles/Spacegame.dir/src/sprite.cpp.o.requires:
 
@@ -348,15 +348,15 @@ CMakeFiles/Spacegame.dir/src/sprite.cpp.o.provides.build: CMakeFiles/Spacegame.d
 CMakeFiles/Spacegame.dir/src/vector2.cpp.o: CMakeFiles/Spacegame.dir/flags.make
 CMakeFiles/Spacegame.dir/src/vector2.cpp.o: src/vector2.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/jackson/spacegame/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object CMakeFiles/Spacegame.dir/src/vector2.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Spacegame.dir/src/vector2.cpp.o -c /home/jackson/spacegame/src/vector2.cpp
+	/usr/bin/clang   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Spacegame.dir/src/vector2.cpp.o -c /home/jackson/spacegame/src/vector2.cpp
 
 CMakeFiles/Spacegame.dir/src/vector2.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Spacegame.dir/src/vector2.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/jackson/spacegame/src/vector2.cpp > CMakeFiles/Spacegame.dir/src/vector2.cpp.i
+	/usr/bin/clang  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/jackson/spacegame/src/vector2.cpp > CMakeFiles/Spacegame.dir/src/vector2.cpp.i
 
 CMakeFiles/Spacegame.dir/src/vector2.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Spacegame.dir/src/vector2.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jackson/spacegame/src/vector2.cpp -o CMakeFiles/Spacegame.dir/src/vector2.cpp.s
+	/usr/bin/clang  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jackson/spacegame/src/vector2.cpp -o CMakeFiles/Spacegame.dir/src/vector2.cpp.s
 
 CMakeFiles/Spacegame.dir/src/vector2.cpp.o.requires:
 

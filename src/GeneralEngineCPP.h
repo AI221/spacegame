@@ -1,3 +1,7 @@
+/*
+ * @file
+ * @author Jackson McNeill
+ */
 
 #ifndef __GENERALENGINECPP_INCLUDED
 #define  __GENERALENGINECPP_INCLUDED

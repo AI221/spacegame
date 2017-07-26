@@ -11,6 +11,8 @@ set (PROJECT_SOURCE_DIR src)
 
 set (EXECUTABLE_OUTPUT_PATH bin)
 
+set( CMAKE_EXPORT_COMPILE_COMMANDS ON )
+
 file(GLOB spacegame_SRC
 	"src/*.h"
 	"src/*.cpp"

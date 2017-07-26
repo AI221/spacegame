@@ -18,7 +18,7 @@ set(CMAKE_DEPENDS_CHECK_CXX
   "/home/jackson/spacegame/src/sprite.cpp" "/home/jackson/spacegame/CMakeFiles/Spacegame.dir/src/sprite.cpp.o"
   "/home/jackson/spacegame/src/vector2.cpp" "/home/jackson/spacegame/CMakeFiles/Spacegame.dir/src/vector2.cpp.o"
   )
-set(CMAKE_CXX_COMPILER_ID "GNU")
+set(CMAKE_CXX_COMPILER_ID "Clang")
 
 # The include file search paths:
 set(CMAKE_CXX_TARGET_INCLUDE_PATH

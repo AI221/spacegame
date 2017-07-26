@@ -3,9 +3,6 @@
 
 /*
 	The OO paradign makes a lot of sense for UI development. For this reason, I'm actually going to keep this OO. 
-
-	It still isn't fun to develop. Procedural code is more elegent, easier to understand, and easier to program. 
-
 */
 
 //TODO: memory management. yikes.
@@ -19,7 +16,7 @@ void GE_UI_Text::setText(const char* text)
 	SDL_Surface* surfaceMessage = TTF_RenderText_Solid(Sans, text, color);
 	if (surfaceMessage == NULL) //extra protection
 	{
-		return;
+		return; //TODO CRASH NOTE: IF, DURING CONSTRUCTION, MESSAGE IS FAILED TO BE SET, THE NEXT RENDER() WILL CAUSE A CRASH.
 	}
 	Message = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
 
@@ -39,7 +36,7 @@ GE_UI_Text::GE_UI_Text(SDL_Renderer* renderer, Vector2 position, std::string tex
 	Message_rect.x = position.x;
 	Message_rect.y = position.y;
 	this->renderer = renderer;
-	setText(text.c_str());
+	setText(text); //Fills Message variable belonging to this class
 	this->color = color;
 	this->wantsEvents = false;
 }
@@ -75,6 +72,7 @@ GE_UI_TextInput::GE_UI_TextInput(SDL_Renderer* renderer, Vector2 position, Vecto
 
 	this->myText = new GE_UI_Text(renderer,position,"",textColor);
 	this->text = "";
+	this->isFocused = false; //First catch by cppcheck!
 }
 GE_UI_TextInput::~GE_UI_TextInput()
 {
@@ -95,6 +93,7 @@ void GE_UI_TextInput::render(Vector2 parrentPosition)
 
 	SDL_RenderFillRect(renderer, &translatedRect);
 	myText->render(parrentPosition);
+
 
 }
 void GE_UI_TextInput::render()

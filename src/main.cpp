@@ -76,7 +76,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 SDL_Renderer* myRenderer;
 
 Camera camera;
-PhysicsObject* camFocusedObj = 1;
+int camFocusedObj = 1;
 
 void render()
 {
@@ -441,9 +441,12 @@ int main()
 	pot->numCollisionRectangles++;
 	GE_addGlueSubject(&ro->position,pot->ID);
 
+
+
 	
 	GE_PhysicsInit();
 	GE_GlueInit();
+
 
 
 	
@@ -485,6 +488,7 @@ int main(int argc, char *argv[])
 		
 	}
 	else
+	
 	{
 		printf("Am server\n");
 		GE_BindServer(mySocket);
@@ -503,6 +507,16 @@ int main(int argc, char *argv[])
 	}
 
 	GE_FreeNetworkSocket(mySocket);
+	
+
+	
+
+	
+
+	
+	
+
+
 
 }
 

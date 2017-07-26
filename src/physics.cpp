@@ -51,7 +51,7 @@ PhysicsObject* GE_CreatePhysicsObject(Vector2r newPosition, Vector2r newVelocity
 
 	numFakePhysicsIDs++;
 	numPhysicsObjects++;
-	PhysicsObject* newPhysicsObject = new PhysicsObject{{0,0,0},{0,0,0},newPosition,true,newVelocity,true,{0,0,shape.x,shape.y},{0,0},numFakePhysicsIDs,{},0,{0,0,0},false};
+	PhysicsObject* newPhysicsObject = new PhysicsObject{{0,0,0},{0,0,0},newPosition,true,newVelocity,true,{0,0,(int) shape.x, (int) shape.y},{0,0},numFakePhysicsIDs,{},0,{0,0,0},false};
 
 	fakeToRealPhysicsID[numFakePhysicsIDs] = numPhysicsObjects;
 	physicsObjects[numPhysicsObjects] = newPhysicsObject;
@@ -64,14 +64,10 @@ int GE_GetPhysicsObjectFromID(int fakeID, PhysicsObject** physicsObjectPointer)
 	{
 		return 1;
 	}
-	else if (fakeToRealPhysicsID[fakeID] == -1)
-	{
-		return 2;
-	}
 	int physicsObjectID = fakeToRealPhysicsID[fakeID];
 	if (physicsObjectID == -1)
 	{
-		return -1;
+		return 1;
 	}
 	(*physicsObjectPointer) = physicsObjects[physicsObjectID];
 
@@ -145,6 +141,7 @@ void GE_TickPhysics()
 		//printf("x %d y %d\n",physicsObjects[i]->position.x,physicsObjects[i]->position.y);
 	}
 }
+//TODO: Factor in the fakeID, move the sGrid-removal to a seperate function called upon physicsObject death
 void GE_TickPhysics_ForObject(PhysicsObject* cObj)
 {
 	//remove our old grid 
@@ -248,7 +245,7 @@ void GE_TickPhysics_ForObject(PhysicsObject* cObj)
 			}
 			if (sGrid[posx][posy] != 0 && sGrid[posx][posy] != cObj->ID)
 			{
-				GE_CollisionFullCheck(cObj,physicsObjects[sGrid[posx][posy]]);
+				GE_CollisionFullCheck(cObj,physicsObjects[sGrid[posx][posy]]); //TODO: convert to realID
 			}
 		}
 	}
@@ -349,7 +346,6 @@ void GE_CollisionFullCheck(PhysicsObject* cObj, PhysicsObject* victimObj)
 void GE_FreePhysicsObject(PhysicsObject* physicsObject) //MUST be allocated with new
 {
 	deadPhysicsObjects[physicsObject->ID] = true;
-	delete physicsObject->collisionRectangles;
 	delete physicsObject;
 }
 

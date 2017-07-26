@@ -5,7 +5,7 @@ Sprite* nothingHere;
 Sprite* somethingHere;
 bool loadSprites = false;
 
-void debug_render()
+void Debug_sGrid_Render(Vector2r camerapos)
 { //pulled from my prototype
 	
 	//welcome to the oldest code in the engine
@@ -41,6 +41,9 @@ void debug_render()
 				{
 					GE_BlitSprite(nothingHere,{i*10,o*10,0},{25,25},{0,0,8,9},FLIP_NONE);
 					//std::cout << "somethingHere; ";
+					//
+					
+				
 				}
 			}
 		}

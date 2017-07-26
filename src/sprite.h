@@ -67,7 +67,7 @@ void GE_BlitSprite(Sprite* sprite, SDL_Rect renderPosition, SDL_Rect renderAnima
 
 
 Sprite* GE_CreateSprite(SDL_Renderer* renderer, std::string path); //should not be used by others *
-SDL_Texture* GE_PathToImg(SDL_Renderer* renderer, std::string path);//should not be used by others *
+int GE_BMPPathToImg(SDL_Texture* result, SDL_Renderer* renderer, std::string path);
 void GE_FreeSprite(Sprite* sprite); //sprite MUST be allocated with new. //should not be used by others *
 //* but there may be cases I'm not thinking of where it would be, e.x. client-sided mod.
 
