@@ -31,7 +31,7 @@ GE_RenderedObject* GE_CreateRenderedObject(SDL_Renderer* renderer, std::string s
 void GE_BlitRenderedObject(GE_RenderedObject* subject, Camera* camera)
 {
 	Vector2r position = GE_ApplyCameraOffset(camera,subject->position);
-	GE_BlitSprite(Sprites[subject->spriteID],position,subject->size,subject->animation,FLIP_NONE); //TODO
+	GE_BlitSprite(Sprites[subject->spriteID],position,subject->size,subject->animation,GE_FLIP_NONE); //TODO
 
 }
 void GE_FreeRenderedObject(GE_RenderedObject* subject) //will not destroy renderer,or sprite. MUST be allocated with new

@@ -391,7 +391,7 @@ int main()
 			t++;
 			if (t==2)
 				t= 0;
-			GE_BlitSprite(Sprites[spriteID],{0,0,0},{25,25},{t*8,0,8,9}, FLIP_NONE);
+			GE_BlitSprite(Sprites[spriteID],{0,0,0},{25,25},{t*8,0,8,9}, GE_FLIP_NONE);
 			SDL_RenderPresent(myRenderer);
 			SDL_Delay(100);
 	}
@@ -423,15 +423,23 @@ int main()
 
 	myRenderer = SDL_CreateRenderer(myWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
+	//Initialize the engine
+	GE_SpriteInit(myRenderer);
+	GE_PhysicsInit();
+	GE_GlueInit();
+	
+	//Initialize stuff we need
+
 	GE_LoadSpritesFromDir(myRenderer, SPRITE_DIR);
 	
-	GE_RenderedObject* ro = GE_CreateRenderedObject(myRenderer, SPRITE_DIR"simple.bmp");
+	GE_RenderedObject* ro = GE_CreateRenderedObject(myRenderer, SPRITE_DIR"simple.bmpfuck");
 	ro->size = {25,25};
 	ro->animation = {0,0,8,9};
 	ro->position = {0,0,0};
 
 	GE_PhysicsObject* po = GE_CreatePhysicsObject({25,0,0},{1,1,0},{25,25});
 
+	
 
 
 	GE_PhysicsObject* pot; 
@@ -444,8 +452,6 @@ int main()
 
 
 	
-	GE_PhysicsInit();
-	GE_GlueInit();
 
 
 

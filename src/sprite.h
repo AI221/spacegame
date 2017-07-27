@@ -32,36 +32,40 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define MAX_SPRITES_LOADED 1024
 
-enum Flip
+enum GE_Flip
 {
-	FLIP_NONE,
-	FLIP_HORIZONTAL,
-	FLIP_VERTICAL,
-	FLIP_DIAGONAL
+	GE_FLIP_NONE,
+	GE_FLIP_HORIZONTAL,
+	GE_FLIP_VERTICAL,
+	GE_FLIP_DIAGONAL
 };
 
-struct Sprite
+struct GE_Sprite
 {
 	SDL_Renderer* renderer;
 	SDL_Texture* texture;
 };
 
-extern Sprite* Sprites[MAX_SPRITES_LOADED];
+extern GE_Sprite* Sprites[MAX_SPRITES_LOADED];
 extern std::string Sprite_Names[MAX_SPRITES_LOADED]; //basically, all things should pass the name(/relative directory) of a sprite, for it to be looked up in here to find the number associated with it. However, the resulting number should be stored rather than the path, for effeciency.
 extern int countSprites;
+
+int GE_SpriteInit(SDL_Renderer* renderer);
 
 int GE_LoadSpritesFromDir(SDL_Renderer* renderer, std::string directory);
 int GE_LoadSpriteFromPath(SDL_Renderer* renderer, std::string path);
 int GE_SpriteNameToID(std::string name);
-void GE_BlitSprite(Sprite* sprite, Vector2r position,Vector2 size, GE_Rectangle  animation, Flip flip);
-void GE_BlitSprite(Sprite* sprite, SDL_Rect renderPosition, SDL_Rect renderAnimation,double rotation, SDL_RendererFlip flip); //not super recommended to invoke this function directly
+void GE_BlitSprite(GE_Sprite* sprite, Vector2r position,Vector2 size, GE_Rectangle  animation, GE_Flip flip);
+void GE_BlitSprite(GE_Sprite* sprite, SDL_Rect renderPosition, SDL_Rect renderAnimation,double rotation, SDL_RendererFlip flip); //not super recommended to invoke this function directly
 
 
 
 
-Sprite* GE_CreateSprite(SDL_Renderer* renderer, std::string path); //should not be used by others *
-int GE_BMPPathToImg(SDL_Texture* result, SDL_Renderer* renderer, std::string path);
-void GE_FreeSprite(Sprite* sprite); //sprite MUST be allocated with new. //should not be used by others *
+GE_Sprite* GE_CreateSprite(SDL_Renderer* renderer, SDL_Texture* spriteTexture);
+GE_Sprite* GE_CreateSprite(SDL_Renderer* renderer, std::string path); //should not be used by others *
+int GE_BMPPathToImg(SDL_Texture** result, SDL_Renderer* renderer, SDL_RWops * data);
+int GE_BMPPathToImg(SDL_Texture** result, SDL_Renderer* renderer, std::string path);
+void GE_FreeSprite(GE_Sprite* sprite); //sprite MUST be allocated with new. //should not be used by others *
 //* but there may be cases I'm not thinking of where it would be, e.x. client-sided mod.
 
 void GE_FreeAllSprites();

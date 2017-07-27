@@ -17,7 +17,7 @@ void Debug_sGrid_Render(Vector2r camerapos)
 		somethingHere = GE_CreateSprite(myRenderer, SPRITE_DIR"DEBUG_somethingHere.bmp",10,10);
 	}
 
-	GE_BlitSprite(somethingHere,{0,0,0},{25,25},{10,10},FLIP_NONE);
+	GE_BlitSprite(somethingHere,{0,0,0},{25,25},{10,10},GE_FLIP_NONE);
 	camera.pos = allPhysicsObjects[camFocusedObj]->position;
 	camera.pos.x -= 640/2;
 	camera.pos.y -= 580/2;
@@ -34,12 +34,12 @@ void Debug_sGrid_Render(Vector2r camerapos)
 			if ((i+camerax < 0) || (o+cameray < 0)) {} else {
 				if ( sGrid[i+camerax][o+cameray] != 0)
 				{
-					GE_BlitSprite(somethingHere,{i*10,o*10,0},{25,25},{0,0,8,9},FLIP_NONE);
+					GE_BlitSprite(somethingHere,{i*10,o*10,0},{25,25},{0,0,8,9},GE_FLIP_NONE);
 					//std::cout << "nothingHere; ";`
 				} 
 				else 
 				{
-					GE_BlitSprite(nothingHere,{i*10,o*10,0},{25,25},{0,0,8,9},FLIP_NONE);
+					GE_BlitSprite(nothingHere,{i*10,o*10,0},{25,25},{0,0,8,9},GE_FLIP_NONE);
 					//std::cout << "somethingHere; ";
 					//
 					

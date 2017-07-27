@@ -53,3 +53,28 @@ Makefile:126: recipe for target 'cmTC_4d086/fast' failed
 make: *** [cmTC_4d086/fast] Error 2
 
 
+Determining if the function pow exists failed with the following output:
+Change Dir: /home/jackson/spacegame/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_344c0/fast"
+/usr/bin/make -f CMakeFiles/cmTC_344c0.dir/build.make CMakeFiles/cmTC_344c0.dir/build
+make[1]: Entering directory '/home/jackson/spacegame/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_344c0.dir/CheckFunctionExists.c.o
+/usr/bin/gcc    -DCHECK_FUNCTION_EXISTS=pow   -o CMakeFiles/cmTC_344c0.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-3.7/Modules/CheckFunctionExists.c
+<command-line>:0:23: warning: conflicting types for built-in function ‘pow’
+/usr/share/cmake-3.7/Modules/CheckFunctionExists.c:7:3: note: in expansion of macro ‘CHECK_FUNCTION_EXISTS’
+   CHECK_FUNCTION_EXISTS();
+   ^~~~~~~~~~~~~~~~~~~~~
+Linking C executable cmTC_344c0
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_344c0.dir/link.txt --verbose=1
+/usr/bin/gcc   -DCHECK_FUNCTION_EXISTS=pow    CMakeFiles/cmTC_344c0.dir/CheckFunctionExists.c.o  -o cmTC_344c0 -rdynamic 
+CMakeFiles/cmTC_344c0.dir/CheckFunctionExists.c.o: In function `main':
+CheckFunctionExists.c:(.text+0x15): undefined reference to `pow'
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_344c0.dir/build.make:97: recipe for target 'cmTC_344c0' failed
+make[1]: *** [cmTC_344c0] Error 1
+make[1]: Leaving directory '/home/jackson/spacegame/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_344c0/fast' failed
+make: *** [cmTC_344c0/fast] Error 2
+
+
