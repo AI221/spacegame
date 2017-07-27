@@ -134,8 +134,8 @@ int main()
 		GE_CreateRenderedObject(myRenderer,SPRITE_DIR"simple.bmp");	
 		
 
-		PhysicsObject* me = GE_CreatePhysicsObject({0,0,0},{0,0,0},{25,25});
-		me->collisionRectangles[physicsObjects[me]->numCollisionRectangles] = {0,0,25,25};
+		GE_PhysicsObject* me = GE_CreatePhysicsObject({0,0,0},{0,0,0},{25,25});
+		me->collisionRectangles[physicsObjects[me]->numCollisionRectangles] = {-1,0,25,25};
 		me->numCollisionRectangles++;
 		GE_addGlueSubject(&renderedObjects[numRenderedObjects].position,me->ID);
 
@@ -425,16 +425,16 @@ int main()
 
 	GE_LoadSpritesFromDir(myRenderer, SPRITE_DIR);
 	
-	RenderedObject* ro = GE_CreateRenderedObject(myRenderer, SPRITE_DIR"simple.bmp");
+	GE_RenderedObject* ro = GE_CreateRenderedObject(myRenderer, SPRITE_DIR"simple.bmp");
 	ro->size = {25,25};
 	ro->animation = {0,0,8,9};
 	ro->position = {0,0,0};
 
-	PhysicsObject* po = GE_CreatePhysicsObject({25,0,0},{1,1,0},{25,25});
+	GE_PhysicsObject* po = GE_CreatePhysicsObject({25,0,0},{1,1,0},{25,25});
 
 
 
-	PhysicsObject* pot; 
+	GE_PhysicsObject* pot; 
 	printf("idsys err %d\n",GE_GetPhysicsObjectFromID(po->ID,&pot)); //test of fakeID->ID system
 	printf("id %d\n",pot->ID);
 	pot->collisionRectangles[pot->numCollisionRectangles] = {0,0,25,25};

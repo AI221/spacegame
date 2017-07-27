@@ -23,7 +23,7 @@ int countSprites = -1;
 Sprite* GE_CreateSprite(SDL_Renderer* renderer, std::string path)
 {
 	SDL_Texture* spriteTexture;
-	int error = GE_PathToImg(spriteTexture, renderer,path);
+	int error = GE_BMPPathToImg(spriteTexture, renderer,path);
 
 	return new Sprite{renderer,spriteTexture};
 }
@@ -75,7 +75,7 @@ int GE_SpriteNameToID(std::string name)
 }
 
 
-void GE_BlitSprite(Sprite* sprite, Vector2r position,Vector2 size, Animation animation, Flip flip)	
+void GE_BlitSprite(Sprite* sprite, Vector2r position,Vector2 size, GE_Rectangle animation, GE_Flip flip)	
 {
 	SDL_Rect renderPosition = {};
 	SDL_Rect renderAnimation = {};

@@ -24,7 +24,7 @@ pthread_t PhysicsEngineThread;
 pthread_mutex_t PhysicsEngineMutex = PTHREAD_MUTEX_INITIALIZER;
 
 
-PhysicsObject* physicsObjects[MAX_PHYSICS_OBJECTS];
+GE_PhysicsObject* physicsObjects[MAX_PHYSICS_OBJECTS];
 int numPhysicsObjects = -1; 
 bool deadPhysicsObjects[MAX_PHYSICS_OBJECTS]; //TODO shift all elements down instead of this patch
 int fakeToRealPhysicsID[MAX_PHYSICS_OBJECTS]; 
@@ -45,20 +45,20 @@ int GE_PhysicsInit()
 	pthread_create(&PhysicsEngineThread,NULL,GE_physicsThreadMain,NULL );
 	return 0;
 }
-PhysicsObject* GE_CreatePhysicsObject(Vector2r newPosition, Vector2r newVelocity, Vector2 shape)
+GE_PhysicsObject* GE_CreatePhysicsObject(Vector2r newPosition, Vector2r newVelocity, Vector2 shape)
 {
 	//TODO: Auto-generate shape.
 
 	numFakePhysicsIDs++;
 	numPhysicsObjects++;
-	PhysicsObject* newPhysicsObject = new PhysicsObject{{0,0,0},{0,0,0},newPosition,true,newVelocity,true,{0,0,(int) shape.x, (int) shape.y},{0,0},numFakePhysicsIDs,{},0,{0,0,0},false};
+	GE_PhysicsObject* newPhysicsObject = new GE_PhysicsObject{{0,0,0},{0,0,0},newPosition,true,newVelocity,true,{0,0,shape.x, shape.y},{0,0},numFakePhysicsIDs,{},0,{0,0,0},false};
 
 	fakeToRealPhysicsID[numFakePhysicsIDs] = numPhysicsObjects;
 	physicsObjects[numPhysicsObjects] = newPhysicsObject;
 	return newPhysicsObject;
 }
 
-int GE_GetPhysicsObjectFromID(int fakeID, PhysicsObject** physicsObjectPointer)
+int GE_GetPhysicsObjectFromID(int fakeID, GE_PhysicsObject** physicsObjectPointer)
 {
 	if (fakeID > numFakePhysicsIDs)
 	{
@@ -76,7 +76,7 @@ int GE_GetPhysicsObjectFromID(int fakeID, PhysicsObject** physicsObjectPointer)
 }
  
 
-void GE_AddPhysicsObjectCollisionCallback(PhysicsObject* subject, std::function< bool (PhysicsObject* cObj, PhysicsObject* victimObj)> C_Collision, bool callCallbackBeforeCollisionFunction)
+void GE_AddPhysicsObjectCollisionCallback(GE_PhysicsObject* subject, std::function< bool (GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj)> C_Collision, bool callCallbackBeforeCollisionFunction)
 {
 	subject->C_Collision = C_Collision;
 	subject->callCallbackBeforeCollisionFunction = callCallbackBeforeCollisionFunction;
@@ -94,19 +94,19 @@ void GE_AddPhysicsDoneCallback(std::function<void ()> callback)
 	this->newPosition = newPosition;
 	setNewPosition = true;
 }
-void PhysicsObject::setVelocity(Vector2r newVelocity)
+void GE_PhysicsObject::setVelocity(Vector2r newVelocity)
 {
 	this->newVelocity = newVelocity;
 	setNewVelocity = true;
 }*/
-void GE_AddVelocity(PhysicsObject* physicsObject, Vector2r moreVelocity)
+void GE_AddVelocity(GE_PhysicsObject* physicsObject, Vector2r moreVelocity)
 {
 	physicsObject->newVelocity.x = physicsObject->velocity.x+moreVelocity.x;
 	physicsObject->newVelocity.y = physicsObject->velocity.y+moreVelocity.y;
 	physicsObject->newVelocity.r = physicsObject->velocity.r-moreVelocity.r;
 	physicsObject->setNewVelocity = true;
 }
-void GE_AddRelativeVelocity(PhysicsObject* physicsObject, Vector2r moreVelocity)
+void GE_AddRelativeVelocity(GE_PhysicsObject* physicsObject, Vector2r moreVelocity)
 {
 	physicsObject->newVelocity = physicsObject->velocity;
 	physicsObject->newVelocity.r = physicsObject->velocity.r-moreVelocity.r;
@@ -142,7 +142,7 @@ void GE_TickPhysics()
 	}
 }
 //TODO: Factor in the fakeID, move the sGrid-removal to a seperate function called upon physicsObject death
-void GE_TickPhysics_ForObject(PhysicsObject* cObj)
+void GE_TickPhysics_ForObject(GE_PhysicsObject* cObj)
 {
 	//remove our old grid 
 	for (int x = 0; x < cObj->warpedShape.x; x++) 
@@ -208,8 +208,8 @@ void GE_TickPhysics_ForObject(PhysicsObject* cObj)
 	cObj->grid.y = (int) cObj->position.y/10;
 
 	//Calculate how the shape warps. The shape will stretch as you move faster to avoid clipping
-	cObj->warpedShape.x = ((abs(cObj->velocity.x)/10)+2)*(cObj->grid.shapex/10);
-	cObj->warpedShape.y = ((abs(cObj->velocity.y)/10)+2)*(cObj->grid.shapey/10);
+	cObj->warpedShape.x = ((abs(cObj->velocity.x)/10)+2)*(cObj->grid.w/10);
+	cObj->warpedShape.y = ((abs(cObj->velocity.y)/10)+2)*(cObj->grid.h/10);
 
 	//TODO: Increase object sGrid size for rotation as well. Might need to be pre-computed
 
@@ -259,7 +259,7 @@ void GE_TickPhysics_ForObject(PhysicsObject* cObj)
 	
 	cObj->lastGoodPosition = cObj->position;
 }
-void GE_CollisionFullCheck(PhysicsObject* cObj, PhysicsObject* victimObj)
+void GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj)
 {
 	for (int a=0; a < cObj->numCollisionRectangles;a++)
 	{
@@ -343,7 +343,7 @@ void GE_CollisionFullCheck(PhysicsObject* cObj, PhysicsObject* victimObj)
 }
 
 
-void GE_FreePhysicsObject(PhysicsObject* physicsObject) //MUST be allocated with new
+void GE_FreePhysicsObject(GE_PhysicsObject* physicsObject) //MUST be allocated with new
 {
 	deadPhysicsObjects[physicsObject->ID] = true;
 	delete physicsObject;
@@ -362,7 +362,7 @@ void GE_FreePhysicsObject(PhysicsObject* physicsObject) //MUST be allocated with
 #endif
 
 
-void GE_RectangleToPoints(Rectangle rect, Vector2* points, Vector2r hostPosition) 
+void GE_RectangleToPoints(GE_Rectangle rect, Vector2* points, Vector2r hostPosition) 
 {
 		
 	//Points make collision checking easy because you cannot rotate a point in space (or rather, rotating it would have no effect)

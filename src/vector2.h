@@ -4,6 +4,7 @@
  *
  * The vector2 and vector2r structures, as well as math functions to go along with them. One of the building blocks of the engine.
  */
+//TODO: Name-change due to scope of this file change.
 
 #include <math.h>
 
@@ -76,6 +77,36 @@ struct Vector2r
 		
 };
 
+/*
+	x=0;y=0;w=10;h=10;
+
+	   width
+	x,y-----|
+	|		|
+	|		|
+  h |		|
+  e |		|
+  i |		| 
+  g |		|
+  h |		|
+  t |		|
+	|-------|<-- 10,10 (0+10,0+10)
+
+*/
+
+
+/*! 
+ *	A 2D Rectangle. No additional operators provided.
+ */
+struct GE_Rectangle //TODO allow rectangles themselves to be rotated relative to their owners
+{
+	double x;
+	double y;
+	double w;
+	double h;
+};
+
+
 /*!
  * Adds counter-clockwise rotation to subject's x and y using subject's r
  */
@@ -129,5 +160,8 @@ double GE_Distance(Vector2 subject, Vector2 subject2);
  * @return The distance between x1, y1 and x2, y2, in a double
  */
 double GE_Distance(double x1, double y1, double x2, double y2);
+
+
+
 
 #endif //__VECTOR2_INCLUDED

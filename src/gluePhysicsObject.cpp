@@ -17,13 +17,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "gluePhysicsObject.h"
 
-glueTarget targets[MAX_GLUE_TARGETS];
+GE_GlueTarget targets[MAX_GLUE_TARGETS];
 int countGlueTargets = -1;
 
 #include<SDL2/SDL.h>
 int GE_GlueInit()
 {
 	GE_AddPhysicsDoneCallback(GE_GlueCallback);
+	return 0;
 }
 void GE_GlueCallback()
 {
@@ -32,7 +33,7 @@ void GE_GlueCallback()
 	pthread_mutex_lock(&RenderEngineMutex);
 	printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!							  glueThread\n");
 	
-	PhysicsObject* cObj;
+	GE_PhysicsObject* cObj;
 	for (int i = 0; i < countGlueTargets+1; i++)
 	{
 		printf("1\n");
@@ -56,6 +57,6 @@ void GE_addGlueSubject(Vector2r* subject, int physicsID)
 	//TODO: is this okay to do whilst glueThreadMain is running?
 	countGlueTargets++;
 
-	targets[countGlueTargets] = glueTarget{subject, physicsID};
+	targets[countGlueTargets] = GE_GlueTarget{subject, physicsID};
 }
 
