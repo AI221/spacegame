@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['animation',['Animation',['../structAnimation.html',1,'']]]
+  ['camera',['Camera',['../structCamera.html',1,'']]]
 ];

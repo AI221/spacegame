@@ -432,10 +432,12 @@ int main()
 
 	GE_LoadSpritesFromDir(myRenderer, SPRITE_DIR);
 	
-	GE_RenderedObject* ro = GE_CreateRenderedObject(myRenderer, SPRITE_DIR"simple.bmpfuck");
+	GE_RenderedObject* ro = GE_CreateRenderedObject(myRenderer, SPRITE_DIR"simple.bmp");
 	ro->size = {25,25};
 	ro->animation = {0,0,8,9};
 	ro->position = {0,0,0};
+
+	pthread_mutex_lock(&PhysicsEngineMutex);
 
 	GE_PhysicsObject* po = GE_CreatePhysicsObject({25,0,0},{1,1,0},{25,25});
 
@@ -447,6 +449,9 @@ int main()
 	printf("id %d\n",pot->ID);
 	pot->collisionRectangles[pot->numCollisionRectangles] = {0,0,25,25};
 	pot->numCollisionRectangles++;
+
+	pthread_mutex_unlock(&PhysicsEngineMutex);
+
 	GE_addGlueSubject(&ro->position,pot->ID);
 
 

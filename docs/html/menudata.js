@@ -8,8 +8,7 @@ var menudata={children:[
 {text:"File List",url:"files.html"},
 {text:"Globals",url:"globals.html",children:[
 {text:"All",url:"globals.html",children:[
-{text:"g",url:"globals.html#index_g"},
-{text:"l",url:"globals.html#index_l"}]},
+{text:"g",url:"globals.html#index_g"}]},
 {text:"Functions",url:"globals_func.html",children:[
 {text:"g",url:"globals_func.html#index_g"}]},
 {text:"Enumerations",url:"globals_enum.html"}]}]}]}
