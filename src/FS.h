@@ -49,5 +49,11 @@ DirList GE_ListInDir(std::string directory);
 std::string GE_ReverseSlashes(std::string victim);
 #endif
 
+
+/*!
+ * Gets file extension. From https://stackoverflow.com/questions/10389983/how-to-get-file-suffix-in-c#10390104
+ */
+char* GE_GetFileExtension(char* fullfilename);
+
 #endif //__DIRLIST_INCLUDED
 

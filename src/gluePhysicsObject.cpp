@@ -28,35 +28,28 @@ int GE_GlueInit()
 }
 void GE_GlueCallback()
 {
-	pthread_mutex_lock(&PhysicsEngineMutex);
-	printf("PE Mutex locked\n");
 	pthread_mutex_lock(&RenderEngineMutex);
-	printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!							  glueThread\n");
-	
 	GE_PhysicsObject* cObj;
 	for (int i = 0; i < countGlueTargets+1; i++)
 	{
-		printf("1\n");
 		if (GE_GetPhysicsObjectFromID(targets[i].physicsObjectID,&cObj) == 0) //if no error from getting the ID
 		{
 			(*(targets[i].subject)) = cObj->position;
-			printf("X: %f \n",targets[i].subject->x);
+			//printf("X: %f \n",targets[i].subject->x);
 		}
 		else
 		{
 			printf("[temp err - handle] failed to get po from id\n");
 		}
-		printf("2\n");
 		
 	}
 	pthread_mutex_unlock(&RenderEngineMutex);
-	pthread_mutex_unlock(&PhysicsEngineMutex);
 }
-void GE_addGlueSubject(Vector2r* subject, int physicsID)
+int GE_addGlueSubject(Vector2r* subject, int physicsID)
 {
-	//TODO: is this okay to do whilst glueThreadMain is running?
+	GE_NoGreaterThan(countGlueTargets,MAX_GLUE_TARGETS);
+	targets[countGlueTargets+1] = GE_GlueTarget{subject, physicsID};
 	countGlueTargets++;
-
-	targets[countGlueTargets] = GE_GlueTarget{subject, physicsID};
+	return 0;
 }
 

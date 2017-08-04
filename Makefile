@@ -258,6 +258,33 @@ src/debugUI.cpp.s:
 	$(MAKE) -f CMakeFiles/Spacegame.dir/build.make CMakeFiles/Spacegame.dir/src/debugUI.cpp.s
 .PHONY : src/debugUI.cpp.s
 
+src/engine.o: src/engine.cpp.o
+
+.PHONY : src/engine.o
+
+# target to build an object file
+src/engine.cpp.o:
+	$(MAKE) -f CMakeFiles/Spacegame.dir/build.make CMakeFiles/Spacegame.dir/src/engine.cpp.o
+.PHONY : src/engine.cpp.o
+
+src/engine.i: src/engine.cpp.i
+
+.PHONY : src/engine.i
+
+# target to preprocess a source file
+src/engine.cpp.i:
+	$(MAKE) -f CMakeFiles/Spacegame.dir/build.make CMakeFiles/Spacegame.dir/src/engine.cpp.i
+.PHONY : src/engine.cpp.i
+
+src/engine.s: src/engine.cpp.s
+
+.PHONY : src/engine.s
+
+# target to generate assembly for a file
+src/engine.cpp.s:
+	$(MAKE) -f CMakeFiles/Spacegame.dir/build.make CMakeFiles/Spacegame.dir/src/engine.cpp.s
+.PHONY : src/engine.cpp.s
+
 src/gluePhysicsObject.o: src/gluePhysicsObject.cpp.o
 
 .PHONY : src/gluePhysicsObject.o
@@ -498,6 +525,9 @@ help:
 	@echo "... src/debugUI.o"
 	@echo "... src/debugUI.i"
 	@echo "... src/debugUI.s"
+	@echo "... src/engine.o"
+	@echo "... src/engine.i"
+	@echo "... src/engine.s"
 	@echo "... src/gluePhysicsObject.o"
 	@echo "... src/gluePhysicsObject.i"
 	@echo "... src/gluePhysicsObject.s"

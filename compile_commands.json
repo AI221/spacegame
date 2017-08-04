@@ -1,67 +1,72 @@
 [
 {
   "directory": "/home/jackson/spacegame",
-  "command": "g++    -I/home/jackson/spacegame/build -I/usr/include/SDL2   -std=gnu++11 -g3   -o CMakeFiles/Spacegame.dir/src/FS.cpp.o -c /home/jackson/spacegame/src/FS.cpp",
+  "command": "/usr/bin/g++    -I/home/jackson/spacegame/build -I/usr/include/SDL2   -std=gnu++11 -g3   -o CMakeFiles/Spacegame.dir/src/FS.cpp.o -c /home/jackson/spacegame/src/FS.cpp",
   "file": "/home/jackson/spacegame/src/FS.cpp"
 },
 {
   "directory": "/home/jackson/spacegame",
-  "command": "g++    -I/home/jackson/spacegame/build -I/usr/include/SDL2   -std=gnu++11 -g3   -o CMakeFiles/Spacegame.dir/src/UI.cpp.o -c /home/jackson/spacegame/src/UI.cpp",
+  "command": "/usr/bin/g++    -I/home/jackson/spacegame/build -I/usr/include/SDL2   -std=gnu++11 -g3   -o CMakeFiles/Spacegame.dir/src/UI.cpp.o -c /home/jackson/spacegame/src/UI.cpp",
   "file": "/home/jackson/spacegame/src/UI.cpp"
 },
 {
   "directory": "/home/jackson/spacegame",
-  "command": "g++    -I/home/jackson/spacegame/build -I/usr/include/SDL2   -std=gnu++11 -g3   -o CMakeFiles/Spacegame.dir/src/camera.cpp.o -c /home/jackson/spacegame/src/camera.cpp",
+  "command": "/usr/bin/g++    -I/home/jackson/spacegame/build -I/usr/include/SDL2   -std=gnu++11 -g3   -o CMakeFiles/Spacegame.dir/src/camera.cpp.o -c /home/jackson/spacegame/src/camera.cpp",
   "file": "/home/jackson/spacegame/src/camera.cpp"
 },
 {
   "directory": "/home/jackson/spacegame",
-  "command": "g++    -I/home/jackson/spacegame/build -I/usr/include/SDL2   -std=gnu++11 -g3   -o CMakeFiles/Spacegame.dir/src/debugRenders.cpp.o -c /home/jackson/spacegame/src/debugRenders.cpp",
+  "command": "/usr/bin/g++    -I/home/jackson/spacegame/build -I/usr/include/SDL2   -std=gnu++11 -g3   -o CMakeFiles/Spacegame.dir/src/debugRenders.cpp.o -c /home/jackson/spacegame/src/debugRenders.cpp",
   "file": "/home/jackson/spacegame/src/debugRenders.cpp"
 },
 {
   "directory": "/home/jackson/spacegame",
-  "command": "g++    -I/home/jackson/spacegame/build -I/usr/include/SDL2   -std=gnu++11 -g3   -o CMakeFiles/Spacegame.dir/src/debugUI.cpp.o -c /home/jackson/spacegame/src/debugUI.cpp",
+  "command": "/usr/bin/g++    -I/home/jackson/spacegame/build -I/usr/include/SDL2   -std=gnu++11 -g3   -o CMakeFiles/Spacegame.dir/src/debugUI.cpp.o -c /home/jackson/spacegame/src/debugUI.cpp",
   "file": "/home/jackson/spacegame/src/debugUI.cpp"
 },
 {
   "directory": "/home/jackson/spacegame",
-  "command": "g++    -I/home/jackson/spacegame/build -I/usr/include/SDL2   -std=gnu++11 -g3   -o CMakeFiles/Spacegame.dir/src/gluePhysicsObject.cpp.o -c /home/jackson/spacegame/src/gluePhysicsObject.cpp",
+  "command": "/usr/bin/g++    -I/home/jackson/spacegame/build -I/usr/include/SDL2   -std=gnu++11 -g3   -o CMakeFiles/Spacegame.dir/src/engine.cpp.o -c /home/jackson/spacegame/src/engine.cpp",
+  "file": "/home/jackson/spacegame/src/engine.cpp"
+},
+{
+  "directory": "/home/jackson/spacegame",
+  "command": "/usr/bin/g++    -I/home/jackson/spacegame/build -I/usr/include/SDL2   -std=gnu++11 -g3   -o CMakeFiles/Spacegame.dir/src/gluePhysicsObject.cpp.o -c /home/jackson/spacegame/src/gluePhysicsObject.cpp",
   "file": "/home/jackson/spacegame/src/gluePhysicsObject.cpp"
 },
 {
   "directory": "/home/jackson/spacegame",
-  "command": "g++    -I/home/jackson/spacegame/build -I/usr/include/SDL2   -std=gnu++11 -g3   -o CMakeFiles/Spacegame.dir/src/main.cpp.o -c /home/jackson/spacegame/src/main.cpp",
+  "command": "/usr/bin/g++    -I/home/jackson/spacegame/build -I/usr/include/SDL2   -std=gnu++11 -g3   -o CMakeFiles/Spacegame.dir/src/main.cpp.o -c /home/jackson/spacegame/src/main.cpp",
   "file": "/home/jackson/spacegame/src/main.cpp"
 },
 {
   "directory": "/home/jackson/spacegame",
-  "command": "g++    -I/home/jackson/spacegame/build -I/usr/include/SDL2   -std=gnu++11 -g3   -o CMakeFiles/Spacegame.dir/src/network.cpp.o -c /home/jackson/spacegame/src/network.cpp",
+  "command": "/usr/bin/g++    -I/home/jackson/spacegame/build -I/usr/include/SDL2   -std=gnu++11 -g3   -o CMakeFiles/Spacegame.dir/src/network.cpp.o -c /home/jackson/spacegame/src/network.cpp",
   "file": "/home/jackson/spacegame/src/network.cpp"
 },
 {
   "directory": "/home/jackson/spacegame",
-  "command": "g++    -I/home/jackson/spacegame/build -I/usr/include/SDL2   -std=gnu++11 -g3   -o CMakeFiles/Spacegame.dir/src/networkObject.cpp.o -c /home/jackson/spacegame/src/networkObject.cpp",
+  "command": "/usr/bin/g++    -I/home/jackson/spacegame/build -I/usr/include/SDL2   -std=gnu++11 -g3   -o CMakeFiles/Spacegame.dir/src/networkObject.cpp.o -c /home/jackson/spacegame/src/networkObject.cpp",
   "file": "/home/jackson/spacegame/src/networkObject.cpp"
 },
 {
   "directory": "/home/jackson/spacegame",
-  "command": "g++    -I/home/jackson/spacegame/build -I/usr/include/SDL2   -std=gnu++11 -g3   -o CMakeFiles/Spacegame.dir/src/physics.cpp.o -c /home/jackson/spacegame/src/physics.cpp",
+  "command": "/usr/bin/g++    -I/home/jackson/spacegame/build -I/usr/include/SDL2   -std=gnu++11 -g3   -o CMakeFiles/Spacegame.dir/src/physics.cpp.o -c /home/jackson/spacegame/src/physics.cpp",
   "file": "/home/jackson/spacegame/src/physics.cpp"
 },
 {
   "directory": "/home/jackson/spacegame",
-  "command": "g++    -I/home/jackson/spacegame/build -I/usr/include/SDL2   -std=gnu++11 -g3   -o CMakeFiles/Spacegame.dir/src/renderedObject.cpp.o -c /home/jackson/spacegame/src/renderedObject.cpp",
+  "command": "/usr/bin/g++    -I/home/jackson/spacegame/build -I/usr/include/SDL2   -std=gnu++11 -g3   -o CMakeFiles/Spacegame.dir/src/renderedObject.cpp.o -c /home/jackson/spacegame/src/renderedObject.cpp",
   "file": "/home/jackson/spacegame/src/renderedObject.cpp"
 },
 {
   "directory": "/home/jackson/spacegame",
-  "command": "g++    -I/home/jackson/spacegame/build -I/usr/include/SDL2   -std=gnu++11 -g3   -o CMakeFiles/Spacegame.dir/src/sprite.cpp.o -c /home/jackson/spacegame/src/sprite.cpp",
+  "command": "/usr/bin/g++    -I/home/jackson/spacegame/build -I/usr/include/SDL2   -std=gnu++11 -g3   -o CMakeFiles/Spacegame.dir/src/sprite.cpp.o -c /home/jackson/spacegame/src/sprite.cpp",
   "file": "/home/jackson/spacegame/src/sprite.cpp"
 },
 {
   "directory": "/home/jackson/spacegame",
-  "command": "g++    -I/home/jackson/spacegame/build -I/usr/include/SDL2   -std=gnu++11 -g3   -o CMakeFiles/Spacegame.dir/src/vector2.cpp.o -c /home/jackson/spacegame/src/vector2.cpp",
+  "command": "/usr/bin/g++    -I/home/jackson/spacegame/build -I/usr/include/SDL2   -std=gnu++11 -g3   -o CMakeFiles/Spacegame.dir/src/vector2.cpp.o -c /home/jackson/spacegame/src/vector2.cpp",
   "file": "/home/jackson/spacegame/src/vector2.cpp"
 }
 ]

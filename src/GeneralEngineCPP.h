@@ -10,5 +10,15 @@
 	#define outdatedOS
 #endif
 
+/*!
+ * Returns 1 if a number is greater than maxval
+ */
+#define GE_NoGreaterThan(number,maxval) if(number>=maxval) { return 1; }
+
+/*!
+ * Returns NULL if a number is greater than maxval
+ */
+#define GE_NoGreaterThan_NULL(number,maxval) if(number>=maxval) { return NULL; }
+
 
 #endif // __GENERALENGINECPP_INCLUDED

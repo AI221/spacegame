@@ -4,6 +4,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/Spacegame.dir/src/camera.cpp.o"
   "CMakeFiles/Spacegame.dir/src/debugRenders.cpp.o"
   "CMakeFiles/Spacegame.dir/src/debugUI.cpp.o"
+  "CMakeFiles/Spacegame.dir/src/engine.cpp.o"
   "CMakeFiles/Spacegame.dir/src/gluePhysicsObject.cpp.o"
   "CMakeFiles/Spacegame.dir/src/main.cpp.o"
   "CMakeFiles/Spacegame.dir/src/network.cpp.o"

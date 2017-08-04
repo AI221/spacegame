@@ -10,6 +10,7 @@
 #include "physics.h"
 #include "vector2.h"
 #include "renderedObject.h"
+#include "GeneralEngineCPP.h"
 
 //LIMITS
 
@@ -44,6 +45,6 @@ void GE_GlueCallback();
  * @param subject Will be updated to physicsID's position value each physics tick
  * @physicsID The ID of the physics object to 'glue' subject to.
  */
-void GE_addGlueSubject(Vector2r* subject, int physicsID);
+int GE_addGlueSubject(Vector2r* subject, int physicsID);
 
 #endif //__GLUE_PHYSICS_OBJECT_INCLUDED

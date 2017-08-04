@@ -92,3 +92,25 @@ DirList GE_ListInDir(std::string directory)
 
 }
 #endif //outdatedOS
+
+
+char* GE_GetFileExtension(char* fullfilename)
+{
+	int size, index;
+	size = index = 0;
+
+	while(fullfilename[size] != '\0') 
+	{
+		if(fullfilename[size] == '.') 
+		{
+			index = size;
+		}
+		size ++; 
+	}
+
+	if(size && index) 
+	{
+		return fullfilename + index;
+	}
+	return NULL;
+}

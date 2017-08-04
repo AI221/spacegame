@@ -9,6 +9,7 @@ set(CMAKE_DEPENDS_CHECK_CXX
   "/home/jackson/spacegame/src/camera.cpp" "/home/jackson/spacegame/CMakeFiles/Spacegame.dir/src/camera.cpp.o"
   "/home/jackson/spacegame/src/debugRenders.cpp" "/home/jackson/spacegame/CMakeFiles/Spacegame.dir/src/debugRenders.cpp.o"
   "/home/jackson/spacegame/src/debugUI.cpp" "/home/jackson/spacegame/CMakeFiles/Spacegame.dir/src/debugUI.cpp.o"
+  "/home/jackson/spacegame/src/engine.cpp" "/home/jackson/spacegame/CMakeFiles/Spacegame.dir/src/engine.cpp.o"
   "/home/jackson/spacegame/src/gluePhysicsObject.cpp" "/home/jackson/spacegame/CMakeFiles/Spacegame.dir/src/gluePhysicsObject.cpp.o"
   "/home/jackson/spacegame/src/main.cpp" "/home/jackson/spacegame/CMakeFiles/Spacegame.dir/src/main.cpp.o"
   "/home/jackson/spacegame/src/network.cpp" "/home/jackson/spacegame/CMakeFiles/Spacegame.dir/src/network.cpp.o"
@@ -18,7 +19,7 @@ set(CMAKE_DEPENDS_CHECK_CXX
   "/home/jackson/spacegame/src/sprite.cpp" "/home/jackson/spacegame/CMakeFiles/Spacegame.dir/src/sprite.cpp.o"
   "/home/jackson/spacegame/src/vector2.cpp" "/home/jackson/spacegame/CMakeFiles/Spacegame.dir/src/vector2.cpp.o"
   )
-set(CMAKE_CXX_COMPILER_ID "Clang")
+set(CMAKE_CXX_COMPILER_ID "GNU")
 
 # The include file search paths:
 set(CMAKE_CXX_TARGET_INCLUDE_PATH

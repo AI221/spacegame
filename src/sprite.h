@@ -14,9 +14,17 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+/*!
+ *	@file
+ *	@author Jackson McNeill
+ *
+ *	A sprite system
+ *
+ */
 
 
-#include <SDL2/SDL.h>
+#include "SDL.h"
+#include "SDL_image.h"
 #include <string>
 #include <vector>
 

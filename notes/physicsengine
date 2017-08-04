@@ -1,0 +1,66 @@
+Since all game calculations need to be done during the physics tick, I suggest a void* by added to the PhysicsObject struct. It could be used for whatever the user desires, but its intended purpose would be to hold a struct for what type the object is. Perhaps an int in the physicsobject as well for the type. For example:
+
+PS: Also an update() callback
+
+
+(psuedo-code)
+struct PhysicsObject
+{
+	...
+	int type;
+	std::vector group;
+	void* voidp;
+}
+
+struct bomb
+{
+	int tickToDetonate;
+	int blastRadius
+	function detonate;
+}
+
+
+
+struct player
+{
+	double hp;
+}
+
+
+
+
+po = new physicsobject(auto)
+po.update = function()
+{
+	 if tickToDetonate==tick
+	 	me.voidp.detonate()
+}
+po.voidp.detonate = function()
+{
+	for objects in blastRadius
+	{
+		if object.type == player
+		{
+			object.voidp.hp -= 100;
+		}
+	}
+}
+po.voidp = new bomb();
+
+
+PS. could also use some unions for psuedo-inheritance, alternative would be a groups system, so:
+
+po.groups.add("biological")
+po.groups.add("player_control")
+po.groups.add("human")
+
+and perhaps additional things like
+
+group human
+{
+	"biological",
+	"player_control"
+}
+
+
+

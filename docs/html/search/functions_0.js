@@ -21,6 +21,7 @@ var searchData=
   ['ge_5fgetphysicsobjectfromid',['GE_GetPhysicsObjectFromID',['../physics_8h.html#a918476b4183e042a325b67916ee4a6de',1,'physics.cpp']]],
   ['ge_5fgluecallback',['GE_GlueCallback',['../gluePhysicsObject_8h.html#a8e4716c5870d78743133e8796a9784eb',1,'gluePhysicsObject.cpp']]],
   ['ge_5fglueinit',['GE_GlueInit',['../gluePhysicsObject_8h.html#a95613d41ae7e5a33cb2573e335f67b63',1,'gluePhysicsObject.cpp']]],
+  ['ge_5finit',['GE_Init',['../engine_8h.html#a7af51f51c43542564d57b55350472b80',1,'engine.cpp']]],
   ['ge_5flistindir',['GE_ListInDir',['../FS_8h.html#ae84b8f1db562dbb1300c95bd039bf818',1,'FS.cpp']]],
   ['ge_5fphysicsinit',['GE_PhysicsInit',['../physics_8h.html#aa6c202507137f1a9dc4a09ad44fe4cec',1,'physics.cpp']]],
   ['ge_5fphysicsthreadmain',['GE_physicsThreadMain',['../physics_8h.html#a51e9fd702efa85ae68e32372bbb94e36',1,'physics.cpp']]],

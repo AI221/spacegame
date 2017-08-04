@@ -47,6 +47,7 @@ int GE_PhysicsInit()
 }
 GE_PhysicsObject* GE_CreatePhysicsObject(Vector2r newPosition, Vector2r newVelocity, Vector2 shape)
 {
+	GE_NoGreaterThan_NULL(numPhysicsObjects,MAX_PHYSICS_OBJECTS);
 	//TODO: Auto-generate shape.
 
 	numFakePhysicsIDs++;
@@ -82,10 +83,13 @@ void GE_AddPhysicsObjectCollisionCallback(GE_PhysicsObject* subject, std::functi
 	subject->callCallbackBeforeCollisionFunction = callCallbackBeforeCollisionFunction;
 	subject->callCallbackAfterCollisionFunction = !callCallbackBeforeCollisionFunction;
 }
-void GE_AddPhysicsDoneCallback(std::function<void ()> callback)
+int GE_AddPhysicsDoneCallback(std::function<void ()> callback)
 {
-	numPhysicsTickDoneCallbacks++;
-	C_PhysicsTickDoneCallbacks[numPhysicsTickDoneCallbacks] = callback;
+	GE_NoGreaterThan(numPhysicsTickDoneCallbacks,MAX_PHYSICS_ENGINE_DONE_CALLBACKS);
+	C_PhysicsTickDoneCallbacks[numPhysicsTickDoneCallbacks+1] = callback;
+	numPhysicsTickDoneCallbacks++; //TODO: Is this safe to do while the physics thread is running? It shouldn't cause issues related to calling something that's nonexistant, because we add it first...
+	return 0;
+
 }
 
 
@@ -121,12 +125,13 @@ void* GE_physicsThreadMain(void *)
 	{
 		pthread_mutex_lock(&PhysicsEngineMutex);	
 		GE_TickPhysics();
-		SDL_Delay(16);
-		pthread_mutex_unlock(&PhysicsEngineMutex);
 		for (int i=0;i<numPhysicsTickDoneCallbacks+1;i++)
 		{
 			C_PhysicsTickDoneCallbacks[i]();
 		}
+		pthread_mutex_unlock(&PhysicsEngineMutex);
+
+		SDL_Delay(16); //delay outside of mutex lock, else will hog the mutex and never let other sections run
 	}
 }
 
@@ -137,12 +142,12 @@ void GE_TickPhysics()
 	for (int i=0;i < (numPhysicsObjects+1); i++)
 	{
 		//printf("i %d\n",i);
-		GE_TickPhysics_ForObject(physicsObjects[i]);
+		GE_TickPhysics_ForObject(physicsObjects[i],i);
 		//printf("x %d y %d\n",physicsObjects[i]->position.x,physicsObjects[i]->position.y);
 	}
 }
 //TODO: Factor in the fakeID, move the sGrid-removal to a seperate function called upon physicsObject death
-void GE_TickPhysics_ForObject(GE_PhysicsObject* cObj)
+void GE_TickPhysics_ForObject(GE_PhysicsObject* cObj, int ID)
 {
 	//remove our old grid 
 	for (int x = 0; x < cObj->warpedShape.x; x++) 
@@ -151,7 +156,7 @@ void GE_TickPhysics_ForObject(GE_PhysicsObject* cObj)
 		{
 			int posx = x+cObj->grid.x;
 			int posy = y+cObj->grid.y;
-			if (sGrid[posx][posy] == cObj->ID) //do not remove other's sGrid entries. if we did, we wouldn't ever detect collision.
+			if (sGrid[posx][posy] == ID) //do not remove other's sGrid entries. if we did, we wouldn't ever detect collision.
 			{
 				sGrid[posx][posy] = 0;
 			}
@@ -241,9 +246,9 @@ void GE_TickPhysics_ForObject(GE_PhysicsObject* cObj)
 			int posy = y+cObj->grid.y;
 			if (sGrid[posx][posy] == 0) 
 			{
-				sGrid[posx][posy] = cObj->ID;
+				sGrid[posx][posy] = ID;
 			}
-			if (sGrid[posx][posy] != 0 && sGrid[posx][posy] != cObj->ID)
+			if (sGrid[posx][posy] != 0 && sGrid[posx][posy] != ID)
 			{
 				GE_CollisionFullCheck(cObj,physicsObjects[sGrid[posx][posy]]); //TODO: convert to realID
 			}
@@ -301,7 +306,7 @@ void GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj)
 
 					}
 					numCollisionsTemp++;
-					std::cout << "FULL COLLISION DETECTED #" << numCollisionsTemp << std::endl;
+					//std::cout << "FULL COLLISION DETECTED #" << numCollisionsTemp << std::endl;
 
 					Vector2r newVelocity;
 					cObj->position = cObj->lastGoodPosition;

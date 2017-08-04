@@ -17,8 +17,9 @@
 #include <functional>
 
 #include "vector2.h"
+#include "GeneralEngineCPP.h"
 
-//#define physics_debug 
+#define physics_debug 
 
 #include<SDL2/SDL.h> //TODO temp
 #ifdef physics_debug
@@ -53,7 +54,35 @@ struct GE_PhysicsObject
 	Vector2r lastGoodPosition;
 	bool callCallbackBeforeCollisionFunction;
 	bool callCallbackAfterCollisionFunction;
-	std::function< bool (GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj)> C_Collision; //if return true, skip this physicsObject ( useful if you delete yourself)
+
+	/*!
+	 * A callback upon collision
+	 * @param cObj your physics object
+	 * @param victimObj the colliding physics object
+	 * @return True if you deleted a physics object
+	 */
+	std::function< bool (GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj)> C_Collision; 
+
+	/*!
+	 * Weather or not to call the update callback
+	 */
+	bool callCallbackUpdate;
+	
+	/*!
+	 * Called during a physics tick, after position updates & collision calculations
+	 */
+	std::function< bool (GE_PhysicsObject* cObj)> C_Update;
+
+	//game tick related
+	
+	int type;
+
+	/*!
+	 * Type-specific data (e.g. Health)
+	 */
+	void* ts;
+
+
 };
 
 
@@ -106,7 +135,7 @@ int GE_GetPhysicsObjectFromID(int fakeID, GE_PhysicsObject** physicsObjectPointe
  *
  * @param callback A function that gives void output and takes no input
  */
-void GE_AddPhysicsDoneCallback(std::function<void ()> callback);
+int GE_AddPhysicsDoneCallback(std::function<void ()> callback);
 
 /*!
  * Adds a callback to an individual physics object that will be called when it collides with any other physics object. It is not gauranteed your callback will be called first, or at all if your physics object is killed.
@@ -146,7 +175,7 @@ void GE_TickPhysics();
  * The function called for every physics object, during a physics tick. In general: Don't touch this
  * @param cObj The pointer to the physics object to tick
  */ 
-void GE_TickPhysics_ForObject(GE_PhysicsObject* cObj);
+void GE_TickPhysics_ForObject(GE_PhysicsObject* cObj,int ID);
 
 /*!
  * The function called when a full collision check is determined to be necessary. In general: Don't touch this

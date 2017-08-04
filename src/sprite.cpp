@@ -101,14 +101,22 @@ int GE_LoadSpritesFromDir(SDL_Renderer* renderer, std::string directory)
 
 int GE_LoadSpriteFromPath(SDL_Renderer* renderer, std::string path)
 {
-	countSprites++;
+	GE_NoGreaterThan(countSprites,MAX_SPRITES_LOADED);
+	printf("entr lsfp\n");
 #ifdef outdatedOS
-	Sprites[countSprites] = GE_CreateSprite(renderer, GE_ReverseSlashes(path)); 
+	Sprites[countSprites+1] = GE_CreateSprite(renderer, GE_ReverseSlashes(path)); 
 #else
-	Sprites[countSprites] = GE_CreateSprite(renderer, path); //TODO: There needs to be a seperate file describing properties of the sprite
+	Sprites[countSprites+1] = GE_CreateSprite(renderer, path); //TODO: There needs to be a seperate file describing properties of the sprite
 #endif
+	if (Sprites[countSprites+1] == NULL)
+	{
+		return 2;
+	}
+	countSprites++;
+
+
 	Sprite_Names[countSprites] = path; //sprite names are relative paths to simplify things
-	printf("add %s",path.c_str());
+	printf("add %s\n",path.c_str());
 
 	return 0;
 }
@@ -203,7 +211,7 @@ int GE_BMPPathToImg(SDL_Texture** result, SDL_Renderer* renderer, std::string pa
 int GE_BMPPathToImg(SDL_Texture** result, SDL_Renderer* renderer, SDL_RWops* data)
 {
 	SDL_Surface* LoadingSurface;
-	LoadingSurface = SDL_LoadBMP_RW(data,1);
+	LoadingSurface = IMG_Load_RW(data,1);
 	if (LoadingSurface == NULL)
 	{
 		SDL_FreeSurface(LoadingSurface);
