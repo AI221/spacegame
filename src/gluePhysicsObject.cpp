@@ -28,7 +28,9 @@ int GE_GlueInit()
 }
 void GE_GlueCallback()
 {
+	//printf("try lock render\n");
 	pthread_mutex_lock(&RenderEngineMutex);
+	//printf("lock render\n");
 	GE_PhysicsObject* cObj;
 	for (int i = 0; i < countGlueTargets+1; i++)
 	{
@@ -44,6 +46,7 @@ void GE_GlueCallback()
 		
 	}
 	pthread_mutex_unlock(&RenderEngineMutex);
+	//printf("fin glue\n");
 }
 int GE_addGlueSubject(Vector2r* subject, int physicsID)
 {

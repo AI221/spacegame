@@ -26,21 +26,27 @@ class GE_UI_Element
 class GE_UI_Text : public GE_UI_Element
 {
 	public:
-		GE_UI_Text(SDL_Renderer* renderer, Vector2 position, std::string text, SDL_Color color);
+		GE_UI_Text(SDL_Renderer* renderer, Vector2 position, Vector2 size, std::string text, SDL_Color color);
 		~GE_UI_Text();
 		void render(Vector2 parrentPosition);
 		void render();
 		void setText(const char* text);
 		void setText(std::string text);
+		void setSize(double x, double y);
+		void setCursor(int pos);
 		void giveEvent(Vector2 parrentPosition, SDL_Event event);
-		SDL_Rect Message_rect;
 	//	bool wantsEvents;
+		SDL_Rect Message_rect;
 
 	private:
 		TTF_Font* Sans = TTF_OpenFont("/usr/share/fonts/truetype/freefont/FreeSans.ttf", 24);
+		Vector2 position;
+		Vector2 size;
 		SDL_Color color;
 		SDL_Renderer* renderer;
 		SDL_Texture* Message;
+		int scrollPosition;
+		int cursorPosition;
 };
 class GE_UI_TextInput : public GE_UI_Element
 {

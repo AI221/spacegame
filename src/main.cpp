@@ -81,7 +81,9 @@ int camFocusedObj = 1;
 
 void render()
 {
+	//printf("~Trying lock render\n");
 	//pthread_mutex_lock(&RenderEngineMutex);
+	//printf("~Lock render\n");
 	GE_PhysicsObject* cObj;
 	GE_GetPhysicsObjectFromID(camFocusedObj,&cObj); //TODO: error handling
 
@@ -94,7 +96,9 @@ void render()
 		GE_BlitRenderedObject(renderedObjects[i],&camera);
 	}
 	//pthread_mutex_unlock(&RenderEngineMutex);
+	//printf("Fin render\n");
 }
+
 
 
 //#define regular
@@ -233,7 +237,9 @@ int main()
 		GE_DEBUG_PassRendererToPhysicsEngine(myRenderer,&camera);
 	#endif
 
-	GE_UI_TextInput* myTextIn = new GE_UI_TextInput(myRenderer,{0,0},{50,50},SDL_Color{255,255,255},SDL_Color{0,0,0});
+	GE_UI_TextInput* myTextIn = new GE_UI_TextInput(myRenderer,{0,0},{250,25},SDL_Color{0,0,0},SDL_Color{255,255,255});
+
+
 
 
 	bool keysHeld[323] = {false}; 
@@ -241,105 +247,111 @@ int main()
 	SDL_Event event;
 	while (true)
 	{
-		if(SDL_PollEvent(&event) && (!myTextIn->isFocused))
+		while (SDL_PollEvent(&event) != 0)
 		{
-
-			if (event.type == SDL_KEYDOWN)
+			if(!myTextIn->isFocused)
 			{
-				if (event.key.keysym.sym <= 323)
+
+				if (event.type == SDL_KEYDOWN)
 				{
-					keysHeld[event.key.keysym.sym] = true;
-				}
-				#ifdef debug
-					//std::cout << event.key.keysym.sym << std::endl;
-					if (event.key.keysym.sym == SDLK_INSERT) //SDLK_SCROLLLOCK
+					if (event.key.keysym.sym <= 323)
 					{
-						interface1_menu->isOpen = true;
+						keysHeld[event.key.keysym.sym] = true;
 					}
-				#endif
-			}
-			if (event.type == SDL_KEYUP)
-			{
-				if (event.key.keysym.sym <= 323)
+					#ifdef debug
+						//std::cout << event.key.keysym.sym << std::endl;
+						if (event.key.keysym.sym == SDLK_INSERT) //SDLK_SCROLLLOCK
+						{
+							interface1_menu->isOpen = true;
+						}
+					#endif
+				}
+				if (event.type == SDL_KEYUP)
 				{
-					keysHeld[event.key.keysym.sym] = false;
+					if (event.key.keysym.sym <= 323)
+					{
+						keysHeld[event.key.keysym.sym] = false;
+					}
 				}
 			}
-		}
-		//shitty method of doing this. all of this is fairly shitty.
-		GE_PhysicsObject* cObj;
-		GE_GetPhysicsObjectFromID(camFocusedObj,&cObj); //TODO: Error handling
+			//shitty method of doing this. all of this is fairly shitty.
+			GE_PhysicsObject* cObj;
+			GE_GetPhysicsObjectFromID(camFocusedObj,&cObj); //TODO: Error handling
 
-		if(keysHeld[SDLK_w])
-		{
-			GE_AddRelativeVelocity(cObj,{0,-0.5,0});
+			if(keysHeld[SDLK_w])
+			{
+				GE_AddRelativeVelocity(cObj,{0,-0.5,0});
+			}
+			if(keysHeld[SDLK_s])
+			{
+				GE_AddRelativeVelocity(cObj,{0,0.5,0});
+			}
+			if(keysHeld[SDLK_d])
+			{
+				GE_AddRelativeVelocity(cObj,{0.5,0,0});
+			}
+			if(keysHeld[SDLK_a])
+			{
+				GE_AddRelativeVelocity(cObj,{-0.5,0,0});
+			}
+			if(keysHeld[SDLK_q])
+			{
+				GE_AddRelativeVelocity(cObj,{0,0,-0.25});
+			}
+			if(keysHeld[SDLK_e])
+			{
+				GE_AddRelativeVelocity(cObj,{0,0,0.25});
+			}
+			if(keysHeld[SDLK_1])
+			{
+				camFocusedObj=15;
+			}
+			if(keysHeld[SDLK_0])
+			{
+				camFocusedObj=1;
+			}
+			if(keysHeld[SDLK_z])
+			{
+				std::cout <<"velx: " << cObj->velocity.x << std::endl;
+				std::cout <<"vely: " << cObj->velocity.y << std::endl;
+				std::cout <<"posx: " << cObj->position.x << std::endl;
+				std::cout <<"posy: " << cObj->position.y << std::endl;
+			}
+			if(keysHeld[SDLK_x])
+			{
+				std::cout <<"2posx: " << camera.pos.x << std::endl;
+				std::cout <<"2posy: " << camera.pos.y << std::endl;
+			}
+			if(keysHeld[SDLK_t])
+			{
+				isDebugRender = true;
+			}
+			if (keysHeld[SDLK_r])
+			{
+				isDebugRender = false;
+			}
+			if (keysHeld[SDLK_f])
+			{
+				cObj->velocity = Vector2r{0,0,0};
+			}
+			if (keysHeld[SDLK_ESCAPE])
+			{
+				break;
+			}
+			printf("Give event\n");
+			myTextIn->giveEvent({0,0},event);
 		}
-		if(keysHeld[SDLK_s])
-		{
-			GE_AddRelativeVelocity(cObj,{0,0.5,0});
-		}
-		if(keysHeld[SDLK_d])
-		{
-			GE_AddRelativeVelocity(cObj,{0.5,0,0});
-		}
-		if(keysHeld[SDLK_a])
-		{
-			GE_AddRelativeVelocity(cObj,{-0.5,0,0});
-		}
-		if(keysHeld[SDLK_q])
-		{
-			GE_AddRelativeVelocity(cObj,{0,0,-0.25});
-		}
-		if(keysHeld[SDLK_e])
-		{
-			GE_AddRelativeVelocity(cObj,{0,0,0.25});
-		}
-		if(keysHeld[SDLK_1])
-		{
-			camFocusedObj=15;
-		}
-		if(keysHeld[SDLK_0])
-		{
-			camFocusedObj=1;
-		}
-		if(keysHeld[SDLK_z])
-		{
-			std::cout <<"velx: " << cObj->velocity.x << std::endl;
-			std::cout <<"vely: " << cObj->velocity.y << std::endl;
-			std::cout <<"posx: " << cObj->position.x << std::endl;
-			std::cout <<"posy: " << cObj->position.y << std::endl;
-		}
-		if(keysHeld[SDLK_x])
-		{
-			std::cout <<"2posx: " << camera.pos.x << std::endl;
-			std::cout <<"2posy: " << camera.pos.y << std::endl;
-		}
-		if(keysHeld[SDLK_t])
-		{
-			isDebugRender = true;
-		}
-		if (keysHeld[SDLK_r])
-		{
-			isDebugRender = false;
-		}
-		if (keysHeld[SDLK_f])
-		{
-			cObj->velocity = Vector2r{0,0,0};
-		}
-		if (keysHeld[SDLK_ESCAPE])
-		{
-			break;
-		}
-		myTextIn->giveEvent({0,0},event);
+				
 			
+
+							
+
+
+
+
+
 		
-
-						
-
-
-
-
-
+		pthread_mutex_lock(&RenderEngineMutex);
 		
 		GE_BlitSprite(Sprites[GE_SpriteNameToID(SPRITE_DIR"color_black.bmp")],{0,0,0},{(double) camera.screenWidth,(double) camera.screenHeight},{0,0,25,25},GE_FLIP_NONE);		//TODO: Something less shitty
 		render();
@@ -358,7 +370,7 @@ int main()
 				}
 		#endif
 
-		#define shittyunittest true
+		//#define shittyunittest true
 		#ifdef shittyunittest
 			Vector2r myTest = {1,2,3};
 
@@ -373,6 +385,8 @@ int main()
 		myTextIn->render();
 					
 		SDL_RenderPresent(myRenderer);
+
+		pthread_mutex_unlock(&RenderEngineMutex);
 		//SDL_Delay(16);
 		//SDL_Delay(500);
 	}
@@ -388,6 +402,21 @@ int main()
 }
 #endif //regular
 #ifdef game
+void killobj(GE_PhysicsObject* obj)
+{
+	//find real id
+	int id = fakeToRealPhysicsID[obj->ID];
+	deadPhysicsObjects[id] = true;
+
+}
+bool killObject(GE_PhysicsObject* myObj, GE_PhysicsObject* theirObj)
+{
+	killobj(myObj);
+	killobj(theirObj);
+	printf("collision\n");
+	return true;
+	
+}
 int main()
 {
 	int ttferror = TTF_Init();
@@ -451,7 +480,7 @@ int main()
 	ro2->animation = {0,0,100,100};
 	
 
-	GE_PhysicsObject* me = GE_CreatePhysicsObject({20,50,0},{1000,1000,0},{25,25});
+	GE_PhysicsObject* me = GE_CreatePhysicsObject({1000,980,0},{0,0,0},{25,25});
 	me->collisionRectangles[me->numCollisionRectangles] = {-1,0,25,25};
 					me->collisionRectangles[me->numCollisionRectangles] = {17.5,17.5,17.5,1.75};
 	me->numCollisionRectangles++;
@@ -463,8 +492,21 @@ int main()
 		ro2->animation = {0,0,100,100};
 		
 
-		GE_PhysicsObject* me = GE_CreatePhysicsObject({120,150,0},{0,0,0},{50,50});
+		GE_PhysicsObject* me = GE_CreatePhysicsObject({950,1000,0},{0,0,0},{50,50});
 		me->collisionRectangles[me->numCollisionRectangles] = {-1,0,25,25};
+		me->numCollisionRectangles++;
+		GE_addGlueSubject(&(ro2->position),me->ID);
+
+	}
+	{
+		GE_RenderedObject* ro2 = GE_CreateRenderedObject(myRenderer,SPRITE_DIR"player.png");	
+		ro2->size = {50,50};
+		ro2->animation = {0,0,100,100};
+		
+
+		GE_PhysicsObject* me = GE_CreatePhysicsObject({1000,1000,0},{0,0,0},{25,25});
+		me->collisionRectangles[me->numCollisionRectangles] = {-1,0,25,25};
+						me->collisionRectangles[me->numCollisionRectangles] = {0,0,25,25};
 		me->numCollisionRectangles++;
 		GE_addGlueSubject(&(ro2->position),me->ID);
 
@@ -534,6 +576,9 @@ int main()
 	SDL_Event event;
 	while (true)
 	{
+		//!!!!
+		//TODO: PULL EVENT IN A LOOP
+		//!!!!
 		if(SDL_PollEvent(&event) && (!myTextIn->isFocused))
 		{
 
@@ -574,7 +619,7 @@ int main()
 					GE_GetPhysicsObjectFromID(camFocusedObj,&fcsObj);
 
 					Vector2r addToPosition = {0,-50,0};
-					Vector2r addToVelocity = {0,-10,0};
+					Vector2r addToVelocity = {0,-0,0};
 					
 
 					GE_Vector2RotationCCW(&addToPosition,fcsObj->position.r);
@@ -587,6 +632,12 @@ int main()
 					me->numCollisionRectangles++;
 					GE_addGlueSubject(&(ro2->position),me->ID);
 
+					
+
+
+					///////////////////
+					//
+					GE_AddPhysicsObjectCollisionCallback(me,killObject,true);
 
 					pthread_mutex_unlock(&PhysicsEngineMutex);
 
@@ -669,10 +720,13 @@ int main()
 
 
 		
+		pthread_mutex_lock(&RenderEngineMutex);
+
 		GE_BlitSprite(Sprites[GE_SpriteNameToID(SPRITE_DIR"color_black.bmp")],{0,0,0},{(double) camera.screenWidth,(double) camera.screenHeight},{0,0,25,25},GE_FLIP_NONE);		//TODO: Something less shitty
 		render();
 
-		//GE_TickPhysics();
+				
+		
 		
 
 		#ifdef debug
@@ -693,6 +747,17 @@ int main()
 		myTextIn->render();
 					
 		SDL_RenderPresent(myRenderer);
+		pthread_mutex_unlock(&RenderEngineMutex);
+		
+		
+		
+		#ifdef physics_debug
+		pthread_mutex_lock(&PhysicsEngineMutex);
+		GE_TickPhysics();
+		SDL_RenderPresent(myRenderer);
+		pthread_mutex_unlock(&PhysicsEngineMutex);
+		#endif
+
 		//SDL_Delay(16);
 		//SDL_Delay(500);
 	}

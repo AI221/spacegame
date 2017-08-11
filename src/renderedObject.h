@@ -6,7 +6,6 @@
  */
 #include <pthread.h>
 
-#include "physics.h"
 #include "vector2.h"
 #include "sprite.h"
 #include "camera.h"

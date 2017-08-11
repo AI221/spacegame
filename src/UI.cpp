@@ -30,29 +30,48 @@ void GE_UI_Text::setText(const char* text)
 void GE_UI_Text::setText(std::string text)
 {
 	setText(text.c_str());
-}	
-GE_UI_Text::GE_UI_Text(SDL_Renderer* renderer, Vector2 position, std::string text, SDL_Color color)
+}
+void GE_UI_Text::setSize(double x, double y)
 {
-	Message_rect.x = position.x;
-	Message_rect.y = position.y;
+	this->size = {x,y};
+}	
+GE_UI_Text::GE_UI_Text(SDL_Renderer* renderer, Vector2 position, Vector2 size, std::string text, SDL_Color color)
+{
+	this->position.x = position.x;
+	this->position.y = position.y;
+	this->size.x = size.x;
+	this->size.y = size.y;
+
+
 	this->renderer = renderer;
 	setText(text); //Fills Message variable belonging to this class
 	this->color = color;
 	this->wantsEvents = false;
+	this->scrollPosition;
+	this->cursorPosition;
 }
 GE_UI_Text::~GE_UI_Text()
 {
 	
-	//TTF_CloseFont(Sans); //this segfaults but shouldn't. perhaps the Sans is global to all GE_UI_Texts ? not super experinced with c++ oop
+	//TTF_CloseFont(Sans); //this segfaults but shouldn't. perhaps the Sans is global to all GE_UI_Texts ?
 	SDL_DestroyTexture(Message);
 
 }
 void GE_UI_Text::render(Vector2 parrentPosition)
 {
-	SDL_Rect transformedRect = Message_rect;
-	transformedRect.x += parrentPosition.x;
-	transformedRect.y += parrentPosition.y;
-	SDL_RenderCopy(renderer, Message, NULL,&transformedRect);	
+	SDL_Rect transformedRect,animationRect;
+	transformedRect.x = parrentPosition.x;
+	transformedRect.y = parrentPosition.y;
+	transformedRect.w = std::min(size.x,(double) Message_rect.w);
+	transformedRect.h = std::min(size.y,(double) Message_rect.h);
+	/*transformedRect.w = size.x;
+	transformedRect.h = size.y;*/
+
+	animationRect.x = 0;
+	animationRect.y = 0;
+	animationRect.w = size.x;
+	animationRect.h = size.y;
+	SDL_RenderCopy(renderer, Message,&animationRect,&transformedRect);	
 }
 void GE_UI_Text::render()
 {
@@ -70,7 +89,7 @@ GE_UI_TextInput::GE_UI_TextInput(SDL_Renderer* renderer, Vector2 position, Vecto
 	this->size = size;
 	this->color = color;
 
-	this->myText = new GE_UI_Text(renderer,position,"",textColor);
+	this->myText = new GE_UI_Text(renderer,position,size,"",textColor);
 	this->text = "";
 	this->isFocused = false; //First catch by cppcheck!
 }
@@ -82,10 +101,10 @@ GE_UI_TextInput::~GE_UI_TextInput()
 void GE_UI_TextInput::render(Vector2 parrentPosition)
 {
 	SDL_Rect translatedRect;
-	translatedRect.x = parrentPosition.x+position.x;
-	translatedRect.y = parrentPosition.y+position.y;
-	translatedRect.w = myText->Message_rect.w;
-	translatedRect.h = myText->Message_rect.h;
+	translatedRect.x = position.x;
+	translatedRect.y = position.y;
+	translatedRect.w = size.x;//myText->Message_rect.w;
+	translatedRect.h = size.y;//myText->Message_rect.h;
 
 	SDL_SetRenderDrawColor( renderer, color.r,color.g,color.b,color.a ); 
 
@@ -110,6 +129,7 @@ void GE_UI_TextInput::setText(std::string text)
 	myText->setText(text);
 	this->text = text;
 }
+
 void GE_UI_TextInput::giveEvent(Vector2 parrentPosition, SDL_Event event)
 {
 	Vector2 actualPosition = position;
@@ -142,8 +162,9 @@ void GE_UI_TextInput::giveEvent(Vector2 parrentPosition, SDL_Event event)
 			}
 		}
 	}	
-	else if ((event.type == SDL_TEXTINPUT) && (isFocused) && (event.key.repeat == 0))
+	else if ((event.type == SDL_TEXTINPUT) && (isFocused) )
 	{
+		printf("TEXT INPUT: %s\n",event.text.text);
 		setText(text+event.text.text);	
 	}
 	else if ((event.type == SDL_KEYDOWN) && (isFocused) && (text.length() != 0) )
@@ -167,6 +188,7 @@ void GE_UI_TextInput::giveEvent(Vector2 parrentPosition, SDL_Event event)
 			isFocused = false;
 		}
 	}
+	//printf("textediting: %d\n",SDL_TEXTEDITING);
 }
 std::string GE_UI_TextInput::getText()
 {
@@ -180,7 +202,8 @@ const char* GE_UI_TextInput::getText_cstr()
 
 GE_UI_Button::GE_UI_Button(SDL_Renderer* renderer, Vector2 position, Vector2 paddingSize, std::string text, SDL_Color textColor, SDL_Color color, SDL_Color pressedColor)
 {
-	myText = new GE_UI_Text(renderer,position,text,textColor);
+	myText = new GE_UI_Text(renderer,position,{0,0},text,textColor);
+	myText->setSize(myText->Message_rect.w, myText->Message_rect.h);
 	this->renderer = renderer;
 	this->position = position;
 	positionAndSize.x = position.x;
@@ -205,7 +228,7 @@ void GE_UI_Button::render(Vector2 parrentPosition)
 
 	if (pressed)
 	{
-		//hey, yknow what would be funny? Let's give our API users a color struct... AND THEN MAKE THEM CONVERT IT BACK TO UINT8'S! 
+		//hey, yknow what would be funny? Let's give our API users a color struct... and then make them convert it back to uint8'S! 
 		SDL_SetRenderDrawColor( renderer, pressedColor.r,pressedColor.g,pressedColor.b,pressedColor.a );
 	}
 	else

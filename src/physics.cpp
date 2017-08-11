@@ -56,6 +56,9 @@ GE_PhysicsObject* GE_CreatePhysicsObject(Vector2r newPosition, Vector2r newVeloc
 
 	fakeToRealPhysicsID[numFakePhysicsIDs] = numPhysicsObjects;
 	physicsObjects[numPhysicsObjects] = newPhysicsObject;
+
+
+	deadPhysicsObjects[numPhysicsObjects] = false;
 	return newPhysicsObject;
 }
 
@@ -123,13 +126,16 @@ void* GE_physicsThreadMain(void *)
 {
 	while(true)
 	{
+		//printf("Try lock physen\n");
 		pthread_mutex_lock(&PhysicsEngineMutex);	
+		//printf("Lock physen\n");
 		GE_TickPhysics();
 		for (int i=0;i<numPhysicsTickDoneCallbacks+1;i++)
 		{
 			C_PhysicsTickDoneCallbacks[i]();
 		}
 		pthread_mutex_unlock(&PhysicsEngineMutex);
+		//printf("fin, wait 16ms\n");
 
 		SDL_Delay(16); //delay outside of mutex lock, else will hog the mutex and never let other sections run
 	}
@@ -142,7 +148,10 @@ void GE_TickPhysics()
 	for (int i=0;i < (numPhysicsObjects+1); i++)
 	{
 		//printf("i %d\n",i);
-		GE_TickPhysics_ForObject(physicsObjects[i],i);
+		if(!deadPhysicsObjects[i])
+		{
+			GE_TickPhysics_ForObject(physicsObjects[i],i);
+		}
 		//printf("x %d y %d\n",physicsObjects[i]->position.x,physicsObjects[i]->position.y);
 	}
 }
@@ -219,6 +228,8 @@ void GE_TickPhysics_ForObject(GE_PhysicsObject* cObj, int ID)
 	//TODO: Increase object sGrid size for rotation as well. Might need to be pre-computed
 
 	/*for (int x = 0; x < cObj->warpedShape.x; x++) 
+		
+		
 	{
 		for (int y = 0; y < cObj->warpedShape.y; y++) 
 		{
@@ -390,6 +401,7 @@ void GE_RectangleToPoints(GE_Rectangle rect, Vector2* points, Vector2r hostPosit
 
 		#ifdef physics_debug
 
+			pthread_mutex_lock(&RenderEngineMutex);
 			//note that the physics debugRender does NOT include rotation of the screen, and probably never will. it is good enough for its purpose.
 			SDL_SetRenderDrawColor( debugRenderer, 0xFF, 0xFF, 0x00, 0xFF ); 
 
@@ -408,6 +420,7 @@ void GE_RectangleToPoints(GE_Rectangle rect, Vector2* points, Vector2r hostPosit
 			debugRect.y -= (debugCamera->pos.y-debugCamera->screenHeight/2);
 
 			SDL_RenderFillRect( debugRenderer, &debugRect ); 
+			pthread_mutex_unlock(&RenderEngineMutex);
 		#endif
 
 	}
