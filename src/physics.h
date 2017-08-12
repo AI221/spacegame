@@ -19,7 +19,7 @@
 #include "vector2.h"
 #include "GeneralEngineCPP.h"
 
-#define physics_debug 
+//#define physics_debug 
 
 #include<SDL2/SDL.h> //TODO temp
 #ifdef physics_debug
@@ -36,6 +36,7 @@
 #define MAX_PHYSICS_OBJECTS 1024 //maximum ammount of physics objects in the game
 #define MAX_COLLISION_RECTANGLES_PER_OBJECT 32 //TODO: test if this is a good limit in practice
 #define MAX_PHYSICS_ENGINE_DONE_CALLBACKS 64
+#define MAX_PHYSICS_ENGINE_PRE_CALLBACKS 64
 
 
 
@@ -43,11 +44,7 @@ struct GE_PhysicsObject
 {
 	Vector2r position;
 	Vector2r velocity;
-	Vector2r newPosition;
-	bool setNewPosition;
-	Vector2r newVelocity;
-	bool setNewVelocity;
-	GE_Rectangle grid;
+	GE_Rectangle grid; //simplified version of all collisionRectangles
 	Vector2 warpedShape;
 	int ID;
 	GE_Rectangle collisionRectangles[MAX_COLLISION_RECTANGLES_PER_OBJECT];
@@ -74,8 +71,14 @@ struct GE_PhysicsObject
 	 */
 	std::function< bool (GE_PhysicsObject* cObj)> C_Update;
 
-	//game tick related
 	
+
+	//The following 2 datas are for game-speific implemtations, e.g. having classes like player, enemie, or really anything. Meaning there is no standard way to use these in the engine.
+	
+
+	/*!
+	 * The type of data stored in ts. I recommend creating a enum for this, but that's game-specific.
+	 */
 	int type;
 
 	/*!
@@ -101,6 +104,9 @@ extern int numFakePhysicsIDs;
 
 extern std::function< void ()> C_PhysicsTickDoneCallbacks[MAX_PHYSICS_ENGINE_DONE_CALLBACKS];
 extern int numPhysicsTickDoneCallbacks;
+
+extern std::function< void ()> C_PhysicsTickPreCallbacks[MAX_PHYSICS_ENGINE_PRE_CALLBACKS];
+extern int numPhysicsTickPreCallbacks;
 
 extern bool deadPhysicsObjects[MAX_PHYSICS_OBJECTS];
 
@@ -137,6 +143,13 @@ int GE_GetPhysicsObjectFromID(int fakeID, GE_PhysicsObject** physicsObjectPointe
  * @param callback A function that gives void output and takes no input
  */
 int GE_AddPhysicsDoneCallback(std::function<void ()> callback);
+
+/*!
+ * Adds a callback which will be ran before each physics tick. Used by the engine itself for gluing things to the physics engine.
+ *
+ * @param callback A function that gives void output and takes no input
+ */
+int GE_AddPhysicsPreCallback(std::function<void ()> callback);
 
 /*!
  * Adds a callback to an individual physics object that will be called when it collides with any other physics object. It is not gauranteed your callback will be called first, or at all if your physics object is killed.
