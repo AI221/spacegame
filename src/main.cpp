@@ -87,6 +87,8 @@ void render()
 	GE_PhysicsObject* cObj;
 	GE_GetPhysicsObjectFromID(camFocusedObj,&cObj); //TODO: error handling
 
+	GE_GlueRenderCallback();
+
 	camera.pos = cObj->position;
 	#ifdef NO_CAMERA_ROTATE
 		camera.pos.r = 0;
@@ -101,8 +103,8 @@ void render()
 
 
 
-//#define regular
-#define game
+#define regular
+//#define game
 //#define spritetest
 //#define gluetest
 //#define nettest
@@ -166,6 +168,8 @@ int main()
 
 	pthread_mutex_lock(&PhysicsEngineMutex);
 
+	int tmpid = 0;
+
 	for (int i=0;i<20;i++)
 	{
 		GE_RenderedObject* ro = GE_CreateRenderedObject(myRenderer,SPRITE_DIR"simple.bmp");	
@@ -178,6 +182,9 @@ int main()
 		me->numCollisionRectangles++;
 		GE_addGlueSubject(&(ro->position),me->ID);
 		camFocusedObj = me->ID;
+
+		//TODO tem,p
+		tmpid = countGlueTargets;
 
 	}
 
@@ -280,7 +287,8 @@ int main()
 
 			if(keysHeld[SDLK_w])
 			{
-				GE_AddRelativeVelocity(cObj,{0,-0.5,0});
+				//GE_AddRelativeVelocity(cObj,{0,-0.5,0});
+				GE_glueAddVelocity(tmpid,{0,-0.5,0},GE_ADD_TYPE_RELATIVE);
 			}
 			if(keysHeld[SDLK_s])
 			{
@@ -355,6 +363,12 @@ int main()
 		
 		GE_BlitSprite(Sprites[GE_SpriteNameToID(SPRITE_DIR"color_black.bmp")],{0,0,0},{(double) camera.screenWidth,(double) camera.screenHeight},{0,0,25,25},GE_FLIP_NONE);		//TODO: Something less shitty
 		render();
+		#ifdef physics_debug 
+			printf("tick physics\n");
+			pthread_mutex_unlock(&RenderEngineMutex);
+			GE_TickPhysics();
+			pthread_mutex_lock(&RenderEngineMutex);
+		#endif
 		
 		#ifdef debug
 

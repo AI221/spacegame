@@ -33,9 +33,9 @@ int numFakePhysicsIDs = -1;
 std::function< void ()> C_PhysicsTickDoneCallbacks[MAX_PHYSICS_ENGINE_DONE_CALLBACKS];
 int numPhysicsTickDoneCallbacks = -1;
 
-int sGrid[2000][2000]; //TODO: Dynamically sized arrays for both of these
-//int collisionSpots[2000][1]; 
-//int nextCollisionSpot = 0;
+std::function< void ()> C_PhysicsTickPreCallbacks[MAX_PHYSICS_ENGINE_PRE_CALLBACKS];
+int numPhysicsTickPreCallbacks = -1;
+
 
 
 
@@ -52,7 +52,7 @@ GE_PhysicsObject* GE_CreatePhysicsObject(Vector2r newPosition, Vector2r newVeloc
 
 	numFakePhysicsIDs++;
 	numPhysicsObjects++;
-	GE_PhysicsObject* newPhysicsObject = new GE_PhysicsObject{{0,0,0},{0,0,0},newPosition,true,newVelocity,true,{0,0,shape.x, shape.y},{0,0},numFakePhysicsIDs,{},0,{0,0,0},false};
+	GE_PhysicsObject* newPhysicsObject = new GE_PhysicsObject{newPosition, newVelocity, {0,0,shape.x, shape.y},{0,0},numFakePhysicsIDs,{},0,{0,0,0},false};
 
 	fakeToRealPhysicsID[numFakePhysicsIDs] = numPhysicsObjects;
 	physicsObjects[numPhysicsObjects] = newPhysicsObject;
@@ -94,6 +94,14 @@ int GE_AddPhysicsDoneCallback(std::function<void ()> callback)
 	return 0;
 
 }
+int GE_AddPhysicsPreCallback(std::function<void ()> callback)
+{
+	GE_NoGreaterThan(numPhysicsTickDoneCallbacks,MAX_PHYSICS_ENGINE_PRE_CALLBACKS);
+	C_PhysicsTickPreCallbacks[numPhysicsTickPreCallbacks+1] = callback;
+	numPhysicsTickPreCallbacks++; //TODO: Is this safe to do while the physics thread is running? It shouldn't cause issues related to calling something that's nonexistant, because we add it first...
+	return 0;
+
+}
 
 
 /*void GE_SetPosition(Vector2r newPosition)
@@ -108,17 +116,14 @@ void GE_PhysicsObject::setVelocity(Vector2r newVelocity)
 }*/
 void GE_AddVelocity(GE_PhysicsObject* physicsObject, Vector2r moreVelocity)
 {
-	physicsObject->newVelocity.x = physicsObject->velocity.x+moreVelocity.x;
-	physicsObject->newVelocity.y = physicsObject->velocity.y+moreVelocity.y;
-	physicsObject->newVelocity.r = physicsObject->velocity.r-moreVelocity.r;
-	physicsObject->setNewVelocity = true;
+	physicsObject->velocity.x = physicsObject->velocity.x+moreVelocity.x;
+	physicsObject->velocity.y = physicsObject->velocity.y+moreVelocity.y;
+	physicsObject->velocity.r = physicsObject->velocity.r-moreVelocity.r;
 }
 void GE_AddRelativeVelocity(GE_PhysicsObject* physicsObject, Vector2r moreVelocity)
 {
-	physicsObject->newVelocity = physicsObject->velocity;
-	physicsObject->newVelocity.r = physicsObject->velocity.r-moreVelocity.r;
-	physicsObject->newVelocity.addRelativeVelocity({moreVelocity.x,moreVelocity.y,physicsObject->position.r}); //TODO: De-OOify
-	physicsObject->setNewVelocity = true;
+	physicsObject->velocity.r = physicsObject->velocity.r-moreVelocity.r;
+	physicsObject->velocity.addRelativeVelocity({moreVelocity.x,moreVelocity.y,physicsObject->position.r}); //TODO: De-OOify
 }
 
 
@@ -129,6 +134,11 @@ void* GE_physicsThreadMain(void *)
 		//printf("Try lock physen\n");
 		pthread_mutex_lock(&PhysicsEngineMutex);	
 		//printf("Lock physen\n");
+		
+		for (int i=0;i<numPhysicsTickPreCallbacks+1;i++)
+		{
+			C_PhysicsTickPreCallbacks[i]();
+		}
 		GE_TickPhysics();
 		for (int i=0;i<numPhysicsTickDoneCallbacks+1;i++)
 		{
@@ -150,6 +160,7 @@ void GE_TickPhysics()
 		//printf("i %d\n",i);
 		if(!deadPhysicsObjects[i])
 		{
+			printf("1 check\n");
 			GE_TickPhysics_ForObject(physicsObjects[i],i);
 		}
 		//printf("x %d y %d\n",physicsObjects[i]->position.x,physicsObjects[i]->position.y);
@@ -158,64 +169,11 @@ void GE_TickPhysics()
 //TODO: Factor in the fakeID, move the sGrid-removal to a seperate function called upon physicsObject death
 void GE_TickPhysics_ForObject(GE_PhysicsObject* cObj, int ID)
 {
-	//remove our old grid 
-	for (int x = 0; x < cObj->warpedShape.x; x++) 
-	{
-		for (int y = 0; y < cObj->warpedShape.y; y++) 
-		{
-			int posx = x+cObj->grid.x;
-			int posy = y+cObj->grid.y;
-			if (sGrid[posx][posy] == ID) //do not remove other's sGrid entries. if we did, we wouldn't ever detect collision.
-			{
-				sGrid[posx][posy] = 0;
-			}
-		}
-	}
+	printf("forobj\n");
 	//move ourselves forward
 	//first set velocity
 	
-	if (cObj->setNewVelocity) 
-	{
-		cObj->velocity = cObj->newVelocity;
-		cObj->newVelocity = {0,0,0};
-		cObj->setNewVelocity = false;
-	}
-	if (cObj->setNewPosition)
-	{
-		cObj->position = cObj->newPosition;
-		cObj->newPosition = {0,0,0};
-		cObj->setNewPosition = false;
-	}
-
 	cObj->position = cObj->position+cObj->velocity;
-
-
-
-	//TODO multiple grids, but right now we can't have you go <0 
-	if (cObj->position.x < 0)
-	{
-		cObj->position.x = 0;
-		cObj->velocity.x = 0;
-	}
-	if (cObj->position.y < 0)
-	{
-		cObj->position.y = 0;
-		cObj->velocity.y = 0;
-	}
-	//..or >2000
-	if (cObj->position.x > 2000)
-	{
-		cObj->position.x = 2000;
-		cObj->velocity.x = 0;
-	}
-	if (cObj->position.y > 2000)
-	{
-		cObj->position.y = 2000;
-		cObj->velocity.y = 0;
-	}
-
-
-
 
 
 	cObj->grid.x = (int) cObj->position.x/10;
@@ -225,53 +183,14 @@ void GE_TickPhysics_ForObject(GE_PhysicsObject* cObj, int ID)
 	cObj->warpedShape.x = ((abs(cObj->velocity.x)/10)+2)*(cObj->grid.w/10);
 	cObj->warpedShape.y = ((abs(cObj->velocity.y)/10)+2)*(cObj->grid.h/10);
 
-	//TODO: Increase object sGrid size for rotation as well. Might need to be pre-computed
-
-	/*for (int x = 0; x < cObj->warpedShape.x; x++) 
-		
-		
+	for (int i=0;i < (numPhysicsObjects+1); i++)
 	{
-		for (int y = 0; y < cObj->warpedShape.y; y++) 
+		//printf("i %d\n",i);
+		if(!deadPhysicsObjects[i] && i != ID)
 		{
-			int posx = x+cObj->grid.x;
-			int posy = y+cObj->grid.y;
-			if (sGrid[posx][posy] == 0) 
-			{
-				sGrid[posx][posy] = cObj->ID;
-			}
-			else
-			{
-				collisionSpots[nextCollisionSpot][0] = posx;
-				collisionSpots[nextCollisionSpot][1] = posy;
-				nextCollisionSpot++;
-			}
-		}
-	}*/
-
-
-	for (int x = 0; x < cObj->warpedShape.x; x++) 
-	{
-		for (int y = 0; y < cObj->warpedShape.y; y++) 
-		{
-			int posx = x+cObj->grid.x;
-			int posy = y+cObj->grid.y;
-			if (sGrid[posx][posy] == 0) 
-			{
-				sGrid[posx][posy] = ID;
-			}
-			if (sGrid[posx][posy] != 0 && sGrid[posx][posy] != ID)
-			{
-				GE_CollisionFullCheck(cObj,physicsObjects[sGrid[posx][posy]]); //TODO: convert to realID
-			}
+			GE_CollisionFullCheck(cObj,physicsObjects[i]); 
 		}
 	}
-	/*for (int i=1;i < (nextPhysicsObject); i++) //uncomment to isolate collision checker from sGrid checker
-	{
-		if (physicsObjects[i] != cObj)
-		{
-			GE_CollisionFullCheck(cObj,physicsObjects[i]);
-		}
-	}*/
 	
 	cObj->lastGoodPosition = cObj->position;
 }
@@ -317,7 +236,7 @@ void GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj)
 
 					}
 					numCollisionsTemp++;
-					//std::cout << "FULL COLLISION DETECTED #" << numCollisionsTemp << std::endl;
+					std::cout << "FULL COLLISION DETECTED #" << numCollisionsTemp << std::endl;
 
 					Vector2r newVelocity;
 					cObj->position = cObj->lastGoodPosition;
