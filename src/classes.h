@@ -5,8 +5,8 @@
  * Also holds other things specific to this game.
  */
 
-#include<SDL2/SDL.h>
-#include<SDL2/SDL_ttf.h>
+#include "SDL.h"
+#include "SDL_ttf.h"
 
 //Local includes
 #include "physics.h"

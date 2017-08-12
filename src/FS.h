@@ -7,9 +7,8 @@
 #include "GeneralEngineCPP.h"
 #ifdef outdatedOS
 
-#include "windows.h"
+# include <windows.h>
 #include <stdio.h>
-#include <regex>
 
 #else
 
@@ -20,6 +19,7 @@
 
 #include <vector>
 #include <string>
+#include <regex>
 
 #ifndef __DIRLIST_INCLUDED
 #define __DIRLIST_INCLUDED

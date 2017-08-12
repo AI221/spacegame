@@ -17,6 +17,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "FS.h"
 #include <iostream>
 
+std::string GE_ReverseSlashes(std::string victim) 
+{
+	//sigh... why must windows do everything backwards? In this case, LITERALLY backwards?
+	return std::regex_replace(victim, std::regex("/"), std::string("\\"));
+}
 
 #ifdef outdatedOS
 
@@ -47,11 +52,6 @@ DirList GE_ListInDir(std::string directory) //TODO: Test this.
 	list.list = names;
 }
 
-std::string GE_ReverseSlashes(std::string victim) //  / -> \
-{
-	//sigh... why must windows do everything backwards? In this case, LITERALLY backwards?
-	return std::regex_replace(victim, std::regex("/"), (std::string) "\\");
-}
 
 
 #else 

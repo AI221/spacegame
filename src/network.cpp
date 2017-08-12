@@ -1,6 +1,10 @@
 #include "network.h"
 
 
+#ifdef outdatedOS
+
+#else
+
 GE_NetworkSocket* GE_CreateNetworkSocket()
 {
 	return new GE_NetworkSocket{};
@@ -83,6 +87,7 @@ void GE_FreeNetworkSocket(GE_NetworkSocket* socket)
 	delete socket;
 }
 
+#endif //outdatedOS
 
 
 

@@ -25,7 +25,7 @@
 
 //#define physics_debug 
 
-#include<SDL2/SDL.h> //TODO temp
+#include "SDL.h" //TODO temp
 #ifdef physics_debug
 	//#include<SDL2/SDL.h>
 	#include "camera.h"
