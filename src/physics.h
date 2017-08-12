@@ -11,7 +11,11 @@
 #include <pthread.h>
 #include <math.h>
 #include <pthread.h>
+#include <unistd.h>
 #include <stdio.h>
+#include <chrono>
+#include <thread>
+#include <sys/time.h>
 
 #include <iostream>
 #include <functional>
@@ -38,53 +42,62 @@
 #define MAX_PHYSICS_ENGINE_DONE_CALLBACKS 64
 #define MAX_PHYSICS_ENGINE_PRE_CALLBACKS 64
 
-
-
-struct GE_PhysicsObject
+/*!
+ * Contains virtual members of GE_PhysicsObject, do not use
+ */
+class GE_VIRTUALPHYSICSOBJECT
 {
-	Vector2r position;
-	Vector2r velocity;
-	GE_Rectangle grid; //simplified version of all collisionRectangles
-	Vector2 warpedShape;
-	int ID;
-	GE_Rectangle collisionRectangles[MAX_COLLISION_RECTANGLES_PER_OBJECT];
-	int numCollisionRectangles;
-	Vector2r lastGoodPosition;
-	bool callCallbackBeforeCollisionFunction;
-	bool callCallbackAfterCollisionFunction;
 
-	/*!
-	 * A callback upon collision
-	 * @param cObj your physics object
-	 * @param victimObj the colliding physics object
-	 * @return True if you deleted a physics object
-	 */
-	std::function< bool (GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj)> C_Collision; 
+	public:
+		virtual bool C_Update() = 0;
+		virtual bool C_Collision(int victimID, int collisionRectangleID) = 0;
+};
 
-	/*!
-	 * Weather or not to call the update callback
-	 */
-	bool callCallbackUpdate;
-	
-	/*!
-	 * Called during a physics tick, after position updates & collision calculations
-	 */
-	std::function< bool (GE_PhysicsObject* cObj)> C_Update;
+/*!
+ * The basic Physics object structure. It's recommended that your game objects inhereit from this, though you can do non-OO design alternatively using glueObject's buffering.
+ */
+class GE_PhysicsObject : public GE_VIRTUALPHYSICSOBJECT
+{
+	public:
+		GE_PhysicsObject(Vector2r position, Vector2r velocity, GE_Rectangle grid);
 
-	
 
-	//The following 2 datas are for game-speific implemtations, e.g. having classes like player, enemie, or really anything. Meaning there is no standard way to use these in the engine.
-	
 
-	/*!
-	 * The type of data stored in ts. I recommend creating a enum for this, but that's game-specific.
-	 */
-	int type;
 
-	/*!
-	 * Type-specific data (e.g. Health)
-	 */
-	void* ts;
+		Vector2r position;
+		Vector2r velocity;
+		GE_Rectangle grid; //simplified version of all collisionRectangles
+		Vector2 warpedShape;
+		int ID;
+		GE_Rectangle collisionRectangles[MAX_COLLISION_RECTANGLES_PER_OBJECT];
+		int numCollisionRectangles;
+		Vector2r lastGoodPosition;
+		bool callCallbackBeforeCollisionFunction;
+		bool callCallbackAfterCollisionFunction;
+
+		/*!
+		 * A callback upon collision
+		 * @param victimID the ID of the colliding physics object
+		 * @param collisionRectangleID The ID of YOUR collision rectangle that was collided with 
+		 * @return True if you want YOUR physics object to be deleted.
+		 */
+		bool C_Collision(int victimID, int collisionRectangleID);
+
+		/*!
+		 * Weather or not to call the update callback
+		 */
+		bool callCallbackUpdate;
+		
+		/*!
+		 * Called during a physics tick, after position updates & collision calculations
+		 */
+		bool C_Update();
+
+		/*!
+		 * Game-specific. Intended for specifying what type this object is. Default is 0. I'd recommend to use an enum with this.
+		 */
+		int type;
+		
 
 
 };
@@ -189,12 +202,12 @@ void GE_TickPhysics();
  * The function called for every physics object, during a physics tick. In general: Don't touch this
  * @param cObj The pointer to the physics object to tick
  */ 
-void GE_TickPhysics_ForObject(GE_PhysicsObject* cObj,int ID);
+bool GE_TickPhysics_ForObject(GE_PhysicsObject* cObj,int ID);
 
 /*!
  * The function called when a full collision check is determined to be necessary. In general: Don't touch this
  */
-void GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj);
+bool GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj);
 
 /*! 
  * Frees the memory used by a physics object. 

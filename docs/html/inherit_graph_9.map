@@ -1,3 +1,6 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$structGE__Sprite.html" title="GE_Sprite" alt="" coords="5,5,88,32"/>
+<area shape="rect" id="node1" href="$classGE__UI__Element.html" title="GE_UI_Element" alt="" coords="5,56,123,83"/>
+<area shape="rect" id="node2" href="$classGE__UI__Button.html" title="GE_UI_Button" alt="" coords="179,5,286,32"/>
+<area shape="rect" id="node3" href="$classGE__UI__Text.html" title="GE_UI_Text" alt="" coords="185,56,280,83"/>
+<area shape="rect" id="node4" href="$classGE__UI__TextInput.html" title="GE_UI_TextInput" alt="" coords="171,107,295,133"/>
 </map>

@@ -37,6 +37,46 @@ std::function< void ()> C_PhysicsTickPreCallbacks[MAX_PHYSICS_ENGINE_PRE_CALLBAC
 int numPhysicsTickPreCallbacks = -1;
 
 
+GE_PhysicsObject::GE_PhysicsObject(Vector2r position, Vector2r velocity, GE_Rectangle grid)
+{
+	numFakePhysicsIDs++;
+	numPhysicsObjects++;
+
+	this->position = position;
+	this->velocity = velocity;
+	this->grid = grid; //TODO automate 
+
+	warpedShape = {0,0};
+
+	ID = numFakePhysicsIDs;
+
+	numCollisionRectangles = 0;
+
+	lastGoodPosition = position;
+
+
+	//TODO temp
+	callCallbackAfterCollisionFunction = false;
+	callCallbackBeforeCollisionFunction = false;
+
+	//end temp
+	
+	fakeToRealPhysicsID[numFakePhysicsIDs] = numPhysicsObjects;
+	physicsObjects[numPhysicsObjects] = this;
+
+	callCallbackUpdate = false;
+	type = 0;
+}
+bool GE_PhysicsObject::C_Update()
+{
+	printf("!!Shouldn't be called!!\n");
+	return false;
+}
+bool GE_PhysicsObject::C_Collision(int victimID, int collisionRectangleID)
+{
+	return false;
+}
+
 
 
 
@@ -50,9 +90,7 @@ GE_PhysicsObject* GE_CreatePhysicsObject(Vector2r newPosition, Vector2r newVeloc
 	GE_NoGreaterThan_NULL(numPhysicsObjects,MAX_PHYSICS_OBJECTS);
 	//TODO: Auto-generate shape.
 
-	numFakePhysicsIDs++;
-	numPhysicsObjects++;
-	GE_PhysicsObject* newPhysicsObject = new GE_PhysicsObject{newPosition, newVelocity, {0,0,shape.x, shape.y},{0,0},numFakePhysicsIDs,{},0,{0,0,0},false};
+	GE_PhysicsObject* newPhysicsObject = new GE_PhysicsObject(newPosition, newVelocity, {0,0,shape.x, shape.y});
 
 	fakeToRealPhysicsID[numFakePhysicsIDs] = numPhysicsObjects;
 	physicsObjects[numPhysicsObjects] = newPhysicsObject;
@@ -80,12 +118,6 @@ int GE_GetPhysicsObjectFromID(int fakeID, GE_PhysicsObject** physicsObjectPointe
 }
  
 
-void GE_AddPhysicsObjectCollisionCallback(GE_PhysicsObject* subject, std::function< bool (GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj)> C_Collision, bool callCallbackBeforeCollisionFunction)
-{
-	subject->C_Collision = C_Collision;
-	subject->callCallbackBeforeCollisionFunction = callCallbackBeforeCollisionFunction;
-	subject->callCallbackAfterCollisionFunction = !callCallbackBeforeCollisionFunction;
-}
 int GE_AddPhysicsDoneCallback(std::function<void ()> callback)
 {
 	GE_NoGreaterThan(numPhysicsTickDoneCallbacks,MAX_PHYSICS_ENGINE_DONE_CALLBACKS);
@@ -122,16 +154,21 @@ void GE_AddVelocity(GE_PhysicsObject* physicsObject, Vector2r moreVelocity)
 }
 void GE_AddRelativeVelocity(GE_PhysicsObject* physicsObject, Vector2r moreVelocity)
 {
+	printf("addrelvel\n");
 	physicsObject->velocity.r = physicsObject->velocity.r-moreVelocity.r;
 	physicsObject->velocity.addRelativeVelocity({moreVelocity.x,moreVelocity.y,physicsObject->position.r}); //TODO: De-OOify
 }
 
 
+ 
 void* GE_physicsThreadMain(void *)
 {
+	struct timeval pt,nt;
 	while(true)
 	{
-		//printf("Try lock physen\n");
+		gettimeofday(&pt, NULL);
+		//printf("next time to run %ld\n",nextTimeToRun);
+		
 		pthread_mutex_lock(&PhysicsEngineMutex);	
 		//printf("Lock physen\n");
 		
@@ -145,9 +182,13 @@ void* GE_physicsThreadMain(void *)
 			C_PhysicsTickDoneCallbacks[i]();
 		}
 		pthread_mutex_unlock(&PhysicsEngineMutex);
-		//printf("fin, wait 16ms\n");
+		//wait the rest of the 16.6ms
+		gettimeofday(&nt, NULL);
 
-		SDL_Delay(16); //delay outside of mutex lock, else will hog the mutex and never let other sections run
+		//printf("usleep%ld\n",16666-(nt.tv_usec-pt.tv_usec));
+		usleep(fmax(16666-(nt.tv_usec-pt.tv_usec),0));
+		
+
 	}
 }
 
@@ -160,41 +201,51 @@ void GE_TickPhysics()
 		//printf("i %d\n",i);
 		if(!deadPhysicsObjects[i])
 		{
-			printf("1 check\n");
-			GE_TickPhysics_ForObject(physicsObjects[i],i);
+			if (!GE_TickPhysics_ForObject(physicsObjects[i],i))
+			{
+				if(physicsObjects[i]->callCallbackUpdate)
+				{
+					physicsObjects[i]->C_Update();
+				}
+			}
 		}
 		//printf("x %d y %d\n",physicsObjects[i]->position.x,physicsObjects[i]->position.y);
 	}
 }
 //TODO: Factor in the fakeID, move the sGrid-removal to a seperate function called upon physicsObject death
-void GE_TickPhysics_ForObject(GE_PhysicsObject* cObj, int ID)
+bool GE_TickPhysics_ForObject(GE_PhysicsObject* cObj, int ID)
 {
-	printf("forobj\n");
 	//move ourselves forward
 	//first set velocity
 	
 	cObj->position = cObj->position+cObj->velocity;
 
 
-	cObj->grid.x = (int) cObj->position.x/10;
-	cObj->grid.y = (int) cObj->position.y/10;
+	cObj->grid.x = (int) (cObj->position.x/10);
+	cObj->grid.y = (int) (cObj->position.y/10);
 
 	//Calculate how the shape warps. The shape will stretch as you move faster to avoid clipping
 	cObj->warpedShape.x = ((abs(cObj->velocity.x)/10)+2)*(cObj->grid.w/10);
 	cObj->warpedShape.y = ((abs(cObj->velocity.y)/10)+2)*(cObj->grid.h/10);
+
+
 
 	for (int i=0;i < (numPhysicsObjects+1); i++)
 	{
 		//printf("i %d\n",i);
 		if(!deadPhysicsObjects[i] && i != ID)
 		{
-			GE_CollisionFullCheck(cObj,physicsObjects[i]); 
+			if (GE_CollisionFullCheck(cObj,physicsObjects[i]))
+			{
+				return true;	
+			}
 		}
 	}
 	
 	cObj->lastGoodPosition = cObj->position;
+	return false;
 }
-void GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj)
+bool GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj)
 {
 	for (int a=0; a < cObj->numCollisionRectangles;a++)
 	{
@@ -220,21 +271,31 @@ void GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj)
 
 				if (check1 && check2)
 				{
+					bool killMe = false;
+					bool doReturn = false;
 					if (cObj->callCallbackBeforeCollisionFunction)
 					{
-						if (cObj->C_Collision(cObj,victimObj))
-						{
-							return;
-						}
+						killMe = cObj->C_Collision(victimObj->ID,a);
+						doReturn = true;
 					}
 					if (victimObj->callCallbackBeforeCollisionFunction)
 					{
-						if (victimObj->C_Collision(victimObj,cObj))
+						if(victimObj->C_Collision(cObj->ID,b))
 						{
-							return;
+							GE_FreePhysicsObject(victimObj);
+							doReturn = true;
 						}
-
 					}
+					if (killMe)
+					{
+						GE_FreePhysicsObject(cObj); 
+					}
+					
+					if (doReturn)
+					{
+						return true;
+					} 
+				
 					numCollisionsTemp++;
 					std::cout << "FULL COLLISION DETECTED #" << numCollisionsTemp << std::endl;
 
@@ -252,20 +313,24 @@ void GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj)
 
 					if (cObj->callCallbackAfterCollisionFunction)
 					{
-						if (cObj->C_Collision(cObj,victimObj))
-						{
-							return;
-						}
+						killMe = cObj->C_Collision(victimObj->ID,a); //reuse of variable; okay because of the return
+						
 					}
 					if (victimObj->callCallbackAfterCollisionFunction)
 					{
-						if (victimObj->C_Collision(victimObj,cObj))
+						if(victimObj->C_Collision(cObj->ID,b))
 						{
-							return;
+							GE_FreePhysicsObject(victimObj);
+							printf("~~~~~Kill      them\n");
 						}
-
 					}
-					return;
+					if (killMe)
+					{
+						printf("~~~~~KillMe\n");
+						GE_FreePhysicsObject(cObj);
+						return true;
+					}
+					return false;
 				}
 				else
 				{
@@ -275,13 +340,16 @@ void GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj)
 			}
 		}
 	}
+	return false;
 }
 
 
 void GE_FreePhysicsObject(GE_PhysicsObject* physicsObject) //MUST be allocated with new
 {
 	deadPhysicsObjects[physicsObject->ID] = true;
+	fakeToRealPhysicsID[physicsObject->ID] = -1;
 	delete physicsObject;
+	printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1test\n");
 }
 
 #ifdef physics_debug

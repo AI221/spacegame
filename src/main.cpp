@@ -41,6 +41,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "gluePhysicsObject.h"
 #include "engine.h"
 
+//Game-specific
+#include "classes.h"
+
 //tmp
 #include "network.h"
 
@@ -85,17 +88,22 @@ void render()
 	//pthread_mutex_lock(&RenderEngineMutex);
 	//printf("~Lock render\n");
 	GE_PhysicsObject* cObj;
-	GE_GetPhysicsObjectFromID(camFocusedObj,&cObj); //TODO: error handling
+	if (GE_GetPhysicsObjectFromID(camFocusedObj,&cObj) == 0) 
+	{
+		camera.pos = cObj->position;
+	}
+	else { printf("Couldn't get camera\n"); }
 
 	GE_GlueRenderCallback();
-
-	camera.pos = cObj->position;
 	#ifdef NO_CAMERA_ROTATE
 		camera.pos.r = 0;
 	#endif
 	for (int i=0; i <= numRenderedObjects; i++)
 	{
-		GE_BlitRenderedObject(renderedObjects[i],&camera);
+		if (!deadPhysicsObjects[i])
+		{
+			GE_BlitRenderedObject(renderedObjects[i],&camera);
+		}
 	}
 	//pthread_mutex_unlock(&RenderEngineMutex);
 	//printf("Fin render\n");
@@ -103,12 +111,82 @@ void render()
 
 
 
-#define regular
+#define real
+//#define regular
 //#define game
 //#define spritetest
 //#define gluetest
 //#define nettest
 
+#ifdef real
+
+int main()
+{
+	int ttferror = TTF_Init();
+	if (ttferror < 0) 
+	{
+		//TODO: Handle error...
+		printf("TTF_Init error %d\n",ttferror);
+		return ttferror;
+	}
+
+	SDL_Window* myWindow;
+
+
+	camera.pos = {0,0,0};
+	camera.screenWidth = 1080;
+	camera.screenHeight = 720;
+
+	
+	myWindow = SDL_CreateWindow("Spacegame", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, camera.screenWidth, camera.screenHeight, 0);
+
+	myRenderer = SDL_CreateRenderer(myWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+
+	//Initialize the engine
+	int error = GE_Init(myRenderer);
+	if (error != 0)
+	{
+		printf("Game engine initialization error: %d\n",error);
+	}
+
+	
+	//Initialize stuff we need
+
+	GE_LoadSpritesFromDir(myRenderer, SPRITE_DIR);
+
+	pthread_mutex_lock(&PhysicsEngineMutex);
+
+	//initialize the player
+	Player* player = new Player(myRenderer);
+	camFocusedObj = numFakePhysicsIDs;
+	
+	for (int i=0;i<20;i++)
+	{
+		GE_RenderedObject* ro = GE_CreateRenderedObject(myRenderer,SPRITE_DIR"simple.bmp");	
+		ro->size = {25,25};
+		ro->animation = {0,0,8,9};
+		
+
+		GE_PhysicsObject* me = GE_CreatePhysicsObject({20,static_cast<double>(i*50)+50,0},{0,0,0},{25,25});
+		me->collisionRectangles[me->numCollisionRectangles] = {-1,0,25,25};
+		me->numCollisionRectangles++;
+		GE_addGlueSubject(&(ro->position),me->ID);
+	}
+
+	pthread_mutex_unlock(&PhysicsEngineMutex);
+
+	while (true)
+	{
+		pthread_mutex_lock(&RenderEngineMutex);
+		GE_BlitSprite(Sprites[GE_SpriteNameToID(SPRITE_DIR"color_black.bmp")],{0,0,0},{(double) camera.screenWidth,(double) camera.screenHeight},{0,0,25,25},GE_FLIP_NONE);		//TODO: Something less shitty
+		render();
+		pthread_mutex_unlock(&RenderEngineMutex);
+		SDL_RenderPresent(myRenderer); //Seems to be the VSyncer (expect ~16ms wait upon call)
+		//SDL_Delay(8);
+	}
+}
+
+#endif //real
 #ifdef regular
 int main()
 {
@@ -416,21 +494,6 @@ int main()
 }
 #endif //regular
 #ifdef game
-void killobj(GE_PhysicsObject* obj)
-{
-	//find real id
-	int id = fakeToRealPhysicsID[obj->ID];
-	deadPhysicsObjects[id] = true;
-
-}
-bool killObject(GE_PhysicsObject* myObj, GE_PhysicsObject* theirObj)
-{
-	killobj(myObj);
-	killobj(theirObj);
-	printf("collision\n");
-	return true;
-	
-}
 int main()
 {
 	int ttferror = TTF_Init();

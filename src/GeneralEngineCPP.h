@@ -20,5 +20,11 @@
  */
 #define GE_NoGreaterThan_NULL(number,maxval) if(number>=maxval) { return NULL; }
 
+/*!
+ * 
+ * Macro to return if given value is true. Will return the succeeding text.
+ */
+#define GE_ReturnIf(value) if(value) return 
+
 
 #endif // __GENERALENGINECPP_INCLUDED

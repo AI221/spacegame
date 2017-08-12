@@ -44,6 +44,7 @@ struct GE_RenderedObject
 };
 
 extern GE_RenderedObject* renderedObjects[1000]; //TODO dimensions and what not
+extern bool deadRenderedObjects[1000];
 extern int numRenderedObjects;
 
 /*!

@@ -13,8 +13,8 @@ set (EXECUTABLE_OUTPUT_PATH bin)
 
 set( CMAKE_EXPORT_COMPILE_COMMANDS ON )
 
-set (CMAKE_C_COMPILER "/usr/bin/gcc")
-set (CMAKE_CXX_COMPILER "/usr/bin/g++")
+#set (CMAKE_C_COMPILER "/usr/bin/gcc")
+#set (CMAKE_CXX_COMPILER "/usr/bin/g++")
 
 file(GLOB spacegame_SRC
 	"src/*.h"

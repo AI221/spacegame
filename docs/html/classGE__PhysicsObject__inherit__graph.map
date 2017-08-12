@@ -1,0 +1,5 @@
+<map id="GE_PhysicsObject" name="GE_PhysicsObject">
+<area shape="rect" id="node3" href="$classBulletType.html" title="BulletType" alt="" coords="25,155,109,181"/>
+<area shape="rect" id="node4" href="$classPlayer.html" title="Player" alt="" coords="133,155,192,181"/>
+<area shape="rect" id="node2" href="$classGE__VIRTUALPHYSICSOBJECT.html" title="GE_VIRTUALPHYSICSOBJECT" alt="" coords="5,5,224,32"/>
+</map>

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['camera',['Camera',['../structCamera.html',1,'']]]
+  ['bullettype',['BulletType',['../classBulletType.html',1,'']]]
 ];

@@ -1,3 +1,5 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$structVector2.html" title="Vector2" alt="" coords="5,5,72,32"/>
+<area shape="rect" id="node1" href="$classSubsystem.html" title="Subsystem" alt="" coords="5,31,93,57"/>
+<area shape="rect" id="node2" href="$classSubLifeSupport.html" title="SubLifeSupport" alt="" coords="171,5,282,32"/>
+<area shape="rect" id="node3" href="$classSubThrusterForwardBack.html" title="SubThrusterForwardBack" alt="" coords="141,56,312,83"/>
 </map>

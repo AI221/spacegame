@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 pthread_mutex_t RenderEngineMutex = PTHREAD_MUTEX_INITIALIZER;
 
 GE_RenderedObject* renderedObjects[1000]; //TODO dimensions and what not
+bool deadRenderedObjects[1000];
 int numRenderedObjects = -1; 
 
 GE_RenderedObject* GE_CreateRenderedObject(SDL_Renderer* renderer, std::string spriteName) // size is not included (despite it being a value often set at start) due to its linked nature.
