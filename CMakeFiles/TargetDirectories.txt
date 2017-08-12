@@ -1,3 +1,0 @@
-/home/jackson/spacegame/CMakeFiles/rebuild_cache.dir
-/home/jackson/spacegame/CMakeFiles/edit_cache.dir
-/home/jackson/spacegame/CMakeFiles/Spacegame.dir

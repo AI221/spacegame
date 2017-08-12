@@ -11,6 +11,11 @@ set (PROJECT_SOURCE_DIR src)
 
 set (EXECUTABLE_OUTPUT_PATH bin)
 
+set( CMAKE_EXPORT_COMPILE_COMMANDS ON )
+
+set (CMAKE_C_COMPILER "/usr/bin/gcc")
+set (CMAKE_CXX_COMPILER "/usr/bin/g++")
+
 file(GLOB spacegame_SRC
 	"src/*.h"
 	"src/*.cpp"
@@ -19,7 +24,8 @@ file(GLOB spacegame_SRC
 
 
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -g3")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g3")
 
 
 
@@ -43,8 +49,16 @@ INCLUDE(FindPkgConfig)
 
 PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2)
 PKG_SEARCH_MODULE(SDL2TTF REQUIRED SDL2_ttf>=2.0.0)
+PKG_SEARCH_MODULE(SDL2IMAGE REQUIRED SDL2_image>=2.0.0)
+
+find_package (Threads)
+
+
+
 
 INCLUDE_DIRECTORIES(${SDL2_INCLUDE_DIRS} ${SDL2TTF_INCLUDE_DIRS})
-TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${SDL2_LIBRARIES} ${SDL2TTF_LIBRARIES} )
+#NOTE THE ORDER. Threads MUST come first or you're in for hell with compiler errors
+TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT} ${SDL2_LIBRARIES} ${SDL2TTF_LIBRARIES} ${SDL2IMAGE_LIBRARIES} m) #m is the math library
+
 
 

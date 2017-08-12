@@ -1,0 +1,9 @@
+1. create renderedObject -> physicsObject glue
+2. rework most of main.cpp - multithread physics engine, glue, and renderer
+
+3. create sprite description files (w, h, etc.)
+4. networking
+
+
+???. make sprites work with animations
+

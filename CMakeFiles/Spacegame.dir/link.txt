@@ -1,1 +1,0 @@
-/usr/bin/c++    -std=gnu++11 -g   CMakeFiles/Spacegame.dir/src/camera.cpp.o CMakeFiles/Spacegame.dir/src/debugUI.cpp.o CMakeFiles/Spacegame.dir/src/main.cpp.o CMakeFiles/Spacegame.dir/src/physics.cpp.o CMakeFiles/Spacegame.dir/src/renderedPhysicsObject.cpp.o CMakeFiles/Spacegame.dir/src/sprite.cpp.o  -o bin/Spacegame -rdynamic -lSDL2 -lSDL2_ttf -lSDL2 -lSDL2_ttf 

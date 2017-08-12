@@ -1,3 +1,5 @@
+CC=gcc
+CXX=/usr/bin/g++
 if [ ! -f Makefile ]; then
 	echo ";;			No Makefile found. Running CMake"
 	cmake .
