@@ -30,6 +30,8 @@ bool deadPhysicsObjects[MAX_PHYSICS_OBJECTS]; //TODO shift all elements down ins
 int fakeToRealPhysicsID[MAX_PHYSICS_OBJECTS]; 
 int numFakePhysicsIDs = -1;
 
+int ticknum = 0;
+
 std::function< void ()> C_PhysicsTickDoneCallbacks[MAX_PHYSICS_ENGINE_DONE_CALLBACKS];
 int numPhysicsTickDoneCallbacks = -1;
 
@@ -196,6 +198,7 @@ void* GE_physicsThreadMain(void *)
 int numCollisionsTemp = 0;
 void GE_TickPhysics()
 {
+	ticknum++;
 	for (int i=0;i < (numPhysicsObjects+1); i++)
 	{
 		//printf("i %d\n",i);
@@ -252,13 +255,13 @@ bool GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj)
 		//iterate through each of our rectangles...
 
 		Vector2 myPoints[4] = {};
-		GE_RectangleToPoints(cObj->collisionRectangles[a],myPoints,cObj->position);
+		GE_RectangleToPoints(cObj->collisionRectangles[a],cObj->grid,myPoints,cObj->position);
 
 		for (int b=0; b < victimObj->numCollisionRectangles;b++)
 		{
 
 			Vector2 theirPoints[4] = {};
-			GE_RectangleToPoints(victimObj->collisionRectangles[b],theirPoints,victimObj->position);
+			GE_RectangleToPoints(victimObj->collisionRectangles[b],victimObj->grid,theirPoints,victimObj->position);
 			
 
 			//iterate through each of my points, checking it against each victim point.
@@ -366,7 +369,7 @@ void GE_FreePhysicsObject(GE_PhysicsObject* physicsObject) //MUST be allocated w
 #endif
 
 
-void GE_RectangleToPoints(GE_Rectangle rect, Vector2* points, Vector2r hostPosition) 
+void GE_RectangleToPoints(GE_Rectangle rect, GE_Rectangle grid, Vector2* points, Vector2r hostPosition) 
 {
 		
 	//Points make collision checking easy because you cannot rotate a point in space (or rather, rotating it would have no effect)
@@ -376,8 +379,8 @@ void GE_RectangleToPoints(GE_Rectangle rect, Vector2* points, Vector2r hostPosit
 	points[2] = {rect.x , rect.y+rect.h}; //bottom left
 	points[3] = {rect.x+rect.w , rect.y+rect.h}; //bottom right
 
-	double halfrectw = rect.w/1; //TODO I think this needs to be the size of the full object?
-	double halfrecth = rect.h/1;
+	double halfrectw = grid.w/2;//rect.w/2; //TODO I think this needs to be the size of the full object?
+	double halfrecth = grid.h/2;//rect.h/2;
 	for (int i =0; i < 4; i++)
 	{
 		points[i].x -= halfrectw;

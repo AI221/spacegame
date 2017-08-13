@@ -8,8 +8,12 @@
 #include "SDL.h"
 #include "SDL_ttf.h"
 #include <string>
+#include <math.h>
+#include <stdlib.h>     /* srand, rand */
+#include <time.h>       /* time */
 
 //Local includes
+#include "vector2.h"
 #include "physics.h"
 #include "renderedObject.h"
 #include "gluePhysicsObject.h"
@@ -60,9 +64,26 @@ class Player : public GE_PhysicsObject
 		GE_RenderedObject* renderObject;
 		bool keysHeld[323] = {false}; 
 		SDL_Renderer* renderer;
+		int nextTickCanShoot;
 
 
 };
+
+class Enemie : public GE_PhysicsObject
+{
+	public:
+		Enemie(SDL_Renderer* renderer, Vector2r position, int level);
+		~Enemie();
+		bool C_Update();
+		bool C_Collision(int victimID, int collisionRectangleID);
+	private:
+		int renderObjectID;
+		GE_RenderedObject* renderObject;
+		SDL_Renderer* renderer;
+		int level;
+
+};
+
 
 class BulletType : virtual public GE_PhysicsObject
 {

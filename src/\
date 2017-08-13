@@ -28,7 +28,7 @@ void Subsystem::CheckCollision(int collisionRectangle)
 }
 void Subsystem::Update(Vector2r parrentPosition)
 {
-	//printf("x %f\n",relativePosition.x);
+	printf("x %f\n",relativePosition.x);
 	Vector2r rotationMatrix = relativePosition;
 
 	#define __X -51
@@ -80,11 +80,6 @@ int handleEvents(SDL_Event* event)
 
 Player::Player(SDL_Renderer* renderer) : GE_PhysicsObject({100,0,0},{0,0,0},{0,0})
 {
-
-
-	//TODO MOVE TO GAME ENGINE CODE IN GE_INIT
-	srand(time(NULL));
-
 	this->renderer = renderer;
 	renderObject = GE_CreateRenderedObject(renderer,SPRITE_DIR"WholeShipv2.png"); //TODO
 	renderObject->size = {0,0};//{98,102};
@@ -141,34 +136,11 @@ Player::Player(SDL_Renderer* renderer) : GE_PhysicsObject({100,0,0},{0,0,0},{0,0
 	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerRSmallTurret.png",sizePlusDoubleSize(4,9),positionDouble(40,21),8);
 	bump();
 
-
-	nextTickCanShoot = 0;
-
-
-
 	targetPlayer = this;
 
 }
 //double fwdMove;
 //#define unrealisticMove true
-
-
-
-void ShootBullet(SDL_Renderer* renderer, GE_PhysicsObject* host, Vector2r addToVelocity, Vector2r addToPosition)
-{
-	
-
-	GE_Vector2RotationCCW(&addToPosition,host->position.r);
-	GE_Vector2RotationCCW(&addToVelocity,host->position.r);
-	StdBullet* mybullet = new StdBullet(renderer,host->position+addToPosition);
-	GE_PhysicsObject* mybulletpo;
-	GE_GetPhysicsObjectFromID(mybullet->ID,&mybulletpo);
-
-	GE_AddVelocity(mybullet,addToVelocity);
-}
-
-
-
 bool Player::C_Update()
 {
 	//Update subsystem positions
@@ -191,12 +163,21 @@ bool Player::C_Update()
 			{
 				keysHeld[event.key.keysym.sym] = true;
 			}
-			if(event.key.keysym.sym == SDLK_SPACE && ticknum >= nextTickCanShoot )
+			if(event.key.keysym.sym == SDLK_SPACE)
 			{
-				ShootBullet(renderer,this,{0,-10,0},{12,-30,0});
-				nextTickCanShoot = ticknum +30;
-			}
+				Vector2r addToPosition = {0,-50,0};
+				Vector2r addToVelocity = {0,-1,0};
+				
 
+				GE_Vector2RotationCCW(&addToPosition,position.r);
+				GE_Vector2RotationCCW(&addToVelocity,position.r);
+				StdBullet* mybullet = new StdBullet(renderer,position+addToPosition);
+				GE_PhysicsObject* mybulletpo;
+				GE_GetPhysicsObjectFromID(mybullet->ID,&mybulletpo);
+
+				GE_AddVelocity(mybullet,addToVelocity);
+				
+			}
 			if (event.key.keysym.sym == SDLK_p)
 			{
 				printf(" kjfaskl jasdklfj sdkla;fjasdkl;ifjalsjk;\n");
@@ -256,11 +237,6 @@ bool Player::C_Update()
 		fwdMove = 0;
 #endif
 	}
-	if (keysHeld[SDLK_ESCAPE])
-	{
-		//TODO GOD WHY
-		exit(0);
-	}
 
 
 #ifdef unrealisticMove
@@ -287,11 +263,8 @@ bool Player::C_Collision(int victimID, int collisionRectangleID)
 		
 		if (true)
 		{
-			
 			//It hit the core. Game over
-			printf("TEMP GAMEOVER\n-----------\n");
-			//TODO GOD WHY AGAIN
-			exit(0);
+			printf("TEMP GAMEOVER\n");
 		}
 	}
 
@@ -302,7 +275,7 @@ bool Player::C_Collision(int victimID, int collisionRectangleID)
 
 
 
-Enemie::Enemie(SDL_Renderer* renderer, Vector2r position, int level) : GE_PhysicsObject(position,{0,0,0},{38,42})
+Enemie::Enemie(SDL_Renderer* renderer, Vector2r position, int level) : GE_PhysicsObject(position,{0,0,0},{0,0})
 {
 	this->renderer = renderer;
 
@@ -317,12 +290,11 @@ Enemie::Enemie(SDL_Renderer* renderer, Vector2r position, int level) : GE_Physic
 
 	GE_addGlueSubject(&(renderObject->position),ID); 
 	
-	collisionRectangles[numCollisionRectangles] = {0,0,38,42}; 
+	collisionRectangles[numCollisionRectangles] = {0,0,4,10}; 
 	numCollisionRectangles++;
 
 	
 	callCallbackAfterCollisionFunction = true;
-	callCallbackUpdate = true;
 
 }
 Enemie::~Enemie()
@@ -335,53 +307,27 @@ Enemie::~Enemie()
 bool Enemie::C_Update()
 {
 
-
-	//based on: https://gamedev.stackexchange.com/a/124803
-	//printf("enemy up\n");
 	//check if we're in the radius of our target player
-	if ( GE_Distance(this->position.x, this->position.y, targetPlayer->position.x, targetPlayer->position.y) < 1000)
+	if ( GE_Distance(this->position.x, this->position.y, targetPlayer->position.x, targetPlayer->position.y) < 200)
 	{
-		//printf("can see\n");
 		//turn toward the player
-		
-
-		double rotaryDistance = (this->position.r/DEG_TO_RAD)-(atan2(targetPlayer->position.x-this->position.x,targetPlayer->position.y-this->position.y));
-		//printf("rdist %f\n",rotaryDistance);
-		if (rotaryDistance < - 3.1415926 || (rotaryDistance > 0 && rotaryDistance < 3.1415926 ))
+		if (this->position.r > targetPlayer->position.r)
 		{
-			this->position.r = this->position.r + 5;
+			this->position.r = this->position.r - 0.5;
 		}
-		else	
+		if (this->position.r < targetPlayer->position.r)
 		{
-			this->position.r = this->position.r - 5;
-		}
-		if (ticknum % 60 == 0 )
-		{
-			//spawn bullet
-			ShootBullet(renderer,this,{0,-1,0},{0,-40,0});
+			this->position.r = this->position.r + 0.5;
 		}
 	}
-	
-	
-
 
 	return false;
 }
 bool Enemie::C_Collision(int victimID, int collisionRectangleID)
 {
-	//get physics object
-	GE_PhysicsObject* victim;
-	GE_GetPhysicsObjectFromID(victimID, &victim);
-	
-	//is it a bullet?
-	if (victim->type == TYPE_DESTROYSUB)
-	{
-		//bye
-		return true;
-	}
-		
 
-	return false;
+
+	return true;
 }
 
 

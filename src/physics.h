@@ -23,7 +23,7 @@
 #include "vector2.h"
 #include "GeneralEngineCPP.h"
 
-#define physics_debug 
+//#define physics_debug 
 
 #include "SDL.h" //TODO temp
 #ifdef physics_debug
@@ -123,6 +123,8 @@ extern int numPhysicsTickPreCallbacks;
 
 extern bool deadPhysicsObjects[MAX_PHYSICS_OBJECTS];
 
+extern int ticknum;
+
 
 extern int sGrid[2000][2000]; //TODO: Dynamically sized arrays for both of these
 
@@ -221,6 +223,6 @@ void GE_FreePhysicsObject(GE_PhysicsObject* physicsObject); //MUST be allocated 
  * @param points An array that can contain 4 Vector2* s. 
  * @param hostPosition a Vector2r , note the r, that the GE_Rectangle rect belongs to. It is used to be added to the positions of points, and its rotation will translate them.
  */
-void GE_RectangleToPoints(GE_Rectangle rect, Vector2* points, Vector2r hostPosition);
+void GE_RectangleToPoints(GE_Rectangle rect, GE_Rectangle grid, Vector2* points, Vector2r hostPosition);
 
 #endif //PHYSICS_INCLUDED

@@ -107,6 +107,9 @@ void render()
 	if (GE_GetPhysicsObjectFromID(camFocusedObj,&cObj) == 0) 
 	{
 		camera.pos = cObj->position;
+		camera.pos.x = (camera.pos.x+cObj->grid.w/2);
+		camera.pos.y = (camera.pos.y+cObj->grid.h/2);
+
 	}
 	else { printf("Couldn't get camera\n"); }
 
@@ -116,7 +119,7 @@ void render()
 	#endif
 	for (int i=0; i <= numRenderedObjects; i++)
 	{
-		if (!deadPhysicsObjects[i])
+		if (!deadRenderedObjects[i])
 		{
 			GE_BlitRenderedObject(renderedObjects[i],&camera);
 		}
@@ -176,7 +179,7 @@ int main(int argc, char* argv[])
 	Player* player = new Player(myRenderer);
 	camFocusedObj = numFakePhysicsIDs;
 	
-	for (int i=0;i<20;i++)
+	/*for (int i=0;i<20;i++)
 	{
 		GE_RenderedObject* ro = GE_CreateRenderedObject(myRenderer,SPRITE_DIR"simple.bmp");	
 		ro->size = {25,25};
@@ -187,7 +190,20 @@ int main(int argc, char* argv[])
 		me->collisionRectangles[me->numCollisionRectangles] = {0,0,25,25};
 		me->numCollisionRectangles++;
 		GE_addGlueSubject(&(ro->position),me->ID);
+	}*/
+
+
+	//spawn some enemys why not
+	
+
+	for (int i=0;i<20;i++)
+	{	
+		double randomx = rand() % 5000 + 1;
+		double randomy = rand() % 5000 + 1;
+		Enemie* un = new Enemie(myRenderer, {randomx-1500,randomy-1500,0},1);
 	}
+
+
 
 	pthread_mutex_unlock(&PhysicsEngineMutex);
 	
