@@ -49,6 +49,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define SPRITE_DIR "../sprites/"
 
+//windows compatibility stuff
+
+#include "GeneralEngineCPP.h"
+
+#ifdef outdatedOS 
+
+#define CrossCompatibleMain main
+
+#else
+
+#define CrossCompatibleMain main
+
+#endif
+
+
+
 //#define NO_CAMERA_ROTATE true
 
 
@@ -120,7 +136,7 @@ void render()
 
 #ifdef real
 
-int main()
+int main(int argc, char* argv[])
 {
 	int ttferror = TTF_Init();
 	if (ttferror < 0) 
@@ -188,7 +204,7 @@ int main()
 
 #endif //real
 #ifdef regular
-int main()
+int CrossCompatibleMain()
 {
 	int ttferror = TTF_Init();
 	if (ttferror < 0) 
@@ -494,7 +510,7 @@ int main()
 }
 #endif //regular
 #ifdef game
-int main()
+int CrossCompatibleMain()
 {
 	int ttferror = TTF_Init();
 	if (ttferror < 0) 
@@ -852,7 +868,7 @@ int main()
 #endif
 #ifdef spritetest
 
-int main()
+int CrossCompatibleMain()
 {
 	if (TTF_Init() < 0) 
 	{
@@ -895,7 +911,7 @@ int main()
 
 #endif //spritetest
 #ifdef gluetest
-int main()
+int CrossCompatibleMain()
 {
 
 
