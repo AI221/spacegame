@@ -65,7 +65,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
-//#define NO_CAMERA_ROTATE true
+#define NO_CAMERA_ROTATE true
 
 
 //Definitions
@@ -184,12 +184,16 @@ int main(int argc, char* argv[])
 		
 
 		GE_PhysicsObject* me = GE_CreatePhysicsObject({20,static_cast<double>(i*50)+50,0},{0,0,0},{25,25});
-		me->collisionRectangles[me->numCollisionRectangles] = {-1,0,25,25};
+		me->collisionRectangles[me->numCollisionRectangles] = {0,0,25,25};
 		me->numCollisionRectangles++;
 		GE_addGlueSubject(&(ro->position),me->ID);
 	}
 
 	pthread_mutex_unlock(&PhysicsEngineMutex);
+	
+#ifdef physics_debug
+		GE_DEBUG_PassRendererToPhysicsEngine(myRenderer,&camera);
+	#endif
 
 	while (true)
 	{
@@ -197,6 +201,9 @@ int main(int argc, char* argv[])
 		GE_BlitSprite(Sprites[GE_SpriteNameToID(SPRITE_DIR"color_black.bmp")],{0,0,0},{(double) camera.screenWidth,(double) camera.screenHeight},{0,0,25,25},GE_FLIP_NONE);		//TODO: Something less shitty
 		render();
 		pthread_mutex_unlock(&RenderEngineMutex);
+		#ifdef physics_debug
+			GE_TickPhysics();
+		#endif
 		SDL_RenderPresent(myRenderer); //Seems to be the VSyncer (expect ~16ms wait upon call)
 		//SDL_Delay(8);
 	}
@@ -272,7 +279,7 @@ int CrossCompatibleMain()
 		
 
 		GE_PhysicsObject* me = GE_CreatePhysicsObject({20,static_cast<double>(i*50)+50,0},{0,0,0},{25,25});
-		me->collisionRectangles[me->numCollisionRectangles] = {-1,0,25,25};
+		me->collisionRectangles[me->numCollisionRectangles] = {0,0,25,25};
 		me->numCollisionRectangles++;
 		GE_addGlueSubject(&(ro->position),me->ID);
 		camFocusedObj = me->ID;

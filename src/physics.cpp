@@ -346,7 +346,8 @@ bool GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj)
 
 void GE_FreePhysicsObject(GE_PhysicsObject* physicsObject) //MUST be allocated with new
 {
-	deadPhysicsObjects[physicsObject->ID] = true;
+	printf("I AM DELETING FAKEID #%d\n",physicsObject->ID);
+	deadPhysicsObjects[fakeToRealPhysicsID[physicsObject->ID]] = true;
 	fakeToRealPhysicsID[physicsObject->ID] = -1;
 	delete physicsObject;
 	printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1test\n");
@@ -375,8 +376,8 @@ void GE_RectangleToPoints(GE_Rectangle rect, Vector2* points, Vector2r hostPosit
 	points[2] = {rect.x , rect.y+rect.h}; //bottom left
 	points[3] = {rect.x+rect.w , rect.y+rect.h}; //bottom right
 
-	double halfrectw = rect.w/2;
-	double halfrecth = rect.h/2;
+	double halfrectw = rect.w/1; //TODO I think this needs to be the size of the full object?
+	double halfrecth = rect.h/1;
 	for (int i =0; i < 4; i++)
 	{
 		points[i].x -= halfrectw;

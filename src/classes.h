@@ -7,6 +7,7 @@
 
 #include "SDL.h"
 #include "SDL_ttf.h"
+#include <string>
 
 //Local includes
 #include "physics.h"
@@ -25,38 +26,23 @@ enum TYPES
 	TYPE_DESTROYSUB, //bullets, etc.
 };
 
-/*
 class Subsystem
 {
 	public:
-		virtual void Blit(Vector2r parrentPosition);
-		virtual bool getIsOnline();
-};
-
-class SubThrusterForwardBack : Subsystem
-{
-	public:
-		void Blit(Vector2r parrentPosition);
-		bool getIsOnline();
+		Subsystem(SDL_Renderer* renderer, std::string sprite, Vector2 size, GE_Rectangle animation, Vector2r relativePosition, int collisionRectangle);
+		void CheckCollision(int collisionRectangle);
+		void Update(Vector2r parrentPosition);
+		bool GetIsOnline();
 	private:
+		SDL_Renderer* renderer; 
+		GE_RenderedObject* renderObject;
+		Vector2r relativePosition;
 		bool isOnline;
-		int myCollisionRectangle;
+		int collisionRectangle;
 		int level; //posibilites...
 
 };
 
-class SubLifeSupport : Subsystem
-{
-	public:
-		void Blit(Vector2r parrentPosition);
-		bool getIsOnline();
-	private:
-		bool isOnline;
-		int myCollisionRectangle;
-		
-};
-
-*/
 
 int handleEvents(SDL_Event* event);
 
@@ -66,7 +52,7 @@ class Player : public GE_PhysicsObject
 		Player(SDL_Renderer* renderer);
 		bool C_Update();
 		bool C_Collision(int victimID, int collisionRectangleID);
-		//Subsystem iterableSubsystems[40];
+		Subsystem* iterableSubsystems[40];
 		int numIterableSubsystems;
 
 	
