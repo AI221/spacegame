@@ -14,18 +14,26 @@ set (EXECUTABLE_OUTPUT_PATH bin)
 set( CMAKE_EXPORT_COMPILE_COMMANDS ON )
 
 #nix
-set (CMAKE_C_COMPILER "/usr/bin/gcc")
-set (CMAKE_CXX_COMPILER "/usr/bin/g++")
+#set (CMAKE_C_COMPILER "/usr/bin/gcc")
+#set (CMAKE_CXX_COMPILER "/usr/bin/g++")
 
 #win
-#set (CMAKE_C_COMPILER "/usr/bin/i686-w64-mingw32-gcc-posix")
-#set (CMAKE_CXX_COMPILER "/usr/bin/i686-w64-mingw32-g++-posix")
-#set (CMAKE_RC_COMPILER "/usr/bin/i686-w64-mingw32-windres")
-#set (CMAKE_SYSTEM_NAME Windows)
-#set (CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
-#set (CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
-#set (CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+set (CMAKE_C_COMPILER "/usr/bin/i686-w64-mingw32-gcc-posix")
+set (CMAKE_CXX_COMPILER "/usr/bin/i686-w64-mingw32-g++-posix")
+set (CMAKE_RC_COMPILER "/usr/bin/i686-w64-mingw32-windres")
+set (CMAKE_SYSTEM_NAME Windows)
+set (CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+set (CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+set (CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+SET(COMPILER_PREFIX i686-w64-mingw32)
+SET(CMAKE_C_COMPILER ${COMPILER_PREFIX}-gcc)
+SET(CMAKE_CXX_COMPILER ${COMPILER_PREFIX}-c++)
+SET(CMAKE_RC_COMPILER ${COMPILER_PREFIX}-windres)
+SET(CMAKE_PKGCONFIG_EXECUTABLE ${COMPILER_PREFIX}-pkg-config)
+SET(PKG_CONFIG_EXECUTABLE ${COMPILER_PREFIX}-pkg-config)
 
+SET(TARGET_ENVIRONMENT /usr/i686-w64-mingw32)
+SET(CMAKE_FIND_ROOT_PATH ${TARGET_ENVIRONMENT})
 
 file(GLOB spacegame_SRC
 	"src/*.h"
@@ -35,8 +43,8 @@ file(GLOB spacegame_SRC
 
 
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -g3 -export-dynamic")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 ")#-g3")-export-dynamic")
+#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g3")
 
 
 
