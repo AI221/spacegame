@@ -141,6 +141,7 @@ void render()
 
 int main(int argc, char* argv[])
 {
+	printf("I'm alive maybe?\n");
 	int ttferror = TTF_Init();
 	if (ttferror < 0) 
 	{
