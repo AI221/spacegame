@@ -12,7 +12,9 @@ var menudata={children:[
 {text:"File List",url:"files.html"},
 {text:"Globals",url:"globals.html",children:[
 {text:"All",url:"globals.html",children:[
-{text:"g",url:"globals.html#index_g"}]},
+{text:"g",url:"globals.html#index_g"},
+{text:"s",url:"globals.html#index_s"}]},
 {text:"Functions",url:"globals_func.html",children:[
 {text:"g",url:"globals_func.html#index_g"}]},
+{text:"Variables",url:"globals_vars.html"},
 {text:"Enumerations",url:"globals_enum.html"}]}]}]}

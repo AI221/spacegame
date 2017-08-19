@@ -31,6 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 
 //Local includes
+#include "GeneralEngineCPP.h"
 #include "vector2.h"
 #include "camera.h"
 #include "debugUI.h"
@@ -47,24 +48,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //tmp
 #include "network.h"
 
+//Config
 #define SPRITE_DIR "../sprites/"
-
-//windows compatibility stuff
-
-#include "GeneralEngineCPP.h"
-
-#ifdef outdatedOS 
-
-#define CrossCompatibleMain main
-
-#else
-
-#define CrossCompatibleMain main
-
-#endif
-
-
-
 #define NO_CAMERA_ROTATE true
 
 
@@ -96,24 +81,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 SDL_Renderer* myRenderer;
 
 Camera camera;
+GE_Rectangle camerasGrid;
 int camFocusedObj = 1;
 
 void render()
 {
-	//printf("~Trying lock render\n");
-	//pthread_mutex_lock(&RenderEngineMutex);
-	//printf("~Lock render\n");
-	GE_PhysicsObject* cObj;
-	if (GE_GetPhysicsObjectFromID(camFocusedObj,&cObj) == 0) 
-	{
-		camera.pos = cObj->position;
-		camera.pos.x = (camera.pos.x+cObj->grid.w/2);
-		camera.pos.y = (camera.pos.y+cObj->grid.h/2);
+	printf("~Trying lock render\n");
+	pthread_mutex_lock(&RenderEngineMutex);
+	printf("~Lock render\n");
+	
 
-	}
-	else { printf("Couldn't get camera\n"); }
+	GE_GlueRenderCallback(); //update all positions from the buffer
 
-	GE_GlueRenderCallback();
+	camera.pos.x = (camera.pos.x+camerasGrid.w/2); //manipulate camera position now that it's updated
+	camera.pos.y = (camera.pos.y+camerasGrid.h/2);
 	#ifdef NO_CAMERA_ROTATE
 		camera.pos.r = 0;
 	#endif
@@ -124,7 +105,7 @@ void render()
 			GE_BlitRenderedObject(renderedObjects[i],&camera);
 		}
 	}
-	//pthread_mutex_unlock(&RenderEngineMutex);
+	pthread_mutex_unlock(&RenderEngineMutex);
 	//printf("Fin render\n");
 }
 
@@ -163,6 +144,8 @@ int main(int argc, char* argv[])
 	myRenderer = SDL_CreateRenderer(myWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
 	//Initialize the engine
+	
+	pthread_mutex_lock(&PhysicsEngineMutex);
 	int error = GE_Init(myRenderer);
 	if (error != 0)
 	{
@@ -174,11 +157,11 @@ int main(int argc, char* argv[])
 
 	GE_LoadSpritesFromDir(myRenderer, SPRITE_DIR);
 
-	pthread_mutex_lock(&PhysicsEngineMutex);
 
 	//initialize the player
 	Player* player = new Player(myRenderer);
 	camFocusedObj = numFakePhysicsIDs;
+	GE_addGlueSubject(&(camera.pos),camFocusedObj);
 	
 	/*for (int i=0;i<20;i++)
 	{
@@ -206,20 +189,29 @@ int main(int argc, char* argv[])
 
 
 
-	pthread_mutex_unlock(&PhysicsEngineMutex);
 	
 #ifdef physics_debug
 		GE_DEBUG_PassRendererToPhysicsEngine(myRenderer,&camera);
 	#endif
+	
+	pthread_mutex_unlock(&PhysicsEngineMutex);
 
 	while (true)
 	{
-		pthread_mutex_lock(&RenderEngineMutex);
+		//pthread_mutex_lock(&RenderEngineMutex);
 		GE_BlitSprite(Sprites[GE_SpriteNameToID(SPRITE_DIR"color_black.bmp")],{0,0,0},{(double) camera.screenWidth,(double) camera.screenHeight},{0,0,25,25},GE_FLIP_NONE);		//TODO: Something less shitty
 		render();
-		pthread_mutex_unlock(&RenderEngineMutex);
+		//pthread_mutex_unlock(&RenderEngineMutex);
 		#ifdef physics_debug
-			GE_TickPhysics();
+		for (int i=0;i<numPhysicsTickPreCallbacks+1;i++)
+		{
+			C_PhysicsTickPreCallbacks[i]();
+		}
+		GE_TickPhysics();
+		for (int i=0;i<numPhysicsTickDoneCallbacks+1;i++)
+		{
+			C_PhysicsTickDoneCallbacks[i]();
+		}
 		#endif
 		SDL_RenderPresent(myRenderer); //Seems to be the VSyncer (expect ~16ms wait upon call)
 		//SDL_Delay(8);
@@ -228,7 +220,7 @@ int main(int argc, char* argv[])
 
 #endif //real
 #ifdef regular
-int CrossCompatibleMain()
+int main(int argc, char* argv[])
 {
 	int ttferror = TTF_Init();
 	if (ttferror < 0) 
@@ -534,7 +526,7 @@ int CrossCompatibleMain()
 }
 #endif //regular
 #ifdef game
-int CrossCompatibleMain()
+int main(int argc, char* argv[])
 {
 	int ttferror = TTF_Init();
 	if (ttferror < 0) 
@@ -892,7 +884,7 @@ int CrossCompatibleMain()
 #endif
 #ifdef spritetest
 
-int CrossCompatibleMain()
+int main(int argc, char* argv[])
 {
 	if (TTF_Init() < 0) 
 	{
@@ -935,7 +927,7 @@ int CrossCompatibleMain()
 
 #endif //spritetest
 #ifdef gluetest
-int CrossCompatibleMain()
+int main(int argc, char* argv[])
 {
 
 

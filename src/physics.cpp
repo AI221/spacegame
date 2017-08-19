@@ -156,7 +156,6 @@ void GE_AddVelocity(GE_PhysicsObject* physicsObject, Vector2r moreVelocity)
 }
 void GE_AddRelativeVelocity(GE_PhysicsObject* physicsObject, Vector2r moreVelocity)
 {
-	printf("addrelvel\n");
 	physicsObject->velocity.r = physicsObject->velocity.r-moreVelocity.r;
 	physicsObject->velocity.addRelativeVelocity({moreVelocity.x,moreVelocity.y,physicsObject->position.r}); //TODO: De-OOify
 }
@@ -188,7 +187,7 @@ void* GE_physicsThreadMain(void *)
 		gettimeofday(&nt, NULL);
 
 		//printf("usleep%ld\n",16666-(nt.tv_usec-pt.tv_usec));
-		usleep(fmax(16666-(nt.tv_usec-pt.tv_usec),0));
+		usleep(fmax(16667-(nt.tv_usec-pt.tv_usec),0));
 		
 
 	}
@@ -302,7 +301,6 @@ bool GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj)
 					numCollisionsTemp++;
 					std::cout << "FULL COLLISION DETECTED #" << numCollisionsTemp << std::endl;
 
-					Vector2r newVelocity;
 					cObj->position = cObj->lastGoodPosition;
 					victimObj->position = victimObj->lastGoodPosition;
 

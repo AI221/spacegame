@@ -13,17 +13,18 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <sys/time.h>
 #include <chrono>
 #include <thread>
-#include <sys/time.h>
-
 #include <iostream>
 #include <functional>
+
+//Local includes
 
 #include "vector2.h"
 #include "GeneralEngineCPP.h"
 
-//#define physics_debug 
+#define physics_debug 
 
 #include "SDL.h" //TODO temp
 #ifdef physics_debug

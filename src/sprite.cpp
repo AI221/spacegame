@@ -26,13 +26,6 @@ int countSprites = -1;
  */
 unsigned char MissingImage_HEX[] = {66,77,82,0,0,0,0,0,0,0,62,0,0,0,40,0,0,0,11,0,0,0,5,0,0,0,1,0,1,0,0,0,0,0,20,0,0,0,196,14,0,0,196,14,0,0,2,0,0,0,2,0,0,0,255,255,255,0,0,0,255,0,23,96,0,0,119,96,0,0,53,64,182,0,113,10,0,0,23,118,226,219};
 
-/*!
- * Call before using the Sprite subsystem. Do not use the sprite subsystem without initializing it first.
- * 
- * @return An error code, or 0 if it was okay. DO NOT use the sprite subsystem if there was an error code.
- *
- * Interally, this loads the MissingImage sprite, from memory. 
- */
 int GE_SpriteInit(SDL_Renderer* renderer)
 {
 	SDL_RWops* MissingImage_RWops = SDL_RWFromMem(MissingImage_HEX, sizeof(MissingImage_HEX));
@@ -77,6 +70,9 @@ GE_Sprite* GE_CreateSprite(SDL_Renderer* renderer, std::string path)
 
 
 
+/*!
+ * Loads all sprites from a directory. Do not place anything but compatible image types (.bmp, .png , etc.) in this folder. This will not recursively search directories.
+ */
 int GE_LoadSpritesFromDir(SDL_Renderer* renderer, std::string directory)
 {
 	DirList list = GE_ListInDir(directory);
@@ -224,6 +220,4 @@ int GE_BMPPathToImg(SDL_Texture** result, SDL_Renderer* renderer, SDL_RWops* dat
 		return 2;
 	}
 	return 0;
-
-	
 }

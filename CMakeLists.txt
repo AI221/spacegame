@@ -13,10 +13,16 @@ set (EXECUTABLE_OUTPUT_PATH bin)
 
 set( CMAKE_EXPORT_COMPILE_COMMANDS ON )
 
-#nix
-#set (CMAKE_C_COMPILER "/usr/bin/gcc")
-#set (CMAKE_CXX_COMPILER "/usr/bin/g++")
+#option
+option(WINDOWS "WINDOWS" OFF)
 
+#nix
+if (NOT WINDOWS)
+set (CMAKE_C_COMPILER "/usr/bin/gcc")
+set (CMAKE_CXX_COMPILER "/usr/bin/g++")
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -g3")
+else ()
 #win
 set (CMAKE_SYSTEM_NAME Windows)
 set (CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
@@ -32,6 +38,9 @@ set (PKG_CONFIG_EXECUTABLE ${COMPILER_PREFIX}-pkg-config)
 set (TARGET_ENVIRONMENT /usr/i686-w64-mingw32)
 set (CMAKE_FIND_ROOT_PATH ${TARGET_ENVIRONMENT})
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -lmingw32 -mwindows -lSDL2main -static-libgcc -static-libstdc++")#-g3")-export-dynamic")
+endif ()
+
 file(GLOB spacegame_SRC
 	"src/*.h"
 	"src/*.cpp"
@@ -40,8 +49,7 @@ file(GLOB spacegame_SRC
 
 
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -lmingw32 -mwindows -lSDL2main -static-libgcc -static-libstdc++")#-g3")-export-dynamic")
-#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g3")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g3")
 
 
 

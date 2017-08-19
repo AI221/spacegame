@@ -1,7 +1,7 @@
 <map id="src/renderedObject.h" name="src/renderedObject.h">
 <area shape="rect" id="node3" href="$vector2_8h.html" title="vector2.h" alt="" coords="143,155,219,181"/>
-<area shape="rect" id="node5" href="$sprite_8h.html" title="sprite.h" alt="" coords="388,80,453,107"/>
-<area shape="rect" id="node14" href="$camera_8h.html" title="camera.h" alt="" coords="105,80,181,107"/>
-<area shape="rect" id="node10" href="$FS_8h.html" title="FS.h" alt="" coords="570,155,621,181"/>
-<area shape="rect" id="node11" href="$GeneralEngineCPP_8h_source.html" title="GeneralEngineCPP.h" alt="" coords="765,229,911,256"/>
+<area shape="rect" id="node5" href="$sprite_8h.html" title="sprite.h" alt="" coords="348,80,413,107"/>
+<area shape="rect" id="node15" href="$camera_8h.html" title="camera.h" alt="" coords="105,80,181,107"/>
+<area shape="rect" id="node10" href="$FS_8h.html" title="FS.h" alt="" coords="315,155,366,181"/>
+<area shape="rect" id="node11" href="$GeneralEngineCPP_8h_source.html" title="GeneralEngineCPP.h" alt="" coords="125,229,271,256"/>
 </map>

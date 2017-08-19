@@ -1,6 +1,8 @@
 /*
  * @file
  * @author Jackson McNeill
+ *
+ * Generic macros and preprocessor definitions (Such as what OS is being compiled for) 
  */
 
 #ifndef __GENERALENGINECPP_INCLUDED
@@ -20,11 +22,19 @@
  */
 #define GE_NoGreaterThan_NULL(number,maxval) if(number>=maxval) { return NULL; }
 
+
 /*!
- * 
- * Macro to return if given value is true. Will return the succeeding text.
+ * Define likely / unlikely macros (like Linux kernel) (pulled: https://kernelnewbies.org/FAQ/LikelyUnlikely). Only insert the given variable if __NO_BUILTIN_EXPECT
  */
-#define GE_ReturnIf(value) if(value) return 
+#ifdef __NO_BUILTIN_EXPECT
+#define likely(x) (x)
+#define unlikely(x) (x)
+#else
+#define likely(x) __builtin_expect(!!(x), 1)
+#define unlikely(x) __builtin_expect(!!(x), 0)
+#endif
+
+
 
 
 #endif // __GENERALENGINECPP_INCLUDED

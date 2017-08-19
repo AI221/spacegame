@@ -1,5 +1,7 @@
 <map id="GE_PhysicsObject" name="GE_PhysicsObject">
-<area shape="rect" id="node3" href="$classBulletType.html" title="BulletType" alt="" coords="25,155,109,181"/>
-<area shape="rect" id="node4" href="$classPlayer.html" title="Player" alt="" coords="133,155,192,181"/>
-<area shape="rect" id="node2" href="$classGE__VIRTUALPHYSICSOBJECT.html" title="GE_VIRTUALPHYSICSOBJECT" alt="" coords="5,5,224,32"/>
+<area shape="rect" id="node3" href="$classBulletType.html" title="BulletType" alt="" coords="5,155,89,181"/>
+<area shape="rect" id="node4" href="$classEnemie.html" title="Enemie" alt="" coords="114,155,181,181"/>
+<area shape="rect" id="node5" href="$classPlayer.html" title="Player" alt="" coords="205,155,263,181"/>
+<area shape="rect" id="node6" href="$classStdBullet.html" title="StdBullet" alt="" coords="287,155,362,181"/>
+<area shape="rect" id="node2" href="$classGE__VIRTUALPHYSICSOBJECT.html" title="GE_VIRTUALPHYSICSOBJECT" alt="" coords="81,5,299,32"/>
 </map>

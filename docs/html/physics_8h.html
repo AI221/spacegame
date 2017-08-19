@@ -77,21 +77,27 @@ $(function() {
 <code>#include &lt;math.h&gt;</code><br />
 <code>#include &lt;unistd.h&gt;</code><br />
 <code>#include &lt;stdio.h&gt;</code><br />
+<code>#include &lt;sys/time.h&gt;</code><br />
 <code>#include &lt;chrono&gt;</code><br />
 <code>#include &lt;thread&gt;</code><br />
-<code>#include &lt;sys/time.h&gt;</code><br />
 <code>#include &lt;iostream&gt;</code><br />
 <code>#include &lt;functional&gt;</code><br />
 <code>#include &quot;<a class="el" href="vector2_8h_source.html">vector2.h</a>&quot;</code><br />
 <code>#include &quot;GeneralEngineCPP.h&quot;</code><br />
-<code>#include &lt;SDL2/SDL.h&gt;</code><br />
+<code>#include &quot;SDL.h&quot;</code><br />
+<code>#include &quot;<a class="el" href="camera_8h_source.html">camera.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="renderedObject_8h_source.html">renderedObject.h</a>&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for physics.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="physics_8h__incl.png" border="0" usemap="#src_2physics_8h" alt=""/></div>
 <map name="src_2physics_8h" id="src_2physics_8h">
-<area shape="rect" id="node11" href="vector2_8h.html" title="vector2.h" alt="" coords="809,80,885,107"/>
-<area shape="rect" id="node12" href="GeneralEngineCPP_8h_source.html" title="GeneralEngineCPP.h" alt="" coords="910,80,1057,107"/>
+<area shape="rect" id="node11" href="vector2_8h.html" title="vector2.h" alt="" coords="681,229,757,256"/>
+<area shape="rect" id="node12" href="GeneralEngineCPP_8h_source.html" title="GeneralEngineCPP.h" alt="" coords="1207,304,1354,331"/>
+<area shape="rect" id="node14" href="camera_8h.html" title="camera.h" alt="" coords="673,155,749,181"/>
+<area shape="rect" id="node15" href="renderedObject_8h.html" title="renderedObject.h" alt="" coords="745,80,866,107"/>
+<area shape="rect" id="node16" href="sprite_8h.html" title="sprite.h" alt="" coords="942,155,1008,181"/>
+<area shape="rect" id="node20" href="FS_8h.html" title="FS.h" alt="" coords="1008,229,1059,256"/>
 </map>
 </div>
 </div><div class="textblock"><div class="dynheader">
@@ -99,7 +105,7 @@ This graph shows which files directly or indirectly include this file:</div>
 <div class="dyncontent">
 <div class="center"><img src="physics_8h__dep__incl.png" border="0" usemap="#src_2physics_8hdep" alt=""/></div>
 <map name="src_2physics_8hdep" id="src_2physics_8hdep">
-<area shape="rect" id="node2" href="classes_8h_source.html" title="src/classes.h" alt="" coords="5,155,105,181"/>
+<area shape="rect" id="node2" href="classes_8h.html" title="src/classes.h" alt="" coords="5,155,105,181"/>
 <area shape="rect" id="node3" href="gluePhysicsObject_8h.html" title="src/gluePhysicsObject.h" alt="" coords="64,80,228,107"/>
 <area shape="rect" id="node4" href="engine_8h.html" title="src/engine.h" alt="" coords="189,155,282,181"/>
 </map>
@@ -116,6 +122,9 @@ Data Structures</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
 Macros</h2></td></tr>
+<tr class="memitem:a2ad0916fd3f15774e97e2472f0f1ba14"><td class="memItemLeft" align="right" valign="top"><a id="a2ad0916fd3f15774e97e2472f0f1ba14"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>physics_debug</b></td></tr>
+<tr class="separator:a2ad0916fd3f15774e97e2472f0f1ba14"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad7153eaa37702a1a5a282355178a90dc"><td class="memItemLeft" align="right" valign="top"><a id="ad7153eaa37702a1a5a282355178a90dc"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>__PHYSICS_INCLUDED</b></td></tr>
 <tr class="separator:ad7153eaa37702a1a5a282355178a90dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -134,6 +143,9 @@ Macros</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:a5b812fc77467126f4c033f29e49aa62e"><td class="memItemLeft" align="right" valign="top"><a id="a5b812fc77467126f4c033f29e49aa62e"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>GE_DEBUG_PassRendererToPhysicsEngine</b> (SDL_Renderer *yourRenderer, <a class="el" href="structCamera.html">Camera</a> *yourCamera)</td></tr>
+<tr class="separator:a5b812fc77467126f4c033f29e49aa62e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa6c202507137f1a9dc4a09ad44fe4cec"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="physics_8h.html#aa6c202507137f1a9dc4a09ad44fe4cec">GE_PhysicsInit</a> ()</td></tr>
 <tr class="separator:aa6c202507137f1a9dc4a09ad44fe4cec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a16aa19add3a57b7949adf9a9d36b14c5"><td class="memItemLeft" align="right" valign="top"><a id="a16aa19add3a57b7949adf9a9d36b14c5"></a>
@@ -155,14 +167,14 @@ Functions</h2></td></tr>
 <tr class="separator:a51e9fd702efa85ae68e32372bbb94e36"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acfa95ebea7c69275dfc15d37b4c2976f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="physics_8h.html#acfa95ebea7c69275dfc15d37b4c2976f">GE_TickPhysics</a> ()</td></tr>
 <tr class="separator:acfa95ebea7c69275dfc15d37b4c2976f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6e7e57cac70a5a0a6c5ab160170bd07a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="physics_8h.html#a6e7e57cac70a5a0a6c5ab160170bd07a">GE_TickPhysics_ForObject</a> (<a class="el" href="classGE__PhysicsObject.html">GE_PhysicsObject</a> *cObj, int ID)</td></tr>
-<tr class="separator:a6e7e57cac70a5a0a6c5ab160170bd07a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a79fc3917526dd9c2ce977a090473ae69"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="physics_8h.html#a79fc3917526dd9c2ce977a090473ae69">GE_CollisionFullCheck</a> (<a class="el" href="classGE__PhysicsObject.html">GE_PhysicsObject</a> *cObj, <a class="el" href="classGE__PhysicsObject.html">GE_PhysicsObject</a> *victimObj)</td></tr>
-<tr class="separator:a79fc3917526dd9c2ce977a090473ae69"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad2b6581e0d46a8768f52ef873ed68941"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="physics_8h.html#ad2b6581e0d46a8768f52ef873ed68941">GE_TickPhysics_ForObject</a> (<a class="el" href="classGE__PhysicsObject.html">GE_PhysicsObject</a> *cObj, int ID)</td></tr>
+<tr class="separator:ad2b6581e0d46a8768f52ef873ed68941"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a43fe57af481ec8e3b4f4b1b488560479"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="physics_8h.html#a43fe57af481ec8e3b4f4b1b488560479">GE_CollisionFullCheck</a> (<a class="el" href="classGE__PhysicsObject.html">GE_PhysicsObject</a> *cObj, <a class="el" href="classGE__PhysicsObject.html">GE_PhysicsObject</a> *victimObj)</td></tr>
+<tr class="separator:a43fe57af481ec8e3b4f4b1b488560479"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad68f2e1844b9585b8913d8dc52f8e70f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="physics_8h.html#ad68f2e1844b9585b8913d8dc52f8e70f">GE_FreePhysicsObject</a> (<a class="el" href="classGE__PhysicsObject.html">GE_PhysicsObject</a> *physicsObject)</td></tr>
 <tr class="separator:ad68f2e1844b9585b8913d8dc52f8e70f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a088468caa794ea9efb6b4c48c403bd13"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="physics_8h.html#a088468caa794ea9efb6b4c48c403bd13">GE_RectangleToPoints</a> (<a class="el" href="structGE__Rectangle.html">GE_Rectangle</a> rect, <a class="el" href="structVector2.html">Vector2</a> *points, <a class="el" href="structVector2r.html">Vector2r</a> hostPosition)</td></tr>
-<tr class="separator:a088468caa794ea9efb6b4c48c403bd13"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abda1c1a4151669a481d2eb43619f3270"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="physics_8h.html#abda1c1a4151669a481d2eb43619f3270">GE_RectangleToPoints</a> (<a class="el" href="structGE__Rectangle.html">GE_Rectangle</a> rect, <a class="el" href="structGE__Rectangle.html">GE_Rectangle</a> grid, <a class="el" href="structVector2.html">Vector2</a> *points, <a class="el" href="structVector2r.html">Vector2r</a> hostPosition)</td></tr>
+<tr class="separator:abda1c1a4151669a481d2eb43619f3270"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Variables</h2></td></tr>
@@ -199,6 +211,9 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>numPhysicsTickPreCallb
 <tr class="memitem:a99d9e4c65dacf0cb956210644763fc6b"><td class="memItemLeft" align="right" valign="top"><a id="a99d9e4c65dacf0cb956210644763fc6b"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>deadPhysicsObjects</b> [MAX_PHYSICS_OBJECTS]</td></tr>
 <tr class="separator:a99d9e4c65dacf0cb956210644763fc6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a475099d82205b290424a241979039aa9"><td class="memItemLeft" align="right" valign="top"><a id="a475099d82205b290424a241979039aa9"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>ticknum</b></td></tr>
+<tr class="separator:a475099d82205b290424a241979039aa9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5f0b05e135216d95e3e51ac874c71f17"><td class="memItemLeft" align="right" valign="top"><a id="a5f0b05e135216d95e3e51ac874c71f17"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>sGrid</b> [2000][2000]</td></tr>
 <tr class="separator:a5f0b05e135216d95e3e51ac874c71f17"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -372,14 +387,14 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>sGrid</b> [2000][2000]
 
 </div>
 </div>
-<a id="a79fc3917526dd9c2ce977a090473ae69"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a79fc3917526dd9c2ce977a090473ae69">&#9670;&nbsp;</a></span>GE_CollisionFullCheck()</h2>
+<a id="a43fe57af481ec8e3b4f4b1b488560479"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a43fe57af481ec8e3b4f4b1b488560479">&#9670;&nbsp;</a></span>GE_CollisionFullCheck()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void GE_CollisionFullCheck </td>
+          <td class="memname">bool GE_CollisionFullCheck </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classGE__PhysicsObject.html">GE_PhysicsObject</a> *&#160;</td>
           <td class="paramname"><em>cObj</em>, </td>
@@ -499,8 +514,8 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>sGrid</b> [2000][2000]
 
 </div>
 </div>
-<a id="a088468caa794ea9efb6b4c48c403bd13"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a088468caa794ea9efb6b4c48c403bd13">&#9670;&nbsp;</a></span>GE_RectangleToPoints()</h2>
+<a id="abda1c1a4151669a481d2eb43619f3270"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abda1c1a4151669a481d2eb43619f3270">&#9670;&nbsp;</a></span>GE_RectangleToPoints()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -510,6 +525,12 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>sGrid</b> [2000][2000]
           <td>(</td>
           <td class="paramtype"><a class="el" href="structGE__Rectangle.html">GE_Rectangle</a>&#160;</td>
           <td class="paramname"><em>rect</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structGE__Rectangle.html">GE_Rectangle</a>&#160;</td>
+          <td class="paramname"><em>grid</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -559,14 +580,14 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>sGrid</b> [2000][2000]
 
 </div>
 </div>
-<a id="a6e7e57cac70a5a0a6c5ab160170bd07a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6e7e57cac70a5a0a6c5ab160170bd07a">&#9670;&nbsp;</a></span>GE_TickPhysics_ForObject()</h2>
+<a id="ad2b6581e0d46a8768f52ef873ed68941"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad2b6581e0d46a8768f52ef873ed68941">&#9670;&nbsp;</a></span>GE_TickPhysics_ForObject()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void GE_TickPhysics_ForObject </td>
+          <td class="memname">bool GE_TickPhysics_ForObject </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classGE__PhysicsObject.html">GE_PhysicsObject</a> *&#160;</td>
           <td class="paramname"><em>cObj</em>, </td>

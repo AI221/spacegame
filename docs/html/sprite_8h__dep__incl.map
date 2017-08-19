@@ -1,6 +1,7 @@
 <map id="src/sprite.h" name="src/sprite.h">
-<area shape="rect" id="node2" href="$renderedObject_8h.html" title="src/renderedObject.h" alt="" coords="45,80,188,107"/>
-<area shape="rect" id="node5" href="$engine_8h.html" title="src/engine.h" alt="" coords="159,229,253,256"/>
-<area shape="rect" id="node3" href="$classes_8h_source.html" title="src/classes.h" alt="" coords="5,229,105,256"/>
-<area shape="rect" id="node4" href="$gluePhysicsObject_8h.html" title="src/gluePhysicsObject.h" alt="" coords="35,155,199,181"/>
+<area shape="rect" id="node2" href="$renderedObject_8h.html" title="src/renderedObject.h" alt="" coords="88,80,231,107"/>
+<area shape="rect" id="node6" href="$engine_8h.html" title="src/engine.h" alt="" coords="227,304,321,331"/>
+<area shape="rect" id="node3" href="$physics_8h.html" title="src/physics.h" alt="" coords="157,155,257,181"/>
+<area shape="rect" id="node4" href="$classes_8h.html" title="src/classes.h" alt="" coords="53,304,153,331"/>
+<area shape="rect" id="node5" href="$gluePhysicsObject_8h.html" title="src/gluePhysicsObject.h" alt="" coords="21,229,185,256"/>
 </map>

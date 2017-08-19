@@ -66,31 +66,25 @@ $(function() {
 <div class="title">Subsystem Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
-
-<p><code>#include &lt;<a class="el" href="classes_8h_source.html">classes.h</a>&gt;</code></p>
-<div class="dynheader">
-Inheritance diagram for Subsystem:</div>
-<div class="dyncontent">
-<div class="center"><img src="classSubsystem__inherit__graph.png" border="0" usemap="#Subsystem_inherit__map" alt="Inheritance graph"/></div>
-<map name="Subsystem_inherit__map" id="Subsystem_inherit__map">
-<area shape="rect" id="node2" href="classSubLifeSupport.html" title="SubLifeSupport" alt="" coords="5,80,116,107"/>
-<area shape="rect" id="node3" href="classSubThrusterForwardBack.html" title="SubThrusterForwardBack" alt="" coords="141,80,311,107"/>
-</map>
-<center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ad05071dca0c75b3f958309bac970c595"><td class="memItemLeft" align="right" valign="top"><a id="ad05071dca0c75b3f958309bac970c595"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Blit</b> (<a class="el" href="structVector2r.html">Vector2r</a> parrentPosition)</td></tr>
-<tr class="separator:ad05071dca0c75b3f958309bac970c595"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3a73e29c4296a07a7ad80f5beb42f364"><td class="memItemLeft" align="right" valign="top"><a id="a3a73e29c4296a07a7ad80f5beb42f364"></a>
-virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>getIsOnline</b> ()</td></tr>
-<tr class="separator:a3a73e29c4296a07a7ad80f5beb42f364"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a58a746f32a0443214a3117599afa02a4"><td class="memItemLeft" align="right" valign="top"><a id="a58a746f32a0443214a3117599afa02a4"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Subsystem</b> (SDL_Renderer *renderer, std::string sprite, <a class="el" href="structVector2.html">Vector2</a> size, <a class="el" href="structGE__Rectangle.html">GE_Rectangle</a> animation, <a class="el" href="structVector2r.html">Vector2r</a> relativePosition, int collisionRectangle)</td></tr>
+<tr class="separator:a58a746f32a0443214a3117599afa02a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afa344a2230334b1d315d7fcbb1706c42"><td class="memItemLeft" align="right" valign="top"><a id="afa344a2230334b1d315d7fcbb1706c42"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>CheckCollision</b> (int collisionRectangle)</td></tr>
+<tr class="separator:afa344a2230334b1d315d7fcbb1706c42"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a92103514247959288cacf2c7a35f6b5c"><td class="memItemLeft" align="right" valign="top"><a id="a92103514247959288cacf2c7a35f6b5c"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Update</b> (<a class="el" href="structVector2r.html">Vector2r</a> parrentPosition)</td></tr>
+<tr class="separator:a92103514247959288cacf2c7a35f6b5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6360a092374debe927d4ebea3b47229e"><td class="memItemLeft" align="right" valign="top"><a id="a6360a092374debe927d4ebea3b47229e"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>GetIsOnline</b> ()</td></tr>
+<tr class="separator:a6360a092374debe927d4ebea3b47229e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Game-specific classes (not part of the core engine) Also holds other things specific to this game. </p>
-</div><hr/>The documentation for this class was generated from the following file:<ul>
+<hr/>The documentation for this class was generated from the following files:<ul>
 <li>src/<a class="el" href="classes_8h_source.html">classes.h</a></li>
+<li>src/classes.cpp</li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

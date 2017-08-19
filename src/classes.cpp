@@ -7,6 +7,7 @@ Player* targetPlayer;
 
 Subsystem::Subsystem(SDL_Renderer* renderer, std::string sprite, Vector2 size, GE_Rectangle animation, Vector2r relativePosition, int collisionRectangle)
 {
+	printf("stt\n");
 	this->renderer = renderer;
 	renderObject = GE_CreateRenderedObject(renderer,SPRITE_DIR+sprite); //TODO
 	printf("Size: %f\n ",size.x);
@@ -18,6 +19,12 @@ Subsystem::Subsystem(SDL_Renderer* renderer, std::string sprite, Vector2 size, G
 	this->relativePosition = relativePosition;
 
 	this->collisionRectangle = collisionRectangle;
+	
+	this->isOnline = true;
+
+	this->level = 0; //TODO
+
+	printf("a\n");
 }
 void Subsystem::CheckCollision(int collisionRectangle)
 {
@@ -122,7 +129,11 @@ Player::Player(SDL_Renderer* renderer) : GE_PhysicsObject({100,0,0},{0,0,0},{0,0
 
 	callCallbackAfterCollisionFunction = true;
 
+
+	numIterableSubsystems = 0;
+
 	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerThruster.png",sizePlusDoubleSize(5,51),positionDouble(9,0),0);
+	printf("??\n");
 	bump();
 	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerCoreReactor.png",sizePlusDoubleSize(21,26),positionDouble(14,13),1);
 	bump();
@@ -358,7 +369,7 @@ bool Enemie::C_Update()
 		if (ticknum % 60 == 0 )
 		{
 			//spawn bullet
-			ShootBullet(renderer,this,{0,-1,0},{0,-40,0});
+			//ShootBullet(renderer,this,{0,-1,0},{0,-40,0});
 		}
 	}
 	
@@ -369,6 +380,8 @@ bool Enemie::C_Update()
 }
 bool Enemie::C_Collision(int victimID, int collisionRectangleID)
 {
+	printf("enemy coll\n");
+	//SDL_Delay(1600);
 	//get physics object
 	GE_PhysicsObject* victim;
 	GE_GetPhysicsObjectFromID(victimID, &victim);

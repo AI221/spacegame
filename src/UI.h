@@ -1,10 +1,14 @@
-#include "vector2.h"
 #include "SDL.h"
 #include "SDL_ttf.h"
 #include <math.h>
 #include <iostream>
 #include <string>
 #include <functional>
+#include <cstring>
+
+//Local includes
+
+#include "vector2.h"
 
 #ifndef __UI_INCLUDED
 #define __UI_INCLUDED
