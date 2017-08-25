@@ -33,7 +33,7 @@ enum TYPES
 class Subsystem
 {
 	public:
-		Subsystem(SDL_Renderer* renderer, std::string sprite, Vector2 size, GE_Rectangle animation, Vector2r relativePosition, int collisionRectangle);
+		Subsystem(SDL_Renderer* renderer, std::string sprite, Vector2 size, GE_Rectangle animation, Vector2r relativePosition, int collisionRectangle, GE_Rectangle* parrentGrid);
 		void CheckCollision(int collisionRectangle);
 		void Update(Vector2r parrentPosition);
 		bool GetIsOnline();
@@ -44,6 +44,7 @@ class Subsystem
 		bool isOnline;
 		int collisionRectangle;
 		int level; //posibilites...
+		GE_Rectangle* parrentGrid;
 
 };
 

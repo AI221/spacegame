@@ -41,6 +41,7 @@ struct GE_GlueTarget
 extern GE_GlueTarget targets[MAX_GLUE_TARGETS];
 extern Vector2r positionBuffer[MAX_GLUE_TARGETS];
 extern Vector2r velocityBuffer[MAX_GLUE_TARGETS];
+extern GE_Rectangle gridbuffer[MAX_GLUE_TARGETS];
 extern int countGlueTargets;
 
 extern pthread_mutex_t GlueMutex;

@@ -50,7 +50,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //Config
 #define SPRITE_DIR "../sprites/"
-#define NO_CAMERA_ROTATE true
+//#define NO_CAMERA_ROTATE true
 
 
 //Definitions
@@ -162,6 +162,7 @@ int main(int argc, char* argv[])
 	Player* player = new Player(myRenderer);
 	camFocusedObj = numFakePhysicsIDs;
 	GE_addGlueSubject(&(camera.pos),camFocusedObj);
+	int focusGlueID = countGlueTargets;
 	
 	/*for (int i=0;i<20;i++)
 	{
@@ -200,6 +201,11 @@ int main(int argc, char* argv[])
 	{
 		//pthread_mutex_lock(&RenderEngineMutex);
 		GE_BlitSprite(Sprites[GE_SpriteNameToID(SPRITE_DIR"color_black.bmp")],{0,0,0},{(double) camera.screenWidth,(double) camera.screenHeight},{0,0,25,25},GE_FLIP_NONE);		//TODO: Something less shitty
+		//find the focus object's size
+		
+		camerasGrid = gridbuffer[focusGlueID];
+
+
 		render();
 		//pthread_mutex_unlock(&RenderEngineMutex);
 		#ifdef physics_debug
@@ -279,6 +285,7 @@ int main(int argc, char* argv[])
 	pthread_mutex_lock(&PhysicsEngineMutex);
 
 	int tmpid = 0;
+	GE_PhysicsObject* tmppo = 0;
 
 	for (int i=0;i<20;i++)
 	{
@@ -296,7 +303,12 @@ int main(int argc, char* argv[])
 		//TODO tem,p
 		tmpid = countGlueTargets;
 
+		tmppo = me; 
+
+
+
 	}
+	GE_addGlueSubject(&(camera.pos),tmppo->ID);
 
 	pthread_mutex_unlock(&PhysicsEngineMutex);
 
@@ -469,7 +481,7 @@ int main(int argc, char* argv[])
 
 
 		
-		pthread_mutex_lock(&RenderEngineMutex);
+		//pthread_mutex_lock(&RenderEngineMutex);
 		
 		GE_BlitSprite(Sprites[GE_SpriteNameToID(SPRITE_DIR"color_black.bmp")],{0,0,0},{(double) camera.screenWidth,(double) camera.screenHeight},{0,0,25,25},GE_FLIP_NONE);		//TODO: Something less shitty
 		render();
@@ -510,7 +522,7 @@ int main(int argc, char* argv[])
 					
 		SDL_RenderPresent(myRenderer);
 
-		pthread_mutex_unlock(&RenderEngineMutex);
+		//pthread_mutex_unlock(&RenderEngineMutex);
 		//SDL_Delay(16);
 		//SDL_Delay(500);
 	}

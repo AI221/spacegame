@@ -31,7 +31,7 @@ GE_RenderedObject* GE_CreateRenderedObject(SDL_Renderer* renderer, std::string s
 }
 void GE_BlitRenderedObject(GE_RenderedObject* subject, Camera* camera)
 {
-	Vector2r position = GE_ApplyCameraOffset(camera,subject->position);
+	Vector2r position = GE_ApplyCameraOffset(camera,subject->position,subject->size);
 	GE_BlitSprite(Sprites[subject->spriteID],position,subject->size,subject->animation,GE_FLIP_NONE); //TODO
 
 }

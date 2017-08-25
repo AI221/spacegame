@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 GE_GlueTarget targets[MAX_GLUE_TARGETS];
 Vector2r positionBuffer[MAX_GLUE_TARGETS];
 Vector2r velocityBuffer[MAX_GLUE_TARGETS];
+GE_Rectangle gridbuffer[MAX_GLUE_TARGETS];
 int countGlueTargets = -1;
 
 pthread_mutex_t GlueMutex;
@@ -74,6 +75,7 @@ void GE_GlueCallback()
 			
 			positionBuffer[i] = cObj->position;
 			velocityBuffer[i] = cObj->velocity;
+			gridbuffer[i] = cObj->grid;
 			//printf("X: %f \n",targets[i].subject->x);
 			
 			//transfer new velocities/positions

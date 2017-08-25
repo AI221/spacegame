@@ -24,7 +24,7 @@
 #include "vector2.h"
 #include "GeneralEngineCPP.h"
 
-#define physics_debug 
+//#define physics_debug 
 
 #include "SDL.h" //TODO temp
 #ifdef physics_debug
@@ -34,6 +34,8 @@
 	void GE_DEBUG_PassRendererToPhysicsEngine(SDL_Renderer* yourRenderer, Camera* yourCamera);
 #endif
 
+extern bool DEBUG_allowPhysicsTick;
+
 #ifndef __PHYSICS_INCLUDED
 #define __PHYSICS_INCLUDED
 
@@ -42,6 +44,10 @@
 #define MAX_COLLISION_RECTANGLES_PER_OBJECT 32 //TODO: test if this is a good limit in practice
 #define MAX_PHYSICS_ENGINE_DONE_CALLBACKS 64
 #define MAX_PHYSICS_ENGINE_PRE_CALLBACKS 64
+
+//RUNTIME CONFIG
+
+extern unsigned int PhysicsDelayUSeconds;
 
 /*!
  * Contains virtual members of GE_PhysicsObject, do not use

@@ -5,11 +5,12 @@
 
 Player* targetPlayer;
 
-Subsystem::Subsystem(SDL_Renderer* renderer, std::string sprite, Vector2 size, GE_Rectangle animation, Vector2r relativePosition, int collisionRectangle)
+Subsystem::Subsystem(SDL_Renderer* renderer, std::string sprite, Vector2 size, GE_Rectangle animation, Vector2r relativePosition, int collisionRectangle, GE_Rectangle* parrentGrid)
 {
 	printf("stt\n");
 	this->renderer = renderer;
 	renderObject = GE_CreateRenderedObject(renderer,SPRITE_DIR+sprite); //TODO
+	renderObject->grid = *parrentGrid;
 	printf("Size: %f\n ",size.x);
 	printf("anim %f\n",animation.w);
 
@@ -24,6 +25,9 @@ Subsystem::Subsystem(SDL_Renderer* renderer, std::string sprite, Vector2 size, G
 
 	this->level = 0; //TODO
 
+	this->parrentGrid = parrentGrid;
+
+
 	printf("a\n");
 }
 void Subsystem::CheckCollision(int collisionRectangle)
@@ -35,27 +39,23 @@ void Subsystem::CheckCollision(int collisionRectangle)
 }
 void Subsystem::Update(Vector2r parrentPosition)
 {
-	//printf("x %f\n",relativePosition.x);
+	
+	double halfrectw = parrentGrid->w/2;
+	double halfrecth = parrentGrid->h/2;
+	printf("x %f\n",(halfrectw));
 	Vector2r rotationMatrix = relativePosition;
 
-	#define __X -51
-	#define __Y -49
-
-	rotationMatrix.x = (rotationMatrix.x+__X)+(renderObject->size.x/2);
-	rotationMatrix.y = (rotationMatrix.y+__Y)+(renderObject->size.y/2);
+	rotationMatrix.x = (rotationMatrix.x-(halfrectw))+(renderObject->size.x/2);
+	rotationMatrix.y = (rotationMatrix.y-(halfrecth))+(renderObject->size.y/2);
 
 
 	GE_Vector2RotationCCW(&rotationMatrix,parrentPosition.r);
 
-	rotationMatrix.x = (rotationMatrix.x-__X)-(renderObject->size.x/2);
-	rotationMatrix.y = (rotationMatrix.y-__Y)-(renderObject->size.y/2);
+	rotationMatrix.x = (rotationMatrix.x+(halfrectw))-(renderObject->size.x/2);
+	rotationMatrix.y = (rotationMatrix.y+(halfrecth))-(renderObject->size.y/2);
 
-	//rotationMatrix.x = rotationMatrix.x+__X;
-	//rotationMatrix.y = rotationMatrix.y+__Y;
-//#define CAMERA_ROTATE
-#ifdef CAMERA_ROTATE
-	rotationMatrix = relativePosition;
-#endif
+	//rotationMatrix.x = rotationMatrix.x+(halfrectw);
+	//rotationMatrix.y = rotationMatrix.y+(halfrecth);
 
 	
 	renderObject->position = {rotationMatrix.x+parrentPosition.x,rotationMatrix.y+parrentPosition.y,parrentPosition.r};
@@ -85,7 +85,7 @@ int handleEvents(SDL_Event* event)
 #define positionDouble(x,y) {x*2,y*2,0}
 //the above inserts TWO PARAMETERS
 
-Player::Player(SDL_Renderer* renderer) : GE_PhysicsObject({100,0,0},{0,0,0},{0,0})
+Player::Player(SDL_Renderer* renderer) : GE_PhysicsObject({100,0,0},{0,0,0},GE_Rectangle{0,0,98,102})
 {
 
 
@@ -94,11 +94,11 @@ Player::Player(SDL_Renderer* renderer) : GE_PhysicsObject({100,0,0},{0,0,0},{0,0
 
 	this->renderer = renderer;
 	renderObject = GE_CreateRenderedObject(renderer,SPRITE_DIR"WholeShipv2.png"); //TODO
-	renderObject->size = {0,0};//{98,102};
+	renderObject->size = {98,102};
 	renderObject->animation = {0,0,49,51};
 
 
-	grid = {0,0,98,102}; 
+	//grid = {0,0,98,102}; 
 
 
 	//If I'd more time I'd make this... uh, better in every way.
@@ -132,24 +132,23 @@ Player::Player(SDL_Renderer* renderer) : GE_PhysicsObject({100,0,0},{0,0,0},{0,0
 
 	numIterableSubsystems = 0;
 
-	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerThruster.png",sizePlusDoubleSize(5,51),positionDouble(9,0),0);
-	printf("??\n");
+	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerThruster.png",sizePlusDoubleSize(5,51),positionDouble(9,0),0,&grid);
 	bump();
-	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerCoreReactor.png",sizePlusDoubleSize(21,26),positionDouble(14,13),1);
+	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerCoreReactor.png",sizePlusDoubleSize(21,26),positionDouble(14,13),1,&grid);
 	bump();
-	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerLShield.png",sizePlusDoubleSize(9,19),positionDouble(0,15),2);
+	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerLShield.png",sizePlusDoubleSize(9,19),positionDouble(0,15),2,&grid);
 	bump();
-	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerRShield.png",sizePlusDoubleSize(9,19),positionDouble(39,15),3);
+	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerRShield.png",sizePlusDoubleSize(9,19),positionDouble(39,15),3,&grid);
 	bump();
-	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerThruster.png",sizePlusDoubleSize(5,51),positionDouble(35,0),4);
+	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerThruster.png",sizePlusDoubleSize(5,51),positionDouble(35,0),4,&grid);
 	bump();
-	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerLifeSupport.png",sizePlusDoubleSize(21,14),positionDouble(14,35),5);
+	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerLifeSupport.png",sizePlusDoubleSize(21,14),positionDouble(14,35),5,&grid);
 	bump();
-	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerShipHead.png",sizePlusDoubleSize(21,11),positionDouble(14,2),6);  //~~
+	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerShipHead.png",sizePlusDoubleSize(21,11),positionDouble(14,2),6,&grid);  //~~
 	bump();
-	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerLSmallTurret.png",sizePlusDoubleSize(4,9),positionDouble(5,21),7); 
+	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerLSmallTurret.png",sizePlusDoubleSize(4,9),positionDouble(5,21),7,&grid); 
 	bump();
-	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerRSmallTurret.png",sizePlusDoubleSize(4,9),positionDouble(40,21),8);
+	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerRSmallTurret.png",sizePlusDoubleSize(4,9),positionDouble(40,21),8,&grid);
 	bump();
 
 
@@ -159,6 +158,7 @@ Player::Player(SDL_Renderer* renderer) : GE_PhysicsObject({100,0,0},{0,0,0},{0,0
 
 	targetPlayer = this;
 
+
 }
 //double fwdMove;
 //#define unrealisticMove true
@@ -167,15 +167,20 @@ Player::Player(SDL_Renderer* renderer) : GE_PhysicsObject({100,0,0},{0,0,0},{0,0
 
 void ShootBullet(SDL_Renderer* renderer, GE_PhysicsObject* host, Vector2r addToVelocity, Vector2r addToPosition)
 {
-	
+	addToPosition.x = addToPosition.x - host->grid.w/2;
+	addToPosition.y = addToPosition.y - host->grid.h/2;
 
 	GE_Vector2RotationCCW(&addToPosition,host->position.r);
 	GE_Vector2RotationCCW(&addToVelocity,host->position.r);
+
+	addToPosition.x = addToPosition.x + host->grid.w/2;
+	addToPosition.y = addToPosition.y + host->grid.h/2;
+
 	StdBullet* mybullet = new StdBullet(renderer,host->position+addToPosition);
 	GE_PhysicsObject* mybulletpo;
 	GE_GetPhysicsObjectFromID(mybullet->ID,&mybulletpo);
 
-	GE_AddVelocity(mybullet,addToVelocity);
+	GE_AddVelocity(mybullet,addToVelocity+host->velocity);
 }
 
 
@@ -313,7 +318,7 @@ bool Player::C_Collision(int victimID, int collisionRectangleID)
 
 
 
-Enemie::Enemie(SDL_Renderer* renderer, Vector2r position, int level) : GE_PhysicsObject(position,{0,0,0},{38,42})
+Enemie::Enemie(SDL_Renderer* renderer, Vector2r position, int level) : GE_PhysicsObject(position,{0,0,0},GE_Rectangle{0,0,38,42})
 {
 	this->renderer = renderer;
 
@@ -407,7 +412,7 @@ BulletType::~BulletType()
 {
 }
 
-StdBullet::StdBullet(SDL_Renderer* renderer, Vector2r position) : GE_PhysicsObject(position,{0,0,0},{2,10})
+StdBullet::StdBullet(SDL_Renderer* renderer, Vector2r position) : GE_PhysicsObject(position,{0,0,0},GE_Rectangle{0,0,2,10})
 {
 	type = TYPE_DESTROYSUB;
 	renderObject = GE_CreateRenderedObject(renderer,SPRITE_DIR"stdBulletPlayer.png"); 

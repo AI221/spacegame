@@ -16,7 +16,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "physics.h"
 
+#ifdef physics_debug
 
+	bool DEBUG_allowPhysicsTick = true;
+
+	bool DEBUG_isCObj = false;
+
+#endif
+
+
+//Config defaults 
+
+unsigned int PhysicsDelayUSeconds = 16667;
 
 
 pthread_t PhysicsEngineThread;
@@ -167,12 +178,15 @@ void* GE_physicsThreadMain(void *)
 	struct timeval pt,nt;
 	while(true)
 	{
+
+#ifdef physics_debug
+		if (DEBUG_allowPhysicsTick) //For freezing the physics engine
+		{
+#endif
+		
 		gettimeofday(&pt, NULL);
-		//printf("next time to run %ld\n",nextTimeToRun);
 		
 		pthread_mutex_lock(&PhysicsEngineMutex);	
-		//printf("Lock physen\n");
-		
 		for (int i=0;i<numPhysicsTickPreCallbacks+1;i++)
 		{
 			C_PhysicsTickPreCallbacks[i]();
@@ -183,11 +197,18 @@ void* GE_physicsThreadMain(void *)
 			C_PhysicsTickDoneCallbacks[i]();
 		}
 		pthread_mutex_unlock(&PhysicsEngineMutex);
+
 		//wait the rest of the 16.6ms
 		gettimeofday(&nt, NULL);
 
-		//printf("usleep%ld\n",16666-(nt.tv_usec-pt.tv_usec));
-		usleep(fmax(16667-(nt.tv_usec-pt.tv_usec),0));
+		usleep(fmax(PhysicsDelayUSeconds-(nt.tv_usec-pt.tv_usec),0));
+
+
+#ifdef physics_debug
+		}
+		SDL_Delay(1); //prevent from taking up a whole core, sdl is available to physics engine in debug mode
+#endif
+
 		
 
 	}
@@ -254,12 +275,18 @@ bool GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj)
 		//iterate through each of our rectangles...
 
 		Vector2 myPoints[4] = {};
+#ifdef physics_debug
+		DEBUG_isCObj = true;
+#endif
 		GE_RectangleToPoints(cObj->collisionRectangles[a],cObj->grid,myPoints,cObj->position);
 
 		for (int b=0; b < victimObj->numCollisionRectangles;b++)
 		{
 
 			Vector2 theirPoints[4] = {};
+#ifdef physics_debug
+			DEBUG_isCObj = false;
+#endif
 			GE_RectangleToPoints(victimObj->collisionRectangles[b],victimObj->grid,theirPoints,victimObj->position);
 			
 
@@ -392,7 +419,9 @@ void GE_RectangleToPoints(GE_Rectangle rect, GE_Rectangle grid, Vector2* points,
 
 			pthread_mutex_lock(&RenderEngineMutex);
 			//note that the physics debugRender does NOT include rotation of the screen, and probably never will. it is good enough for its purpose.
-			SDL_SetRenderDrawColor( debugRenderer, 0xFF, 0xFF, 0x00, 0xFF ); 
+			SDL_SetRenderDrawColor( debugRenderer, 0xFF, 0x00, 0x00, 0xFF ); 
+			if (DEBUG_isCObj)
+				SDL_SetRenderDrawColor( debugRenderer, 0xFF, 0xFF, 0x00, 0xFF ); 
 
 			SDL_Rect debugRect;
 
