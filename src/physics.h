@@ -50,23 +50,13 @@ extern bool DEBUG_allowPhysicsTick;
 extern unsigned int PhysicsDelayUSeconds;
 
 /*!
- * Contains virtual members of GE_PhysicsObject, do not use
- */
-class GE_VIRTUALPHYSICSOBJECT
-{
-
-	public:
-		virtual bool C_Update() = 0;
-		virtual bool C_Collision(int victimID, int collisionRectangleID) = 0;
-};
-
-/*!
  * The basic Physics object structure. It's recommended that your game objects inhereit from this, though you can do non-OO design alternatively using glueObject's buffering.
  */
-class GE_PhysicsObject : public GE_VIRTUALPHYSICSOBJECT
+class GE_PhysicsObject
 {
 	public:
 		GE_PhysicsObject(Vector2r position, Vector2r velocity, GE_Rectangle grid);
+		virtual ~GE_PhysicsObject();
 
 
 
@@ -88,7 +78,7 @@ class GE_PhysicsObject : public GE_VIRTUALPHYSICSOBJECT
 		 * @param collisionRectangleID The ID of YOUR collision rectangle that was collided with 
 		 * @return True if you want YOUR physics object to be deleted.
 		 */
-		bool C_Collision(int victimID, int collisionRectangleID);
+		virtual bool C_Collision(int victimID, int collisionRectangleID);
 
 		/*!
 		 * Weather or not to call the update callback
@@ -98,7 +88,7 @@ class GE_PhysicsObject : public GE_VIRTUALPHYSICSOBJECT
 		/*!
 		 * Called during a physics tick, after position updates & collision calculations
 		 */
-		bool C_Update();
+		virtual bool C_Update();
 
 		/*!
 		 * Game-specific. Intended for specifying what type this object is. Default is 0. I'd recommend to use an enum with this.

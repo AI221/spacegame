@@ -42,7 +42,7 @@ void Subsystem::Update(Vector2r parrentPosition)
 	
 	double halfrectw = parrentGrid->w/2;
 	double halfrecth = parrentGrid->h/2;
-	printf("x %f\n",(halfrectw));
+	//printf("x %f\n",(halfrectw));
 	Vector2r rotationMatrix = relativePosition;
 
 	rotationMatrix.x = (rotationMatrix.x-(halfrectw))+(renderObject->size.x/2);

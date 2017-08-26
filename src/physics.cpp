@@ -89,6 +89,10 @@ bool GE_PhysicsObject::C_Collision(int victimID, int collisionRectangleID)
 {
 	return false;
 }
+GE_PhysicsObject::~GE_PhysicsObject()
+{
+	printf("NORMAL REMOVAL FUNCTION\n");
+}
 
 
 

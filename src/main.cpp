@@ -86,9 +86,9 @@ int camFocusedObj = 1;
 
 void render()
 {
-	printf("~Trying lock render\n");
+	//printf("~Trying lock render\n");
 	pthread_mutex_lock(&RenderEngineMutex);
-	printf("~Lock render\n");
+	//printf("~Lock render\n");
 	
 
 	GE_GlueRenderCallback(); //update all positions from the buffer
@@ -103,6 +103,10 @@ void render()
 		if (!deadRenderedObjects[i])
 		{
 			GE_BlitRenderedObject(renderedObjects[i],&camera);
+		}
+		else
+		{
+			printf("encounter dead render object\n");
 		}
 	}
 	pthread_mutex_unlock(&RenderEngineMutex);
