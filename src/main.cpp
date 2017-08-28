@@ -86,6 +86,7 @@ int camFocusedObj = 1;
 
 void render()
 {
+	printf("%d (differentiation) render\n",rand());
 	//printf("~Trying lock render\n");
 	pthread_mutex_lock(&RenderEngineMutex);
 	//printf("~Lock render\n");
@@ -489,11 +490,16 @@ int main(int argc, char* argv[])
 		
 		GE_BlitSprite(Sprites[GE_SpriteNameToID(SPRITE_DIR"color_black.bmp")],{0,0,0},{(double) camera.screenWidth,(double) camera.screenHeight},{0,0,25,25},GE_FLIP_NONE);		//TODO: Something less shitty
 		render();
-		#ifdef physics_debug 
-			printf("tick physics\n");
-			pthread_mutex_unlock(&RenderEngineMutex);
-			GE_TickPhysics();
-			pthread_mutex_lock(&RenderEngineMutex);
+		#ifdef physics_debug
+		for (int i=0;i<numPhysicsTickPreCallbacks+1;i++)
+		{
+			C_PhysicsTickPreCallbacks[i]();
+		}
+		GE_TickPhysics();
+		for (int i=0;i<numPhysicsTickDoneCallbacks+1;i++)
+		{
+			C_PhysicsTickDoneCallbacks[i]();
+		}
 		#endif
 		
 		#ifdef debug
@@ -523,6 +529,7 @@ int main(int argc, char* argv[])
 		#endif
 
 		myTextIn->render();
+
 					
 		SDL_RenderPresent(myRenderer);
 

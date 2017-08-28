@@ -93,9 +93,9 @@ Player::Player(SDL_Renderer* renderer) : GE_PhysicsObject({100,0,0},{0,0,0},GE_R
 	srand(time(NULL));
 
 	this->renderer = renderer;
-	renderObject = GE_CreateRenderedObject(renderer,SPRITE_DIR"WholeShipv2.png"); //TODO
+	/*renderObject = GE_CreateRenderedObject(renderer,SPRITE_DIR"WholeShipv2.png"); //TODO
 	renderObject->size = {98,102};
-	renderObject->animation = {0,0,49,51};
+	renderObject->animation = {0,0,49,51};*/
 
 
 	//grid = {0,0,98,102}; 
@@ -194,7 +194,7 @@ bool Player::C_Update()
 		iterableSubsystems[i]->Update(position);
 	}
 	//TODO temp
-	renderObject->position = this->position;
+	//renderObject->position = this->position;
 
 
 	//handle events
@@ -217,6 +217,20 @@ bool Player::C_Update()
 			{
 				printf(" kjfaskl jasdklfj sdkla;fjasdkl;ifjalsjk;\n");
 				Enemie* un = new Enemie(renderer, {position.x+100,position.y+100,0},1);
+			}
+			if (event.key.keysym.sym == SDLK_u)
+			{
+
+				GE_RenderedObject* ro = GE_CreateRenderedObject(this->renderer,SPRITE_DIR"simple.bmp");	
+				ro->size = {25,25};
+				ro->animation = {0,0,8,9};
+				
+
+				GE_PhysicsObject* me = GE_CreatePhysicsObject({this->position.x+50,this->position.y+150,0},{0,0,0},{25,25});
+				me->collisionRectangles[me->numCollisionRectangles] = {0,0,25,25};
+				me->numCollisionRectangles++;
+				GE_addGlueSubject(&(ro->position),me->ID);
+
 			}
 
 		}

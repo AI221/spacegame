@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //Config defaults 
 
-unsigned int PhysicsDelayUSeconds = 16667;
+unsigned int PhysicsDelaySeconds = 0.16667;
 
 
 pthread_t PhysicsEngineThread;
@@ -175,11 +175,18 @@ void GE_AddRelativeVelocity(GE_PhysicsObject* physicsObject, Vector2r moreVeloci
 	physicsObject->velocity.addRelativeVelocity({moreVelocity.x,moreVelocity.y,physicsObject->position.r}); //TODO: De-OOify
 }
 
+long long GE_GetUNIXTime()
+{
+	struct timeval tv;
+	gettimeofday(&tv,NULL);
+	return tv.tv_sec;//+(tv.tv_usec/10e6); //Add the microseconds divded by 10e6 to end up with seconds.microseconds
+}
+
 
  
 void* GE_physicsThreadMain(void *)
 {
-	struct timeval pt,nt;
+	float startTime, finishTime;
 	while(true)
 	{
 
@@ -188,8 +195,11 @@ void* GE_physicsThreadMain(void *)
 		{
 #endif
 		
-		gettimeofday(&pt, NULL);
+		startTime = GE_GetUNIXTime();
+		printf("%ll\n",GE_GetUNIXTime());
+		SDL_Delay(1000);
 		
+		printf("Try lock physics engine\n");
 		pthread_mutex_lock(&PhysicsEngineMutex);	
 		for (int i=0;i<numPhysicsTickPreCallbacks+1;i++)
 		{
@@ -203,10 +213,15 @@ void* GE_physicsThreadMain(void *)
 		pthread_mutex_unlock(&PhysicsEngineMutex);
 
 		//wait the rest of the 16.6ms
-		gettimeofday(&nt, NULL);
+		/*printf("time them %f time now %f\n",(float)pt.tv_usec,(float) nt.tv_usec);
+		printf("tick took %f\n",(float)(nt.tv_usec-pt.tv_usec));
+		printf("Unlock physics engine sleep for %f\n",fmax(PhysicsDelaySeconds-(nt.tv_usec-pt.tv_usec),0));*/
+		finishTime = GE_GetUNIXTime();
 
-		usleep(fmax(PhysicsDelayUSeconds-(nt.tv_usec-pt.tv_usec),0));
-
+	/*	printf("st%f\n",startTime);
+		printf("deltat %f",(finishTime-startTime));
+		usleep(fmax((PhysicsDelaySeconds-(finishTime-startTime))/10e6,0)); //delay the physics engine thread to get a perfect 16.67ms/tick
+	*/
 
 #ifdef physics_debug
 		}
@@ -222,6 +237,7 @@ void* GE_physicsThreadMain(void *)
 int numCollisionsTemp = 0;
 void GE_TickPhysics()
 {
+	printf("! !physics %d (differentiation)\n",rand());
 	ticknum++;
 	for (int i=0;i < (numPhysicsObjects+1); i++)
 	{
@@ -239,21 +255,23 @@ void GE_TickPhysics()
 		//printf("x %d y %d\n",physicsObjects[i]->position.x,physicsObjects[i]->position.y);
 	}
 }
-//TODO: Factor in the fakeID, move the sGrid-removal to a seperate function called upon physicsObject death
-bool GE_TickPhysics_ForObject(GE_PhysicsObject* cObj, int ID)
+
+
+bool GE_TickPhysics_ForObject_Internal(GE_PhysicsObject* cObj, int ID, Vector2r* velocity)
 {
 	//move ourselves forward
 	//first set velocity
 	
-	cObj->position = cObj->position+cObj->velocity;
+	cObj->position = cObj->position+(*velocity);
 
 
 	cObj->grid.x = (int) (cObj->position.x/10);
 	cObj->grid.y = (int) (cObj->position.y/10);
 
+	//Marked for removal, old code related to sGrid system	
 	//Calculate how the shape warps. The shape will stretch as you move faster to avoid clipping
-	cObj->warpedShape.x = ((abs(cObj->velocity.x)/10)+2)*(cObj->grid.w/10);
-	cObj->warpedShape.y = ((abs(cObj->velocity.y)/10)+2)*(cObj->grid.h/10);
+	//cObj->warpedShape.x = ((abs(cObj->velocity.x)/10)+2)*(cObj->grid.w/10);
+	//cObj->warpedShape.y = ((abs(cObj->velocity.y)/10)+2)*(cObj->grid.h/10);
 
 
 
@@ -272,13 +290,37 @@ bool GE_TickPhysics_ForObject(GE_PhysicsObject* cObj, int ID)
 	cObj->lastGoodPosition = cObj->position;
 	return false;
 }
+bool GE_TickPhysics_ForObject(GE_PhysicsObject* cObj, int ID)
+{
+	//To avoid Clipping/"Bullet through paper" effect, we will slow down the physics simulation for a specific object by an unsigned nonzero integer and then slow down velocity accordingly. The user SHOULD NOT be able to tell any of this is happening. For performance, velocity is passed as a pointer to the internal function.
+	
+	unsigned int miniTickrate = fmax(ceil(  ((abs(cObj->velocity.x)+abs(cObj->velocity.y))/20) ),1); //minimum of 1. //TODO adjust this to good value
+	
+	
+	Vector2r* velocity = new Vector2r{cObj->velocity.x/miniTickrate, cObj->velocity.y/miniTickrate, cObj->velocity.r/miniTickrate};
+
+	//printf("MINITICKRATE: %d\n,",miniTickrate);
+
+
+	for (int i = 0; i <= miniTickrate; i++)
+	{
+		if ( GE_TickPhysics_ForObject_Internal(cObj,ID,velocity)) //TODO: Because of this mini-tick system, objects that collide with a i/miniTickrate value of <1 will have non-up-to-date velocities being added. 
+		{
+			return true;
+		}
+	}
+
+	delete velocity;
+
+}
 bool GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj)
 {
+	Vector2 theirPoints[4] = {};
+	Vector2 myPoints[4] = {};
 	for (int a=0; a < cObj->numCollisionRectangles;a++)
 	{
 		//iterate through each of our rectangles...
 
-		Vector2 myPoints[4] = {};
 #ifdef physics_debug
 		DEBUG_isCObj = true;
 #endif
@@ -287,7 +329,6 @@ bool GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj)
 		for (int b=0; b < victimObj->numCollisionRectangles;b++)
 		{
 
-			Vector2 theirPoints[4] = {};
 #ifdef physics_debug
 			DEBUG_isCObj = false;
 #endif
@@ -426,6 +467,8 @@ void GE_RectangleToPoints(GE_Rectangle rect, GE_Rectangle grid, Vector2* points,
 			SDL_SetRenderDrawColor( debugRenderer, 0xFF, 0x00, 0x00, 0xFF ); 
 			if (DEBUG_isCObj)
 				SDL_SetRenderDrawColor( debugRenderer, 0xFF, 0xFF, 0x00, 0xFF ); 
+
+			SDL_SetRenderDrawColor( debugRenderer, 0xFF, rect.w*3,rect.h*3, 0xFF ); 
 
 			SDL_Rect debugRect;
 
