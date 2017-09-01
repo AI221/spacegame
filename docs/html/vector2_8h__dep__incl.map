@@ -1,11 +1,11 @@
 <map id="src/vector2.h" name="src/vector2.h">
-<area shape="rect" id="node2" href="$camera_8h.html" title="src/camera.h" alt="" coords="165,80,264,107"/>
-<area shape="rect" id="node3" href="$physics_8h.html" title="src/physics.h" alt="" coords="246,229,346,256"/>
-<area shape="rect" id="node4" href="$classes_8h.html" title="src/classes.h" alt="" coords="66,379,166,405"/>
-<area shape="rect" id="node5" href="$gluePhysicsObject_8h.html" title="src/gluePhysicsObject.h" alt="" coords="94,304,258,331"/>
-<area shape="rect" id="node7" href="$renderedObject_8h.html" title="src/renderedObject.h" alt="" coords="115,155,258,181"/>
-<area shape="rect" id="node8" href="$sprite_8h.html" title="src/sprite.h" alt="" coords="289,80,375,107"/>
-<area shape="rect" id="node9" href="$debugUI_8h_source.html" title="src/debugUI.h" alt="" coords="451,80,555,107"/>
-<area shape="rect" id="node10" href="$UI_8h_source.html" title="src/UI.h" alt="" coords="579,80,648,107"/>
-<area shape="rect" id="node6" href="$engine_8h.html" title="src/engine.h" alt="" coords="300,379,393,405"/>
+<area shape="rect" id="node2" href="$camera_8h.html" title="src/camera.h" alt="" coords="44,80,143,107"/>
+<area shape="rect" id="node3" href="$renderedObject_8h.html" title="src/renderedObject.h" alt="" coords="38,155,181,181"/>
+<area shape="rect" id="node4" href="$classes_8h.html" title="src/classes.h" alt="" coords="120,304,220,331"/>
+<area shape="rect" id="node5" href="$gluePhysicsObject_8h.html" title="src/gluePhysicsObject.h" alt="" coords="148,229,312,256"/>
+<area shape="rect" id="node7" href="$physics_8h.html" title="src/physics.h" alt="" coords="313,155,413,181"/>
+<area shape="rect" id="node8" href="$sprite_8h.html" title="src/sprite.h" alt="" coords="168,80,254,107"/>
+<area shape="rect" id="node9" href="$debugUI_8h_source.html" title="src/debugUI.h" alt="" coords="380,80,484,107"/>
+<area shape="rect" id="node10" href="$UI_8h_source.html" title="src/UI.h" alt="" coords="508,80,578,107"/>
+<area shape="rect" id="node6" href="$engine_8h.html" title="src/engine.h" alt="" coords="354,304,447,331"/>
 </map>

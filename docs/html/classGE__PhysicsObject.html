@@ -74,11 +74,10 @@ Inheritance diagram for GE_PhysicsObject:</div>
 <div class="dyncontent">
 <div class="center"><img src="classGE__PhysicsObject__inherit__graph.png" border="0" usemap="#GE__PhysicsObject_inherit__map" alt="Inheritance graph"/></div>
 <map name="GE__PhysicsObject_inherit__map" id="GE__PhysicsObject_inherit__map">
-<area shape="rect" id="node3" href="classBulletType.html" title="BulletType" alt="" coords="5,155,89,181"/>
-<area shape="rect" id="node4" href="classEnemie.html" title="Enemie" alt="" coords="114,155,181,181"/>
-<area shape="rect" id="node5" href="classPlayer.html" title="Player" alt="" coords="205,155,263,181"/>
-<area shape="rect" id="node6" href="classStdBullet.html" title="StdBullet" alt="" coords="287,155,362,181"/>
-<area shape="rect" id="node2" href="classGE__VIRTUALPHYSICSOBJECT.html" title="GE_VIRTUALPHYSICSOBJECT" alt="" coords="81,5,299,32"/>
+<area shape="rect" id="node2" href="classBulletType.html" title="BulletType" alt="" coords="5,80,89,107"/>
+<area shape="rect" id="node3" href="classEnemie.html" title="Enemie" alt="" coords="114,80,181,107"/>
+<area shape="rect" id="node4" href="classPlayer.html" title="Player" alt="" coords="205,80,263,107"/>
+<area shape="rect" id="node5" href="classStdBullet.html" title="StdBullet" alt="" coords="287,80,362,107"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <div class="dynheader">
@@ -86,10 +85,9 @@ Collaboration diagram for GE_PhysicsObject:</div>
 <div class="dyncontent">
 <div class="center"><img src="classGE__PhysicsObject__coll__graph.png" border="0" usemap="#GE__PhysicsObject_coll__map" alt="Collaboration graph"/></div>
 <map name="GE__PhysicsObject_coll__map" id="GE__PhysicsObject_coll__map">
-<area shape="rect" id="node2" href="classGE__VIRTUALPHYSICSOBJECT.html" title="GE_VIRTUALPHYSICSOBJECT" alt="" coords="5,5,224,32"/>
-<area shape="rect" id="node3" href="structVector2r.html" title="Vector2r" alt="" coords="249,5,319,32"/>
-<area shape="rect" id="node4" href="structVector2.html" title="Vector2" alt="" coords="385,5,452,32"/>
-<area shape="rect" id="node5" href="structGE__Rectangle.html" title="GE_Rectangle" alt="" coords="480,5,587,32"/>
+<area shape="rect" id="node2" href="structVector2r.html" title="Vector2r" alt="" coords="5,5,76,32"/>
+<area shape="rect" id="node3" href="structVector2.html" title="Vector2" alt="" coords="142,5,209,32"/>
+<area shape="rect" id="node4" href="structGE__Rectangle.html" title="GE_Rectangle" alt="" coords="237,5,343,32"/>
 </map>
 <center><span class="legend">[<a href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -98,9 +96,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a88b0a1e8c1a21b5771742eadcae11940"><td class="memItemLeft" align="right" valign="top"><a id="a88b0a1e8c1a21b5771742eadcae11940"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>GE_PhysicsObject</b> (<a class="el" href="structVector2r.html">Vector2r</a> position, <a class="el" href="structVector2r.html">Vector2r</a> velocity, <a class="el" href="structGE__Rectangle.html">GE_Rectangle</a> grid)</td></tr>
 <tr class="separator:a88b0a1e8c1a21b5771742eadcae11940"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac7f093531bfe4ff333d247161e7925a1"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGE__PhysicsObject.html#ac7f093531bfe4ff333d247161e7925a1">C_Collision</a> (int victimID, int collisionRectangleID)</td></tr>
+<tr class="memitem:ac7f093531bfe4ff333d247161e7925a1"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGE__PhysicsObject.html#ac7f093531bfe4ff333d247161e7925a1">C_Collision</a> (int victimID, int collisionRectangleID)</td></tr>
 <tr class="separator:ac7f093531bfe4ff333d247161e7925a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6942c0279769af7c8b705cd938e47fa7"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGE__PhysicsObject.html#a6942c0279769af7c8b705cd938e47fa7">C_Update</a> ()</td></tr>
+<tr class="memitem:a6942c0279769af7c8b705cd938e47fa7"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classGE__PhysicsObject.html#a6942c0279769af7c8b705cd938e47fa7">C_Update</a> ()</td></tr>
 <tr class="separator:a6942c0279769af7c8b705cd938e47fa7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
@@ -185,7 +183,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>callCallbackAfterColl
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>True if you want YOUR physics object to be deleted. </dd></dl>
 
-<p>Implements <a class="el" href="classGE__VIRTUALPHYSICSOBJECT.html">GE_VIRTUALPHYSICSOBJECT</a>.</p>
+<p>Reimplemented in <a class="el" href="classStdBullet.html#a1dd4d3255d7558f90ecab360e62b515f">StdBullet</a>, <a class="el" href="classEnemie.html#a136c8436d51032426867243e2b096b8b">Enemie</a>, and <a class="el" href="classPlayer.html#aa9a108a30006a6031d6216870c49354e">Player</a>.</p>
 
 </div>
 </div>
@@ -213,7 +211,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>callCallbackAfterColl
 </div><div class="memdoc">
 <p>Called during a physics tick, after position updates &amp; collision calculations </p>
 
-<p>Implements <a class="el" href="classGE__VIRTUALPHYSICSOBJECT.html">GE_VIRTUALPHYSICSOBJECT</a>.</p>
+<p>Reimplemented in <a class="el" href="classEnemie.html#ada948365f34353b6779d13a790800ebb">Enemie</a>, and <a class="el" href="classPlayer.html#afff80bc3efe42ec626dc543c3e676b22">Player</a>.</p>
 
 </div>
 </div>

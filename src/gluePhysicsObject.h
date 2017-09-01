@@ -2,14 +2,14 @@
  * @file
  * @author Jackson McNeill
  *
- * 'Glues' the position of a physics object to a Vector2r pointer, updating it each physics tick
+ * 'Glues' the position of a physics object to a Vector2r pointer, updating it each physics tick using a double-buffer to avoid race conditions or locking of the render or physics engine
  */
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <pthread.h>
 
-#include "stdio.h"
-#include "physics.h"
 #include "vector2.h"
-#include "renderedObject.h"
 #include "GeneralEngineCPP.h"
 
 //LIMITS
@@ -19,29 +19,29 @@
 #ifndef __GLUE_PHYSICS_OBJECT_INCLUDED
 #define __GLUE_PHYSICS_OBJECT_INCLUDED
 
-enum GE_ADD_TYPE
+
+enum GE_PULL_ON
 {
-	GE_ADD_TYPE_NONE = 0,
-	GE_ADD_TYPE_NORM = 1,
-	GE_ADD_TYPE_RELATIVE = 2,
+	GE_PULL_ON_PHYSICS_TICK,
+	GE_PULL_ON_RENDER,
 };
 	
 
 struct GE_GlueTarget
 {
-	Vector2r* subject;
-	int physicsObjectID; 
+	void* updateData;
+	void* pullData;
+	GE_PULL_ON pullOn;
+	size_t sizeOfPullData;
 
-	Vector2r addVelocity;
-	GE_ADD_TYPE typeAddVelocity;
-	Vector2r addPosition;
-	GE_ADD_TYPE typeAddPosition;
+	void* buffer;
+
+	int ID;
 };
 
-extern GE_GlueTarget targets[MAX_GLUE_TARGETS];
-extern Vector2r positionBuffer[MAX_GLUE_TARGETS];
-extern Vector2r velocityBuffer[MAX_GLUE_TARGETS];
-extern GE_Rectangle gridbuffer[MAX_GLUE_TARGETS];
+extern GE_GlueTarget* targets[MAX_GLUE_TARGETS];
+extern bool deadTargets[MAX_GLUE_TARGETS];
+extern Vector2r buffer[MAX_GLUE_TARGETS];
 extern int countGlueTargets;
 
 extern pthread_mutex_t GlueMutex;
@@ -62,19 +62,25 @@ void GE_GluePreCallback();
 void GE_GlueCallback();
 
 /*!
- *
- * @param subject Will be updated to physicsID's position value each physics tick
- * @physicsID The ID of the physics object to 'glue' subject to.
+ * Adds values to be set either after a physics tick, or a render cycle. updateData will be CHANGED to the value of pullData. updateData MUST be at LEAST the size of sizeOfPullData or undefined behaviour. sizeOfPullData must be NO GREATER THAN the size of pull data or undefined behaviour.
+ * Generally, make sure updataData and pullData are the same type, and make the last argument sizeof(yourPullData)
+ * You MUST delete this glue object BEFORE deleting updateData or pullData. Failing to do so results in undefined behaviour, most likely a crash.
  */
-int GE_addGlueSubject(Vector2r* subject, int physicsID);
+GE_GlueTarget* GE_addGlueSubject(void* updateData, void* pullData, GE_PULL_ON pullOn, size_t sizeOfPullData);
 
-void GE_glueAddVelocity(int targetID, Vector2r ammount, GE_ADD_TYPE type);
-
-void GE_glueAddPosition(int targetID, Vector2r ammount, GE_ADD_TYPE type);
 
 /*!
  * This is a callback to be called before a render. It transfers the contents of the positionBuffer to the subjects.
  */
 void GE_GlueRenderCallback();
+
+/*!
+ * Frees a GlueObject.
+ * Do not call during a Glue callback -- if needed, lock the GlueMutex
+ * You MUST delete glue objects BEFORE deleting updateData or pullData. Failing to do so results in undefined behaviour, most likely a crash.
+ */
+void GE_FreeGlueObject(GE_GlueTarget* subject);
+
+
 
 #endif //__GLUE_PHYSICS_OBJECT_INCLUDED

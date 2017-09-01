@@ -20,6 +20,26 @@ struct Vector2
 {
 	double x;
 	double y;
+	Vector2 operator+(Vector2 other)
+	{
+		Vector2 newVector = {this->x+other.x,this->y+other.y};
+		return newVector;
+	}
+	Vector2 operator-(Vector2 other)
+	{
+		Vector2 newVector = {this->x-other.x,this->y-other.y};
+		return newVector;
+	}
+	Vector2 operator*(Vector2 other)
+	{	
+		Vector2 newVector = {this->x*other.x,this->y*other.y};
+		return newVector;
+	}
+	Vector2 operator*(int other)
+	{
+		Vector2 newVector = {this->x*other,this->y*other};
+		return newVector;
+	}
 };
 
 

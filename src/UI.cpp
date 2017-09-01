@@ -47,8 +47,8 @@ GE_UI_Text::GE_UI_Text(SDL_Renderer* renderer, Vector2 position, Vector2 size, s
 	setText(text); //Fills Message variable belonging to this class
 	this->color = color;
 	this->wantsEvents = false;
-	this->scrollPosition;
-	this->cursorPosition;
+	//this->scrollPosition;
+	//this->cursorPosition;
 }
 GE_UI_Text::~GE_UI_Text()
 {
@@ -290,7 +290,7 @@ void GE_UI_Button::giveEvent(Vector2 parrentPosition, SDL_Event event)
 
 
 
-GE_UI_Surface::GE_UI_Surface(SDL_Renderer* renderer,Vector2 position, Vector2 size)
+GE_UI_Surface::GE_UI_Surface(SDL_Renderer* renderer,Vector2 position, Vector2 size, SDL_Color backgroundColor)
 {
 	this->position = position;
 	this->positionAndSize.x = position.x;
@@ -298,6 +298,7 @@ GE_UI_Surface::GE_UI_Surface(SDL_Renderer* renderer,Vector2 position, Vector2 si
 	this->positionAndSize.w = size.x;
 	this->positionAndSize.h = size.y;
 	this->renderer = renderer;
+	this->backgroundColor = backgroundColor;
 }
 GE_UI_Surface::~GE_UI_Surface() 
 {
@@ -315,7 +316,7 @@ GE_UI_Element* GE_UI_Surface::getElement(int elementID)
 }
 void GE_UI_Surface::render()
 {
-	SDL_SetRenderDrawColor( renderer, 0xFF, 0xFF, 0xFF, 0xFF ); 
+	SDL_SetRenderDrawColor( renderer,backgroundColor.r,backgroundColor.g,backgroundColor.b,backgroundColor.a ); 
 	SDL_RenderFillRect( renderer, &positionAndSize ); 
 	for (int i=0;i<nextUIElement;i++)
 	{

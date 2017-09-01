@@ -36,5 +36,12 @@
 
 
 
+/*!
+ * Define the maximum length a double will be, after conversion to a string
+ */
+#define __DOUBLE_MAX_STRLENGTH (DBL_MAX_10_EXP+2)
+
+
+
 
 #endif // __GENERALENGINECPP_INCLUDED

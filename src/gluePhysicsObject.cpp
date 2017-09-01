@@ -17,47 +17,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "gluePhysicsObject.h"
 
-GE_GlueTarget targets[MAX_GLUE_TARGETS];
-Vector2r positionBuffer[MAX_GLUE_TARGETS];
-Vector2r velocityBuffer[MAX_GLUE_TARGETS];
-GE_Rectangle gridbuffer[MAX_GLUE_TARGETS];
+GE_GlueTarget* targets[MAX_GLUE_TARGETS];
+bool deadTargets[MAX_GLUE_TARGETS];
 int countGlueTargets = -1;
 
 pthread_mutex_t GlueMutex;
 
-int GE_GlueInit()
-{
-	GE_AddPhysicsPreCallback(GE_GluePreCallback);
-	GE_AddPhysicsDoneCallback(GE_GlueCallback);
 
-	return 0;
-}
 void GE_GluePreCallback()
 {
 	//TODO mutexes
+	pthread_mutex_lock(&GlueMutex);
 	
-	GE_PhysicsObject* cObj;
 	for (int i = 0; i < countGlueTargets+1; i++)
 	{
-		if (GE_GetPhysicsObjectFromID(targets[i].physicsObjectID,&cObj) == 0) 
+		if (targets[i]->pullOn == GE_PULL_ON_RENDER)
 		{
-			if(targets[i].typeAddPosition == GE_ADD_TYPE_NORM)
-			{
-				GE_AddVelocity(cObj,targets[i].addPosition);
-			}
-
-			if(targets[i].typeAddVelocity == GE_ADD_TYPE_NORM)
-			{
-				GE_AddVelocity(cObj,targets[i].addVelocity);
-			}
-			else if (targets[i].typeAddVelocity == GE_ADD_TYPE_RELATIVE)
-			{
-				GE_AddRelativeVelocity(cObj,targets[i].addVelocity);
-			}
-			targets[i].typeAddVelocity = GE_ADD_TYPE_NONE;
-			targets[i].typeAddPosition = GE_ADD_TYPE_NONE;
+			memcpy(targets[i]->updateData,targets[i]->buffer,targets[i]->sizeOfPullData); //Copy from the buffer to the updated value
 		}
 	}
+	pthread_mutex_unlock(&GlueMutex);
 			
 		
 }
@@ -66,25 +45,11 @@ void GE_GlueCallback()
 	//printf("try lock render\n");
 	pthread_mutex_lock(&GlueMutex);
 	//printf("lock render\n");
-	GE_PhysicsObject* cObj;
 	for (int i = 0; i < countGlueTargets+1; i++)
 	{
-		if (GE_GetPhysicsObjectFromID(targets[i].physicsObjectID,&cObj) == 0) //if no error from getting the ID
+		if (targets[i]->pullOn == GE_PULL_ON_PHYSICS_TICK)
 		{
-			//(*(targets[i].subject)) = cObj->position;
-			
-			positionBuffer[i] = cObj->position;
-			velocityBuffer[i] = cObj->velocity;
-			gridbuffer[i] = cObj->grid;
-			//printf("X: %f \n",targets[i].subject->x);
-			
-			//transfer new velocities/positions
-			
-
-		}
-		else
-		{
-			//printf("[temp err - handle] failed to get po from id\n");
+			memcpy(targets[i]->buffer,targets[i]->pullData,targets[i]->sizeOfPullData);//Copy to the buffer the pulled data
 		}
 		
 	}
@@ -96,26 +61,29 @@ void GE_GlueRenderCallback()
 	pthread_mutex_lock(&GlueMutex);
 	for (int i = 0; i < countGlueTargets+1; i++)
 	{
-		(*(targets[i].subject)) = positionBuffer[i];
+		if (targets[i]->pullOn == GE_PULL_ON_PHYSICS_TICK)
+		{
+			memcpy(targets[i]->updateData,targets[i]->buffer,targets[i]->sizeOfPullData);//Copy to the update data from the buffer
+		}
+		else if (targets[i]->pullOn == GE_PULL_ON_RENDER)
+		{
+			memcpy(targets[i]->buffer,targets[i]->pullData,targets[i]->sizeOfPullData);//Copy to the buffer the pulled data
+		}
+
 	}
 	pthread_mutex_unlock(&GlueMutex);
 }
-int GE_addGlueSubject(Vector2r* subject, int physicsID)
+GE_GlueTarget* GE_addGlueSubject(void* updateData, void* pullData, GE_PULL_ON pullOn, size_t sizeOfPullData)
 {
-	GE_NoGreaterThan(countGlueTargets,MAX_GLUE_TARGETS);
-	targets[countGlueTargets+1] = GE_GlueTarget{subject, physicsID,NULL,GE_ADD_TYPE_NONE,NULL,GE_ADD_TYPE_NONE};
+	GE_NoGreaterThan_NULL(countGlueTargets,MAX_GLUE_TARGETS);
+	void* bufferAlloc = operator new(sizeOfPullData);//allocate a buffer of size sizeOfPullData to store the data in between taking it after one source runs and copying it before another one runs
 	countGlueTargets++;
-	return 0;
+	targets[countGlueTargets] = new GE_GlueTarget{updateData, pullData,pullOn,sizeOfPullData,bufferAlloc,countGlueTargets};
+	return targets[countGlueTargets];
 }
 
-void GE_glueAddVelocity(int targetID, Vector2r ammount, GE_ADD_TYPE type)
+void GE_FreeGlueObject(GE_GlueTarget* subject)
 {
-	targets[targetID].addVelocity = ammount;
-	targets[targetID].typeAddVelocity = type;
-}
-
-void GE_glueAddPosition(int targetID, Vector2r ammount, GE_ADD_TYPE type)
-{
-	targets[targetID].addPosition = ammount;
-	targets[targetID].typeAddPosition = type;
+	deadTargets[subject->ID] = true;
+	delete subject;
 }

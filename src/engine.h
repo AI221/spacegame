@@ -6,8 +6,10 @@
  */
 
 #include "gluePhysicsObject.h"
+#include "gluePhysicsObjectInit.h"
 #include "physics.h"
 #include "sprite.h"
+
 
 
 #ifndef __ENGINE_INLCUDED

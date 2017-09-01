@@ -64,7 +64,7 @@ GE_PhysicsObject::GE_PhysicsObject(Vector2r position, Vector2r velocity, GE_Rect
 	ID = numFakePhysicsIDs;
 
 	numCollisionRectangles = 0;
-	numGlueTargets = -1;
+	numGlueTargets = 0;
 
 	lastGoodPosition = position;
 
@@ -117,11 +117,7 @@ GE_PhysicsObject* GE_CreatePhysicsObject(Vector2r newPosition, Vector2r newVeloc
 	deadPhysicsObjects[numPhysicsObjects] = false;
 	return newPhysicsObject;
 }
-void GE_LinkVectorToPhysicsObjectPosition(GE_PhysicsObject* subject, Vector2r* link)
-{
-	subject->numGlueTargets++;
-	subject->glueTargets[subject->numGlueTargets] = GE_addGlueSubject(link,&subject->position,GE_PULL_ON_PHYSICS_TICK,sizeof(Vector2r));
-}
+
 int GE_GetPhysicsObjectFromID(int fakeID, GE_PhysicsObject** physicsObjectPointer)
 {
 	if (fakeID > numFakePhysicsIDs)
@@ -351,20 +347,10 @@ bool GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj)
 			{
 				
 				
-				/*ool check0 = (myPoints[me].x >= theirPoints[0].x) && (myPoints[me].y >= theirPoints[0].y);
-				bool check1 = true;//(myPoints[me].x >= theirPoints[1].x) && (myPoints[me].y <= theirPoints[1].y);
-				bool check2 = (myPoints[me].x <= theirPoints[2].x) && (myPoints[me].y >= theirPoints[2].y);
-				bool check3 = true;//(myPoints[me].x <= theirPoints[3].x) && (myPoints[me].y >= theirPoints[3].y);*/
+				bool check1 = (myPoints[me].x >= theirPoints[0].x) && (myPoints[me].y >= theirPoints[0].y);
+				bool check2 = (myPoints[me].x <= theirPoints[3].x) && (myPoints[me].y <= theirPoints[3].y);
 
-				bool check = false;
-
-				for (int them =0;them<4;them++)
-				{
-					check = check || GE_Distance(myPoints[me],theirPoints[them]) <= fmax(victimObj->collisionRectangles[b].w,victimObj->collisionRectangles[b].h);
-				}
-				
-
-				if (check)
+				if (check1 && check2)
 				{
 					bool killMe = false;
 					bool doReturn = false;
@@ -441,11 +427,7 @@ bool GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj)
 void GE_FreePhysicsObject(GE_PhysicsObject* physicsObject) //MUST be allocated with new
 {
 	printf("I AM DELETING FAKEID #%d\n",physicsObject->ID);
-	for (int i=0;i<physicsObject->numGlueTargets;i++)
-	{
-		printf("le %d\n",i);
-		GE_FreeGlueObject(physicsObject->glueTargets[i]);
-	}
+	for (int i=
 	deadPhysicsObjects[fakeToRealPhysicsID[physicsObject->ID]] = true;
 	fakeToRealPhysicsID[physicsObject->ID] = -1;
 	delete physicsObject;

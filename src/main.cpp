@@ -40,6 +40,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "renderedObject.h"
 #include "UI.h"
 #include "gluePhysicsObject.h"
+#include "gluePhysicsObjectInit.h"
 #include "engine.h"
 
 //Game-specific
@@ -50,7 +51,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //Config
 #define SPRITE_DIR "../sprites/"
-//#define NO_CAMERA_ROTATE true
+#define NO_CAMERA_ROTATE true
 
 
 //Definitions
@@ -86,7 +87,7 @@ int camFocusedObj = 1;
 
 void render()
 {
-	printf("%d (differentiation) render\n",rand());
+	//printf("%d (differentiation) render\n",rand());
 	//printf("~Trying lock render\n");
 	pthread_mutex_lock(&RenderEngineMutex);
 	//printf("~Lock render\n");
@@ -101,14 +102,23 @@ void render()
 	#endif
 	for (int i=0; i <= numRenderedObjects; i++)
 	{
-		if (!deadRenderedObjects[i])
+		if //TODO move to GE_BlitRenderedObject ? As of now, this does NOT ACCOUNT FOR ROTATION 
+			/*(
+				(renderedObjects[i]->position.x-renderedObjects[i]->grid.w <= camera.screenWidth*1.5) //*1.5 is derrived from minusing half of camera.screenWidth to position.x. It is there because camera.pos.x is at the center and not at the top left, so minusing half the camera width accounts for this.
+				&&(renderedObjects[i]->position.y-renderedObjects[i]->grid.h <= camera.screenHeight*1.5)
+				&&(renderedObjects[i]->position.x+renderedObjects[i]->grid.w >= camera.pos.x-camera.screenWidth) //Same as the last thing, but because it's >= here instead of <= , it's the opposite of the action. 
+				&&(renderedObjects[i]->position.y+renderedObjects[i]->grid.h >= camera.pos.y-camera.screenHeight)
+			)*/
+			(true)
 		{
-			GE_BlitRenderedObject(renderedObjects[i],&camera);
+				
+			if (!deadRenderedObjects[i])
+			{
+				GE_BlitRenderedObject(renderedObjects[i],&camera);
+			}
+			//else{printf("encounter dead render object\n");}
 		}
-		else
-		{
-			printf("encounter dead render object\n");
-		}
+		//else {printf("out of range\n");}
 	}
 	pthread_mutex_unlock(&RenderEngineMutex);
 	//printf("Fin render\n");
@@ -116,6 +126,7 @@ void render()
 
 
 
+// awful system that should probably be replaced but isn't that important so it probably never will
 #define real
 //#define regular
 //#define game
@@ -166,23 +177,26 @@ int main(int argc, char* argv[])
 	//initialize the player
 	Player* player = new Player(myRenderer);
 	camFocusedObj = numFakePhysicsIDs;
-	GE_addGlueSubject(&(camera.pos),camFocusedObj);
+	GE_LinkVectorToPhysicsObjectPosition(player,&(camera.pos));
 	int focusGlueID = countGlueTargets;
 	
-	/*for (int i=0;i<20;i++)
-	{
-		GE_RenderedObject* ro = GE_CreateRenderedObject(myRenderer,SPRITE_DIR"simple.bmp");	
-		ro->size = {25,25};
-		ro->animation = {0,0,8,9};
-		
+	player->numGlueTargets++;
+	player->glueTargets[player->numGlueTargets] = GE_addGlueSubject(&camerasGrid,&player->grid,GE_PULL_ON_PHYSICS_TICK,sizeof(GE_Rectangle));
 
-		GE_PhysicsObject* me = GE_CreatePhysicsObject({20,static_cast<double>(i*50)+50,0},{0,0,0},{25,25});
-		me->collisionRectangles[me->numCollisionRectangles] = {0,0,25,25};
-		me->numCollisionRectangles++;
-		GE_addGlueSubject(&(ro->position),me->ID);
-	}*/
+	double thrusterLeft = 0;
+
+	player->numGlueTargets++;
+	player->glueTargets[player->numGlueTargets] = GE_addGlueSubject(&thrusterLeft,&(player->iterableSubsystems[0]->health),GE_PULL_ON_PHYSICS_TICK,sizeof(double));
+
+//"locally scoped" definitions
+#define HUD_SIZE_X 300
+#define HUD_SIZE_Y 200
+	GE_UI_Surface* myHUD = new GE_UI_Surface(myRenderer,{static_cast<double>(camera.screenWidth-HUD_SIZE_X),static_cast<double>(camera.screenHeight-HUD_SIZE_Y)},{HUD_SIZE_X,HUD_SIZE_Y},{0xFF,0xFF,0xFF,255});
+	GE_UI_Text* myText = new GE_UI_Text(myRenderer,{0,0},{400,25},"Test Message Please Ignore", {0x00,0x00,0x00,0xFF});
+	printf("add element %d\n",myHUD->addElement(myText));
 
 
+	
 	//spawn some enemys why not
 	
 
@@ -202,16 +216,27 @@ int main(int argc, char* argv[])
 	
 	pthread_mutex_unlock(&PhysicsEngineMutex);
 
+
+
 	while (true)
 	{
+		printf("Tryin to render here\n");
 		//pthread_mutex_lock(&RenderEngineMutex);
 		GE_BlitSprite(Sprites[GE_SpriteNameToID(SPRITE_DIR"color_black.bmp")],{0,0,0},{(double) camera.screenWidth,(double) camera.screenHeight},{0,0,25,25},GE_FLIP_NONE);		//TODO: Something less shitty
 		//find the focus object's size
 		
-		camerasGrid = gridbuffer[focusGlueID];
-
 
 		render();
+
+		char thrustertxt[256] = {0};
+		sprintf(thrustertxt, "Left Thruster: %f%%",thrusterLeft);
+		
+
+
+		myText->setText(thrustertxt);
+
+
+		myHUD->render();
 		//pthread_mutex_unlock(&RenderEngineMutex);
 		#ifdef physics_debug
 		for (int i=0;i<numPhysicsTickPreCallbacks+1;i++)

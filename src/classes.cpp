@@ -21,11 +21,12 @@ Subsystem::Subsystem(SDL_Renderer* renderer, std::string sprite, Vector2 size, G
 
 	this->collisionRectangle = collisionRectangle;
 	
-	this->isOnline = true;
+	this->health = 100;
 
 	this->level = 0; //TODO
 
 	this->parrentGrid = parrentGrid;
+
 
 
 	printf("a\n");
@@ -34,7 +35,7 @@ void Subsystem::CheckCollision(int collisionRectangle)
 {
 	if (collisionRectangle == this->collisionRectangle)
 	{
-		isOnline = false;
+		health -= 25; //TODO more dynamicness
 	}
 }
 void Subsystem::Update(Vector2r parrentPosition)
@@ -64,7 +65,7 @@ void Subsystem::Update(Vector2r parrentPosition)
 }
 bool Subsystem::GetIsOnline()
 {
-	return isOnline;
+	return (health > 0);
 }
 	
 		
@@ -229,7 +230,8 @@ bool Player::C_Update()
 				GE_PhysicsObject* me = GE_CreatePhysicsObject({this->position.x+50,this->position.y+150,0},{0,0,0},{25,25});
 				me->collisionRectangles[me->numCollisionRectangles] = {0,0,25,25};
 				me->numCollisionRectangles++;
-				GE_addGlueSubject(&(ro->position),me->ID);
+
+				GE_LinkVectorToPhysicsObjectPosition(me,&(ro->position));
 
 			}
 
@@ -278,6 +280,16 @@ bool Player::C_Update()
 	{
 		GE_AddRelativeVelocity(this,{0,0,0.05});
 	}
+	if(keysHeld[SDLK_x])
+	{
+		printf("posx %f\n",position.x);
+		printf("posy %f\n",position.y);
+		printf("r %f\n",position.r);
+	}
+	if(keysHeld[SDLK_b])
+	{
+		iterableSubsystems[0]->health -= 5.25;
+	}
 	//temp
 	if(keysHeld[SDLK_f])
 	{
@@ -315,14 +327,21 @@ bool Player::C_Collision(int victimID, int collisionRectangleID)
 		//What subsytem did it hit?
 		//TODO TEMP
 		
-		if (true)
+		/*(if (true)
 		{
 			
 			//It hit the core. Game over
 			printf("TEMP GAMEOVER\n-----------\n");
 			//TODO GOD WHY AGAIN
 			exit(0);
+		}*/
+
+		for (int i = 0;i<numIterableSubsystems;i++)
+		{
+			iterableSubsystems[i]->CheckCollision(collisionRectangleID);
 		}
+
+
 	}
 
 
@@ -345,7 +364,7 @@ Enemie::Enemie(SDL_Renderer* renderer, Vector2r position, int level) : GE_Physic
 	renderObject->size = {38,42};
 	renderObject->animation = {0,0,19,21};
 
-	GE_addGlueSubject(&(renderObject->position),ID); 
+	GE_LinkVectorToPhysicsObjectPosition(this,&(renderObject->position)); 
 	
 	collisionRectangles[numCollisionRectangles] = {0,0,38,42}; 
 	numCollisionRectangles++;
@@ -434,7 +453,7 @@ StdBullet::StdBullet(SDL_Renderer* renderer, Vector2r position) : GE_PhysicsObje
 	renderObject->size = {2,10};
 	renderObject->animation = {0,0,1,5};
 
-	GE_addGlueSubject(&(renderObject->position),ID); //TODO delete on death. might cause performance issues with the bullet...
+	GE_LinkVectorToPhysicsObjectPosition(this,&(renderObject->position)); 
 	
 	collisionRectangles[numCollisionRectangles] = {0,0,4,10}; 
 	numCollisionRectangles++;

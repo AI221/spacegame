@@ -6,7 +6,7 @@ var searchData=
   ['ge_5faddphysicsprecallback',['GE_AddPhysicsPreCallback',['../physics_8h.html#a112a3f2423c9e7a5a224ce2c28886ada',1,'physics.cpp']]],
   ['ge_5faddrelativevelocity',['GE_AddRelativeVelocity',['../physics_8h.html#ab68f3df05fb13d9e8a64ecf039afddb6',1,'physics.cpp']]],
   ['ge_5faddvelocity',['GE_AddVelocity',['../physics_8h.html#a2e64a1a86dc301d496a2aae0220a14ea',1,'physics.cpp']]],
-  ['ge_5fapplycameraoffset',['GE_ApplyCameraOffset',['../camera_8h.html#ae05ea18899f5898eefc816b05255b082',1,'camera.cpp']]],
+  ['ge_5fapplycameraoffset',['GE_ApplyCameraOffset',['../camera_8h.html#a626f00177d9cbaa13c84c9352cf92269',1,'camera.cpp']]],
   ['ge_5fbindserver',['GE_BindServer',['../network_8h.html#a2a60f2884c3d3240773a594e86aa7f12',1,'network.cpp']]],
   ['ge_5fblitrenderedobject',['GE_BlitRenderedObject',['../renderedObject_8h.html#a101b8afb4083792cfac759bdcb865714',1,'renderedObject.cpp']]],
   ['ge_5fblitsprite',['GE_BlitSprite',['../sprite_8h.html#abf00d96ae45c9f6b4d7b2d430dccb0da',1,'GE_BlitSprite(GE_Sprite *sprite, Vector2r position, Vector2 size, GE_Rectangle animation, GE_Flip flip):&#160;sprite.cpp'],['../sprite_8h.html#a48c3e91acf1f68cee4ef935e547638ac',1,'GE_BlitSprite(GE_Sprite *sprite, SDL_Rect renderPosition, SDL_Rect renderAnimation, double rotation, SDL_RendererFlip flip):&#160;sprite.cpp']]],
@@ -57,7 +57,6 @@ var searchData=
   ['ge_5fui_5ftextinput',['GE_UI_TextInput',['../classGE__UI__TextInput.html',1,'']]],
   ['ge_5fvector2rotation',['GE_Vector2Rotation',['../vector2_8h.html#a568a54c6ce90988701fec9b1b183e816',1,'GE_Vector2Rotation(Vector2r *subject):&#160;vector2.cpp'],['../vector2_8h.html#a10b0cf586776580cf32b07a17649a3a9',1,'GE_Vector2Rotation(Vector2r *subject, double rotation):&#160;vector2.cpp'],['../vector2_8h.html#ac5b00554a70e158ecdbb54b7cd336920',1,'GE_Vector2Rotation(Vector2 *subject, double rotation):&#160;vector2.cpp'],['../vector2_8h.html#a0188662dded6bdc0396294f3d02e88b8',1,'GE_Vector2Rotation(double *x, double *y, double rotation):&#160;vector2.cpp']]],
   ['ge_5fvector2rotationccw',['GE_Vector2RotationCCW',['../vector2_8h.html#a798a56e33b8b4064fe1be9965b4f817b',1,'GE_Vector2RotationCCW(Vector2r *subject):&#160;vector2.cpp'],['../vector2_8h.html#aaa9ed82b3ac449640e09d6ef4998fb9d',1,'GE_Vector2RotationCCW(Vector2r *subject, double rotation):&#160;vector2.cpp'],['../vector2_8h.html#a698fd5ec68a894088249d1871e9a28c8',1,'GE_Vector2RotationCCW(Vector2 *subject, double rotation):&#160;vector2.cpp'],['../vector2_8h.html#a6732b0508fbd90a51872e4fa2e48b4be',1,'GE_Vector2RotationCCW(double *x, double *y, double rotation):&#160;vector2.cpp']]],
-  ['ge_5fvirtualphysicsobject',['GE_VIRTUALPHYSICSOBJECT',['../classGE__VIRTUALPHYSICSOBJECT.html',1,'']]],
   ['ge_5fwrite',['GE_Write',['../network_8h.html#abb5006eb570292113d5947560514d738',1,'network.cpp']]],
   ['gluephysicsobject_2eh',['gluePhysicsObject.h',['../gluePhysicsObject_8h.html',1,'']]]
 ];

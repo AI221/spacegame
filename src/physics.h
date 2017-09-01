@@ -23,8 +23,9 @@
 
 #include "vector2.h"
 #include "GeneralEngineCPP.h"
+#include "gluePhysicsObject.h"
 
-//#define physics_debug 
+#define physics_debug 
 
 #include "SDL.h" //TODO temp
 #ifdef physics_debug
@@ -42,6 +43,7 @@ extern bool DEBUG_allowPhysicsTick;
 //LIMITS:
 #define MAX_PHYSICS_OBJECTS 1024 //maximum ammount of physics objects in the game
 #define MAX_COLLISION_RECTANGLES_PER_OBJECT 32 //TODO: test if this is a good limit in practice
+#define MAX_GLUE_OBJECTS_PER_OBJECT 32 
 #define MAX_PHYSICS_ENGINE_DONE_CALLBACKS 64
 #define MAX_PHYSICS_ENGINE_PRE_CALLBACKS 64
 
@@ -68,6 +70,8 @@ class GE_PhysicsObject
 		int ID;
 		GE_Rectangle collisionRectangles[MAX_COLLISION_RECTANGLES_PER_OBJECT];
 		int numCollisionRectangles;
+		GE_GlueTarget* glueTargets[MAX_GLUE_OBJECTS_PER_OBJECT]; //Hold glue targets to delete them right before we're deleted
+		int numGlueTargets;
 		Vector2r lastGoodPosition;
 		bool callCallbackBeforeCollisionFunction;
 		bool callCallbackAfterCollisionFunction;
@@ -137,6 +141,8 @@ int GE_PhysicsInit();
 
 
 GE_PhysicsObject* GE_CreatePhysicsObject(Vector2r newPosition, Vector2r newVelocity, Vector2 shape);
+
+void GE_LinkVectorToPhysicsObjectPosition(GE_PhysicsObject* subject, Vector2r* link);
 
 
 /*!

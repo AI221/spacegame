@@ -101,7 +101,7 @@ class GE_UI_Button : public GE_UI_Element
 class GE_UI_Surface
 {
 	public:
-		GE_UI_Surface(SDL_Renderer* renderer, Vector2 position, Vector2 size);
+		GE_UI_Surface(SDL_Renderer* renderer, Vector2 position, Vector2 size, SDL_Color backgroundColor);
 		~GE_UI_Surface();
 		void render();
 		int addElement(GE_UI_Element* element);
@@ -116,6 +116,7 @@ class GE_UI_Surface
 		GE_UI_Element* elements[MAX_SURFACE_UI_ELEMENTS];
 		int nextUIElement = 0;
 		SDL_Renderer* renderer;
+		SDL_Color backgroundColor;
 		
 };
 

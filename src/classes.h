@@ -37,11 +37,12 @@ class Subsystem
 		void CheckCollision(int collisionRectangle);
 		void Update(Vector2r parrentPosition);
 		bool GetIsOnline();
+
+		double health; //this is public so that is can be glued for UI updating
 	private:
 		SDL_Renderer* renderer; 
 		GE_RenderedObject* renderObject;
 		Vector2r relativePosition;
-		bool isOnline;
 		int collisionRectangle;
 		int level; //posibilites...
 		GE_Rectangle* parrentGrid;
