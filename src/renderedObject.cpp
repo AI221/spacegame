@@ -18,15 +18,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 pthread_mutex_t RenderEngineMutex = PTHREAD_MUTEX_INITIALIZER;
 
-GE_RenderedObject* renderedObjects[1000]; //TODO dimensions and what not
-bool deadRenderedObjects[1000];
+GE_RenderedObject* renderedObjects[MAX_RENDER_OBJECTS]; //TODO dimensions and what not
+bool deadRenderedObjects[MAX_RENDER_OBJECTS];
 int numRenderedObjects = -1; 
 
 GE_RenderedObject* GE_CreateRenderedObject(SDL_Renderer* renderer, std::string spriteName) // size is not included (despite it being a value often set at start) due to its linked nature.
 {
-	numRenderedObjects++;
+	printf("Create RenderedObject\n");
 	GE_RenderedObject* renderedObject = new GE_RenderedObject{renderer, GE_SpriteNameToID(spriteName), Vector2r{0,0,0}, Vector2{0,0}, GE_Rectangle{0,0,0,0}, LINKED_NONE }; //TODO: some error handling for sprite 
-	renderedObjects[numRenderedObjects] = renderedObject;
+	renderedObjects[numRenderedObjects+1] = renderedObject;
+	pthread_mutex_lock(&RenderEngineMutex);
+	numRenderedObjects++;
+	pthread_mutex_unlock(&RenderEngineMutex);
 	return renderedObject;
 }
 void GE_BlitRenderedObject(GE_RenderedObject* subject, Camera* camera)

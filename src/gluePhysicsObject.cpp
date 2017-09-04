@@ -31,9 +31,12 @@ void GE_GluePreCallback()
 	
 	for (int i = 0; i < countGlueTargets+1; i++)
 	{
-		if (targets[i]->pullOn == GE_PULL_ON_RENDER)
+		if (!deadTargets[i])
 		{
-			memcpy(targets[i]->updateData,targets[i]->buffer,targets[i]->sizeOfPullData); //Copy from the buffer to the updated value
+			if (targets[i]->pullOn == GE_PULL_ON_RENDER)
+			{
+				memcpy(targets[i]->updateData,targets[i]->buffer,targets[i]->sizeOfPullData); //Copy from the buffer to the updated value
+			}
 		}
 	}
 	pthread_mutex_unlock(&GlueMutex);
@@ -47,9 +50,12 @@ void GE_GlueCallback()
 	//printf("lock render\n");
 	for (int i = 0; i < countGlueTargets+1; i++)
 	{
-		if (targets[i]->pullOn == GE_PULL_ON_PHYSICS_TICK)
+		if (!deadTargets[i])
 		{
-			memcpy(targets[i]->buffer,targets[i]->pullData,targets[i]->sizeOfPullData);//Copy to the buffer the pulled data
+			if (targets[i]->pullOn == GE_PULL_ON_PHYSICS_TICK)
+			{
+				memcpy(targets[i]->buffer,targets[i]->pullData,targets[i]->sizeOfPullData);//Copy to the buffer the pulled data
+			}
 		}
 		
 	}
@@ -61,13 +67,16 @@ void GE_GlueRenderCallback()
 	pthread_mutex_lock(&GlueMutex);
 	for (int i = 0; i < countGlueTargets+1; i++)
 	{
-		if (targets[i]->pullOn == GE_PULL_ON_PHYSICS_TICK)
+		if (!deadTargets[i])
 		{
-			memcpy(targets[i]->updateData,targets[i]->buffer,targets[i]->sizeOfPullData);//Copy to the update data from the buffer
-		}
-		else if (targets[i]->pullOn == GE_PULL_ON_RENDER)
-		{
-			memcpy(targets[i]->buffer,targets[i]->pullData,targets[i]->sizeOfPullData);//Copy to the buffer the pulled data
+			if (targets[i]->pullOn == GE_PULL_ON_PHYSICS_TICK)
+			{
+				memcpy(targets[i]->updateData,targets[i]->buffer,targets[i]->sizeOfPullData);//Copy to the update data from the buffer
+			}
+			else if (targets[i]->pullOn == GE_PULL_ON_RENDER)
+			{
+				memcpy(targets[i]->buffer,targets[i]->pullData,targets[i]->sizeOfPullData);//Copy to the buffer the pulled data
+			}
 		}
 
 	}
@@ -84,6 +93,8 @@ GE_GlueTarget* GE_addGlueSubject(void* updateData, void* pullData, GE_PULL_ON pu
 
 void GE_FreeGlueObject(GE_GlueTarget* subject)
 {
+	pthread_mutex_lock(&GlueMutex);
 	deadTargets[subject->ID] = true;
 	delete subject;
+	pthread_mutex_unlock(&GlueMutex);
 }

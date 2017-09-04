@@ -41,7 +41,7 @@ extern bool DEBUG_allowPhysicsTick;
 #define __PHYSICS_INCLUDED
 
 //LIMITS:
-#define MAX_PHYSICS_OBJECTS 1024 //maximum ammount of physics objects in the game
+#define MAX_PHYSICS_OBJECTS 10024 //maximum ammount of physics objects in the game
 #define MAX_COLLISION_RECTANGLES_PER_OBJECT 32 //TODO: test if this is a good limit in practice
 #define MAX_GLUE_OBJECTS_PER_OBJECT 32 
 #define MAX_PHYSICS_ENGINE_DONE_CALLBACKS 64

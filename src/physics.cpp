@@ -441,7 +441,8 @@ bool GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj)
 void GE_FreePhysicsObject(GE_PhysicsObject* physicsObject) //MUST be allocated with new
 {
 	printf("I AM DELETING FAKEID #%d\n",physicsObject->ID);
-	for (int i=0;i<physicsObject->numGlueTargets;i++)
+	printf("num glues %d",physicsObject->numGlueTargets);
+	for (int i=0;i<=physicsObject->numGlueTargets;i++)
 	{
 		printf("le %d\n",i);
 		GE_FreeGlueObject(physicsObject->glueTargets[i]);

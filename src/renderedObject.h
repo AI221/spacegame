@@ -13,6 +13,12 @@
 #ifndef __RENDEREDPHYSICSOBJECT_INCLUDED
 #define __RENDEREDPHYSICSOBJECT_INCLUDED
 
+
+//LIMITS
+
+
+#define MAX_RENDER_OBJECTS 10024
+
 /*!
  * The type of object linked to
  */
@@ -45,8 +51,8 @@ struct GE_RenderedObject
 	int linkedID;
 };
 
-extern GE_RenderedObject* renderedObjects[1000]; //TODO dimensions and what not
-extern bool deadRenderedObjects[1000];
+extern GE_RenderedObject* renderedObjects[MAX_RENDER_OBJECTS]; //TODO dimensions and what not
+extern bool deadRenderedObjects[MAX_RENDER_OBJECTS];
 extern int numRenderedObjects;
 
 /*!

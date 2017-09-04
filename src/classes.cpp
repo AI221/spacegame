@@ -10,12 +10,15 @@ Subsystem::Subsystem(SDL_Renderer* renderer, std::string sprite, Vector2 size, G
 	printf("stt\n");
 	this->renderer = renderer;
 	renderObject = GE_CreateRenderedObject(renderer,SPRITE_DIR+sprite); //TODO
+	pthread_mutex_lock(&RenderEngineMutex);
+
 	renderObject->grid = *parrentGrid;
 	printf("Size: %f\n ",size.x);
 	printf("anim %f\n",animation.w);
 
 	renderObject->size = size;
 	renderObject->animation = animation;
+	pthread_mutex_unlock(&RenderEngineMutex);
 
 	this->relativePosition = relativePosition;
 
@@ -210,7 +213,7 @@ bool Player::C_Update()
 			}
 			if(event.key.keysym.sym == SDLK_SPACE && ticknum >= nextTickCanShoot )
 			{
-				ShootBullet(renderer,this,{0,-10,0},{12,-30,0});
+				ShootBullet(renderer,this,{0,0,0},{12,-60,0});
 				nextTickCanShoot = ticknum +30;
 			}
 
@@ -360,9 +363,11 @@ Enemie::Enemie(SDL_Renderer* renderer, Vector2r position, int level) : GE_Physic
 	type = TYPE_ENEMY;
 	
 	renderObject = GE_CreateRenderedObject(renderer,SPRITE_DIR"enemy.png"); 
+	pthread_mutex_lock(&RenderEngineMutex);
 	renderObjectID = numRenderedObjects;
 	renderObject->size = {38,42};
 	renderObject->animation = {0,0,19,21};
+	pthread_mutex_unlock(&RenderEngineMutex);
 
 	GE_LinkVectorToPhysicsObjectPosition(this,&(renderObject->position)); 
 	
@@ -449,9 +454,12 @@ StdBullet::StdBullet(SDL_Renderer* renderer, Vector2r position) : GE_PhysicsObje
 {
 	type = TYPE_DESTROYSUB;
 	renderObject = GE_CreateRenderedObject(renderer,SPRITE_DIR"stdBulletPlayer.png"); 
+	pthread_mutex_lock(&RenderEngineMutex);
 	renderObjectID = numRenderedObjects;
 	renderObject->size = {2,10};
 	renderObject->animation = {0,0,1,5};
+	pthread_mutex_unlock(&RenderEngineMutex);
+	printf("fin ro\n");
 
 	GE_LinkVectorToPhysicsObjectPosition(this,&(renderObject->position)); 
 	
