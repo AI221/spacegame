@@ -351,17 +351,29 @@ bool GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj)
 			{
 				
 				
-				/*ool check0 = (myPoints[me].x >= theirPoints[0].x) && (myPoints[me].y >= theirPoints[0].y);
+				/*bool check0 = (myPoints[me].x >= theirPoints[0].x) && (myPoints[me].y >= theirPoints[0].y);
 				bool check1 = true;//(myPoints[me].x >= theirPoints[1].x) && (myPoints[me].y <= theirPoints[1].y);
 				bool check2 = (myPoints[me].x <= theirPoints[2].x) && (myPoints[me].y >= theirPoints[2].y);
 				bool check3 = true;//(myPoints[me].x <= theirPoints[3].x) && (myPoints[me].y >= theirPoints[3].y);*/
 
 				bool check = false;
 
-				for (int them =0;them<4;them++)
-				{
-					check = check || GE_Distance(myPoints[me],theirPoints[them]) <= fmax(victimObj->collisionRectangles[b].w,victimObj->collisionRectangles[b].h);
-				}
+				//Algorithm credits: Raymond Manzoni (https://math.stackexchange.com/users/21783/raymond-manzoni), How to check if a point is inside a rectangle?, URL (version: 2012-09-03): https://math.stackexchange.com/q/190373
+
+				Vector2 AM = myPoints[me]-theirPoints[0]; //M-A
+				Vector2 AB = theirPoints[1]-theirPoints[0];
+				Vector2 AD = theirPoints[2]-theirPoints[0]; //bottom-left minus top left
+
+				/*printf("AM %f,%f\n",AM.x,AM.y);
+				printf("dot %f\n",GE_Dot(AM,AB));
+				printf("check pt1 %d\n",( 0.0 < GE_Dot(AM,AB) < GE_Dot(AB,AB) ));*/
+
+				double AMAB = GE_Dot(AM,AB);
+				double AMAD = GE_Dot(AM,AD);
+
+				check = ( ( 0.0 < AMAB ) && ( AMAB < GE_Dot(AB,AB) ) && ( 0.0 < AMAD ) && ( AMAD < GE_Dot(AD,AD) ) ) ;
+
+
 				
 
 				if (check)
@@ -395,6 +407,7 @@ bool GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj)
 					std::cout << "FULL COLLISION DETECTED #" << numCollisionsTemp << std::endl;
 
 					cObj->position = cObj->lastGoodPosition;
+
 					victimObj->position = victimObj->lastGoodPosition;
 
 

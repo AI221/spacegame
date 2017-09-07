@@ -84,3 +84,8 @@ void Vector2r::addRelativeVelocity(Vector2r adder)
 	x += adder.x;
 	y += adder.y;
 }
+
+double GE_Dot(Vector2 subject, Vector2 subject2)
+{
+	return (subject.x*subject2.x)+(subject.y*subject2.y);
+}

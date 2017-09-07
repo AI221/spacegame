@@ -94,6 +94,7 @@ struct Vector2r
 	{
 		return operator-(other);
 	}
+
 		
 };
 
@@ -181,6 +182,10 @@ double GE_Distance(Vector2 subject, Vector2 subject2);
  */
 double GE_Distance(double x1, double y1, double x2, double y2);
 
+/*!
+* Returns the result of a dot product with subject and subject2
+*/
+double GE_Dot(Vector2 subject, Vector2 subject2);
 
 
 
