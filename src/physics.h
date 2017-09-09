@@ -24,6 +24,7 @@
 #include "vector2.h"
 #include "GeneralEngineCPP.h"
 #include "gluePhysicsObject.h"
+#include "isOn.h"
 
 //#define PHYSICS_DEBUG_SLOWRENDERS 
 

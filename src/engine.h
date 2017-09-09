@@ -9,6 +9,7 @@
 #include "gluePhysicsObjectInit.h"
 #include "physics.h"
 #include "sprite.h"
+#include "isOn.h"
 
 
 
@@ -22,6 +23,11 @@
  * PhysicsEngine glue
  */
 int GE_Init(SDL_Renderer* renderer);
+
+/*!
+ * Shut down all engine components. Do not attempt to use anything after this.
+ */
+void GE_Shutdown();
 
 
 #endif //__ENGINE_INLCUDED

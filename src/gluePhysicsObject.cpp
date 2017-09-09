@@ -40,8 +40,6 @@ void GE_GluePreCallback()
 		}
 	}
 	pthread_mutex_unlock(&GlueMutex);
-			
-		
 }
 void GE_GlueCallback()
 {
@@ -86,15 +84,20 @@ GE_GlueTarget* GE_addGlueSubject(void* updateData, void* pullData, GE_PULL_ON pu
 {
 	GE_NoGreaterThan_NULL(countGlueTargets,MAX_GLUE_TARGETS);
 	void* bufferAlloc = operator new(sizeOfPullData);//allocate a buffer of size sizeOfPullData to store the data in between taking it after one source runs and copying it before another one runs
-	countGlueTargets++;
-	targets[countGlueTargets] = new GE_GlueTarget{updateData, pullData,pullOn,sizeOfPullData,bufferAlloc,countGlueTargets};
-	return targets[countGlueTargets];
+
+
+	GE_GlueTarget* newGlue = new GE_GlueTarget{updateData, pullData,pullOn,sizeOfPullData,bufferAlloc,countGlueTargets};
+	memcpy(newGlue->buffer,newGlue->pullData,newGlue->sizeOfPullData);//Copy to the buffer the pulled data - we need to do this to avoid potentially writing an unitialized value to the buffer
+	targets[countGlueTargets+1] = newGlue;
+	countGlueTargets++; //NOTE: This is assumed to be an atomic operation and thus be thread-safe to write while other threads are reading. This is true for x86.
+	return newGlue;
 }
 
 void GE_FreeGlueObject(GE_GlueTarget* subject)
 {
 	pthread_mutex_lock(&GlueMutex);
 	deadTargets[subject->ID] = true;
+	delete (char*) subject->buffer;
 	delete subject;
 	pthread_mutex_unlock(&GlueMutex);
 }

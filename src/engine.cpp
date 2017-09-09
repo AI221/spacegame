@@ -2,6 +2,7 @@
 
 int GE_Init(SDL_Renderer* renderer)
 {
+	GE_IsOn = true;
 	int error;
 	error = GE_SpriteInit(renderer);
 	if (error != 0)
@@ -22,4 +23,12 @@ int GE_Init(SDL_Renderer* renderer)
 	}
 
 	return 0;
+}
+
+void GE_Shutdown()
+{
+	GE_IsOn = false;
+	GE_ShutdownPhysicsEngine();
+	GE_FreeAllSprites();
+
 }

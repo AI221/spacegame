@@ -18,6 +18,7 @@ void GE_UI_Text::setText(const char* text)
 	{
 		return; //TODO CRASH NOTE: IF, DURING CONSTRUCTION, MESSAGE IS FAILED TO BE SET, THE NEXT RENDER() WILL CAUSE A CRASH.
 	}
+	SDL_DestroyTexture(Message); //Destroy old texture before putting in a new one
 	Message = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
 
 	Message_rect.w = surfaceMessage->w;

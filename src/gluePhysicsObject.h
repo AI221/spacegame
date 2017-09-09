@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
+#include <new>
 
 #include "vector2.h"
 #include "GeneralEngineCPP.h"
@@ -65,6 +66,7 @@ void GE_GlueCallback();
  * Adds values to be set either after a physics tick, or a render cycle. updateData will be CHANGED to the value of pullData. updateData MUST be at LEAST the size of sizeOfPullData or undefined behaviour. sizeOfPullData must be NO GREATER THAN the size of pull data or undefined behaviour.
  * Generally, make sure updataData and pullData are the same type, and make the last argument sizeof(yourPullData)
  * You MUST delete this glue object BEFORE deleting updateData or pullData. Failing to do so results in undefined behaviour, most likely a crash.
+ * pullData MUST be initalized or this results in undefined behaviour
  */
 GE_GlueTarget* GE_addGlueSubject(void* updateData, void* pullData, GE_PULL_ON pullOn, size_t sizeOfPullData);
 

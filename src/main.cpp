@@ -167,6 +167,12 @@ int main(int argc, char* argv[])
 		printf("TTF_OpenFont: %s\n", TTF_GetError());
 		return 1;
 	}
+	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
+	{
+		printf("Unable to initialize SDL: %s", SDL_GetError());
+		return 1;
+	}
+	atexit(SDL_Quit);
 
 	SDL_Window* myWindow;
 
@@ -217,7 +223,7 @@ int main(int argc, char* argv[])
 
 	for (int i=0;i<player->numIterableSubsystems;i++)
 	{
-		GE_UI_Text* newText = new GE_UI_Text(myRenderer,{0,15*static_cast<double>(i)},{400,15},"Test Message Please Ignore", {0x66,0xFF,0x00,0xFF},tinySans);
+		GE_UI_Text* newText = new GE_UI_Text(myRenderer,{0,15*static_cast<double>(i)},{400,15},"This message should've been updated.", {0x66,0xFF,0x00,0xFF},tinySans);
 		printf("add element %d\n",myHUD->addElement(newText));
 		healthTexts[numHealthTexts] = newText;
 		player->numGlueTargets++;
@@ -253,7 +259,7 @@ int main(int argc, char* argv[])
 
 
 	char newStr[256] = {0};
-	while (true)
+	while (player->GetIsOnline())
 	{
 		//printf("Tryin to render here\n");
 		//pthread_mutex_lock(&RenderEngineMutex);
@@ -312,7 +318,7 @@ int main(int argc, char* argv[])
 	}
 	delete GameOver;
 
-	GE_ShutdownPhysicsEngine();
+	GE_Shutdown();
 
 	return 0;
 }

@@ -194,7 +194,7 @@ double GE_GetUNIXTime()
 void* GE_physicsThreadMain(void *)
 {
 	double startTime, finishTime;
-	while(true)
+	while(GE_IsOn)
 	{
 
 #ifdef PHYSICS_DEBUG_SLOWRENDERS
@@ -241,6 +241,7 @@ void* GE_physicsThreadMain(void *)
 		
 
 	}
+	return (void*)NULL;
 }
 
 
@@ -533,11 +534,13 @@ void GE_RectangleToPoints(GE_Rectangle rect, GE_Rectangle grid, Vector2* points,
 
 void GE_ShutdownPhysicsEngine()
 {
+	pthread_mutex_lock(&PhysicsEngineMutex);
 	for (int i=0;i < (numPhysicsObjects+1); i++)
 	{
 		if (!deadPhysicsObjects[i])
 		{
-			delete physicsObjects[i];
+			GE_FreePhysicsObject(physicsObjects[i]);
 		}
 	}
+	pthread_mutex_unlock(&PhysicsEngineMutex);
 }
