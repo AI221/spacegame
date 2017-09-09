@@ -50,7 +50,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "network.h"
 
 //Config
-#define SPRITE_DIR "../sprites/"
+#define BASE_DIR "../"
+
+
+#define FONT_DIR BASE_DIR"fonts/"
+#define SPRITE_DIR BASE_DIR"sprites/"
+
+#define FREESANS_LOC FONT_DIR"FreeSans.ttf"
 //#define NO_CAMERA_ROTATE true
 
 
@@ -151,12 +157,16 @@ int main(int argc, char* argv[])
 		return ttferror;
 	}
 	//initialize some fonts we use
-	TTF_Font* tinySans = TTF_OpenFont("/usr/share/fonts/truetype/freefont/FreeSans.ttf", 15);
+	TTF_Font* tinySans = TTF_OpenFont(FREESANS_LOC, 15);
 	if(!tinySans) {
 		printf("TTF_OpenFont: %s\n", TTF_GetError());
-		// handle error
+		return 1;
 	}
-	TTF_Font* bigSans =  TTF_OpenFont("/usr/share/fonts/truetype/freefont/FreeSans.ttf", 42);
+	TTF_Font* bigSans =  TTF_OpenFont(FREESANS_LOC, 42);
+	if(!bigSans) {
+		printf("TTF_OpenFont: %s\n", TTF_GetError());
+		return 1;
+	}
 
 	SDL_Window* myWindow;
 
