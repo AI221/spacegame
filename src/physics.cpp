@@ -16,7 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "physics.h"
 
-#ifdef physics_debug
+#ifdef PHYSICS_DEBUG_SLOWRENDERS
 
 	bool DEBUG_allowPhysicsTick = true;
 
@@ -197,7 +197,7 @@ void* GE_physicsThreadMain(void *)
 	while(true)
 	{
 
-#ifdef physics_debug
+#ifdef PHYSICS_DEBUG_SLOWRENDERS
 		if (DEBUG_allowPhysicsTick) //For freezing the physics engine
 		{
 #endif
@@ -233,7 +233,7 @@ void* GE_physicsThreadMain(void *)
 		//10e4 is derrived from 10e6 (to take seconds and microseconds and produce seconds with decimals, eg. 1.656785) 
 	
 
-#ifdef physics_debug
+#ifdef PHYSICS_DEBUG_SLOWRENDERS
 		}
 		SDL_Delay(1); //prevent from taking up a whole core, sdl is available to physics engine in debug mode
 #endif
@@ -248,7 +248,7 @@ int numCollisionsTemp = 0;
 void GE_TickPhysics()
 {
 	ticknum++;
-	printf("Physics tick #%d\n",ticknum);
+	//printf("Physics tick #%d\n",ticknum);
 	for (int i=0;i < (numPhysicsObjects+1); i++)
 	{
 		//printf("i %d\n",i);
@@ -332,7 +332,7 @@ bool GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj)
 	{
 		//iterate through each of our rectangles...
 
-#ifdef physics_debug
+#ifdef PHYSICS_DEBUG_SLOWRENDERS
 		DEBUG_isCObj = true;
 #endif
 		GE_RectangleToPoints(cObj->collisionRectangles[a],cObj->grid,myPoints,cObj->position);
@@ -340,7 +340,7 @@ bool GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj)
 		for (int b=0; b < victimObj->numCollisionRectangles;b++)
 		{
 
-#ifdef physics_debug
+#ifdef PHYSICS_DEBUG_SLOWRENDERS
 			DEBUG_isCObj = false;
 #endif
 			GE_RectangleToPoints(victimObj->collisionRectangles[b],victimObj->grid,theirPoints,victimObj->position);
@@ -466,7 +466,7 @@ void GE_FreePhysicsObject(GE_PhysicsObject* physicsObject) //MUST be allocated w
 	printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1test\n");
 }
 
-#ifdef physics_debug
+#ifdef PHYSICS_DEBUG_SLOWRENDERS
 
 	SDL_Renderer* debugRenderer;
 	Camera* debugCamera;
@@ -500,7 +500,7 @@ void GE_RectangleToPoints(GE_Rectangle rect, GE_Rectangle grid, Vector2* points,
 		points[i].y += halfrecth+hostPosition.y;
 
 
-		#ifdef physics_debug
+		#ifdef PHYSICS_DEBUG_SLOWRENDERS
 
 			pthread_mutex_lock(&RenderEngineMutex);
 			//note that the physics debugRender does NOT include rotation of the screen, and probably never will. it is good enough for its purpose.
@@ -528,5 +528,16 @@ void GE_RectangleToPoints(GE_Rectangle rect, GE_Rectangle grid, Vector2* points,
 			pthread_mutex_unlock(&RenderEngineMutex);
 		#endif
 
+	}
+}
+
+void GE_ShutdownPhysicsEngine()
+{
+	for (int i=0;i < (numPhysicsObjects+1); i++)
+	{
+		if (!deadPhysicsObjects[i])
+		{
+			delete physicsObjects[i];
+		}
 	}
 }

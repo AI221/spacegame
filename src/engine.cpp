@@ -8,7 +8,7 @@ int GE_Init(SDL_Renderer* renderer)
 	{
 		return error;
 	}
-#ifndef physics_debug
+#ifndef PHYSICS_DEBUG_SLOWRENDERS
 	error = GE_PhysicsInit();
 #endif
 	if (error != 0)

@@ -25,10 +25,10 @@
 #include "GeneralEngineCPP.h"
 #include "gluePhysicsObject.h"
 
-#define physics_debug 
+//#define PHYSICS_DEBUG_SLOWRENDERS 
 
 #include "SDL.h" //TODO temp
-#ifdef physics_debug
+#ifdef PHYSICS_DEBUG_SLOWRENDERS
 	//#include<SDL2/SDL.h>
 	#include "camera.h"
 	#include "renderedObject.h"
@@ -227,5 +227,10 @@ void GE_FreePhysicsObject(GE_PhysicsObject* physicsObject); //MUST be allocated 
  * @param hostPosition a Vector2r , note the r, that the GE_Rectangle rect belongs to. It is used to be added to the positions of points, and its rotation will translate them.
  */
 void GE_RectangleToPoints(GE_Rectangle rect, GE_Rectangle grid, Vector2* points, Vector2r hostPosition);
+
+/*!
+ * Frees all physics objects in memory. Call on shutdown.
+ */
+void GE_ShutdownPhysicsEngine();
 
 #endif //PHYSICS_INCLUDED

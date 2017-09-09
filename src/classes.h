@@ -18,6 +18,10 @@
 #include "renderedObject.h"
 #include "gluePhysicsObject.h"
 
+//LIMITS:
+
+
+#define MAX_SUBSYSTEMS 40
 
 #ifndef __CLASSES_INCLUDED
 #define __CLASSES_INCLUDED
@@ -33,12 +37,16 @@ enum TYPES
 class Subsystem
 {
 	public:
-		Subsystem(SDL_Renderer* renderer, std::string sprite, Vector2 size, GE_Rectangle animation, Vector2r relativePosition, int collisionRectangle, GE_Rectangle* parrentGrid);
-		void CheckCollision(int collisionRectangle);
+		Subsystem(SDL_Renderer* renderer, std::string sprite, Vector2 size, GE_Rectangle animation, Vector2r relativePosition, int collisionRectangle, std::string name, GE_Rectangle* parrentGrid);
+		~Subsystem();
+		void CheckCollision(int checkCollisionRectangle);
 		void Update(Vector2r parrentPosition);
 		bool GetIsOnline();
+		int GetLevel();
+		void SetLevel(int level);
 
 		double health; //this is public so that is can be glued for UI updating
+		std::string name;
 	private:
 		SDL_Renderer* renderer; 
 		GE_RenderedObject* renderObject;
@@ -46,6 +54,8 @@ class Subsystem
 		int collisionRectangle;
 		int level; //posibilites...
 		GE_Rectangle* parrentGrid;
+		Vector2r position;
+		GE_GlueTarget* glueTarget;
 
 };
 
@@ -58,7 +68,8 @@ class Player : public GE_PhysicsObject
 		Player(SDL_Renderer* renderer);
 		bool C_Update();
 		bool C_Collision(int victimID, int collisionRectangleID);
-		Subsystem* iterableSubsystems[40];
+		bool GetIsOnline();
+		Subsystem* iterableSubsystems[MAX_SUBSYSTEMS];
 		int numIterableSubsystems;
 
 	
@@ -87,24 +98,25 @@ class Enemie : public GE_PhysicsObject
 };
 
 
-class BulletType : virtual public GE_PhysicsObject
+class BulletType : public GE_PhysicsObject
 {
 	public:
 		BulletType(Vector2r position, Vector2r velocity, GE_Rectangle grid);
 		~BulletType();
 		int level;
+		bool C_Collision(int victimID, int collisionRectangleID);
 	private:
+		int renderObjectID;
 		GE_RenderedObject* renderObject;
 		
 
 };
 
-class StdBullet : public GE_PhysicsObject//virtual public BulletType //Hah
+class StdBullet : public BulletType //Hah
 {
 	public: 
-		StdBullet(SDL_Renderer* renderer, Vector2r position);
+		StdBullet(SDL_Renderer* renderer, Vector2r position, const char* spriteName);
 		~StdBullet();
-		bool C_Collision(int victimID, int collisionRectangleID);
 
 	private:
 		int renderObjectID;

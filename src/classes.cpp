@@ -5,7 +5,7 @@
 
 Player* targetPlayer;
 
-Subsystem::Subsystem(SDL_Renderer* renderer, std::string sprite, Vector2 size, GE_Rectangle animation, Vector2r relativePosition, int collisionRectangle, GE_Rectangle* parrentGrid)
+Subsystem::Subsystem(SDL_Renderer* renderer, std::string sprite, Vector2 size, GE_Rectangle animation, Vector2r relativePosition, int collisionRectangle, std::string name, GE_Rectangle* parrentGrid)
 {
 	printf("stt\n");
 	this->renderer = renderer;
@@ -30,48 +30,76 @@ Subsystem::Subsystem(SDL_Renderer* renderer, std::string sprite, Vector2 size, G
 
 	this->parrentGrid = parrentGrid;
 
+	this->position = {0,0,0};
+
+	this->glueTarget = GE_addGlueSubject((&(renderObject->position)),&position,GE_PULL_ON_PHYSICS_TICK,sizeof(Vector2r));
+
+	this->name = name;
+
+
+
 
 
 	printf("a\n");
 }
-void Subsystem::CheckCollision(int collisionRectangle)
+void Subsystem::CheckCollision(int checkCollisionRectangle)
 {
-	if (collisionRectangle == this->collisionRectangle)
+	//printf("muh collision rect %d this one is %d\n",this->collisionRectangle, checkCollisionRectangle);
+	if (checkCollisionRectangle == this->collisionRectangle)
 	{
+		//printf("yuppers\n");
 		health -= 25; //TODO more dynamicness
 	}
 }
 void Subsystem::Update(Vector2r parrentPosition)
 {
-	
-	double halfrectw = parrentGrid->w/2;
-	double halfrecth = parrentGrid->h/2;
-	//printf("x %f\n",(halfrectw));
-	Vector2r rotationMatrix = relativePosition;
 
-	rotationMatrix.x = (rotationMatrix.x-(halfrectw))+(renderObject->size.x/2);
-	rotationMatrix.y = (rotationMatrix.y-(halfrecth))+(renderObject->size.y/2);
+	if (GetIsOnline())
+	{
+		double halfrectw = parrentGrid->w/2;
+		double halfrecth = parrentGrid->h/2;
+		//printf("x %f\n",(halfrectw));
+		Vector2r rotationMatrix = relativePosition;
+
+		rotationMatrix.x = (rotationMatrix.x-(halfrectw))+(renderObject->size.x/2);
+		rotationMatrix.y = (rotationMatrix.y-(halfrecth))+(renderObject->size.y/2);
 
 
-	GE_Vector2RotationCCW(&rotationMatrix,parrentPosition.r);
+		GE_Vector2RotationCCW(&rotationMatrix,parrentPosition.r);
 
-	rotationMatrix.x = (rotationMatrix.x+(halfrectw))-(renderObject->size.x/2);
-	rotationMatrix.y = (rotationMatrix.y+(halfrecth))-(renderObject->size.y/2);
+		rotationMatrix.x = (rotationMatrix.x+(halfrectw))-(renderObject->size.x/2);
+		rotationMatrix.y = (rotationMatrix.y+(halfrecth))-(renderObject->size.y/2);
 
-	//rotationMatrix.x = rotationMatrix.x+(halfrectw);
-	//rotationMatrix.y = rotationMatrix.y+(halfrecth);
+		//rotationMatrix.x = rotationMatrix.x+(halfrectw);
+		//rotationMatrix.y = rotationMatrix.y+(halfrecth);
 
-	
-	renderObject->position = {rotationMatrix.x+parrentPosition.x,rotationMatrix.y+parrentPosition.y,parrentPosition.r};
+		
+		position = {rotationMatrix.x+parrentPosition.x,rotationMatrix.y+parrentPosition.y,parrentPosition.r}; //set our value because it will be updated at the proper time by the glue we added on initialization
+	}
+	else
+	{
+		position = {-999999,-999999,-999999}; //TODO: Replace the image of us with a "broken part" image instead"
 
-	//renderObject->size = {3,3};
+	}
+
 }
 bool Subsystem::GetIsOnline()
 {
 	return (health > 0);
 }
-	
+int Subsystem::GetLevel()
+{
+	return level;
+}
+void Subsystem::SetLevel(int level)
+{
+	this->level = level;
+}
 		
+Subsystem::~Subsystem()
+{
+	delete glueTarget;
+}
 
 
 
@@ -136,23 +164,23 @@ Player::Player(SDL_Renderer* renderer) : GE_PhysicsObject({100,0,0},{0,0,0},GE_R
 
 	numIterableSubsystems = 0;
 
-	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerThruster.png",sizePlusDoubleSize(5,51),positionDouble(9,0),0,&grid);
+	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerThruster.png",sizePlusDoubleSize(5,51),positionDouble(9,0),0,"Left Thruster",&grid);
 	bump();
-	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerCoreReactor.png",sizePlusDoubleSize(21,26),positionDouble(14,13),1,&grid);
+	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerCoreReactor.png",sizePlusDoubleSize(21,26),positionDouble(14,13),1,"Core Reactor",&grid);
 	bump();
-	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerLShield.png",sizePlusDoubleSize(9,19),positionDouble(0,15),2,&grid);
+	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerLShield.png",sizePlusDoubleSize(9,19),positionDouble(0,15),2,"Left Shield",&grid);
 	bump();
-	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerRShield.png",sizePlusDoubleSize(9,19),positionDouble(39,15),3,&grid);
+	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerRShield.png",sizePlusDoubleSize(9,19),positionDouble(39,15),3,"Right Shield",&grid);
 	bump();
-	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerThruster.png",sizePlusDoubleSize(5,51),positionDouble(35,0),4,&grid);
+	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerThruster.png",sizePlusDoubleSize(5,51),positionDouble(35,0),4,"Right Thruster",&grid);
 	bump();
-	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerLifeSupport.png",sizePlusDoubleSize(21,14),positionDouble(14,35),5,&grid);
+	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerLifeSupport.png",sizePlusDoubleSize(21,14),positionDouble(14,35),5,"Life Support",&grid);
 	bump();
-	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerShipHead.png",sizePlusDoubleSize(21,11),positionDouble(14,2),6,&grid);  //~~
+	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerShipHead.png",sizePlusDoubleSize(21,11),positionDouble(14,2),6,"Bridge",&grid);  //~~
 	bump();
-	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerLSmallTurret.png",sizePlusDoubleSize(4,9),positionDouble(5,21),7,&grid); 
+	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerLSmallTurret.png",sizePlusDoubleSize(4,9),positionDouble(5,21),7,"Left Turret",&grid); 
 	bump();
-	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerRSmallTurret.png",sizePlusDoubleSize(4,9),positionDouble(40,21),8,&grid);
+	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerRSmallTurret.png",sizePlusDoubleSize(4,9),positionDouble(40,21),8,"Right Turret",&grid);
 	bump();
 
 
@@ -162,6 +190,7 @@ Player::Player(SDL_Renderer* renderer) : GE_PhysicsObject({100,0,0},{0,0,0},GE_R
 
 	targetPlayer = this;
 
+	iterableSubsystems[0]->SetLevel(4);
 
 }
 //double fwdMove;
@@ -169,7 +198,7 @@ Player::Player(SDL_Renderer* renderer) : GE_PhysicsObject({100,0,0},{0,0,0},GE_R
 
 
 
-void ShootBullet(SDL_Renderer* renderer, GE_PhysicsObject* host, Vector2r addToVelocity, Vector2r addToPosition)
+void ShootBullet(SDL_Renderer* renderer, GE_PhysicsObject* host, Vector2r addToVelocity, Vector2r addToPosition, bool isPlayer)
 {
 	addToPosition.x = addToPosition.x - host->grid.w/2;
 	addToPosition.y = addToPosition.y - host->grid.h/2;
@@ -180,15 +209,20 @@ void ShootBullet(SDL_Renderer* renderer, GE_PhysicsObject* host, Vector2r addToV
 	addToPosition.x = addToPosition.x + host->grid.w/2;
 	addToPosition.y = addToPosition.y + host->grid.h/2;
 
-	StdBullet* mybullet = new StdBullet(renderer,host->position+addToPosition);
+	StdBullet* mybullet = new StdBullet(renderer,host->position+addToPosition,(isPlayer) ? (SPRITE_DIR"stdBulletPlayer.png") : (SPRITE_DIR"stdBulletEnemy.png"));
 	GE_PhysicsObject* mybulletpo;
 	GE_GetPhysicsObjectFromID(mybullet->ID,&mybulletpo);
 
-	GE_AddVelocity(mybullet,addToVelocity+host->velocity);
+	addToVelocity.x += host->velocity.x; //avoid use of vector addition because we don't want the rotation to be added.
+	addToVelocity.y += host->velocity.y;
+
+	GE_AddVelocity(mybullet,addToVelocity);
 }
 
 
 
+//#define unrealisticMove
+//double fwdMove;
 bool Player::C_Update()
 {
 	//Update subsystem positions
@@ -196,122 +230,135 @@ bool Player::C_Update()
 	for (int i=0;i<numIterableSubsystems;i++)
 	{
 		iterableSubsystems[i]->Update(position);
+		if (!iterableSubsystems[i]->GetIsOnline())
+		{
+			collisionRectangles[i] = {0,0,0,0};
+		}
 	}
 	//TODO temp
 	//renderObject->position = this->position;
 
 
-	//handle events
-	SDL_Event event;
-	while (handleEvents(&event) != 0)
+	if (GetIsOnline())
 	{
-		if (event.type == SDL_KEYDOWN)
+
+
+		//handle events
+		SDL_Event event;
+		while (handleEvents(&event) != 0)
 		{
-			if (event.key.keysym.sym <= 323)
+			if (event.type == SDL_KEYDOWN)
 			{
-				keysHeld[event.key.keysym.sym] = true;
-			}
-			if(event.key.keysym.sym == SDLK_SPACE && ticknum >= nextTickCanShoot )
-			{
-				ShootBullet(renderer,this,{0,0,0},{12,-60,0});
-				nextTickCanShoot = ticknum +30;
-			}
+				if (event.key.keysym.sym <= 323)
+				{
+					keysHeld[event.key.keysym.sym] = true;
+				}
+				if(event.key.keysym.sym == SDLK_SPACE && ticknum >= nextTickCanShoot )
+				{
+					if (iterableSubsystems[7]->GetIsOnline()) ShootBullet(renderer,this,{0,-10,0},{12,-60,0},true);
+					if (iterableSubsystems[8]->GetIsOnline()) ShootBullet(renderer,this,{0,-10,0},{86,-60,0},true); //(49*2)-12=86 , because the other turret is at the opposite side of the ship
+					nextTickCanShoot = ticknum +(30-(pow(iterableSubsystems[0]->GetLevel(),2)));
+				}
 
-			if (event.key.keysym.sym == SDLK_p)
-			{
-				printf(" kjfaskl jasdklfj sdkla;fjasdkl;ifjalsjk;\n");
-				Enemie* un = new Enemie(renderer, {position.x+100,position.y+100,0},1);
-			}
-			if (event.key.keysym.sym == SDLK_u)
-			{
+				if (event.key.keysym.sym == SDLK_p)
+				{
+					printf(" kjfaskl jasdklfj sdkla;fjasdkl;ifjalsjk;\n");
+					Enemie* un = new Enemie(renderer, {position.x+100,position.y+100,0},1);
+				}
+				if (event.key.keysym.sym == SDLK_u)
+				{
 
-				GE_RenderedObject* ro = GE_CreateRenderedObject(this->renderer,SPRITE_DIR"simple.bmp");	
-				ro->size = {25,25};
-				ro->animation = {0,0,8,9};
+					GE_RenderedObject* ro = GE_CreateRenderedObject(this->renderer,SPRITE_DIR"simple.bmp");	
+					ro->size = {25,25};
+					ro->animation = {0,0,8,9};
+					
+
+					GE_PhysicsObject* me = GE_CreatePhysicsObject({this->position.x+50,this->position.y+150,0},{0,0,0},{25,25});
+					me->collisionRectangles[me->numCollisionRectangles] = {0,0,25,25};
+					me->numCollisionRectangles++;
+
+					GE_LinkVectorToPhysicsObjectPosition(me,&(ro->position));
+
+				}
+
+			}
+			if (event.type == SDL_KEYUP)
+			{
+				if (event.key.keysym.sym <= 323)
+				{
+					keysHeld[event.key.keysym.sym] = false;
+				}
+			}
 				
-
-				GE_PhysicsObject* me = GE_CreatePhysicsObject({this->position.x+50,this->position.y+150,0},{0,0,0},{25,25});
-				me->collisionRectangles[me->numCollisionRectangles] = {0,0,25,25};
-				me->numCollisionRectangles++;
-
-				GE_LinkVectorToPhysicsObjectPosition(me,&(ro->position));
-
-			}
-
 		}
-		if (event.type == SDL_KEYUP)
+		if(keysHeld[SDLK_w])
 		{
-			if (event.key.keysym.sym <= 323)
-			{
-				keysHeld[event.key.keysym.sym] = false;
-			}
+			//GE_AddRelativeVelocity(cObj,{0,-0.5,0});
+#ifdef unrealisticMove
+			fwdMove = fwdMove-0.5;
+#else
+			//account for damaged thrusters -- if one is offline, we're going to spin when we move.
+			if (iterableSubsystems[0]->GetIsOnline()) GE_AddRelativeVelocity(this,{0,-0.25,0.050});
+			if (iterableSubsystems[4]->GetIsOnline()) GE_AddRelativeVelocity(this,{0,-0.25,-0.050});
+#endif
+		
 		}
-			
-	}
-	if(keysHeld[SDLK_w])
-	{
-		//GE_AddRelativeVelocity(cObj,{0,-0.5,0});
+		if(keysHeld[SDLK_s])
+		{
 #ifdef unrealisticMove
-		fwdMove = fwdMove-0.5;
+			fwdMove = fwdMove+0.5;
 #else
-		GE_AddRelativeVelocity(this,{0,-0.5,0});
-#endif
-	
-	}
-	if(keysHeld[SDLK_s])
-	{
-#ifdef unrealisticMove
-		fwdMove = fwdMove+0.5;
-#else
-		GE_AddRelativeVelocity(this,{0,0.5,0});
+			if (iterableSubsystems[0]->GetIsOnline()) GE_AddRelativeVelocity(this,{0,0.25,-0.050});
+			if (iterableSubsystems[4]->GetIsOnline()) GE_AddRelativeVelocity(this,{0,0.25,0.050});
 #endif
 
-	}
-	if(keysHeld[SDLK_d])
-	{
-		GE_AddRelativeVelocity(this,{0.05,0,0});
-	}
-	if(keysHeld[SDLK_a])
-	{
-		GE_AddRelativeVelocity(this,{-0.05,0,0});
-	}
-	if(keysHeld[SDLK_q])
-	{
-		GE_AddRelativeVelocity(this,{0,0,-0.05});
-	}
-	if(keysHeld[SDLK_e])
-	{
-		GE_AddRelativeVelocity(this,{0,0,0.05});
-	}
-	if(keysHeld[SDLK_x])
-	{
-		printf("posx %f\n",position.x);
-		printf("posy %f\n",position.y);
-		printf("r %f\n",position.r);
-	}
-	if(keysHeld[SDLK_b])
-	{
-		iterableSubsystems[0]->health -= 5.25;
-	}
-	//temp
-	if(keysHeld[SDLK_f])
-	{
-		velocity = {0,0,0};
+		}
+		if(keysHeld[SDLK_d])
+		{
+			GE_AddRelativeVelocity(this,{0.05,0,0});
+		}
+		if(keysHeld[SDLK_a])
+		{
+			GE_AddRelativeVelocity(this,{-0.05,0,0});
+		}
+		if(keysHeld[SDLK_q])
+		{
+			GE_AddRelativeVelocity(this,{0,0,-0.05});
+		}
+		if(keysHeld[SDLK_e])
+		{
+			GE_AddRelativeVelocity(this,{0,0,0.05});
+		}
+		if(keysHeld[SDLK_x])
+		{
+			printf("posx %f\n",position.x);
+			printf("posy %f\n",position.y);
+			printf("r %f\n",position.r);
+		}
+		if(keysHeld[SDLK_b])
+		{
+			iterableSubsystems[0]->health -= 5.25;
+		}
+		//temp
+		if(keysHeld[SDLK_f])
+		{
+			velocity = {0,0,0};
 #ifdef unrealisticMove
-		fwdMove = 0;
+			fwdMove = 0;
 #endif
-	}
-	if (keysHeld[SDLK_ESCAPE])
-	{
-		//TODO GOD WHY
-		exit(0);
-	}
+		}
+		if (keysHeld[SDLK_ESCAPE])
+		{
+			//TODO GOD WHY
+			exit(0);
+		}
 
 
 #ifdef unrealisticMove
-	velocity = {0,0,velocity.r};
-	GE_AddRelativeVelocity(this,{0,fwdMove,0});
+		velocity = {0,0,velocity.r};
+		GE_AddRelativeVelocity(this,{0,fwdMove,0});
 #endif
+	}
 
 
 	
@@ -349,6 +396,10 @@ bool Player::C_Collision(int victimID, int collisionRectangleID)
 
 
 	return false;
+}
+bool Player::GetIsOnline()
+{
+	return (iterableSubsystems[1]->GetIsOnline() && iterableSubsystems[5]->GetIsOnline() && iterableSubsystems[6]->GetIsOnline());
 }
 
 
@@ -412,7 +463,7 @@ bool Enemie::C_Update()
 		if (ticknum % 60 == 0 )
 		{
 			//spawn bullet
-			//ShootBullet(renderer,this,{0,-1,0},{0,-40,0});
+			ShootBullet(renderer,this,{0,-3,0},{0,-40,0},false);
 		}
 	}
 	
@@ -446,14 +497,25 @@ BulletType::BulletType(Vector2r position, Vector2r velocity, GE_Rectangle grid) 
 {
 	type = TYPE_DESTROYSUB;
 }
+bool BulletType::C_Collision(int victimID, int collisionRectangleID)
+{
+	//printf("Collision! I should be dead now!\n");
+	return true; //Tell the physics engine to delete me.
+}
 BulletType::~BulletType()
 {
+/*	printf("!!!!!!!!!!!!!I WAS CALLED\n");
+
+	pthread_mutex_lock(&RenderEngineMutex);
+	deadRenderedObjects[renderObjectID] = true;
+	delete renderObject;
+	pthread_mutex_unlock(&RenderEngineMutex);*/
 }
 
-StdBullet::StdBullet(SDL_Renderer* renderer, Vector2r position) : GE_PhysicsObject(position,{0,0,0},GE_Rectangle{0,0,2,10})
+
+StdBullet::StdBullet(SDL_Renderer* renderer, Vector2r position, const char* spriteName) : BulletType(position,{0,0,0},GE_Rectangle{0,0,2,10})
 {
-	type = TYPE_DESTROYSUB;
-	renderObject = GE_CreateRenderedObject(renderer,SPRITE_DIR"stdBulletPlayer.png"); 
+	renderObject = GE_CreateRenderedObject(renderer,spriteName); 
 	pthread_mutex_lock(&RenderEngineMutex);
 	renderObjectID = numRenderedObjects;
 	renderObject->size = {2,10};
@@ -479,8 +541,4 @@ StdBullet::~StdBullet()
 	delete renderObject;
 	pthread_mutex_unlock(&RenderEngineMutex);
 }
-bool StdBullet::C_Collision(int victimID, int collisionRectangleID)
-{
-	//printf("Collision! I should be dead now!\n");
-	return true; //Tell the physics engine to delete me.
-}
+

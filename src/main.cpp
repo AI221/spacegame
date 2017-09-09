@@ -51,10 +51,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //Config
 #define SPRITE_DIR "../sprites/"
-#define NO_CAMERA_ROTATE true
+//#define NO_CAMERA_ROTATE true
+
+
 
 
 //Definitions
+
+
 
 
 //#define debug //wheather debug draws, menus, etc. is included. 
@@ -104,7 +108,7 @@ void render()
 	{
 		if //TODO move to GE_BlitRenderedObject ? As of now, this does NOT ACCOUNT FOR ROTATION 
 			/*(
-				(renderedObjects[i]->position.x-renderedObjects[i]->grid.w <= camera.screenWidth*1.5) //*1.5 is derrived from minusing half of camera.screenWidth to position.x. It is there because camera.pos.x is at the center and not at the top left, so minusing half the camera width accounts for this.
+				(renderedObjects[i]->position.x-renderedObjects[i]->grid.w <= camera.screenWidth*1.5) *1.5 is derrived from minusing half of camera.screenWidth to position.x. It is there because camera.pos.x is at the center and not at the top left, so minusing half the camera width accounts for this.
 				&&(renderedObjects[i]->position.y-renderedObjects[i]->grid.h <= camera.screenHeight*1.5)
 				&&(renderedObjects[i]->position.x+renderedObjects[i]->grid.w >= camera.pos.x-camera.screenWidth) //Same as the last thing, but because it's >= here instead of <= , it's the opposite of the action. 
 				&&(renderedObjects[i]->position.y+renderedObjects[i]->grid.h >= camera.pos.y-camera.screenHeight)
@@ -146,6 +150,13 @@ int main(int argc, char* argv[])
 		printf("TTF_Init error %d\n",ttferror);
 		return ttferror;
 	}
+	//initialize some fonts we use
+	TTF_Font* tinySans = TTF_OpenFont("/usr/share/fonts/truetype/freefont/FreeSans.ttf", 15);
+	if(!tinySans) {
+		printf("TTF_OpenFont: %s\n", TTF_GetError());
+		// handle error
+	}
+	TTF_Font* bigSans =  TTF_OpenFont("/usr/share/fonts/truetype/freefont/FreeSans.ttf", 42);
 
 	SDL_Window* myWindow;
 
@@ -183,17 +194,30 @@ int main(int argc, char* argv[])
 	player->numGlueTargets++;
 	player->glueTargets[player->numGlueTargets] = GE_addGlueSubject(&camerasGrid,&player->grid,GE_PULL_ON_PHYSICS_TICK,sizeof(GE_Rectangle));
 
-	double thrusterLeft = 0;
-
-	player->numGlueTargets++;
-	player->glueTargets[player->numGlueTargets] = GE_addGlueSubject(&thrusterLeft,&(player->iterableSubsystems[0]->health),GE_PULL_ON_PHYSICS_TICK,sizeof(double));
 
 //"locally scoped" definitions
 #define HUD_SIZE_X 300
 #define HUD_SIZE_Y 200
-	GE_UI_Surface* myHUD = new GE_UI_Surface(myRenderer,{static_cast<double>(camera.screenWidth-HUD_SIZE_X),static_cast<double>(camera.screenHeight-HUD_SIZE_Y)},{HUD_SIZE_X,HUD_SIZE_Y},{0xFF,0xFF,0xFF,255});
-	GE_UI_Text* myText = new GE_UI_Text(myRenderer,{0,0},{400,25},"Test Message Please Ignore", {0x00,0x00,0x00,0xFF});
-	printf("add element %d\n",myHUD->addElement(myText));
+	GE_UI_Surface* myHUD = new GE_UI_Surface(myRenderer,{static_cast<double>(camera.screenWidth-HUD_SIZE_X),static_cast<double>(camera.screenHeight-HUD_SIZE_Y)},{HUD_SIZE_X,HUD_SIZE_Y},{0x00,0x33,0x00,255});
+
+	int numHealthTexts = 0;
+	GE_UI_Text* healthTexts[MAX_SUBSYSTEMS] = {};
+	double healthAmmount[MAX_SUBSYSTEMS] = {};
+
+
+	for (int i=0;i<player->numIterableSubsystems;i++)
+	{
+		GE_UI_Text* newText = new GE_UI_Text(myRenderer,{0,15*static_cast<double>(i)},{400,15},"Test Message Please Ignore", {0x66,0xFF,0x00,0xFF},tinySans);
+		printf("add element %d\n",myHUD->addElement(newText));
+		healthTexts[numHealthTexts] = newText;
+		player->numGlueTargets++;
+		player->glueTargets[player->numGlueTargets] = GE_addGlueSubject(&healthAmmount[numHealthTexts],&(player->iterableSubsystems[numHealthTexts]->health),GE_PULL_ON_PHYSICS_TICK,sizeof(double));
+		numHealthTexts++;
+	}
+
+
+	GE_UI_Text* GameOver = new GE_UI_Text(myRenderer,{0,0},{400,80},"GAME OVER!",{0xFF,0x00,0x00,0xFF},bigSans);
+
 
 
 	
@@ -210,7 +234,7 @@ int main(int argc, char* argv[])
 
 
 	
-#ifdef physics_debug
+#ifdef PHYSICS_DEBUG_SLOWRENDERS
 		GE_DEBUG_PassRendererToPhysicsEngine(myRenderer,&camera);
 	#endif
 	
@@ -218,9 +242,10 @@ int main(int argc, char* argv[])
 
 
 
+	char newStr[256] = {0};
 	while (true)
 	{
-		printf("Tryin to render here\n");
+		//printf("Tryin to render here\n");
 		//pthread_mutex_lock(&RenderEngineMutex);
 		GE_BlitSprite(Sprites[GE_SpriteNameToID(SPRITE_DIR"color_black.bmp")],{0,0,0},{(double) camera.screenWidth,(double) camera.screenHeight},{0,0,25,25},GE_FLIP_NONE);		//TODO: Something less shitty
 		//find the focus object's size
@@ -228,17 +253,26 @@ int main(int argc, char* argv[])
 
 		render();
 
-		char thrustertxt[256] = {0};
-		sprintf(thrustertxt, "Left Thruster: %f%%",thrusterLeft);
 		
 
 
-		myText->setText(thrustertxt);
+		for (int i=0;i<numHealthTexts;i++)
+		{
+			sprintf(newStr, "%s: %f%%",player->iterableSubsystems[i]->name.c_str(),healthAmmount[i]); //name: healthpercentage%
+
+			healthTexts[i]->setText(newStr);
+		}
 
 
 		myHUD->render();
-		//pthread_mutex_unlock(&RenderEngineMutex);
-		#ifdef physics_debug
+
+		if ((!player->GetIsOnline()) && ((int)floor(ticknum / 20.0) ) % 3) //Flash "Game over!" if the player is dead. Basically, this is 20x slower than flashing for 2 ticks on, 1 tick off.
+		{
+			GameOver->render({0,0});
+		}
+
+
+		#ifdef PHYSICS_DEBUG_SLOWRENDERS
 		for (int i=0;i<numPhysicsTickPreCallbacks+1;i++)
 		{
 			C_PhysicsTickPreCallbacks[i]();
@@ -249,9 +283,28 @@ int main(int argc, char* argv[])
 			C_PhysicsTickDoneCallbacks[i]();
 		}
 		#endif
+
+
+
 		SDL_RenderPresent(myRenderer); //Seems to be the VSyncer (expect ~16ms wait upon call)
-		//SDL_Delay(8);
 	}
+
+	TTF_CloseFont(tinySans);
+	TTF_CloseFont(bigSans);
+
+	SDL_DestroyWindow(myWindow);
+	SDL_DestroyRenderer(myRenderer);
+	delete player;
+	delete myHUD;
+	for (int i=0;i<numHealthTexts;i++)
+	{
+		delete healthTexts[i];
+	}
+	delete GameOver;
+
+	GE_ShutdownPhysicsEngine();
+
+	return 0;
 }
 
 #endif //real
@@ -392,7 +445,7 @@ int main(int argc, char* argv[])
 
 	#endif
 
-	#ifdef physics_debug
+	#ifdef PHYSICS_DEBUG_SLOWRENDERS
 		GE_DEBUG_PassRendererToPhysicsEngine(myRenderer,&camera);
 	#endif
 
@@ -515,7 +568,7 @@ int main(int argc, char* argv[])
 		
 		GE_BlitSprite(Sprites[GE_SpriteNameToID(SPRITE_DIR"color_black.bmp")],{0,0,0},{(double) camera.screenWidth,(double) camera.screenHeight},{0,0,25,25},GE_FLIP_NONE);		//TODO: Something less shitty
 		render();
-		#ifdef physics_debug
+		#ifdef PHYSICS_DEBUG_SLOWRENDERS
 		for (int i=0;i<numPhysicsTickPreCallbacks+1;i++)
 		{
 			C_PhysicsTickPreCallbacks[i]();
@@ -721,7 +774,7 @@ int main(int argc, char* argv[])
 
 	#endif
 
-	#ifdef physics_debug
+	#ifdef PHYSICS_DEBUG_SLOWRENDERS
 		GE_DEBUG_PassRendererToPhysicsEngine(myRenderer,&camera);
 	#endif
 
@@ -908,7 +961,7 @@ int main(int argc, char* argv[])
 		
 		
 		
-		#ifdef physics_debug
+		#ifdef PHYSICS_DEBUG_SLOWRENDERS
 		pthread_mutex_lock(&PhysicsEngineMutex);
 		GE_TickPhysics();
 		SDL_RenderPresent(myRenderer);

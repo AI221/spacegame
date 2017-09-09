@@ -30,7 +30,7 @@ class GE_UI_Element
 class GE_UI_Text : public GE_UI_Element
 {
 	public:
-		GE_UI_Text(SDL_Renderer* renderer, Vector2 position, Vector2 size, std::string text, SDL_Color color);
+		GE_UI_Text(SDL_Renderer* renderer, Vector2 position, Vector2 size, std::string text, SDL_Color color,TTF_Font* font);
 		~GE_UI_Text();
 		void render(Vector2 parrentPosition);
 		void render();
@@ -43,7 +43,7 @@ class GE_UI_Text : public GE_UI_Element
 		SDL_Rect Message_rect;
 
 	private:
-		TTF_Font* Sans = TTF_OpenFont("/usr/share/fonts/truetype/freefont/FreeSans.ttf", 24);
+		TTF_Font* font;//Sans = TTF_OpenFont("/usr/share/fonts/truetype/freefont/FreeSans.ttf", 15);
 		Vector2 position;
 		Vector2 size;
 		SDL_Color color;
@@ -55,7 +55,7 @@ class GE_UI_Text : public GE_UI_Element
 class GE_UI_TextInput : public GE_UI_Element
 {
 	public:
-		GE_UI_TextInput(SDL_Renderer* renderer, Vector2 position, Vector2 size, SDL_Color textColor, SDL_Color color);
+		GE_UI_TextInput(SDL_Renderer* renderer, Vector2 position, Vector2 size, SDL_Color textColor, SDL_Color color, TTF_Font* font);
 		~GE_UI_TextInput();
 		void render(Vector2 parrentPosition);
 		void render(); 
@@ -80,7 +80,7 @@ class GE_UI_TextInput : public GE_UI_Element
 class GE_UI_Button : public GE_UI_Element
 {
 	public:
-		GE_UI_Button(SDL_Renderer* renderer, Vector2 position, Vector2 paddingSize, std::string text, SDL_Color textColor, SDL_Color color, SDL_Color pressedColor);
+		GE_UI_Button(SDL_Renderer* renderer, Vector2 position, Vector2 paddingSize, std::string text, SDL_Color textColor, SDL_Color color, SDL_Color pressedColor, TTF_Font* font);
 		~GE_UI_Button();
 		void render(Vector2 parrentPosition);
 		void render();

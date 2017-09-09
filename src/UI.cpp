@@ -13,7 +13,7 @@ void GE_UI_Text::setText(const char* text)
 	{
 		text = " ";
 	}
-	SDL_Surface* surfaceMessage = TTF_RenderText_Solid(Sans, text, color);
+	SDL_Surface* surfaceMessage = TTF_RenderText_Solid(font, text, color);
 	if (surfaceMessage == NULL) //extra protection
 	{
 		return; //TODO CRASH NOTE: IF, DURING CONSTRUCTION, MESSAGE IS FAILED TO BE SET, THE NEXT RENDER() WILL CAUSE A CRASH.
@@ -35,8 +35,11 @@ void GE_UI_Text::setSize(double x, double y)
 {
 	this->size = {x,y};
 }	
-GE_UI_Text::GE_UI_Text(SDL_Renderer* renderer, Vector2 position, Vector2 size, std::string text, SDL_Color color)
+GE_UI_Text::GE_UI_Text(SDL_Renderer* renderer, Vector2 position, Vector2 size, std::string text, SDL_Color color, TTF_Font* font)
 {
+	this->font = font;
+
+
 	this->position.x = position.x;
 	this->position.y = position.y;
 	this->size.x = size.x;
@@ -47,6 +50,7 @@ GE_UI_Text::GE_UI_Text(SDL_Renderer* renderer, Vector2 position, Vector2 size, s
 	setText(text); //Fills Message variable belonging to this class
 	this->color = color;
 	this->wantsEvents = false;
+
 	//this->scrollPosition;
 	//this->cursorPosition;
 }
@@ -60,8 +64,8 @@ GE_UI_Text::~GE_UI_Text()
 void GE_UI_Text::render(Vector2 parrentPosition)
 {
 	SDL_Rect transformedRect,animationRect;
-	transformedRect.x = parrentPosition.x;
-	transformedRect.y = parrentPosition.y;
+	transformedRect.x = parrentPosition.x+position.x;
+	transformedRect.y = parrentPosition.y+position.y;
 	transformedRect.w = std::min(size.x,(double) Message_rect.w);
 	transformedRect.h = std::min(size.y,(double) Message_rect.h);
 	/*transformedRect.w = size.x;
@@ -82,14 +86,14 @@ void GE_UI_Text::giveEvent(Vector2 parrentPosition, SDL_Event event) //shouldn't
 }
 
 
-GE_UI_TextInput::GE_UI_TextInput(SDL_Renderer* renderer, Vector2 position, Vector2 size, SDL_Color textColor, SDL_Color color)
+GE_UI_TextInput::GE_UI_TextInput(SDL_Renderer* renderer, Vector2 position, Vector2 size, SDL_Color textColor, SDL_Color color, TTF_Font* font)
 {
 	this->renderer = renderer;
 	this->position = position;
 	this->size = size;
 	this->color = color;
 
-	this->myText = new GE_UI_Text(renderer,position,size,"",textColor);
+	this->myText = new GE_UI_Text(renderer,position,size,"",textColor,font);
 	this->text = "";
 	this->isFocused = false; //First catch by cppcheck!
 }
@@ -200,9 +204,9 @@ const char* GE_UI_TextInput::getText_cstr()
 }
 
 
-GE_UI_Button::GE_UI_Button(SDL_Renderer* renderer, Vector2 position, Vector2 paddingSize, std::string text, SDL_Color textColor, SDL_Color color, SDL_Color pressedColor)
+GE_UI_Button::GE_UI_Button(SDL_Renderer* renderer, Vector2 position, Vector2 paddingSize, std::string text, SDL_Color textColor, SDL_Color color, SDL_Color pressedColor, TTF_Font* font)
 {
-	myText = new GE_UI_Text(renderer,position,{0,0},text,textColor);
+	myText = new GE_UI_Text(renderer,position,{0,0},text,textColor,font);
 	myText->setSize(myText->Message_rect.w, myText->Message_rect.h);
 	this->renderer = renderer;
 	this->position = position;
