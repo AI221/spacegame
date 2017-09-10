@@ -13,7 +13,7 @@ void GE_UI_Text::setText(const char* text)
 	{
 		text = " ";
 	}
-	SDL_Surface* surfaceMessage = TTF_RenderText_Solid(font, text, color);
+	SDL_Surface* surfaceMessage = TTF_RenderText_Blended(font, text, color);
 	if (surfaceMessage == NULL) //extra protection
 	{
 		return; //TODO CRASH NOTE: IF, DURING CONSTRUCTION, MESSAGE IS FAILED TO BE SET, THE NEXT RENDER() WILL CAUSE A CRASH.
@@ -72,9 +72,9 @@ GE_UI_Text::GE_UI_Text(SDL_Renderer* renderer, Vector2 position, Vector2 size, s
 
 	this->renderer = renderer;
 
+	this->color = color;
 	Message = NULL; //Initialized Message to NULL so that setText knows it shouldn't be freed ( because it doesn't yet exist)
 	setText(text); //Fills Message variable belonging to this class
-	this->color = color;
 	this->wantsEvents = false;
 
 	this->doCenterX = false;

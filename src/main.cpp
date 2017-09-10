@@ -154,6 +154,7 @@ int main(int argc, char* argv[])
 		printf("TTF_Init error %d\n",ttferror);
 		return ttferror;
 	}
+	atexit(TTF_Quit); 
 	//initialize some fonts we use
 	TTF_Font* tinySans = TTF_OpenFont(FREESANS_LOC, 15);
 	if(!tinySans) {
@@ -165,6 +166,7 @@ int main(int argc, char* argv[])
 		printf("TTF_OpenFont: %s\n", TTF_GetError());
 		return 1;
 	}
+	TTF_SetFontStyle(bigSans,TTF_STYLE_ITALIC);
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
 	{
 		printf("Unable to initialize SDL: %s", SDL_GetError());
