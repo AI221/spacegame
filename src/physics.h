@@ -71,7 +71,7 @@ class GE_PhysicsObject
 		int ID;
 		GE_Rectangle collisionRectangles[MAX_COLLISION_RECTANGLES_PER_OBJECT];
 		int numCollisionRectangles;
-		GE_GlueTarget* glueTargets[MAX_GLUE_OBJECTS_PER_OBJECT]; //Hold glue targets to delete them right before we're deleted
+		GE_GlueTarget* glueTargets[MAX_GLUE_OBJECTS_PER_OBJECT]; //Hold glue targets to delete them right before we're deleted //TODO this forces you to keep your glue active until you kill the physics object. This is undesired.
 		int numGlueTargets;
 		Vector2r lastGoodPosition;
 		bool callCallbackBeforeCollisionFunction;

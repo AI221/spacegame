@@ -241,6 +241,7 @@ void* GE_physicsThreadMain(void *)
 		
 
 	}
+	printf("Physics Engine is shutting down.\n");
 	return (void*)NULL;
 }
 
@@ -456,13 +457,20 @@ void GE_FreePhysicsObject(GE_PhysicsObject* physicsObject) //MUST be allocated w
 {
 	printf("I AM DELETING FAKEID #%d\n",physicsObject->ID);
 	printf("num glues %d",physicsObject->numGlueTargets);
+
+
+	int realID = fakeToRealPhysicsID[physicsObject->ID];
+
+	fakeToRealPhysicsID[physicsObject->ID] = -1; //indicate we're dead first 
+	deadPhysicsObjects[realID] = true; 
+
 	for (int i=0;i<=physicsObject->numGlueTargets;i++)
 	{
 		printf("le %d\n",i);
 		GE_FreeGlueObject(physicsObject->glueTargets[i]);
+		physicsObject->glueTargets[i] = NULL;
 	}
-	deadPhysicsObjects[fakeToRealPhysicsID[physicsObject->ID]] = true;
-	fakeToRealPhysicsID[physicsObject->ID] = -1;
+	printf("Deleting physics object itself...\n");
 	delete physicsObject;
 	printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1test\n");
 }
@@ -540,6 +548,7 @@ void GE_ShutdownPhysicsEngine()
 		if (!deadPhysicsObjects[i])
 		{
 			GE_FreePhysicsObject(physicsObjects[i]);
+			deadPhysicsObjects[i] = true;
 		}
 	}
 	pthread_mutex_unlock(&PhysicsEngineMutex);

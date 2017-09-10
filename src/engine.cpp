@@ -14,12 +14,17 @@ int GE_Init(SDL_Renderer* renderer)
 #endif
 	if (error != 0)
 	{
-		return error+10;
+		return error+100;
 	}
 	error = GE_GlueInit();
 	if (error != 0)
 	{
-		return error+100;
+		return error+200;
+	}
+	error = GE_RenderedObjectInit();
+	if (error != 0)
+	{
+		return error+300;
 	}
 
 	return 0;
@@ -27,8 +32,10 @@ int GE_Init(SDL_Renderer* renderer)
 
 void GE_Shutdown()
 {
+	printf("----FULL ENGINE SHUTDOWN----\n");
 	GE_IsOn = false;
 	GE_ShutdownPhysicsEngine();
+	printf("sprits\n");
 	GE_FreeAllSprites();
 
 }

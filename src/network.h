@@ -32,6 +32,8 @@
 
 #else
 
+#define NETWORKING_ENABLED
+
 /*!
  * A TCP socket abstraction
  */

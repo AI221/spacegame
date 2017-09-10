@@ -2,7 +2,7 @@
  * @file
  * @author Jackson McNeill
  *
- * 'Glues' the position of a physics object to a Vector2r pointer, updating it each physics tick using a double-buffer to avoid race conditions or locking of the render or physics engine
+ * 'Glues' one value to another, memcpy'ing it during the specified event (physics tick, render frame, etc.). Watch for undefined behaviors with this one.
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,10 +40,6 @@ struct GE_GlueTarget
 	int ID;
 };
 
-extern GE_GlueTarget* targets[MAX_GLUE_TARGETS];
-extern bool deadTargets[MAX_GLUE_TARGETS];
-extern Vector2r buffer[MAX_GLUE_TARGETS];
-extern int countGlueTargets;
 
 extern pthread_mutex_t GlueMutex;
 /*!
@@ -78,7 +74,6 @@ void GE_GlueRenderCallback();
 
 /*!
  * Frees a GlueObject.
- * Do not call during a Glue callback -- if needed, lock the GlueMutex
  * You MUST delete glue objects BEFORE deleting updateData or pullData. Failing to do so results in undefined behaviour, most likely a crash.
  */
 void GE_FreeGlueObject(GE_GlueTarget* subject);

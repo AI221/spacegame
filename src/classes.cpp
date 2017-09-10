@@ -193,6 +193,16 @@ Player::Player(SDL_Renderer* renderer) : GE_PhysicsObject({100,0,0},{0,0,0},GE_R
 	iterableSubsystems[0]->SetLevel(4);
 
 }
+Player::~Player()
+{
+	printf("Deleting the player!!!\n");
+	for (int i=0;i<numIterableSubsystems;i++)
+	{
+		delete iterableSubsystems[numIterableSubsystems];
+	}
+
+
+}
 //double fwdMove;
 //#define unrealisticMove true
 

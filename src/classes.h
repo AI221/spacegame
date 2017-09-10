@@ -66,6 +66,7 @@ class Player : public GE_PhysicsObject
 {
 	public:
 		Player(SDL_Renderer* renderer);
+		~Player();
 		bool C_Update();
 		bool C_Collision(int victimID, int collisionRectangleID);
 		bool GetIsOnline();

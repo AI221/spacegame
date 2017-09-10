@@ -36,7 +36,20 @@ class GE_UI_Text : public GE_UI_Element
 		void render();
 		void setText(const char* text);
 		void setText(std::string text);
-		void setSize(double x, double y);
+		void setSize(Vector2 newSize);
+		void setPosition(Vector2 newPosition);
+	
+		void centerX();
+		void centerY();
+		/*!
+		 * Change positions, so that the center of the text becomes the what the position is now. 
+		 */
+		void center();
+
+		/*!
+		 * Expand so that our boundries are equal to the ammount of text we're currently holding at this moment
+		 */
+		void expandToTextSize();
 		void setCursor(int pos);
 		void giveEvent(Vector2 parrentPosition, SDL_Event event);
 	//	bool wantsEvents;
@@ -51,6 +64,9 @@ class GE_UI_Text : public GE_UI_Element
 		SDL_Texture* Message;
 		int scrollPosition;
 		int cursorPosition;
+
+		bool doCenterX;
+		bool doCenterY;
 };
 class GE_UI_TextInput : public GE_UI_Element
 {

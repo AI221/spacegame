@@ -18,7 +18,10 @@ void GE_UI_Text::setText(const char* text)
 	{
 		return; //TODO CRASH NOTE: IF, DURING CONSTRUCTION, MESSAGE IS FAILED TO BE SET, THE NEXT RENDER() WILL CAUSE A CRASH.
 	}
-	SDL_DestroyTexture(Message); //Destroy old texture before putting in a new one
+	if (Message != NULL)
+	{
+		SDL_DestroyTexture(Message); //Destroy old texture before putting in a new one
+	}
 	Message = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
 
 	Message_rect.w = surfaceMessage->w;
@@ -32,25 +35,50 @@ void GE_UI_Text::setText(std::string text)
 {
 	setText(text.c_str());
 }
-void GE_UI_Text::setSize(double x, double y)
+void GE_UI_Text::setSize(Vector2 newSize)
 {
-	this->size = {x,y};
+	this->size = newSize;
 }	
+void GE_UI_Text::setPosition(Vector2 newPosition)
+{
+	this->position = newPosition;
+}
+void GE_UI_Text::centerX()
+{
+	doCenterX = true;
+}
+void GE_UI_Text::centerY()
+{
+	doCenterY = true;
+}
+void GE_UI_Text::center()
+{
+	centerX();
+	centerY();
+}
+void GE_UI_Text::expandToTextSize()
+{
+	this->size.x = this->Message_rect.w;
+	this->size.y = this->Message_rect.h;
+}
 GE_UI_Text::GE_UI_Text(SDL_Renderer* renderer, Vector2 position, Vector2 size, std::string text, SDL_Color color, TTF_Font* font)
 {
 	this->font = font;
 
 
-	this->position.x = position.x;
-	this->position.y = position.y;
-	this->size.x = size.x;
-	this->size.y = size.y;
 
+	this->position = position;
+	this->size = size;
 
 	this->renderer = renderer;
+
+	Message = NULL; //Initialized Message to NULL so that setText knows it shouldn't be freed ( because it doesn't yet exist)
 	setText(text); //Fills Message variable belonging to this class
 	this->color = color;
 	this->wantsEvents = false;
+
+	this->doCenterX = false;
+	this->doCenterY = false;
 
 	//this->scrollPosition;
 	//this->cursorPosition;
@@ -76,6 +104,17 @@ void GE_UI_Text::render(Vector2 parrentPosition)
 	animationRect.y = 0;
 	animationRect.w = size.x;
 	animationRect.h = size.y;
+
+
+	if (doCenterX)
+	{
+		transformedRect.x -= (this->Message_rect.w/2);
+	}
+	if (doCenterY)
+	{
+		transformedRect.y -= (this->Message_rect.h/2);
+	}
+
 	SDL_RenderCopy(renderer, Message,&animationRect,&transformedRect);	
 }
 void GE_UI_Text::render()
@@ -208,7 +247,7 @@ const char* GE_UI_TextInput::getText_cstr()
 GE_UI_Button::GE_UI_Button(SDL_Renderer* renderer, Vector2 position, Vector2 paddingSize, std::string text, SDL_Color textColor, SDL_Color color, SDL_Color pressedColor, TTF_Font* font)
 {
 	myText = new GE_UI_Text(renderer,position,{0,0},text,textColor,font);
-	myText->setSize(myText->Message_rect.w, myText->Message_rect.h);
+	myText->setSize({static_cast<double>(myText->Message_rect.w), static_cast<double>(myText->Message_rect.h)});
 	this->renderer = renderer;
 	this->position = position;
 	positionAndSize.x = position.x;

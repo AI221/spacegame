@@ -9,6 +9,7 @@
 #include "gluePhysicsObjectInit.h"
 #include "physics.h"
 #include "sprite.h"
+#include "renderedObject.h"
 #include "isOn.h"
 
 

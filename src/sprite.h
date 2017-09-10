@@ -132,4 +132,6 @@ void GE_FreeSprite(GE_Sprite* sprite);
  * Frees all loaded sprites in the Sprite table (This is to be called on game shutdown)
  */
 void GE_FreeAllSprites();
-#endif
+
+
+#endif // __SPRITE_INCLUDED

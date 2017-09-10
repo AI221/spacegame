@@ -19,18 +19,30 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 pthread_mutex_t RenderEngineMutex = PTHREAD_MUTEX_INITIALIZER;
 
 GE_RenderedObject* renderedObjects[MAX_RENDER_OBJECTS]; //TODO dimensions and what not
-bool deadRenderedObjects[MAX_RENDER_OBJECTS];
+bool deadRenderedObjects[MAX_RENDER_OBJECTS] = {1,};
 int numRenderedObjects = -1; 
 
-GE_RenderedObject* GE_CreateRenderedObject(SDL_Renderer* renderer, std::string spriteName) // size is not included (despite it being a value often set at start) due to its linked nature.
+
+int GE_RenderedObjectInit()
+{
+	memset(deadRenderedObjects,1,sizeof(deadRenderedObjects)); //Fill deadRendredObjects with 1, so that any unintialized object is "dead"
+	return 0;
+}
+
+GE_RenderedObject* GE_CreateRenderedObject(SDL_Renderer* renderer, std::string spriteName, int ID) // size is not included (despite it being a value often set at start) due to its linked nature.
 {
 	printf("Create RenderedObject\n");
-	GE_RenderedObject* renderedObject = new GE_RenderedObject{renderer, GE_SpriteNameToID(spriteName), Vector2r{0,0,0}, Vector2{0,0}, GE_Rectangle{0,0,0,0}, LINKED_NONE }; //TODO: some error handling for sprite 
-	renderedObjects[numRenderedObjects+1] = renderedObject;
+	GE_RenderedObject* renderedObject = new GE_RenderedObject{renderer, GE_SpriteNameToID(spriteName), Vector2r{0,0,0}, Vector2{0,0}, GE_Rectangle{0,0,0,0}, };
+	renderedObjects[ID] = renderedObject;
 	pthread_mutex_lock(&RenderEngineMutex);
-	numRenderedObjects++;
+	deadRenderedObjects[ID] = false; //Mark us as alive
+	numRenderedObjects = std::max(numRenderedObjects,ID); //Increase the num rendered objects to at least our ID
 	pthread_mutex_unlock(&RenderEngineMutex);
 	return renderedObject;
+}
+GE_RenderedObject* GE_CreateRenderedObject(SDL_Renderer* renderer, std::string spriteName) 
+{
+	return GE_CreateRenderedObject(renderer,spriteName,numRenderedObjects+1);
 }
 void GE_BlitRenderedObject(GE_RenderedObject* subject, Camera* camera)
 {

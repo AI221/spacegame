@@ -34,7 +34,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "GeneralEngineCPP.h"
 #include "vector2.h"
 #include "camera.h"
-#include "debugUI.h"
 #include "sprite.h"
 #include "physics.h"
 #include "renderedObject.h"
@@ -93,7 +92,6 @@ SDL_Renderer* myRenderer;
 
 Camera camera;
 GE_Rectangle camerasGrid;
-int camFocusedObj = 1;
 
 void render()
 {
@@ -162,7 +160,7 @@ int main(int argc, char* argv[])
 		printf("TTF_OpenFont: %s\n", TTF_GetError());
 		return 1;
 	}
-	TTF_Font* bigSans =  TTF_OpenFont(FREESANS_LOC, 42);
+	TTF_Font* bigSans =  TTF_OpenFont(FREESANS_LOC, 72);
 	if(!bigSans) {
 		printf("TTF_OpenFont: %s\n", TTF_GetError());
 		return 1;
@@ -174,16 +172,14 @@ int main(int argc, char* argv[])
 	}
 	atexit(SDL_Quit);
 
-	SDL_Window* myWindow;
-
+	//Hints
+	SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "0" );
 
 	camera.pos = {0,0,0};
 	camera.screenWidth = 1080;
 	camera.screenHeight = 720;
-
 	
-	myWindow = SDL_CreateWindow("Spacegame", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, camera.screenWidth, camera.screenHeight, 0);
-
+	SDL_Window* myWindow = SDL_CreateWindow("Spacegame", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, camera.screenWidth, camera.screenHeight, 0);
 	myRenderer = SDL_CreateRenderer(myWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
 	//Initialize the engine
@@ -195,18 +191,11 @@ int main(int argc, char* argv[])
 		printf("Game engine initialization error: %d\n",error);
 	}
 
-	
-	//Initialize stuff we need
-
 	GE_LoadSpritesFromDir(myRenderer, SPRITE_DIR);
-
 
 	//initialize the player
 	Player* player = new Player(myRenderer);
-	camFocusedObj = numFakePhysicsIDs;
 	GE_LinkVectorToPhysicsObjectPosition(player,&(camera.pos));
-	int focusGlueID = countGlueTargets;
-	
 	player->numGlueTargets++;
 	player->glueTargets[player->numGlueTargets] = GE_addGlueSubject(&camerasGrid,&player->grid,GE_PULL_ON_PHYSICS_TICK,sizeof(GE_Rectangle));
 
@@ -214,7 +203,7 @@ int main(int argc, char* argv[])
 //"locally scoped" definitions
 #define HUD_SIZE_X 300
 #define HUD_SIZE_Y 200
-	GE_UI_Surface* myHUD = new GE_UI_Surface(myRenderer,{static_cast<double>(camera.screenWidth-HUD_SIZE_X),static_cast<double>(camera.screenHeight-HUD_SIZE_Y)},{HUD_SIZE_X,HUD_SIZE_Y},{0x00,0x33,0x00,255});
+	GE_UI_Surface* myHUD = new GE_UI_Surface(myRenderer,{  static_cast<double>(camera.screenWidth-HUD_SIZE_X),static_cast<double>(camera.screenHeight-HUD_SIZE_Y)  },{HUD_SIZE_X,HUD_SIZE_Y},{0x00,0x33,0x00,255});
 
 	int numHealthTexts = 0;
 	GE_UI_Text* healthTexts[MAX_SUBSYSTEMS] = {};
@@ -223,7 +212,9 @@ int main(int argc, char* argv[])
 
 	for (int i=0;i<player->numIterableSubsystems;i++)
 	{
-		GE_UI_Text* newText = new GE_UI_Text(myRenderer,{0,15*static_cast<double>(i)},{400,15},"This message should've been updated.", {0x66,0xFF,0x00,0xFF},tinySans);
+		GE_UI_Text* newText = new GE_UI_Text(myRenderer,{HUD_SIZE_X/2,15*static_cast<double>(i)},{0,0},"This message should've been updated.", {0x66,0xFF,0x00,0xFF},tinySans);
+		newText->centerX();
+		newText->expandToTextSize();
 		printf("add element %d\n",myHUD->addElement(newText));
 		healthTexts[numHealthTexts] = newText;
 		player->numGlueTargets++;
@@ -232,7 +223,9 @@ int main(int argc, char* argv[])
 	}
 
 
-	GE_UI_Text* GameOver = new GE_UI_Text(myRenderer,{0,0},{400,80},"GAME OVER!",{0xFF,0x00,0x00,0xFF},bigSans);
+	GE_UI_Text* GameOver = new GE_UI_Text(myRenderer,{static_cast<double>(camera.screenWidth/2),static_cast<double>(camera.screenHeight/2)},{0,0},"GAME OVER!",{0xFF,0x00,0x00,0xFF},bigSans);
+	GameOver->center();
+	GameOver->expandToTextSize();
 
 
 
@@ -240,26 +233,27 @@ int main(int argc, char* argv[])
 	//spawn some enemys why not
 	
 
-	for (int i=0;i<20;i++)
+	/*for (int i=0;i<20;i++)
 	{	
 		double randomx = rand() % 5000 + 1;
 		double randomy = rand() % 5000 + 1;
 		Enemie* un = new Enemie(myRenderer, {randomx-1500,randomy-1500,0},1);
-	}
+	}*/
+	new Enemie(myRenderer, {200,0,0},1);
 
 
 
 	
 #ifdef PHYSICS_DEBUG_SLOWRENDERS
 		GE_DEBUG_PassRendererToPhysicsEngine(myRenderer,&camera);
-	#endif
+#endif
 	
 	pthread_mutex_unlock(&PhysicsEngineMutex);
 
 
 
 	char newStr[256] = {0};
-	while (player->GetIsOnline())
+	while (true)//player->GetIsOnline())
 	{
 		//printf("Tryin to render here\n");
 		//pthread_mutex_lock(&RenderEngineMutex);
@@ -282,7 +276,7 @@ int main(int argc, char* argv[])
 
 		myHUD->render();
 
-		if ((!player->GetIsOnline()) && ((int)floor(ticknum / 20.0) ) % 3) //Flash "Game over!" if the player is dead. Basically, this is 20x slower than flashing for 2 ticks on, 1 tick off.
+		if ((!player->GetIsOnline()) && ((int)floor(ticknum / 5.0) ) % 3) //Flash "Game over!" if the player is dead. Basically, this is 20x slower than flashing for 2 ticks on, 1 tick off.
 		{
 			GameOver->render({0,0});
 		}
@@ -304,13 +298,17 @@ int main(int argc, char* argv[])
 
 		SDL_RenderPresent(myRenderer); //Seems to be the VSyncer (expect ~16ms wait upon call)
 	}
+	printf("--BEGIN SHUTDOWN--\n");
 
 	TTF_CloseFont(tinySans);
 	TTF_CloseFont(bigSans);
+	printf("destroy sdl stuff\n");
 
 	SDL_DestroyWindow(myWindow);
 	SDL_DestroyRenderer(myRenderer);
-	delete player;
+	printf("plr\n");
+	GE_FreePhysicsObject(player);
+	printf("hud\n");
 	delete myHUD;
 	for (int i=0;i<numHealthTexts;i++)
 	{
@@ -320,13 +318,26 @@ int main(int argc, char* argv[])
 
 	GE_Shutdown();
 
+	printf("Bye.\n");
 	return 0;
 }
 
 #endif //real
+
+
+
+
+
+
+//ALL OF THIS SHIT NEEDS TO BE REORGANIZED INTO SOMETHING SANE
+
+
 #ifdef regular
 int main(int argc, char* argv[])
 {
+	int camFocusedObj;
+
+
 	int ttferror = TTF_Init();
 	if (ttferror < 0) 
 	{

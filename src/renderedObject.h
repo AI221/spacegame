@@ -45,15 +45,17 @@ struct GE_RenderedObject
 	Vector2 size;
 	GE_Rectangle grid;
 	GE_Rectangle animation; //end linked data
-
-
-	GE_LinkedType linkedType;
-	int linkedID;
 };
 
 extern GE_RenderedObject* renderedObjects[MAX_RENDER_OBJECTS]; //TODO dimensions and what not
 extern bool deadRenderedObjects[MAX_RENDER_OBJECTS];
 extern int numRenderedObjects;
+
+/*!
+ * Always call before using a rendered object
+ */
+int GE_RenderedObjectInit();
+
 
 /*!
  * Adds a GE_RenderedObject to the global lists of rendered objects, and returns a pointer to it back to you.
@@ -62,6 +64,7 @@ extern int numRenderedObjects;
  * @param spriteName The name of the spirte the GE_RenderedObject will use
  */
 GE_RenderedObject* GE_CreateRenderedObject(SDL_Renderer* renderer, std::string spriteName);
+GE_RenderedObject* GE_CreateRenderedObject(SDL_Renderer* renderer, std::string spriteName, int ID);
 
 /*! 
  * Blits a rendered object and applys camera offset
