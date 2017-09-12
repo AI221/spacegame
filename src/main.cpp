@@ -235,13 +235,13 @@ int main(int argc, char* argv[])
 	//spawn some enemys why not
 	
 
-	/*for (int i=0;i<20;i++)
+	for (int i=0;i<20;i++)
 	{	
 		double randomx = rand() % 5000 + 1;
 		double randomy = rand() % 5000 + 1;
-		Enemie* un = new Enemie(myRenderer, {randomx-1500,randomy-1500,0},1);
-	}*/
-	new Enemie(myRenderer, {200,0,0},1);
+		new Enemie(myRenderer, {randomx-1500,randomy-1500,0},1);
+	}
+	//new Enemie(myRenderer, {200,0,0},1);
 
 
 
@@ -278,7 +278,7 @@ int main(int argc, char* argv[])
 
 		myHUD->render();
 
-		if ((!player->GetIsOnline()) && ((int)floor(ticknum / 5.0) ) % 3) //Flash "Game over!" if the player is dead. Basically, this is 20x slower than flashing for 2 ticks on, 1 tick off.
+		if ((!player->GetIsOnline()) && static_cast<int>(floor(ticknum / 5.0)) % 3) //Flash "Game over!" if the player is dead. Basically, this is (%number)/(dividedNumber), top being how often it's ON, bottom being how often it's OFF... except when it's not. I'll level with you: I figured out how to make timers based soley off of the tick number a long time ago. I no longer have a clue how this works. I adjusted it until I got the result I wanted. 
 		{
 			GameOver->render({0,0});
 		}
