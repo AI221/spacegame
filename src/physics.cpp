@@ -50,7 +50,7 @@ std::function< void ()> C_PhysicsTickPreCallbacks[MAX_PHYSICS_ENGINE_PRE_CALLBAC
 int numPhysicsTickPreCallbacks = -1;
 
 
-GE_PhysicsObject::GE_PhysicsObject(Vector2r position, Vector2r velocity, GE_Rectangle grid)
+GE_PhysicsObject::GE_PhysicsObject(Vector2r position, Vector2r velocity, GE_Rectangle grid, double mass)
 {
 	numFakePhysicsIDs++;
 	numPhysicsObjects++;
@@ -58,6 +58,7 @@ GE_PhysicsObject::GE_PhysicsObject(Vector2r position, Vector2r velocity, GE_Rect
 	this->position = position;
 	this->velocity = velocity;
 	this->grid = grid; //TODO automate 
+	this->mass = mass;
 
 	warpedShape = {0,0};
 
@@ -103,12 +104,12 @@ int GE_PhysicsInit()
 	pthread_create(&PhysicsEngineThread,NULL,GE_physicsThreadMain,NULL );
 	return 0;
 }
-GE_PhysicsObject* GE_CreatePhysicsObject(Vector2r newPosition, Vector2r newVelocity, Vector2 shape)
+GE_PhysicsObject* GE_CreatePhysicsObject(Vector2r newPosition, Vector2r newVelocity, Vector2 shape,double mass)
 {
 	GE_NoGreaterThan_NULL(numPhysicsObjects,MAX_PHYSICS_OBJECTS);
 	//TODO: Auto-generate shape.
 
-	GE_PhysicsObject* newPhysicsObject = new GE_PhysicsObject(newPosition, newVelocity, {0,0,shape.x, shape.y});
+	GE_PhysicsObject* newPhysicsObject = new GE_PhysicsObject(newPosition, newVelocity, {0,0,shape.x, shape.y},mass);
 
 	fakeToRealPhysicsID[numFakePhysicsIDs] = numPhysicsObjects;
 	physicsObjects[numPhysicsObjects] = newPhysicsObject;
@@ -414,8 +415,8 @@ bool GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj)
 
 
 					Vector2r cObjsVelocity = cObj->velocity;
-					cObj->velocity = victimObj->velocity;
-					victimObj->velocity = cObjsVelocity;
+					cObj->velocity = GE_GetForce(victimObj->velocity,victimObj->mass,cObj->mass);
+					victimObj->velocity = GE_GetForce(cObjsVelocity,cObj->mass,victimObj->mass);
 
 
 					//TODO: is it possible that the object order (the victimObj's tick might not have occured yet) could be causing our troubles?
@@ -538,6 +539,11 @@ void GE_RectangleToPoints(GE_Rectangle rect, GE_Rectangle grid, Vector2* points,
 		#endif
 
 	}
+}
+
+Vector2r GE_GetForce(Vector2r velocity, double massOfSource, double massOfVictim) //TODO actual calculation of force on something
+{
+	return {(velocity.x*massOfSource)/massOfVictim,(velocity.y*massOfSource)/massOfVictim,(velocity.r*massOfSource)/massOfVictim};
 }
 
 void GE_ShutdownPhysicsEngine()

@@ -26,7 +26,7 @@
 #include "gluePhysicsObject.h"
 #include "isOn.h"
 
-#define PHYSICS_DEBUG_SLOWRENDERS 
+//#define PHYSICS_DEBUG_SLOWRENDERS 
 
 #include "SDL.h" //TODO temp
 #ifdef PHYSICS_DEBUG_SLOWRENDERS
@@ -58,7 +58,7 @@ extern unsigned int PhysicsDelayUSeconds;
 class GE_PhysicsObject
 {
 	public:
-		GE_PhysicsObject(Vector2r position, Vector2r velocity, GE_Rectangle grid);
+		GE_PhysicsObject(Vector2r position, Vector2r velocity, GE_Rectangle grid, double mass);
 		virtual ~GE_PhysicsObject();
 
 
@@ -66,6 +66,7 @@ class GE_PhysicsObject
 
 		Vector2r position;
 		Vector2r velocity;
+		double mass;
 		GE_Rectangle grid; //simplified version of all collisionRectangles
 		Vector2 warpedShape;
 		int ID;
@@ -141,7 +142,7 @@ extern int sGrid[2000][2000]; //TODO: Dynamically sized arrays for both of these
 int GE_PhysicsInit();
 
 
-GE_PhysicsObject* GE_CreatePhysicsObject(Vector2r newPosition, Vector2r newVelocity, Vector2 shape);
+GE_PhysicsObject* GE_CreatePhysicsObject(Vector2r newPosition, Vector2r newVelocity, Vector2 shape,double mass);
 
 void GE_LinkVectorToPhysicsObjectPosition(GE_PhysicsObject* subject, Vector2r* link);
 
@@ -228,6 +229,8 @@ void GE_FreePhysicsObject(GE_PhysicsObject* physicsObject); //MUST be allocated 
  * @param hostPosition a Vector2r , note the r, that the GE_Rectangle rect belongs to. It is used to be added to the positions of points, and its rotation will translate them.
  */
 void GE_RectangleToPoints(GE_Rectangle rect, GE_Rectangle grid, Vector2* points, Vector2r hostPosition);
+
+Vector2r GE_GetForce(Vector2r velocity, double massOfSource, double massOfVictim);
 
 /*!
  * Frees all physics objects in memory. Call on shutdown.

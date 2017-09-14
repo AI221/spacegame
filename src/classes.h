@@ -34,6 +34,12 @@ enum TYPES
 	TYPE_DESTROYSUB, //bullets, etc.
 };
 
+
+
+//config
+
+#define STD_BULLET_MASS 0.5
+
 class Subsystem
 {
 	public:
@@ -102,7 +108,7 @@ class Enemie : public GE_PhysicsObject
 class BulletType : public GE_PhysicsObject
 {
 	public:
-		BulletType(Vector2r position, Vector2r velocity, GE_Rectangle grid);
+		BulletType(Vector2r position, Vector2r velocity, GE_Rectangle grid, double mass);
 		~BulletType();
 		int level;
 		bool C_Collision(int victimID, int collisionRectangleID);

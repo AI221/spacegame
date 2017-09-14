@@ -117,7 +117,7 @@ int handleEvents(SDL_Event* event)
 #define positionDouble(x,y) {x*2,y*2,0}
 //the above inserts TWO PARAMETERS
 
-Player::Player(SDL_Renderer* renderer) : GE_PhysicsObject({100,0,0},{0,0,0},GE_Rectangle{0,0,98,102})
+Player::Player(SDL_Renderer* renderer) : GE_PhysicsObject({100,0,0},{0,0,0},GE_Rectangle{0,0,98,102},25)
 {
 
 
@@ -283,7 +283,7 @@ bool Player::C_Update()
 					ro->animation = {0,0,8,9};
 					
 
-					GE_PhysicsObject* me = GE_CreatePhysicsObject({this->position.x+50,this->position.y+150,0},{0,0,0},{25,25});
+					GE_PhysicsObject* me = GE_CreatePhysicsObject({this->position.x+50,this->position.y+150,0},{0,0,0},{25,25},2);
 					me->collisionRectangles[me->numCollisionRectangles] = {0,0,25,25};
 					me->numCollisionRectangles++;
 
@@ -415,7 +415,7 @@ bool Player::GetIsOnline()
 
 
 
-Enemie::Enemie(SDL_Renderer* renderer, Vector2r position, int level) : GE_PhysicsObject(position,{0,0,0},GE_Rectangle{0,0,38,42})
+Enemie::Enemie(SDL_Renderer* renderer, Vector2r position, int level) : GE_PhysicsObject(position,{0,0,0},GE_Rectangle{0,0,38,42},25)
 {
 	this->renderer = renderer;
 
@@ -503,7 +503,7 @@ bool Enemie::C_Collision(int victimID, int collisionRectangleID)
 
 
 
-BulletType::BulletType(Vector2r position, Vector2r velocity, GE_Rectangle grid) : GE_PhysicsObject(position,velocity,grid)
+BulletType::BulletType(Vector2r position, Vector2r velocity, GE_Rectangle grid, double mass) : GE_PhysicsObject(position,velocity,grid, mass)
 {
 	type = TYPE_DESTROYSUB;
 }
@@ -523,7 +523,7 @@ BulletType::~BulletType()
 }
 
 
-StdBullet::StdBullet(SDL_Renderer* renderer, Vector2r position, const char* spriteName) : BulletType(position,{0,0,0},GE_Rectangle{0,0,2,10})
+StdBullet::StdBullet(SDL_Renderer* renderer, Vector2r position, const char* spriteName) : BulletType(position,{0,0,0},GE_Rectangle{0,0,2,10},STD_BULLET_MASS)
 {
 	renderObject = GE_CreateRenderedObject(renderer,spriteName); 
 	pthread_mutex_lock(&RenderEngineMutex);
