@@ -38,6 +38,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "physics.h"
 #include "renderedObject.h"
 #include "UI.h"
+#include "minimap.h"
 #include "gluePhysicsObject.h"
 #include "gluePhysicsObjectInit.h"
 #include "engine.h"
@@ -122,7 +123,7 @@ void render()
 				
 			if (!deadRenderedObjects[i])
 			{
-				GE_BlitRenderedObject(renderedObjects[i],&camera);
+				GE_BlitRenderedObject(renderedObjects[i],&camera,0.7);
 			}
 			//else{printf("encounter dead render object\n");}
 		}
@@ -223,6 +224,12 @@ int main(int argc, char* argv[])
 		player->glueTargets[player->numGlueTargets] = GE_addGlueSubject(&healthAmmount[numHealthTexts],&(player->iterableSubsystems[numHealthTexts]->health),GE_PULL_ON_PHYSICS_TICK,sizeof(double));
 		numHealthTexts++;
 	}
+	GE_UI_Text* speedText = new GE_UI_Text(myRenderer,{HUD_SIZE_X/2,15*static_cast<double>(numHealthTexts+1)},{0,0},"This message should've been updated.", {0x66,0xFF,0x00,0xFF},tinySans);
+	speedText->centerX();
+	speedText->expandToTextSize();
+	myHUD->addElement(speedText);
+	Vector2r playerSpeed = {0,0,0};
+	GE_LinkVectorToPhysicsObjectVelocity(player,&playerSpeed);
 
 
 	GE_UI_Text* GameOver = new GE_UI_Text(myRenderer,{static_cast<double>(camera.screenWidth/2),static_cast<double>(camera.screenHeight/2)},{0,0},"GAME OVER!",{0xFF,0x00,0x00,0xFF},bigSans);
@@ -253,6 +260,7 @@ int main(int argc, char* argv[])
 	pthread_mutex_unlock(&PhysicsEngineMutex);
 
 
+	GE_UI_Minimap* minimap = new GE_UI_Minimap(myRenderer, {0,0},{100,100},0.5, {0xFF,0xFF,0xFF,0xFF}, {0xFF,0x00,0xFF,0xFF}, &camera); 
 
 	char newStr[256] = {0};
 	while (true)//player->GetIsOnline())
@@ -270,13 +278,16 @@ int main(int argc, char* argv[])
 
 		for (int i=0;i<numHealthTexts;i++)
 		{
-			sprintf(newStr, "%s: %f%%",player->iterableSubsystems[i]->name.c_str(),healthAmmount[i]); //name: healthpercentage%
+			sprintf(newStr, "%s: %.2f%%",player->iterableSubsystems[i]->name.c_str(),healthAmmount[i]); //name: healthpercentage%
 
 			healthTexts[i]->setText(newStr);
 		}
+		sprintf (newStr, "Speed: %.2f m/s",(abs(playerSpeed.x)+abs(playerSpeed.y))*PhysicsDelaySeconds);
+		speedText->setText(newStr);
 
 
 		myHUD->render();
+		//minimap->render({0,0});
 
 		if ((!player->GetIsOnline()) && static_cast<int>(floor(ticknum / 5.0)) % 3) //Flash "Game over!" if the player is dead. Basically, this is (%number)/(dividedNumber), top being how often it's ON, bottom being how often it's OFF... except when it's not. I'll level with you: I figured out how to make timers based soley off of the tick number a long time ago. I no longer have a clue how this works. I adjusted it until I got the result I wanted. 
 		{

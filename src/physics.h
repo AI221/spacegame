@@ -36,10 +36,12 @@
 	void GE_DEBUG_PassRendererToPhysicsEngine(SDL_Renderer* yourRenderer, Camera* yourCamera);
 #endif
 
-extern bool DEBUG_allowPhysicsTick;
 
 #ifndef __PHYSICS_INCLUDED
 #define __PHYSICS_INCLUDED
+	
+	
+extern bool DEBUG_allowPhysicsTick;
 
 //LIMITS:
 #define MAX_PHYSICS_OBJECTS 10024 //maximum ammount of physics objects in the game
@@ -50,7 +52,7 @@ extern bool DEBUG_allowPhysicsTick;
 
 //RUNTIME CONFIG
 
-extern unsigned int PhysicsDelayUSeconds;
+extern double PhysicsDelaySeconds;
 
 /*!
  * The basic Physics object structure. It's recommended that your game objects inhereit from this, though you can do non-OO design alternatively using glueObject's buffering.
@@ -145,6 +147,8 @@ int GE_PhysicsInit();
 GE_PhysicsObject* GE_CreatePhysicsObject(Vector2r newPosition, Vector2r newVelocity, Vector2 shape,double mass);
 
 void GE_LinkVectorToPhysicsObjectPosition(GE_PhysicsObject* subject, Vector2r* link);
+
+void GE_LinkVectorToPhysicsObjectVelocity(GE_PhysicsObject* subject, Vector2r* link);
 
 
 /*!

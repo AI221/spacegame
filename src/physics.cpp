@@ -123,6 +123,11 @@ void GE_LinkVectorToPhysicsObjectPosition(GE_PhysicsObject* subject, Vector2r* l
 	subject->numGlueTargets++;
 	subject->glueTargets[subject->numGlueTargets] = GE_addGlueSubject(link,&subject->position,GE_PULL_ON_PHYSICS_TICK,sizeof(Vector2r));
 }
+void GE_LinkVectorToPhysicsObjectVelocity(GE_PhysicsObject* subject, Vector2r* link)
+{
+	subject->numGlueTargets++;
+	subject->glueTargets[subject->numGlueTargets] = GE_addGlueSubject(link,&subject->velocity,GE_PULL_ON_PHYSICS_TICK,sizeof(Vector2r));
+}
 int GE_GetPhysicsObjectFromID(int fakeID, GE_PhysicsObject** physicsObjectPointer)
 {
 	if (fakeID > numFakePhysicsIDs)
@@ -269,8 +274,13 @@ void GE_TickPhysics()
 	}
 }
 
+struct InternalResult
+{
+	bool deleteMe;
+	bool didCollide;
+};
 
-bool GE_TickPhysics_ForObject_Internal(GE_PhysicsObject* cObj, int ID, Vector2r* velocity)
+InternalResult GE_TickPhysics_ForObject_Internal(GE_PhysicsObject* cObj, int ID, Vector2r* velocity)
 {
 	//move ourselves forward
 	//first set velocity
@@ -295,13 +305,15 @@ bool GE_TickPhysics_ForObject_Internal(GE_PhysicsObject* cObj, int ID, Vector2r*
 		{
 			if (GE_CollisionFullCheck(cObj,physicsObjects[i]))
 			{
-				return true;	
+				return {true,true};	
 			}
+			cObj->lastGoodPosition = cObj->position;
+			return {false,true};
 		}
 	}
 	
 	cObj->lastGoodPosition = cObj->position;
-	return false;
+	return {false,false};
 }
 bool GE_TickPhysics_ForObject(GE_PhysicsObject* cObj, int ID)
 {
@@ -316,13 +328,17 @@ bool GE_TickPhysics_ForObject(GE_PhysicsObject* cObj, int ID)
 
 
 	for (int i = 0; i <= miniTickrate; i++)
-	{
-		if ( GE_TickPhysics_ForObject_Internal(cObj,ID,velocity)) //TODO: Because of this mini-tick system, objects that collide with a i/miniTickrate value of <1 will have non-up-to-date velocities being added. 
+	{//TODO: Because of this mini-tick system, objects that collide with a i/miniTickrate value of <1 will have non-up-to-date velocities being added. 
+		InternalResult result = GE_TickPhysics_ForObject_Internal(cObj,ID,velocity); 
+		if (result.deleteMe)
 		{
 			return true;
 		}
+		else if (result.didCollide)
+		{
+			break;
+		}
 	}
-
 	delete velocity;
 	return false;
 

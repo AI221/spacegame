@@ -165,6 +165,8 @@ void GE_BlitSprite(GE_Sprite* sprite, Vector2r position,Vector2 size, GE_Rectang
 			flip_real = (SDL_RendererFlip) ((SDL_RendererFlip) SDL_FLIP_HORIZONTAL | (SDL_RendererFlip) SDL_FLIP_VERTICAL);
 			break;
 	}
+	
+	printf("s p %d, %d\n",renderPosition.x,renderPosition.y);
 
 	GE_BlitSprite(sprite,renderPosition,renderAnimation,position.r,flip_real);
 }

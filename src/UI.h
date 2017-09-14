@@ -114,11 +114,6 @@ class GE_UI_Button : public GE_UI_Element
 		SDL_Color color;
 		SDL_Color pressedColor;
 };
-class GE_UI_Minimap : public GE_UI_Element
-{
-
-
-};
 
 
 class GE_UI_Surface

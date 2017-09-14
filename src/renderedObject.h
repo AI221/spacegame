@@ -71,7 +71,7 @@ GE_RenderedObject* GE_CreateRenderedObject(SDL_Renderer* renderer, std::string s
  * @param subject A pointer to the GE_RenderedObject to use
  * @param camera A pointer to the camera to use
  */
-void GE_BlitRenderedObject(GE_RenderedObject* subject, Camera* camera);
+void GE_BlitRenderedObject(GE_RenderedObject* subject, Camera* camera, double scale);
 
 /*! 
  * Frees a GE_RenderedObject allocated with new. Does not destroy its renderer or sprite. 
