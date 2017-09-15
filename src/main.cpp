@@ -123,7 +123,7 @@ void render()
 				
 			if (!deadRenderedObjects[i])
 			{
-				GE_BlitRenderedObject(renderedObjects[i],&camera,0.7);
+				GE_BlitRenderedObject(renderedObjects[i],&camera,1);
 			}
 			//else{printf("encounter dead render object\n");}
 		}

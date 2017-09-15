@@ -26,7 +26,7 @@
 #include "gluePhysicsObject.h"
 #include "isOn.h"
 
-//#define PHYSICS_DEBUG_SLOWRENDERS 
+#define PHYSICS_DEBUG_SLOWRENDERS 
 
 #include "SDL.h" //TODO temp
 #ifdef PHYSICS_DEBUG_SLOWRENDERS
@@ -214,11 +214,6 @@ void GE_TickPhysics();
  * @param cObj The pointer to the physics object to tick
  */ 
 bool GE_TickPhysics_ForObject(GE_PhysicsObject* cObj,int ID);
-
-/*!
- * The function called when a full collision check is determined to be necessary. In general: Don't touch this
- */
-bool GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj);
 
 /*! 
  * Frees the memory used by a physics object. 

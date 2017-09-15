@@ -308,8 +308,8 @@ bool Player::C_Update()
 			fwdMove = fwdMove-0.5;
 #else
 			//account for damaged thrusters -- if one is offline, we're going to spin when we move.
-			if (iterableSubsystems[0]->GetIsOnline()) GE_AddRelativeVelocity(this,{0,-0.25,0.050});
-			if (iterableSubsystems[4]->GetIsOnline()) GE_AddRelativeVelocity(this,{0,-0.25,-0.050});
+			if (iterableSubsystems[0]->GetIsOnline()) GE_AddRelativeVelocity(this,{0,10000,0.050});
+			if (iterableSubsystems[4]->GetIsOnline()) GE_AddRelativeVelocity(this,{0,10000,-0.050});
 #endif
 		
 		}

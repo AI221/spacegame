@@ -166,7 +166,7 @@ void GE_BlitSprite(GE_Sprite* sprite, Vector2r position,Vector2 size, GE_Rectang
 			break;
 	}
 	
-	printf("s p %d, %d\n",renderPosition.x,renderPosition.y);
+	//printf("s p %d, %d\n",renderPosition.x,renderPosition.y);
 
 	GE_BlitSprite(sprite,renderPosition,renderAnimation,position.r,flip_real);
 }

@@ -256,7 +256,7 @@ int numCollisionsTemp = 0;
 void GE_TickPhysics()
 {
 	ticknum++;
-	//printf("Physics tick #%d\n",ticknum);
+	printf("Physics tick #%d\n",ticknum);
 	for (int i=0;i < (numPhysicsObjects+1); i++)
 	{
 		//printf("i %d\n",i);
@@ -279,71 +279,7 @@ struct InternalResult
 	bool deleteMe;
 	bool didCollide;
 };
-
-InternalResult GE_TickPhysics_ForObject_Internal(GE_PhysicsObject* cObj, int ID, Vector2r* velocity)
-{
-	//move ourselves forward
-	//first set velocity
-	
-	cObj->position = cObj->position+(*velocity);
-
-
-	cObj->grid.x = (int) (cObj->position.x/10);
-	cObj->grid.y = (int) (cObj->position.y/10);
-
-	//Marked for removal, old code related to sGrid system	
-	//Calculate how the shape warps. The shape will stretch as you move faster to avoid clipping
-	//cObj->warpedShape.x = ((abs(cObj->velocity.x)/10)+2)*(cObj->grid.w/10);
-	//cObj->warpedShape.y = ((abs(cObj->velocity.y)/10)+2)*(cObj->grid.h/10);
-
-
-
-	for (int i=0;i < (numPhysicsObjects+1); i++)
-	{
-		//printf("i %d\n",i);
-		if(!deadPhysicsObjects[i] && i != ID)
-		{
-			if (GE_CollisionFullCheck(cObj,physicsObjects[i]))
-			{
-				return {true,true};	
-			}
-			cObj->lastGoodPosition = cObj->position;
-			return {false,true};
-		}
-	}
-	
-	cObj->lastGoodPosition = cObj->position;
-	return {false,false};
-}
-bool GE_TickPhysics_ForObject(GE_PhysicsObject* cObj, int ID)
-{
-	//To avoid Clipping/"Bullet through paper" effect, we will slow down the physics simulation for a specific object by an unsigned nonzero integer and then slow down velocity accordingly. The user SHOULD NOT be able to tell any of this is happening. For performance, velocity is passed as a pointer to the internal function.
-	
-	unsigned int miniTickrate = fmax(ceil(  ((abs(cObj->velocity.x)+abs(cObj->velocity.y))/20) ),1); //minimum of 1. //TODO adjust this to good value
-	
-	
-	Vector2r* velocity = new Vector2r{cObj->velocity.x/miniTickrate, cObj->velocity.y/miniTickrate, cObj->velocity.r/miniTickrate};
-
-	//printf("MINITICKRATE: %d\n,",miniTickrate);
-
-
-	for (int i = 0; i <= miniTickrate; i++)
-	{//TODO: Because of this mini-tick system, objects that collide with a i/miniTickrate value of <1 will have non-up-to-date velocities being added. 
-		InternalResult result = GE_TickPhysics_ForObject_Internal(cObj,ID,velocity); 
-		if (result.deleteMe)
-		{
-			return true;
-		}
-		else if (result.didCollide)
-		{
-			break;
-		}
-	}
-	delete velocity;
-	return false;
-
-}
-bool GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj)
+InternalResult GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj)
 {
 	Vector2 theirPoints[4] = {};
 	Vector2 myPoints[4] = {};
@@ -419,7 +355,7 @@ bool GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj)
 					
 					if (doReturn)
 					{
-						return true;
+						return {true,true};
 					} 
 				
 					numCollisionsTemp++;
@@ -454,9 +390,9 @@ bool GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj)
 					{
 						printf("~~~~~KillMe\n");
 						GE_FreePhysicsObject(cObj);
-						return true;
+						return {true,true};
 					}
-					return false;
+					return {false,true};
 				}
 				else
 				{
@@ -466,8 +402,77 @@ bool GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj)
 			}
 		}
 	}
-	return false;
+	return {false,false};
 }
+InternalResult GE_TickPhysics_ForObject_Internal(GE_PhysicsObject* cObj, int ID, Vector2r* velocity)
+{
+	//move ourselves forward
+	//first set velocity
+	
+	cObj->position = cObj->position+(*velocity);
+
+
+	cObj->grid.x = (int) (cObj->position.x/10);
+	cObj->grid.y = (int) (cObj->position.y/10);
+
+	//Marked for removal, old code related to sGrid system	
+	//Calculate how the shape warps. The shape will stretch as you move faster to avoid clipping
+	//cObj->warpedShape.x = ((abs(cObj->velocity.x)/10)+2)*(cObj->grid.w/10);
+	//cObj->warpedShape.y = ((abs(cObj->velocity.y)/10)+2)*(cObj->grid.h/10);
+
+
+
+	for (int i=0;i < (numPhysicsObjects+1); i++)
+	{
+		//printf("i %d\n",i);
+		if(!deadPhysicsObjects[i] && i != ID)
+		{
+			InternalResult result = GE_CollisionFullCheck(cObj,physicsObjects[i]);
+			if (result.deleteMe)
+			{
+				return {true,true};	
+			}
+			else if (result.didCollide)
+			{
+				return {true,false};
+			}
+			cObj->lastGoodPosition = cObj->position;
+		}
+	}
+	
+	cObj->lastGoodPosition = cObj->position;
+	return {false,false};
+}
+bool GE_TickPhysics_ForObject(GE_PhysicsObject* cObj, int ID)
+{
+	//To avoid Clipping/"Bullet through paper" effect, we will slow down the physics simulation for a specific object by an unsigned nonzero integer and then slow down velocity accordingly. The user SHOULD NOT be able to tell any of this is happening. For performance, velocity is passed as a pointer to the internal function.
+	
+	unsigned int miniTickrate = fmax(ceil(  ((abs(cObj->velocity.x)+abs(cObj->velocity.y))/20) ),1); //minimum of 1. //TODO adjust this to good value
+	
+	
+	Vector2r* velocity = new Vector2r{cObj->velocity.x/miniTickrate, cObj->velocity.y/miniTickrate, cObj->velocity.r/miniTickrate};
+
+	//printf("MINITICKRATE: %d\n,",miniTickrate);
+
+
+	for (int i = 0; i <= miniTickrate; i++)
+	{//TODO: Because of this mini-tick system, objects that collide with a i/miniTickrate value of <1 will have non-up-to-date velocities being added. 
+		InternalResult result = GE_TickPhysics_ForObject_Internal(cObj,ID,velocity); 
+		if (result.deleteMe)
+		{
+			return true;
+		}
+		else if (result.didCollide)
+		{
+			printf("BREAK\n");
+			break;
+		}
+	}
+	delete velocity;
+	return false;
+
+}
+
 
 
 void GE_FreePhysicsObject(GE_PhysicsObject* physicsObject) //MUST be allocated with new
