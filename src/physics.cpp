@@ -365,10 +365,21 @@ InternalResult GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* v
 
 					victimObj->position = victimObj->lastGoodPosition;
 
+					Vector2r cObjVelocity = cObj->velocity;
+					
+					Vector2r newVelocity = ((victimObj->velocity*victimObj->mass)/cObj->mass)/2;
 
-					Vector2r cObjsVelocity = cObj->velocity;
-					cObj->velocity = GE_GetForce(victimObj->velocity,victimObj->mass,cObj->mass);
-					victimObj->velocity = GE_GetForce(cObjsVelocity,cObj->mass,victimObj->mass);
+					GE_InelasticCollision(cObj,myPoints[me],newVelocity,false);
+					
+					//newVelocity = cObjVelocity*cObj->mass;//GE_InelasticCollisionVelocityExchange(cObj->velocity,victimObj->velocity,cObj->mass,victimObj->mass);
+					newVelocity = ((cObjVelocity*cObj->mass)/victimObj->mass)/2;
+					
+					GE_InelasticCollision(victimObj,myPoints[me],newVelocity,true);
+
+
+
+
+
 
 
 					//TODO: is it possible that the object order (the victimObj's tick might not have occured yet) could be causing our troubles?
@@ -562,9 +573,48 @@ void GE_RectangleToPoints(GE_Rectangle rect, GE_Rectangle grid, Vector2* points,
 	}
 }
 
-Vector2r GE_GetForce(Vector2r velocity, double massOfSource, double massOfVictim) //TODO actual calculation of force on something
+Vector2r GE_InelasticCollisionVelocityExchange(Vector2r velocity1, Vector2r velocity2, double mass1, double mass2) 
 {
-	return {(velocity.x*massOfSource)/massOfVictim,(velocity.y*massOfSource)/massOfVictim,(velocity.r*massOfSource)/massOfVictim};
+	return Vector2r{(mass1*velocity1.x+mass2*velocity2.x)/(mass1+mass2),(mass1*velocity1.y+mass2*velocity2.y)/(mass1+mass2),0};
+}
+
+Vector2 GE_GetRectangleCenterRealPosition(GE_Rectangle rectangle, Vector2r realPosition)
+{
+	return Vector2{rectangle.x+realPosition.x+(rectangle.w/2),rectangle.y+realPosition.y+(rectangle.h/2)};
+}
+
+void GE_InelasticCollision(GE_PhysicsObject* subject, Vector2 collisionPoint, Vector2r newVelocity, bool CCW)
+{
+	printf("b4newVelocity %f, %f, %f\n",newVelocity.x,newVelocity.y,newVelocity.r);
+	//newVelocity = newVelocity - subject->velocity;
+	printf("velocity real %f, %f, %f\n",subject->velocity.x,subject->velocity.y,subject->velocity.r);
+	printf("newVelocity %f, %f, %f\n",newVelocity.x,newVelocity.y,newVelocity.r);
+
+	//find the point of collision
+	
+	//Vector2 collisionPoint = myPoints[me];
+
+	printf("collisionPoint %f,%f\n",collisionPoint.x,collisionPoint.y);
+
+
+	//find the angle to apply the velocity at
+	
+	Vector2 centerPoint = GE_GetRectangleCenterRealPosition(subject->grid, subject->position);
+
+	printf("centerPoint %f,%f\n",centerPoint.x,centerPoint.y);
+
+	double adjacent = cos(abs(collisionPoint.x-centerPoint.x)/(GE_Distance(collisionPoint,centerPoint)));
+
+
+	adjacent *= DEG_TO_RAD;
+
+	printf("adjacent %f\n",adjacent);
+
+	//subject->velocity = Vector2r{0,0,0};
+	if (!CCW) adjacent += 180; //TODO temp
+	subject->velocity.addRelativeVelocity(Vector2r{newVelocity.x,newVelocity.y,adjacent});
+	
+	printf("new velocity real %f, %f, %f\n",subject->velocity.x,subject->velocity.y,subject->velocity.r);
 }
 
 void GE_ShutdownPhysicsEngine()

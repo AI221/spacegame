@@ -52,9 +52,6 @@ struct Vector2r
 	double y;
 	double r;
 
-	/*
-	 * Deprecated
-	 */
 	void addRelativeVelocity(Vector2r adder);
 	Vector2r operator+(Vector2r other)
 	{
@@ -79,9 +76,23 @@ struct Vector2r
 
 		return newVector;
 	}
-	Vector2r operator*(int other)
+	Vector2r operator/(Vector2r other)
+	{	
+		Vector2r newVector = {this->x/other.x,this->y/other.y,this->r/other.r};
+		newVector.r -= floor(newVector.r/360)*360;
+
+		return newVector;
+	}
+	Vector2r operator*(double other)
 	{
 		Vector2r newVector = {this->x*other,this->y*other,this->r*other};
+		newVector.r -= floor(newVector.r/360)*360;
+
+		return newVector;
+	}
+	Vector2r operator/(double other)
+	{
+		Vector2r newVector = {this->x/other,this->y/other,this->r/other};
 		newVector.r -= floor(newVector.r/360)*360;
 
 		return newVector;

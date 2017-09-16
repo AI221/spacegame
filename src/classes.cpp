@@ -48,7 +48,7 @@ void Subsystem::CheckCollision(int checkCollisionRectangle)
 	if (checkCollisionRectangle == this->collisionRectangle)
 	{
 		//printf("yuppers\n");
-		health -= 25; //TODO more dynamicness
+		//health -= 25; //TODO more dynamicness
 	}
 }
 void Subsystem::Update(Vector2r parrentPosition)
@@ -283,7 +283,7 @@ bool Player::C_Update()
 					ro->animation = {0,0,8,9};
 					
 
-					GE_PhysicsObject* me = GE_CreatePhysicsObject({this->position.x+50,this->position.y+150,0},{0,0,0},{25,25},2);
+					GE_PhysicsObject* me = GE_CreatePhysicsObject({this->position.x+50,this->position.y+150,0},{0,0,0},{25,25},25);
 					me->collisionRectangles[me->numCollisionRectangles] = {0,0,25,25};
 					me->numCollisionRectangles++;
 
@@ -291,6 +291,14 @@ bool Player::C_Update()
 
 				}
 
+			}
+			if (event.key.keysym.sym == SDLK_j)
+			{
+				PhysicsDelaySeconds = 5;
+			}
+			if (event.key.keysym.sym == SDLK_l)
+			{
+				PhysicsDelaySeconds = 0.16667;
 			}
 			if (event.type == SDL_KEYUP)
 			{
@@ -308,8 +316,8 @@ bool Player::C_Update()
 			fwdMove = fwdMove-0.5;
 #else
 			//account for damaged thrusters -- if one is offline, we're going to spin when we move.
-			if (iterableSubsystems[0]->GetIsOnline()) GE_AddRelativeVelocity(this,{0,10000,0.050});
-			if (iterableSubsystems[4]->GetIsOnline()) GE_AddRelativeVelocity(this,{0,10000,-0.050});
+			if (iterableSubsystems[0]->GetIsOnline()) GE_AddRelativeVelocity(this,{0,-0.25,0.050});
+			if (iterableSubsystems[4]->GetIsOnline()) GE_AddRelativeVelocity(this,{0,-0.25,-0.050});
 #endif
 		
 		}

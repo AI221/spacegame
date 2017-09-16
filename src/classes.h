@@ -38,7 +38,7 @@ enum TYPES
 
 //config
 
-#define STD_BULLET_MASS 0.5
+#define STD_BULLET_MASS 2
 
 class Subsystem
 {

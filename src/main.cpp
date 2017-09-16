@@ -123,7 +123,7 @@ void render()
 				
 			if (!deadRenderedObjects[i])
 			{
-				GE_BlitRenderedObject(renderedObjects[i],&camera,1);
+				GE_BlitRenderedObject(renderedObjects[i],&camera,0.75);
 			}
 			//else{printf("encounter dead render object\n");}
 		}
@@ -260,7 +260,7 @@ int main(int argc, char* argv[])
 	pthread_mutex_unlock(&PhysicsEngineMutex);
 
 
-	GE_UI_Minimap* minimap = new GE_UI_Minimap(myRenderer, {0,0},{100,100},0.5, {0xFF,0xFF,0xFF,0xFF}, {0xFF,0x00,0xFF,0xFF}, &camera); 
+	GE_UI_Minimap* minimap = new GE_UI_Minimap(myRenderer, {0,0},{150,150},0.02, {0x00,0x33,0x00,255},{0x33,0x99,0x00,0xFF}, &camera); 
 
 	char newStr[256] = {0};
 	while (true)//player->GetIsOnline())
@@ -287,7 +287,7 @@ int main(int argc, char* argv[])
 
 
 		myHUD->render();
-		//minimap->render({0,0});
+		minimap->render({0,0});
 
 		if ((!player->GetIsOnline()) && static_cast<int>(floor(ticknum / 5.0)) % 3) //Flash "Game over!" if the player is dead. Basically, this is (%number)/(dividedNumber), top being how often it's ON, bottom being how often it's OFF... except when it's not. I'll level with you: I figured out how to make timers based soley off of the tick number a long time ago. I no longer have a clue how this works. I adjusted it until I got the result I wanted. 
 		{

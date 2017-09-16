@@ -26,7 +26,7 @@
 #include "gluePhysicsObject.h"
 #include "isOn.h"
 
-#define PHYSICS_DEBUG_SLOWRENDERS 
+//#define PHYSICS_DEBUG_SLOWRENDERS 
 
 #include "SDL.h" //TODO temp
 #ifdef PHYSICS_DEBUG_SLOWRENDERS
@@ -229,8 +229,12 @@ void GE_FreePhysicsObject(GE_PhysicsObject* physicsObject); //MUST be allocated 
  */
 void GE_RectangleToPoints(GE_Rectangle rect, GE_Rectangle grid, Vector2* points, Vector2r hostPosition);
 
-Vector2r GE_GetForce(Vector2r velocity, double massOfSource, double massOfVictim);
+Vector2r GE_InelasticCollisionVelocityExchange(Vector2r velocity1, Vector2r velocity2, double mass1, double mass2);
 
+
+Vector2 GE_GetRectangleCenterRealPosition(GE_Rectangle rectangle, Vector2r realPosition);
+
+void GE_InelasticCollision(GE_PhysicsObject* subject, Vector2 collisionPoint, Vector2r newVelocity, bool CCW);
 /*!
  * Frees all physics objects in memory. Call on shutdown.
  */

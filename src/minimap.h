@@ -1,3 +1,6 @@
+#include "SDL.h"
+
+//Local includes
 #include "UI.h"
 #include "vector2.h"
 #include "renderedObject.h"
@@ -5,6 +8,13 @@
 
 #ifndef __MINIMAP_INCLUDED
 #define __MINIMAP_INCLUDED
+
+
+struct GE_MinimapTarget
+{
+	
+
+};
 
 class GE_UI_Minimap : public GE_UI_Element
 {

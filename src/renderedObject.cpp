@@ -46,7 +46,7 @@ GE_RenderedObject* GE_CreateRenderedObject(SDL_Renderer* renderer, std::string s
 }
 void GE_BlitRenderedObject(GE_RenderedObject* subject, Camera* camera, double scale)
 {
-	Camera* scaledcamera = new Camera{Vector2r{camera->pos.x*scale,camera->pos.y*scale,camera->pos.r},static_cast<int>(camera->screenHeight/scale),static_cast<int>(camera->screenWidth/scale)};
+	Camera* scaledcamera = new Camera{Vector2r{camera->pos.x*scale,camera->pos.y*scale,camera->pos.r},camera->screenHeight,camera->screenWidth};
 	Vector2r position = GE_ApplyCameraOffset(scaledcamera,{subject->position.x*scale,subject->position.y*scale,subject->position.r},{subject->size.x*scale, subject->size.y*scale});
 	delete scaledcamera;
 	GE_BlitSprite(Sprites[subject->spriteID],position,{subject->size.x*scale, subject->size.y*scale},subject->animation,GE_FLIP_NONE); //TODO
