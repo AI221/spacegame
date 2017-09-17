@@ -48,5 +48,11 @@
 #define __DOUBLE_MAX_STRLENGTH (DBL_MAX_10_EXP+2)
 
 
+/*!
+ * Define force-inline (for compiler compatibility)
+ */
+#define GE_FORCE_INLINE inline __attribute__((always_inline))
+
+
 
 #endif // __GENERALENGINECPP_INCLUDED

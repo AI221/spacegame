@@ -286,6 +286,7 @@ bool Player::C_Update()
 					GE_PhysicsObject* me = GE_CreatePhysicsObject({this->position.x+50,this->position.y+150,0},{0,0,0},{25,25},25);
 					me->collisionRectangles[me->numCollisionRectangles] = {0,0,25,25};
 					me->numCollisionRectangles++;
+					me->callCallbackBeforeCollisionFunction = true;
 
 					GE_LinkVectorToPhysicsObjectPosition(me,&(ro->position));
 

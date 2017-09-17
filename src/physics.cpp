@@ -251,10 +251,12 @@ void* GE_physicsThreadMain(void *)
 	return (void*)NULL;
 }
 
+int temp2 = 0;
 
 int numCollisionsTemp = 0;
 void GE_TickPhysics()
 {
+temp2 = 0;
 	ticknum++;
 	printf("Physics tick #%d\n",ticknum);
 	for (int i=0;i < (numPhysicsObjects+1); i++)
@@ -272,6 +274,7 @@ void GE_TickPhysics()
 		}
 		//printf("x %d y %d\n",physicsObjects[i]->position.x,physicsObjects[i]->position.y);
 	}
+	printf("this tick had %d collision full checks\n",temp2);
 }
 
 struct InternalResult
@@ -279,8 +282,13 @@ struct InternalResult
 	bool deleteMe;
 	bool didCollide;
 };
+unsigned int temp;
 InternalResult GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj)
 {
+	temp++;
+	temp2++;
+	//printf("Collision full check #%d (this tick: %d)\n",temp,temp2);
+
 	Vector2 theirPoints[4] = {};
 	Vector2 myPoints[4] = {};
 	for (int a=0; a < cObj->numCollisionRectangles;a++)
@@ -339,23 +347,29 @@ InternalResult GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* v
 					{
 						killMe = cObj->C_Collision(victimObj->ID,a);
 						doReturn = true;
+						printf("cobj wants before\n");
 					}
 					if (victimObj->callCallbackBeforeCollisionFunction)
 					{
 						if(victimObj->C_Collision(cObj->ID,b))
 						{
+							printf("victim die\n");
 							GE_FreePhysicsObject(victimObj);
-							doReturn = true;
 						}
+						doReturn = true;
+						printf("victim wants before\n");
 					}
 					if (killMe)
 					{
+						printf("cobj die\n");
 						GE_FreePhysicsObject(cObj); 
+						return {true,true};
 					}
 					
 					if (doReturn)
 					{
-						return {true,true};
+						printf("no die\n");
+						return {false,false};
 					} 
 				
 					numCollisionsTemp++;
@@ -442,16 +456,21 @@ InternalResult GE_TickPhysics_ForObject_Internal(GE_PhysicsObject* cObj, int ID,
 		//printf("i %d\n",i);
 		if(!deadPhysicsObjects[i] && i != ID)
 		{
-			InternalResult result = GE_CollisionFullCheck(cObj,physicsObjects[i]);
-			if (result.deleteMe)
+			GE_PhysicsObject* victimObj = physicsObjects[i];
+			double maxSize = std::max(cObj->grid.w, cObj->grid.h);
+			double theirMaxSize = std::max(victimObj->grid.w, victimObj->grid.h);
+			if ( ( cObj->position.x+maxSize >= victimObj->position.x-theirMaxSize) && (cObj->position.x-maxSize <= victimObj->position.x+theirMaxSize) && (cObj->position.y+maxSize >= victimObj->position.y-theirMaxSize) && (cObj->position.y-maxSize <=victimObj->position.y+theirMaxSize))
 			{
-				return {true,true};	
+				InternalResult result = GE_CollisionFullCheck(cObj,physicsObjects[i]);
+				if (result.deleteMe)
+				{
+					return {true,true};	
+				}
+				else if (result.didCollide)
+				{
+					return {true,false};
+				}
 			}
-			else if (result.didCollide)
-			{
-				return {true,false};
-			}
-			cObj->lastGoodPosition = cObj->position;
 		}
 	}
 	
@@ -462,7 +481,7 @@ bool GE_TickPhysics_ForObject(GE_PhysicsObject* cObj, int ID)
 {
 	//To avoid Clipping/"Bullet through paper" effect, we will slow down the physics simulation for a specific object by an unsigned nonzero integer and then slow down velocity accordingly. The user SHOULD NOT be able to tell any of this is happening. For performance, velocity is passed as a pointer to the internal function.
 	
-	unsigned int miniTickrate = fmax(ceil(  ((abs(cObj->velocity.x)+abs(cObj->velocity.y))/20) ),1); //minimum of 1. //TODO adjust this to good value
+	unsigned int miniTickrate = fmax(ceil(  ((abs(cObj->velocity.x)+abs(cObj->velocity.y))/20) ),1.0); //minimum of 1. //TODO adjust this to good value
 	
 	
 	Vector2r* velocity = new Vector2r{cObj->velocity.x/miniTickrate, cObj->velocity.y/miniTickrate, cObj->velocity.r/miniTickrate};
@@ -475,12 +494,14 @@ bool GE_TickPhysics_ForObject(GE_PhysicsObject* cObj, int ID)
 		InternalResult result = GE_TickPhysics_ForObject_Internal(cObj,ID,velocity); 
 		if (result.deleteMe)
 		{
+			printf("deleteme\n");
 			return true;
 		}
 		else if (result.didCollide)
 		{
-			printf("BREAK\n");
-			break;
+			printf("BREAK but not\n");
+			//break;
+			velocity = new Vector2r{cObj->velocity.x/miniTickrate, cObj->velocity.y/miniTickrate, cObj->velocity.r/miniTickrate};
 		}
 	}
 	delete velocity;

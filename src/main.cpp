@@ -301,7 +301,7 @@ int main(int argc, char* argv[])
 
 			healthTexts[i]->setText(newStr);
 		}
-		sprintf (newStr, "Speed: %.2f m/s",(abs(playerSpeed.x)+abs(playerSpeed.y))*PhysicsDelaySeconds);
+		sprintf (newStr, "Speed: %.2f m/s",(abs(playerSpeed.x)+abs(playerSpeed.y))*0.16667); //TODO this will need to be changed with physics timescales
 		speedText->setText(newStr);
 
 
