@@ -16,19 +16,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "renderedObject.h"
 
+#ifdef GE_DEBUG
+//#define debug_renderedobject
+#endif
 pthread_mutex_t RenderEngineMutex = PTHREAD_MUTEX_INITIALIZER;
 
 GE_RenderedObject* renderedObjects[MAX_RENDER_OBJECTS]; //TODO dimensions and what not
 bool deadRenderedObjects[MAX_RENDER_OBJECTS] = {1,};
 int numRenderedObjects = -1; 
 
-
 int GE_RenderedObjectInit()
 {
 	memset(deadRenderedObjects,1,sizeof(deadRenderedObjects)); //Fill deadRendredObjects with 1, so that any unintialized object is "dead"
 	return 0;
 }
-
 GE_RenderedObject* GE_CreateRenderedObject(SDL_Renderer* renderer, std::string spriteName, int ID) // size is not included (despite it being a value often set at start) due to its linked nature.
 {
 	printf("Create RenderedObject\n");
@@ -49,12 +50,18 @@ void GE_BlitRenderedObject(GE_RenderedObject* subject, Camera* camera, double sc
 	Camera* scaledcamera = new Camera{Vector2r{camera->pos.x*scale,camera->pos.y*scale,camera->pos.r},camera->screenHeight,camera->screenWidth};
 	Vector2r position = GE_ApplyCameraOffset(scaledcamera,{subject->position.x*scale,subject->position.y*scale,subject->position.r},{subject->size.x*scale, subject->size.y*scale});
 	delete scaledcamera;
-	GE_BlitSprite(Sprites[subject->spriteID],position,{subject->size.x*scale, subject->size.y*scale},subject->animation,GE_FLIP_NONE); //TODO
-
+	double maxSize = std::max(subject->size.x,subject->size.y);
+	if ( ( position.x+maxSize >= 0) && (position.x-maxSize <= scaledcamera->screenWidth) && (position.y+maxSize >= 0) && (position.y-maxSize <= scaledcamera->screenHeight))
+	{
+		GE_BlitSprite(Sprites[subject->spriteID],position,{subject->size.x*scale, subject->size.y*scale},subject->animation,GE_FLIP_NONE); //TODO
+	}
+#ifdef debug_renderedobject
+	else GE_DEBUG_TextAt("norender!~~~~~~~~~~~~~~~norender!",{position.x-100,position.y-100});
+	
+	GE_DEBUG_TextAt(std::to_string(position.x) + "," + std::to_string(position.y) + ",m "+std::to_string(maxSize),{position.x,position.y});
+#endif
 }
 void GE_FreeRenderedObject(GE_RenderedObject* subject) //will not destroy renderer,or sprite. MUST be allocated with new
 {
 	delete subject;
 }
-
-

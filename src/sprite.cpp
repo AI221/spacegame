@@ -133,10 +133,10 @@ void GE_BlitSprite(GE_Sprite* sprite, Vector2r position,Vector2 size, GE_Rectang
 {
 	SDL_Rect renderPosition = {};
 	SDL_Rect renderAnimation = {};
-	renderPosition.x = position.x;
-	renderPosition.y = position.y;
-	renderPosition.w = size.x;
-	renderPosition.h = size.y;
+	renderPosition.x = position.x+.5; //Add 0.5 to round accurately (conversion truncates)
+	renderPosition.y = position.y+.5;
+	renderPosition.w = size.x+.5;
+	renderPosition.h = size.y+.5;
 
 	/*renderAnimation.x = animation.x;
 	renderAnimation.y = animation.y;

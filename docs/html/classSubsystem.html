@@ -61,7 +61,8 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#pub-methods">Public Member Functions</a>  </div>
+<a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-attribs">Data Fields</a>  </div>
   <div class="headertitle">
 <div class="title">Subsystem Class Reference</div>  </div>
 </div><!--header-->
@@ -69,18 +70,33 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a645ec51ec04f46f4c6a65920969840cc"><td class="memItemLeft" align="right" valign="top"><a id="a645ec51ec04f46f4c6a65920969840cc"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Subsystem</b> (SDL_Renderer *renderer, std::string sprite, <a class="el" href="structVector2.html">Vector2</a> size, <a class="el" href="structGE__Rectangle.html">GE_Rectangle</a> animation, <a class="el" href="structVector2r.html">Vector2r</a> relativePosition, int collisionRectangle, <a class="el" href="structGE__Rectangle.html">GE_Rectangle</a> *parrentGrid)</td></tr>
-<tr class="separator:a645ec51ec04f46f4c6a65920969840cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afa344a2230334b1d315d7fcbb1706c42"><td class="memItemLeft" align="right" valign="top"><a id="afa344a2230334b1d315d7fcbb1706c42"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>CheckCollision</b> (int collisionRectangle)</td></tr>
-<tr class="separator:afa344a2230334b1d315d7fcbb1706c42"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5cbc26d783e3cbf98471e7a181a8fbb8"><td class="memItemLeft" align="right" valign="top"><a id="a5cbc26d783e3cbf98471e7a181a8fbb8"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Subsystem</b> (SDL_Renderer *renderer, std::string sprite, <a class="el" href="structVector2.html">Vector2</a> size, <a class="el" href="structGE__Rectangle.html">GE_Rectangle</a> animation, <a class="el" href="structVector2r.html">Vector2r</a> relativePosition, int collisionRectangle, std::string name, <a class="el" href="structGE__Rectangle.html">GE_Rectangle</a> *parrentGrid)</td></tr>
+<tr class="separator:a5cbc26d783e3cbf98471e7a181a8fbb8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af536890d26e387a00c98feb95c41c850"><td class="memItemLeft" align="right" valign="top"><a id="af536890d26e387a00c98feb95c41c850"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>CheckCollision</b> (int checkCollisionRectangle)</td></tr>
+<tr class="separator:af536890d26e387a00c98feb95c41c850"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a92103514247959288cacf2c7a35f6b5c"><td class="memItemLeft" align="right" valign="top"><a id="a92103514247959288cacf2c7a35f6b5c"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>Update</b> (<a class="el" href="structVector2r.html">Vector2r</a> parrentPosition)</td></tr>
 <tr class="separator:a92103514247959288cacf2c7a35f6b5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6360a092374debe927d4ebea3b47229e"><td class="memItemLeft" align="right" valign="top"><a id="a6360a092374debe927d4ebea3b47229e"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>GetIsOnline</b> ()</td></tr>
 <tr class="separator:a6360a092374debe927d4ebea3b47229e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3e7525ebf6d4d72f8e0265f1a53f2573"><td class="memItemLeft" align="right" valign="top"><a id="a3e7525ebf6d4d72f8e0265f1a53f2573"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>GetLevel</b> ()</td></tr>
+<tr class="separator:a3e7525ebf6d4d72f8e0265f1a53f2573"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af5f53915b2ca12e316c290a52badca43"><td class="memItemLeft" align="right" valign="top"><a id="af5f53915b2ca12e316c290a52badca43"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>SetLevel</b> (int level)</td></tr>
+<tr class="separator:af5f53915b2ca12e316c290a52badca43"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
+Data Fields</h2></td></tr>
+<tr class="memitem:af8b3b87653191781c2203bca45b6a6bb"><td class="memItemLeft" align="right" valign="top"><a id="af8b3b87653191781c2203bca45b6a6bb"></a>
+double&#160;</td><td class="memItemRight" valign="bottom"><b>health</b></td></tr>
+<tr class="separator:af8b3b87653191781c2203bca45b6a6bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a80280f7e61d41d237e2c3a04ede085d1"><td class="memItemLeft" align="right" valign="top"><a id="a80280f7e61d41d237e2c3a04ede085d1"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>name</b></td></tr>
+<tr class="separator:a80280f7e61d41d237e2c3a04ede085d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>src/<a class="el" href="classes_8h_source.html">classes.h</a></li>

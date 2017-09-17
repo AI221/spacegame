@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['network_2eh',['network.h',['../network_8h.html',1,'']]]
+  ['internalresult',['InternalResult',['../structInternalResult.html',1,'']]]
 ];

@@ -1,4 +1,5 @@
 #include "SDL.h"
+#include <unordered_map>
 
 //Local includes
 #include "UI.h"
@@ -9,19 +10,15 @@
 #ifndef __MINIMAP_INCLUDED
 #define __MINIMAP_INCLUDED
 
+void GE_LinkMinimapToRenderedObject(GE_RenderedObject* subject, SDL_Color color);
 
-struct GE_MinimapTarget
-{
-	
-
-};
+void GE_FreeMinimapTarget(GE_RenderedObject* linkedRenderedObject);
 
 class GE_UI_Minimap : public GE_UI_Element
 {
 	public:
 		GE_UI_Minimap(SDL_Renderer* renderer, Vector2 position, Vector2 size, double scale, SDL_Color background, SDL_Color crosshair, Camera* camera);
 		void render(Vector2 parrentPosition);
-		void giveEvent(Vector2 parrentPosition, SDL_Event event);
 		bool wantsEvents;
 	private:
 		SDL_Renderer* renderer;

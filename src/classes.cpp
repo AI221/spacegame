@@ -376,6 +376,9 @@ bool Player::C_Update()
 		velocity = {0,0,velocity.r};
 		GE_AddRelativeVelocity(this,{0,fwdMove,0});
 #endif
+
+
+
 	}
 
 
@@ -436,6 +439,9 @@ Enemie::Enemie(SDL_Renderer* renderer, Vector2r position, int level) : GE_Physic
 	renderObjectID = numRenderedObjects;
 	renderObject->size = {38,42};
 	renderObject->animation = {0,0,19,21};
+	GE_LinkMinimapToRenderedObject(renderObject,{0xA0,0x00,0x00,0xFF});
+
+
 	pthread_mutex_unlock(&RenderEngineMutex);
 
 	GE_LinkVectorToPhysicsObjectPosition(this,&(renderObject->position)); 
@@ -451,6 +457,7 @@ Enemie::Enemie(SDL_Renderer* renderer, Vector2r position, int level) : GE_Physic
 Enemie::~Enemie()
 {
 	pthread_mutex_lock(&RenderEngineMutex);
+	GE_FreeMinimapTarget(renderObject);
 	deadRenderedObjects[renderObjectID] = true;
 	delete renderObject;
 	pthread_mutex_unlock(&RenderEngineMutex);

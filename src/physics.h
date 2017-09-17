@@ -33,7 +33,7 @@
 	//#include<SDL2/SDL.h>
 	#include "camera.h"
 	#include "renderedObject.h"
-	void GE_DEBUG_PassRendererToPhysicsEngine(SDL_Renderer* yourRenderer, Camera* yourCamera);
+	#include "debugRenders.h"
 #endif
 
 

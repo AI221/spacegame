@@ -35,10 +35,20 @@ struct Vector2
 		Vector2 newVector = {this->x*other.x,this->y*other.y};
 		return newVector;
 	}
-	Vector2 operator*(int other)
+	Vector2 operator*(double other)
 	{
 		Vector2 newVector = {this->x*other,this->y*other};
 		return newVector;
+	}
+	Vector2 operator/(double other)
+	{
+		Vector2 newVector = {this->x/other,this->y/other};
+		return newVector;
+	}
+	void abs()
+	{
+		x = std::abs(x);
+		y = std::abs(y);
 	}
 };
 
@@ -105,7 +115,30 @@ struct Vector2r
 	{
 		return operator-(other);
 	}
+	void abs()
+	{
+		x = std::abs(x);
+		y = std::abs(y);
+		r = std::abs(r);
+	}
 
+	//Vector2 operations
+
+	Vector2r operator+(Vector2 other)
+	{
+		Vector2r newVector = {this->x+other.x,this->y+other.y,this->r};
+		return newVector;
+	}
+	Vector2r operator-(Vector2 other)
+	{
+		Vector2r newVector = {this->x-other.x,this->y-other.y,this->r};
+		return newVector;
+	}
+	Vector2r operator*(Vector2 other)
+	{	
+		Vector2r newVector = {this->x*other.x,this->y*other.y,this->r};
+		return newVector;
+	}
 		
 };
 

@@ -365,6 +365,10 @@ InternalResult GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* v
 
 					victimObj->position = victimObj->lastGoodPosition;
 
+
+
+					//TODO: Add the inverse of the speed given to the other object in order to hace conservation of energy (specifically: not duplicating the energy transfered).
+
 					Vector2r cObjVelocity = cObj->velocity;
 					
 					Vector2r newVelocity = ((victimObj->velocity*victimObj->mass)/cObj->mass)/2;
@@ -508,18 +512,6 @@ void GE_FreePhysicsObject(GE_PhysicsObject* physicsObject) //MUST be allocated w
 	printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1test\n");
 }
 
-#ifdef PHYSICS_DEBUG_SLOWRENDERS
-
-	SDL_Renderer* debugRenderer;
-	Camera* debugCamera;
-
-	void GE_DEBUG_PassRendererToPhysicsEngine(SDL_Renderer* yourRenderer, Camera* yourCamera)
-	{
-		debugRenderer = yourRenderer;
-		debugCamera = yourCamera;
-	}
-#endif
-
 
 void GE_RectangleToPoints(GE_Rectangle rect, GE_Rectangle grid, Vector2* points, Vector2r hostPosition) 
 {
@@ -546,11 +538,11 @@ void GE_RectangleToPoints(GE_Rectangle rect, GE_Rectangle grid, Vector2* points,
 
 			pthread_mutex_lock(&RenderEngineMutex);
 			//note that the physics debugRender does NOT include rotation of the screen, and probably never will. it is good enough for its purpose.
-			SDL_SetRenderDrawColor( debugRenderer, 0xFF, 0x00, 0x00, 0xFF ); 
+			SDL_SetRenderDrawColor( GE_DEBUG_Renderer, 0xFF, 0x00, 0x00, 0xFF ); 
 			if (DEBUG_isCObj)
-				SDL_SetRenderDrawColor( debugRenderer, 0xFF, 0xFF, 0x00, 0xFF ); 
+				SDL_SetRenderDrawColor( GE_DEBUG_Renderer, 0xFF, 0xFF, 0x00, 0xFF ); 
 
-			SDL_SetRenderDrawColor( debugRenderer, 0xFF, rect.w*3,rect.h*3, 0xFF ); 
+			SDL_SetRenderDrawColor( GE_DEBUG_Renderer, 0xFF, rect.w*3,rect.h*3, 0xFF ); 
 
 			SDL_Rect debugRect;
 
@@ -563,10 +555,10 @@ void GE_RectangleToPoints(GE_Rectangle rect, GE_Rectangle grid, Vector2* points,
 			debugRect.x -=1;
 			debugRect.y -=1;
 
-			debugRect.x -= (debugCamera->pos.x-debugCamera->screenWidth/2);
-			debugRect.y -= (debugCamera->pos.y-debugCamera->screenHeight/2);
+			debugRect.x -= (GE_DEBUG_Camera->pos.x-GE_DEBUG_Camera->screenWidth/2);
+			debugRect.y -= (GE_DEBUG_Camera->pos.y-GE_DEBUG_Camera->screenHeight/2);
 
-			SDL_RenderFillRect( debugRenderer, &debugRect ); 
+			SDL_RenderFillRect( GE_DEBUG_Renderer, &debugRect ); 
 			pthread_mutex_unlock(&RenderEngineMutex);
 		#endif
 

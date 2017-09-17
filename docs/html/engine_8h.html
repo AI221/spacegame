@@ -71,21 +71,28 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &quot;<a class="el" href="gluePhysicsObject_8h_source.html">gluePhysicsObject.h</a>&quot;</code><br />
+<code>#include &quot;gluePhysicsObjectInit.h&quot;</code><br />
 <code>#include &quot;<a class="el" href="physics_8h_source.html">physics.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="sprite_8h_source.html">sprite.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="renderedObject_8h_source.html">renderedObject.h</a>&quot;</code><br />
+<code>#include &quot;isOn.h&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for engine.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="engine_8h__incl.png" border="0" usemap="#src_2engine_8h" alt=""/></div>
 <map name="src_2engine_8h" id="src_2engine_8h">
-<area shape="rect" id="node2" href="gluePhysicsObject_8h.html" title="gluePhysicsObject.h" alt="" coords="262,80,405,107"/>
-<area shape="rect" id="node5" href="physics_8h.html" title="physics.h" alt="" coords="562,155,641,181"/>
-<area shape="rect" id="node17" href="sprite_8h.html" title="sprite.h" alt="" coords="462,229,528,256"/>
-<area shape="rect" id="node13" href="vector2_8h.html" title="vector2.h" alt="" coords="98,304,174,331"/>
-<area shape="rect" id="node14" href="GeneralEngineCPP_8h_source.html" title="GeneralEngineCPP.h" alt="" coords="836,379,983,405"/>
-<area shape="rect" id="node16" href="renderedObject_8h.html" title="renderedObject.h" alt="" coords="124,155,245,181"/>
-<area shape="rect" id="node25" href="camera_8h.html" title="camera.h" alt="" coords="22,229,98,256"/>
-<area shape="rect" id="node21" href="FS_8h.html" title="FS.h" alt="" coords="572,304,623,331"/>
+<area shape="rect" id="node2" href="gluePhysicsObject_8h.html" title="gluePhysicsObject.h" alt="" coords="87,229,229,256"/>
+<area shape="rect" id="node11" href="gluePhysicsObjectInit_8h_source.html" title="gluePhysicsObjectInit.h" alt="" coords="707,80,867,107"/>
+<area shape="rect" id="node12" href="physics_8h.html" title="physics.h" alt="" coords="748,155,827,181"/>
+<area shape="rect" id="node19" href="isOn_8h_source.html" title="isOn.h" alt="" coords="1028,229,1088,256"/>
+<area shape="rect" id="node21" href="sprite_8h.html" title="sprite.h" alt="" coords="1981,155,2047,181"/>
+<area shape="rect" id="node29" href="renderedObject_8h.html" title="renderedObject.h" alt="" coords="1243,80,1364,107"/>
+<area shape="rect" id="node8" href="vector2_8h.html" title="vector2.h" alt="" coords="1095,304,1171,331"/>
+<area shape="rect" id="node10" href="GeneralEngineCPP_8h_source.html" title="GeneralEngineCPP.h" alt="" coords="1246,304,1393,331"/>
+<area shape="rect" id="node25" href="FS_8h.html" title="FS.h" alt="" coords="2379,229,2430,256"/>
+<area shape="rect" id="node30" href="camera_8h.html" title="camera.h" alt="" coords="1265,229,1341,256"/>
+<area shape="rect" id="node31" href="debugRenders_8h.html" title="debugRenders.h" alt="" coords="1507,155,1625,181"/>
+<area shape="rect" id="node34" href="UI_8h_source.html" title="UI.h" alt="" coords="1929,229,1976,256"/>
 </map>
 </div>
 </div>
@@ -95,6 +102,8 @@ Include dependency graph for engine.h:</div>
 Functions</h2></td></tr>
 <tr class="memitem:a7af51f51c43542564d57b55350472b80"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="engine_8h.html#a7af51f51c43542564d57b55350472b80">GE_Init</a> (SDL_Renderer *renderer)</td></tr>
 <tr class="separator:a7af51f51c43542564d57b55350472b80"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aba025d159f18812d9d10a1132453f691"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="engine_8h.html#aba025d159f18812d9d10a1132453f691">GE_Shutdown</a> ()</td></tr>
+<tr class="separator:aba025d159f18812d9d10a1132453f691"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><dl class="section author"><dt>Author</dt><dd>Jackson McNeill</dd></dl>
@@ -116,6 +125,24 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Initialize the following engine components: Sprite Physics Engine PhysicsEngine glue </p>
+
+</div>
+</div>
+<a id="aba025d159f18812d9d10a1132453f691"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aba025d159f18812d9d10a1132453f691">&#9670;&nbsp;</a></span>GE_Shutdown()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void GE_Shutdown </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Shut down all engine components. Do not attempt to use anything after this. </p>
 
 </div>
 </div>

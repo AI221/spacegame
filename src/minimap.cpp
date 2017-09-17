@@ -1,6 +1,22 @@
 #include "minimap.h"
 
+struct GE_MinimapTarget //exists to allow for future expansion
+{
+	SDL_Color color;
+};
 
+std::unordered_map<GE_RenderedObject*,GE_MinimapTarget*> minimapTargets; //this works PERFECTLY for what I need it for--it requires no additional variables for the user to store, just tell us what linked rendered object you're deleting before you delete it... genius.
+
+void GE_LinkMinimapToRenderedObject(GE_RenderedObject* subject, SDL_Color color)
+{
+	GE_MinimapTarget* newTarget = new GE_MinimapTarget{color};
+	minimapTargets[subject] = newTarget;
+}
+void GE_FreeMinimapTarget(GE_RenderedObject* linkedRenderedObject)
+{
+	delete minimapTargets[linkedRenderedObject];
+	minimapTargets.erase(linkedRenderedObject);
+}
 
 GE_UI_Minimap::GE_UI_Minimap(SDL_Renderer* renderer, Vector2 position, Vector2 size, double scale, SDL_Color background, SDL_Color crosshair, Camera* camera) 
 {
@@ -12,12 +28,7 @@ GE_UI_Minimap::GE_UI_Minimap(SDL_Renderer* renderer, Vector2 position, Vector2 s
 	this->crosshair = crosshair;
 	this->camera = camera;
 
-
-
 	this->wantsEvents = false;
-}
-void GE_UI_Minimap::giveEvent(Vector2 parrentPosition, SDL_Event event)
-{ // do nothing, we don't take events
 }
 void GE_UI_Minimap::render(Vector2 parrentPosition)
 {
@@ -35,27 +46,22 @@ void GE_UI_Minimap::render(Vector2 parrentPosition)
 	temprect = SDL_Rect{static_cast<int>(effectivePosition.x),static_cast<int>(effectivePosition.y+(size.y/2)),static_cast<int>(size.x),1};
 	SDL_RenderFillRect(renderer,&temprect);
 
-
-	for (int i=0; i <= numRenderedObjects; i++)
+	for (auto i : minimapTargets)
 	{
-		GE_RenderedObject* subject = renderedObjects[i];
-		if (!deadRenderedObjects[i])
+		GE_MinimapTarget* subject_minimap = i.second;
+		GE_RenderedObject* subject = i.first;
+		SDL_Color color = subject_minimap->color;
+
+		Camera* scaledcamera = new Camera{Vector2r{camera->pos.x*scale,camera->pos.y*scale,camera->pos.r},static_cast<int>(size.y),static_cast<int>(size.x)};
+		Vector2r position = GE_ApplyCameraOffset(scaledcamera,{subject->position.x*scale,subject->position.y*scale,subject->position.r},{subject->size.x*scale, subject->size.y*scale});
+		delete scaledcamera;
+		if ((position.x>=effectivePosition.x)&&(position.y>=effectivePosition.y)&&(position.x<=size.x)&&(position.y<=size.y))
 		{
-			Camera* scaledcamera = new Camera{Vector2r{camera->pos.x*scale,camera->pos.y*scale,camera->pos.r},static_cast<int>(size.y),static_cast<int>(size.x)};
-			Vector2r position = GE_ApplyCameraOffset(scaledcamera,{subject->position.x*scale,subject->position.y*scale,subject->position.r},{subject->size.x*scale, subject->size.y*scale});
-			delete scaledcamera;
-			if ((position.x>=effectivePosition.x)&&(position.y>=effectivePosition.y)&&(position.x<=size.x)&&(position.y<=size.y))
-			{
-				SDL_SetRenderDrawColor(renderer,0x66,0xFF,0x00,0xFF);//background.r, background.g, background.b, background.a);
-				temprect = SDL_Rect{static_cast<int>(position.x),static_cast<int>(position.y),2,2};
-				SDL_RenderFillRect(renderer,&temprect);
-			}
-
-
+			SDL_SetRenderDrawColor(renderer,color.r, color.g, color.b, color.a);
+			temprect = SDL_Rect{static_cast<int>(position.x),static_cast<int>(position.y),3,3};
+			SDL_RenderFillRect(renderer,&temprect);
 		}	
-
 	}
-
 }
 
 

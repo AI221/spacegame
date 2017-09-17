@@ -1,6 +1,11 @@
 #include "UI.h"
 
 
+
+void GE_UI_Element::giveEvent(Vector2 parrentPosition, SDL_Event event) {} //defined so that not all derivatives must define it
+
+
+
 /*
 	The OO paradign makes a lot of sense for UI development. For this reason, I'm actually going to keep this OO. 
 */
@@ -121,11 +126,6 @@ void GE_UI_Text::render()
 {
 	render({0,0});
 }
-void GE_UI_Text::giveEvent(Vector2 parrentPosition, SDL_Event event) //shouldn't ever be ran; look into finding ways to avoid implementing this
-{
-}
-
-
 GE_UI_TextInput::GE_UI_TextInput(SDL_Renderer* renderer, Vector2 position, Vector2 size, SDL_Color textColor, SDL_Color color, TTF_Font* font)
 {
 	this->renderer = renderer;
@@ -328,11 +328,117 @@ void GE_UI_Button::giveEvent(Vector2 parrentPosition, SDL_Event event)
 
 
 
+GE_UI_ProgressBar::GE_UI_ProgressBar(SDL_Renderer* renderer, Vector2 position, Vector2 size, GE_Color color, GE_Color background, bool showProgressNumber)
+{
+	this->renderer = renderer;
+	this->position = position;
+	this->size = size;
+	this->showProgressNumber = showProgressNumber;
+	this->background = new GE_RectangleShape(renderer,background);
+	this->bar = new GE_RectangleShape(renderer,color);
 
+	setProgress(0);
+	this->wantsEvents = false;
 	
 
+}
+GE_UI_ProgressBar::~GE_UI_ProgressBar()
+{
+	delete background;
+	delete bar;
+}
+void GE_UI_ProgressBar::render(Vector2 parrentPosition)
+{
+	render({parrentPosition.x,parrentPosition.y,0});
+}
+void GE_UI_ProgressBar::render(Vector2r parrentPosition)
+{
+	background->render(parrentPosition+position,size);
+	Vector2 barSize = size;
+	barSize.x *= progress;
 
 
+	//Probably a more effecient way of doing this, but this works.
+
+	if (parrentPosition.r != 0.0) //small micro-optmization, we don't need need to calculate all of this if we have no rotation because result.x and result.y will be 0
+	{
+		Vector2 bigTopLeft = size/2;
+
+		GE_Vector2Rotation(&bigTopLeft,parrentPosition.r);
+		
+		bigTopLeft = bigTopLeft - (size/2);
+
+
+		Vector2 smallTopLeft = barSize/2;
+
+		GE_Vector2Rotation(&smallTopLeft,parrentPosition.r);
+		
+		smallTopLeft = smallTopLeft - (barSize/2);
+
+		Vector2 result = (bigTopLeft-smallTopLeft);
+		result.x = std::abs(result.x);
+
+		parrentPosition.x += result.x;
+		parrentPosition.y -= result.y;
+	}
+
+	//printf("res %f,%f\n",result.x,result.y);
+
+
+
+
+	bar->render(parrentPosition+position,barSize);
+}
+void GE_UI_ProgressBar::setProgress(double progress)
+{
+	this->progress = std::max(std::min(progress,1.0),0.0);
+}	
+double GE_UI_ProgressBar::getProgress()
+{
+	return progress;
+}
+
+
+GE_UI_DraggableProgressBar::GE_UI_DraggableProgressBar(SDL_Renderer* renderer, Vector2 position, Vector2 size, GE_Color color, GE_Color background, bool showProgressNumber) : GE_UI_ProgressBar(renderer,position,size,color,background,showProgressNumber)
+{
+	this->position = position;
+	this->size = size;
+
+	this->pollMouse = false;
+	this->wantsEvents = true; //Re-set this to true (after been set to false by ProgressBar's constructor
+} 
+GE_UI_DraggableProgressBar::~GE_UI_DraggableProgressBar()
+{
+}
+void GE_UI_DraggableProgressBar::giveEvent(Vector2 parrentPosition, SDL_Event event)
+{
+	Vector2 actualPosition = position;
+	actualPosition.x += parrentPosition.x;
+	actualPosition.y += parrentPosition.y;
+
+	if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT)
+	{
+		int x,y;
+		SDL_GetMouseState(&x,&y);
+		if (x >= actualPosition.x && y>= actualPosition.y && x<= size.x+actualPosition.x && y <= size.y+actualPosition.y)
+		{
+			printf("pullmouse2\n");
+			pollMouse = true;
+		}
+	}
+	else if (event.type == SDL_MOUSEBUTTONUP)
+	{
+		pollMouse = false;
+	}
+	if (pollMouse)
+	{
+		int x,y;
+		SDL_GetMouseState(&x,&y);
+		setProgress((x-actualPosition.x)/size.x);
+	}
+
+}
+	
 
 GE_UI_Surface::GE_UI_Surface(SDL_Renderer* renderer,Vector2 position, Vector2 size, SDL_Color backgroundColor)
 {

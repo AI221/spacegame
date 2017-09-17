@@ -17,12 +17,17 @@
 #include "physics.h"
 #include "renderedObject.h"
 #include "gluePhysicsObject.h"
+#include "minimap.h"
+
+
+#
 
 //LIMITS:
 
 
 #define MAX_SUBSYSTEMS 40
 
+#include "UI.h" //TODO TEMP
 #ifndef __CLASSES_INCLUDED
 #define __CLASSES_INCLUDED
 
@@ -34,6 +39,8 @@ enum TYPES
 	TYPE_DESTROYSUB, //bullets, etc.
 };
 
+
+extern GE_UI_DraggableProgressBar* progress;
 
 
 //config

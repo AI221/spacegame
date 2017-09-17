@@ -1,6 +1,8 @@
 <map id="StdBullet" name="StdBullet">
-<area shape="rect" id="node2" href="$classGE__PhysicsObject.html" title="GE_PhysicsObject" alt="" coords="109,124,242,151"/>
-<area shape="rect" id="node3" href="$structVector2r.html" title="Vector2r" alt="" coords="5,5,76,32"/>
-<area shape="rect" id="node4" href="$structVector2.html" title="Vector2" alt="" coords="142,5,209,32"/>
-<area shape="rect" id="node5" href="$structGE__Rectangle.html" title="GE_Rectangle" alt="" coords="237,5,343,32"/>
+<area shape="rect" id="node2" href="$classBulletType.html" title="BulletType" alt="" coords="201,200,285,227"/>
+<area shape="rect" id="node3" href="$classGE__PhysicsObject.html" title="GE_PhysicsObject" alt="" coords="176,124,309,151"/>
+<area shape="rect" id="node4" href="$structGE__GlueTarget.html" title="GE_GlueTarget" alt="" coords="5,5,117,32"/>
+<area shape="rect" id="node5" href="$structVector2r.html" title="Vector2r" alt="" coords="141,5,211,32"/>
+<area shape="rect" id="node6" href="$structVector2.html" title="Vector2" alt="" coords="277,5,344,32"/>
+<area shape="rect" id="node7" href="$structGE__Rectangle.html" title="GE_Rectangle" alt="" coords="372,5,479,32"/>
 </map>

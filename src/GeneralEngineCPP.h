@@ -5,8 +5,14 @@
  * Generic macros and preprocessor definitions (Such as what OS is being compiled for) 
  */
 
+
+//Debug?
+#define GE_DEBUG
+
+
 #ifndef __GENERALENGINECPP_INCLUDED
 #define  __GENERALENGINECPP_INCLUDED
+
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
 	#define outdatedOS

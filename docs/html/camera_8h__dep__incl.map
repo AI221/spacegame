@@ -1,6 +1,7 @@
 <map id="src/camera.h" name="src/camera.h">
-<area shape="rect" id="node2" href="$renderedObject_8h.html" title="src/renderedObject.h" alt="" coords="44,80,187,107"/>
-<area shape="rect" id="node3" href="$classes_8h.html" title="src/classes.h" alt="" coords="5,229,105,256"/>
-<area shape="rect" id="node4" href="$gluePhysicsObject_8h.html" title="src/gluePhysicsObject.h" alt="" coords="93,155,257,181"/>
-<area shape="rect" id="node5" href="$engine_8h.html" title="src/engine.h" alt="" coords="130,229,223,256"/>
+<area shape="rect" id="node2" href="$renderedObject_8h.html" title="src/renderedObject.h" alt="" coords="29,155,172,181"/>
+<area shape="rect" id="node6" href="$debugRenders_8h.html" title="src/debugRenders.h" alt="" coords="85,80,223,107"/>
+<area shape="rect" id="node3" href="$classes_8h.html" title="src/classes.h" alt="" coords="5,304,105,331"/>
+<area shape="rect" id="node4" href="$minimap_8h_source.html" title="src/minimap.h" alt="" coords="49,229,153,256"/>
+<area shape="rect" id="node5" href="$engine_8h.html" title="src/engine.h" alt="" coords="177,229,270,256"/>
 </map>

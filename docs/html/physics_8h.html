@@ -84,14 +84,18 @@ $(function() {
 <code>#include &lt;functional&gt;</code><br />
 <code>#include &quot;<a class="el" href="vector2_8h_source.html">vector2.h</a>&quot;</code><br />
 <code>#include &quot;GeneralEngineCPP.h&quot;</code><br />
+<code>#include &quot;<a class="el" href="gluePhysicsObject_8h_source.html">gluePhysicsObject.h</a>&quot;</code><br />
+<code>#include &quot;isOn.h&quot;</code><br />
 <code>#include &quot;SDL.h&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for physics.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="physics_8h__incl.png" border="0" usemap="#src_2physics_8h" alt=""/></div>
 <map name="src_2physics_8h" id="src_2physics_8h">
-<area shape="rect" id="node11" href="vector2_8h.html" title="vector2.h" alt="" coords="809,80,885,107"/>
-<area shape="rect" id="node12" href="GeneralEngineCPP_8h_source.html" title="GeneralEngineCPP.h" alt="" coords="910,80,1057,107"/>
+<area shape="rect" id="node11" href="vector2_8h.html" title="vector2.h" alt="" coords="209,155,285,181"/>
+<area shape="rect" id="node12" href="GeneralEngineCPP_8h_source.html" title="GeneralEngineCPP.h" alt="" coords="559,155,706,181"/>
+<area shape="rect" id="node13" href="gluePhysicsObject_8h.html" title="gluePhysicsObject.h" alt="" coords="263,80,405,107"/>
+<area shape="rect" id="node17" href="isOn_8h_source.html" title="isOn.h" alt="" coords="1048,80,1108,107"/>
 </map>
 </div>
 </div><div class="textblock"><div class="dynheader">
@@ -99,9 +103,9 @@ This graph shows which files directly or indirectly include this file:</div>
 <div class="dyncontent">
 <div class="center"><img src="physics_8h__dep__incl.png" border="0" usemap="#src_2physics_8hdep" alt=""/></div>
 <map name="src_2physics_8hdep" id="src_2physics_8hdep">
-<area shape="rect" id="node2" href="classes_8h.html" title="src/classes.h" alt="" coords="5,155,105,181"/>
-<area shape="rect" id="node3" href="gluePhysicsObject_8h.html" title="src/gluePhysicsObject.h" alt="" coords="64,80,228,107"/>
-<area shape="rect" id="node4" href="engine_8h.html" title="src/engine.h" alt="" coords="189,155,282,181"/>
+<area shape="rect" id="node2" href="classes_8h.html" title="src/classes.h" alt="" coords="5,80,105,107"/>
+<area shape="rect" id="node3" href="gluePhysicsObjectInit_8h_source.html" title="src/gluePhysicsObjectInit.h" alt="" coords="129,80,312,107"/>
+<area shape="rect" id="node4" href="engine_8h.html" title="src/engine.h" alt="" coords="238,155,331,181"/>
 </map>
 </div>
 </div>
@@ -118,11 +122,14 @@ Macros</h2></td></tr>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>__PHYSICS_INCLUDED</b></td></tr>
 <tr class="separator:ad7153eaa37702a1a5a282355178a90dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8d3d8da495b2a00a366d953e7f67076d"><td class="memItemLeft" align="right" valign="top"><a id="a8d3d8da495b2a00a366d953e7f67076d"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>MAX_PHYSICS_OBJECTS</b>&#160;&#160;&#160;1024</td></tr>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>MAX_PHYSICS_OBJECTS</b>&#160;&#160;&#160;10024</td></tr>
 <tr class="separator:a8d3d8da495b2a00a366d953e7f67076d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a09f4f5e7f89fbe6c202b5c24b42fac73"><td class="memItemLeft" align="right" valign="top"><a id="a09f4f5e7f89fbe6c202b5c24b42fac73"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>MAX_COLLISION_RECTANGLES_PER_OBJECT</b>&#160;&#160;&#160;32</td></tr>
 <tr class="separator:a09f4f5e7f89fbe6c202b5c24b42fac73"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab30c7e07840901e2b4f07670d062888a"><td class="memItemLeft" align="right" valign="top"><a id="ab30c7e07840901e2b4f07670d062888a"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>MAX_GLUE_OBJECTS_PER_OBJECT</b>&#160;&#160;&#160;32</td></tr>
+<tr class="separator:ab30c7e07840901e2b4f07670d062888a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a00e54e3f172d60a587f37af88d5108be"><td class="memItemLeft" align="right" valign="top"><a id="a00e54e3f172d60a587f37af88d5108be"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>MAX_PHYSICS_ENGINE_DONE_CALLBACKS</b>&#160;&#160;&#160;64</td></tr>
 <tr class="separator:a00e54e3f172d60a587f37af88d5108be"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -134,9 +141,15 @@ Macros</h2></td></tr>
 Functions</h2></td></tr>
 <tr class="memitem:aa6c202507137f1a9dc4a09ad44fe4cec"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="physics_8h.html#aa6c202507137f1a9dc4a09ad44fe4cec">GE_PhysicsInit</a> ()</td></tr>
 <tr class="separator:aa6c202507137f1a9dc4a09ad44fe4cec"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a16aa19add3a57b7949adf9a9d36b14c5"><td class="memItemLeft" align="right" valign="top"><a id="a16aa19add3a57b7949adf9a9d36b14c5"></a>
-<a class="el" href="classGE__PhysicsObject.html">GE_PhysicsObject</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>GE_CreatePhysicsObject</b> (<a class="el" href="structVector2r.html">Vector2r</a> newPosition, <a class="el" href="structVector2r.html">Vector2r</a> newVelocity, <a class="el" href="structVector2.html">Vector2</a> shape)</td></tr>
-<tr class="separator:a16aa19add3a57b7949adf9a9d36b14c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a64016e0cb0a9d3eaef60d8ba421900d8"><td class="memItemLeft" align="right" valign="top"><a id="a64016e0cb0a9d3eaef60d8ba421900d8"></a>
+<a class="el" href="classGE__PhysicsObject.html">GE_PhysicsObject</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>GE_CreatePhysicsObject</b> (<a class="el" href="structVector2r.html">Vector2r</a> newPosition, <a class="el" href="structVector2r.html">Vector2r</a> newVelocity, <a class="el" href="structVector2.html">Vector2</a> shape, double mass)</td></tr>
+<tr class="separator:a64016e0cb0a9d3eaef60d8ba421900d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acffde120bc0673932b0f7a0ac0ec192b"><td class="memItemLeft" align="right" valign="top"><a id="acffde120bc0673932b0f7a0ac0ec192b"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>GE_LinkVectorToPhysicsObjectPosition</b> (<a class="el" href="classGE__PhysicsObject.html">GE_PhysicsObject</a> *subject, <a class="el" href="structVector2r.html">Vector2r</a> *link)</td></tr>
+<tr class="separator:acffde120bc0673932b0f7a0ac0ec192b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aed99e7c3d3b12131c4ff1d7182ce6c06"><td class="memItemLeft" align="right" valign="top"><a id="aed99e7c3d3b12131c4ff1d7182ce6c06"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>GE_LinkVectorToPhysicsObjectVelocity</b> (<a class="el" href="classGE__PhysicsObject.html">GE_PhysicsObject</a> *subject, <a class="el" href="structVector2r.html">Vector2r</a> *link)</td></tr>
+<tr class="separator:aed99e7c3d3b12131c4ff1d7182ce6c06"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a918476b4183e042a325b67916ee4a6de"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="physics_8h.html#a918476b4183e042a325b67916ee4a6de">GE_GetPhysicsObjectFromID</a> (int fakeID, <a class="el" href="classGE__PhysicsObject.html">GE_PhysicsObject</a> **physicsObjectPointer)</td></tr>
 <tr class="separator:a918476b4183e042a325b67916ee4a6de"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a995ec7b9f76221393756776335de23ed"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="physics_8h.html#a995ec7b9f76221393756776335de23ed">GE_AddPhysicsDoneCallback</a> (std::function&lt; void()&gt; callback)</td></tr>
@@ -155,21 +168,30 @@ Functions</h2></td></tr>
 <tr class="separator:acfa95ebea7c69275dfc15d37b4c2976f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad2b6581e0d46a8768f52ef873ed68941"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="physics_8h.html#ad2b6581e0d46a8768f52ef873ed68941">GE_TickPhysics_ForObject</a> (<a class="el" href="classGE__PhysicsObject.html">GE_PhysicsObject</a> *cObj, int ID)</td></tr>
 <tr class="separator:ad2b6581e0d46a8768f52ef873ed68941"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a43fe57af481ec8e3b4f4b1b488560479"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="physics_8h.html#a43fe57af481ec8e3b4f4b1b488560479">GE_CollisionFullCheck</a> (<a class="el" href="classGE__PhysicsObject.html">GE_PhysicsObject</a> *cObj, <a class="el" href="classGE__PhysicsObject.html">GE_PhysicsObject</a> *victimObj)</td></tr>
-<tr class="separator:a43fe57af481ec8e3b4f4b1b488560479"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad68f2e1844b9585b8913d8dc52f8e70f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="physics_8h.html#ad68f2e1844b9585b8913d8dc52f8e70f">GE_FreePhysicsObject</a> (<a class="el" href="classGE__PhysicsObject.html">GE_PhysicsObject</a> *physicsObject)</td></tr>
 <tr class="separator:ad68f2e1844b9585b8913d8dc52f8e70f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abda1c1a4151669a481d2eb43619f3270"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="physics_8h.html#abda1c1a4151669a481d2eb43619f3270">GE_RectangleToPoints</a> (<a class="el" href="structGE__Rectangle.html">GE_Rectangle</a> rect, <a class="el" href="structGE__Rectangle.html">GE_Rectangle</a> grid, <a class="el" href="structVector2.html">Vector2</a> *points, <a class="el" href="structVector2r.html">Vector2r</a> hostPosition)</td></tr>
 <tr class="separator:abda1c1a4151669a481d2eb43619f3270"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa67c4e52d4813e8d8d28be83e14be1dd"><td class="memItemLeft" align="right" valign="top"><a id="aa67c4e52d4813e8d8d28be83e14be1dd"></a>
+<a class="el" href="structVector2r.html">Vector2r</a>&#160;</td><td class="memItemRight" valign="bottom"><b>GE_InelasticCollisionVelocityExchange</b> (<a class="el" href="structVector2r.html">Vector2r</a> velocity1, <a class="el" href="structVector2r.html">Vector2r</a> velocity2, double mass1, double mass2)</td></tr>
+<tr class="separator:aa67c4e52d4813e8d8d28be83e14be1dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0e71f900be189ff8fede89a3c7ee3c73"><td class="memItemLeft" align="right" valign="top"><a id="a0e71f900be189ff8fede89a3c7ee3c73"></a>
+<a class="el" href="structVector2.html">Vector2</a>&#160;</td><td class="memItemRight" valign="bottom"><b>GE_GetRectangleCenterRealPosition</b> (<a class="el" href="structGE__Rectangle.html">GE_Rectangle</a> rectangle, <a class="el" href="structVector2r.html">Vector2r</a> realPosition)</td></tr>
+<tr class="separator:a0e71f900be189ff8fede89a3c7ee3c73"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a435bf4101fb800e9c89b2bd7d8dae0bf"><td class="memItemLeft" align="right" valign="top"><a id="a435bf4101fb800e9c89b2bd7d8dae0bf"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>GE_InelasticCollision</b> (<a class="el" href="classGE__PhysicsObject.html">GE_PhysicsObject</a> *subject, <a class="el" href="structVector2.html">Vector2</a> collisionPoint, <a class="el" href="structVector2r.html">Vector2r</a> newVelocity, bool CCW)</td></tr>
+<tr class="separator:a435bf4101fb800e9c89b2bd7d8dae0bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a797d81145cd06d4d8b5d5fd3ba28cce5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="physics_8h.html#a797d81145cd06d4d8b5d5fd3ba28cce5">GE_ShutdownPhysicsEngine</a> ()</td></tr>
+<tr class="separator:a797d81145cd06d4d8b5d5fd3ba28cce5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Variables</h2></td></tr>
 <tr class="memitem:addd206f941bc4dc6ace98c3f712d5ea0"><td class="memItemLeft" align="right" valign="top"><a id="addd206f941bc4dc6ace98c3f712d5ea0"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>DEBUG_allowPhysicsTick</b></td></tr>
 <tr class="separator:addd206f941bc4dc6ace98c3f712d5ea0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab6ff246e9e1dbd6ded0f107dc5b56164"><td class="memItemLeft" align="right" valign="top"><a id="ab6ff246e9e1dbd6ded0f107dc5b56164"></a>
-unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>PhysicsDelayUSeconds</b></td></tr>
-<tr class="separator:ab6ff246e9e1dbd6ded0f107dc5b56164"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4ae5b7199887a71f40c4630bc3a9b907"><td class="memItemLeft" align="right" valign="top"><a id="a4ae5b7199887a71f40c4630bc3a9b907"></a>
+double&#160;</td><td class="memItemRight" valign="bottom"><b>PhysicsDelaySeconds</b></td></tr>
+<tr class="separator:a4ae5b7199887a71f40c4630bc3a9b907"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a94a3779242351046c7b7cf2a934a1d96"><td class="memItemLeft" align="right" valign="top"><a id="a94a3779242351046c7b7cf2a934a1d96"></a>
 pthread_t&#160;</td><td class="memItemRight" valign="bottom"><b>PhysicsEngineThread</b></td></tr>
 <tr class="separator:a94a3779242351046c7b7cf2a934a1d96"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -379,35 +401,6 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>sGrid</b> [2000][2000]
 
 </div>
 </div>
-<a id="a43fe57af481ec8e3b4f4b1b488560479"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a43fe57af481ec8e3b4f4b1b488560479">&#9670;&nbsp;</a></span>GE_CollisionFullCheck()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool GE_CollisionFullCheck </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="classGE__PhysicsObject.html">GE_PhysicsObject</a> *&#160;</td>
-          <td class="paramname"><em>cObj</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="classGE__PhysicsObject.html">GE_PhysicsObject</a> *&#160;</td>
-          <td class="paramname"><em>victimObj</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>The function called when a full collision check is determined to be necessary. In general: Don't touch this </p>
-
-</div>
-</div>
 <a id="ad68f2e1844b9585b8913d8dc52f8e70f"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ad68f2e1844b9585b8913d8dc52f8e70f">&#9670;&nbsp;</a></span>GE_FreePhysicsObject()</h2>
 
@@ -551,6 +544,24 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>sGrid</b> [2000][2000]
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a id="a797d81145cd06d4d8b5d5fd3ba28cce5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a797d81145cd06d4d8b5d5fd3ba28cce5">&#9670;&nbsp;</a></span>GE_ShutdownPhysicsEngine()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void GE_ShutdownPhysicsEngine </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Frees all physics objects in memory. Call on shutdown. </p>
 
 </div>
 </div>

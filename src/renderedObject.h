@@ -10,9 +10,16 @@
 #include "sprite.h"
 #include "camera.h"
 
+#include "GeneralEngineCPP.h"
+
+
+
 #ifndef __RENDEREDPHYSICSOBJECT_INCLUDED
 #define __RENDEREDPHYSICSOBJECT_INCLUDED
 
+#ifdef GE_DEBUG
+#include "debugRenders.h"
+#endif
 
 //LIMITS
 

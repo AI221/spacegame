@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['player',['Player',['../classPlayer.html',1,'']]]
+  ['internalresult',['InternalResult',['../structInternalResult.html',1,'']]]
 ];

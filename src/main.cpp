@@ -18,7 +18,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
-
 #include "SDL.h"
 #include "SDL_ttf.h"
 #include <stdio.h>
@@ -42,6 +41,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "gluePhysicsObject.h"
 #include "gluePhysicsObjectInit.h"
 #include "engine.h"
+
+#ifdef GE_DEBUG
+#include "debugRenders.h"
+#endif
 
 //Game-specific
 #include "classes.h"
@@ -192,9 +195,18 @@ int main(int argc, char* argv[])
 	if (error != 0)
 	{
 		printf("Game engine initialization error: %d\n",error);
+		return error;
 	}
 
 	GE_LoadSpritesFromDir(myRenderer, SPRITE_DIR);
+
+	
+	
+
+
+
+
+
 
 	//initialize the player
 	Player* player = new Player(myRenderer);
@@ -253,16 +265,23 @@ int main(int argc, char* argv[])
 
 
 	
-#ifdef PHYSICS_DEBUG_SLOWRENDERS
-		GE_DEBUG_PassRendererToPhysicsEngine(myRenderer,&camera);
+#ifdef GE_DEBUG
+		GE_DEBUG_PassRenderer(myRenderer,&camera);
 #endif
 	
 	pthread_mutex_unlock(&PhysicsEngineMutex);
 
 
 	GE_UI_Minimap* minimap = new GE_UI_Minimap(myRenderer, {0,0},{150,150},0.02, {0x00,0x33,0x00,255},{0x33,0x99,0x00,0xFF}, &camera); 
+	
+	
+	auto progress = new GE_UI_ProgressBar(myRenderer, {00,150},{100,20},{0xff,0x00,0x00,0xff},{0xff,0xff,0xff,0xff},false); //TODO TEMP
+	progress->setProgress(.6);
+
+	double rt = 0;
 
 	char newStr[256] = {0};
+
 	while (true)//player->GetIsOnline())
 	{
 		//printf("Tryin to render here\n");
@@ -288,6 +307,9 @@ int main(int argc, char* argv[])
 
 		myHUD->render();
 		minimap->render({0,0});
+		progress->setProgress(progress->getProgress()+0.001);
+		rt += 0.001;
+		progress->render(Vector2r{0,0,rt*360});
 
 		if ((!player->GetIsOnline()) && static_cast<int>(floor(ticknum / 5.0)) % 3) //Flash "Game over!" if the player is dead. Basically, this is (%number)/(dividedNumber), top being how often it's ON, bottom being how often it's OFF... except when it's not. I'll level with you: I figured out how to make timers based soley off of the tick number a long time ago. I no longer have a clue how this works. I adjusted it until I got the result I wanted. 
 		{
@@ -327,7 +349,9 @@ int main(int argc, char* argv[])
 	{
 		delete healthTexts[i];
 	}
+	delete speedText;
 	delete GameOver;
+	delete minimap;
 
 	GE_Shutdown();
 

@@ -1,3 +1,7 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$structGE__NetworkSocket.html" title="GE_NetworkSocket" alt="" coords="5,5,144,32"/>
+<area shape="rect" id="node1" href="$classGE__PhysicsObject.html" title="GE_PhysicsObject" alt="" coords="5,56,139,83"/>
+<area shape="rect" id="node2" href="$classBulletType.html" title="BulletType" alt="" coords="187,5,271,32"/>
+<area shape="rect" id="node4" href="$classEnemie.html" title="Enemie" alt="" coords="195,56,262,83"/>
+<area shape="rect" id="node5" href="$classPlayer.html" title="Player" alt="" coords="199,107,258,133"/>
+<area shape="rect" id="node3" href="$classStdBullet.html" title="StdBullet" alt="" coords="319,5,393,32"/>
 </map>

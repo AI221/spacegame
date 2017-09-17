@@ -9,6 +9,7 @@
 //Local includes
 
 #include "vector2.h"
+#include "shapes.h"
 
 #ifndef __UI_INCLUDED
 #define __UI_INCLUDED
@@ -20,11 +21,8 @@
 class GE_UI_Element
 {
 	public:
-	 /*	GE_UI_Element(SDL_Renderer* renderer, Vector2 position);
-		Vector2 position;
-		SDL_Renderer* renderer;*/
 		virtual void render(Vector2 parrentPosition) = 0;
-		virtual void giveEvent(Vector2 parrentPosition, SDL_Event event) = 0;
+		virtual void giveEvent(Vector2 parrentPosition, SDL_Event event);
 		bool wantsEvents;
 };
 class GE_UI_Text : public GE_UI_Element
@@ -51,7 +49,6 @@ class GE_UI_Text : public GE_UI_Element
 		 */
 		void expandToTextSize();
 		void setCursor(int pos);
-		void giveEvent(Vector2 parrentPosition, SDL_Event event);
 	//	bool wantsEvents;
 		SDL_Rect Message_rect;
 
@@ -114,6 +111,45 @@ class GE_UI_Button : public GE_UI_Element
 		SDL_Color color;
 		SDL_Color pressedColor;
 };
+
+class GE_UI_ProgressBar : public GE_UI_Element
+{
+	public:
+		GE_UI_ProgressBar(SDL_Renderer* renderer, Vector2 position, Vector2 size, GE_Color color, GE_Color background, bool showProgressNumber);
+		~GE_UI_ProgressBar();
+		void render(Vector2 parrentPosition);
+		void render(Vector2r parrentPosition); //due to its use in HUDs, this supports rotation
+		void setProgress(double progress);
+		double getProgress();
+		
+		bool wantsEvents;
+	private:
+		SDL_Renderer* renderer;
+		Vector2 position;
+		Vector2 size;
+		GE_RectangleShape* background;
+		GE_RectangleShape* bar;
+		bool showProgressNumber;
+		GE_UI_Text* text;
+
+		double progress;
+};
+
+class GE_UI_DraggableProgressBar : public GE_UI_ProgressBar
+{
+	public:
+		GE_UI_DraggableProgressBar(SDL_Renderer* renderer, Vector2 position, Vector2 size, GE_Color color, GE_Color background, bool showProgressNumber);
+		~GE_UI_DraggableProgressBar();
+		void giveEvent(Vector2 parrentPosition, SDL_Event event);
+
+		bool wantsEvents;
+	private:
+		Vector2 position;
+		Vector2 size;
+
+		bool pollMouse;
+};
+	
 
 
 class GE_UI_Surface

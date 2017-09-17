@@ -1,6 +1,4 @@
 var searchData=
 [
-  ['vector2',['Vector2',['../structVector2.html',1,'']]],
-  ['vector2_2eh',['vector2.h',['../vector2_8h.html',1,'']]],
-  ['vector2r',['Vector2r',['../structVector2r.html',1,'']]]
+  ['type',['type',['../classGE__PhysicsObject.html#a646638f2b93f03e72b771fb547ff6f7a',1,'GE_PhysicsObject']]]
 ];

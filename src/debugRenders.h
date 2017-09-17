@@ -5,7 +5,6 @@
  * Debug-grade renderers for debugging. 
  */
 
-#ifdef DEBUG_RENDERS
 //debug: include pretty much everything
 #include<SDL2/SDL.h>
 #include<SDL2/SDL_ttf.h>
@@ -16,31 +15,18 @@
 #include <vector>
 #include <functional>
 //Local includes
-#include "vector2.h"
-#include "debugUI.h"
-#include "sprite.h"
 #include "camera.h"
-#include "physics.h"
-#include "renderedObject.h"
 #include "UI.h"
 
-#define SPRITE_DIR "../sprites/"
-
-
-//TODO: Merge physicsEngine's render pass to here, and have it use the renderer given here. 
 
 #ifndef __DEBUGRENDERS_INCLUDED
 #define __DEBUGRENDERS_INCLUDED
 
-/*!
- *
- * Shows the sGrid at the given camera position. Does not factor in rotation.
- *
- */
-void Debug_sGrid_Render(Vector2r camerapos);
+extern SDL_Renderer* GE_DEBUG_Renderer;
+extern Camera* GE_DEBUG_Camera; 
+void GE_DEBUG_PassRenderer(SDL_Renderer* yourRenderer, Camera* yourCamera);
 
-
+void GE_DEBUG_TextAt(std::string text, Vector2 position);
 
 
 #endif // __DEBUGRENDERS_INCLUDED
-#endif //DEBUG_RENDERS
