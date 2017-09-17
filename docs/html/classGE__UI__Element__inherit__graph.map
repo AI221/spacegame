@@ -1,6 +1,0 @@
-<map id="GE_UI_Element" name="GE_UI_Element">
-<area shape="rect" id="node2" href="$classGE__UI__Button.html" title="GE_UI_Button" alt="" coords="5,80,112,107"/>
-<area shape="rect" id="node3" href="$classGE__UI__Minimap.html" title="GE_UI_Minimap" alt="" coords="137,80,255,107"/>
-<area shape="rect" id="node4" href="$classGE__UI__Text.html" title="GE_UI_Text" alt="" coords="279,80,374,107"/>
-<area shape="rect" id="node5" href="$classGE__UI__TextInput.html" title="GE_UI_TextInput" alt="" coords="398,80,522,107"/>
-</map>
