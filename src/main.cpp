@@ -312,7 +312,8 @@ int main(int argc, char* argv[])
 		GE_BlitStars(stars1,&camera);
 		GE_BlitStars(stars2,&camera);
 
-		render();
+		//render();
+	GE_GlueRenderCallback(); //update all positions from the buffer
 		
 		GE_BlitStars(stars3,&camera); //last star layer is "above" us
 
@@ -329,11 +330,11 @@ int main(int argc, char* argv[])
 		speedText->setText(newStr);
 
 
-		myHUD->render();
-		minimap->render({0,0});
+		//myHUD->render();
+		//minimap->render({0,0});
 		progress->setProgress(progress->getProgress()+0.001);
 		rt += 0.001;
-		progress->render(Vector2r{0,0,rt*360});
+		//progress->render(Vector2r{0,0,rt*360});
 
 
 		if ((!player->GetIsOnline()) && static_cast<int>(floor(ticknum / 5.0)) % 3) //Flash "Game over!" if the player is dead. Basically, this is (%number)/(dividedNumber), top being how often it's ON, bottom being how often it's OFF... except when it's not. I'll level with you: I figured out how to make timers based soley off of the tick number a long time ago. I no longer have a clue how this works. I adjusted it until I got the result I wanted. 
