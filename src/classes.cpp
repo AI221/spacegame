@@ -48,7 +48,7 @@ void Subsystem::CheckCollision(int checkCollisionRectangle)
 	if (checkCollisionRectangle == this->collisionRectangle)
 	{
 		//printf("yuppers\n");
-		//health -= 25; //TODO more dynamicness
+		health -= 25; //TODO more dynamicness
 	}
 }
 void Subsystem::Update(Vector2r parrentPosition)
@@ -365,7 +365,11 @@ bool Player::C_Update()
 #ifdef unrealisticMove
 			fwdMove = 0;
 #endif
+		} if (keysHeld[SDLK_n])
+		{
+			velocity = {-1,0,0};
 		}
+		
 		if (keysHeld[SDLK_ESCAPE])
 		{
 			//TODO GOD WHY
@@ -470,7 +474,7 @@ bool Enemie::C_Update()
 	//based on: https://gamedev.stackexchange.com/a/124803
 	//printf("enemy up\n");
 	//check if we're in the radius of our target player
-	if ( GE_Distance(this->position.x, this->position.y, targetPlayer->position.x, targetPlayer->position.y) < 1000)
+	if ( GE_Distance(this->position.x, this->position.y, targetPlayer->position.x, targetPlayer->position.y) < 500)
 	{
 		//printf("can see\n");
 		//turn toward the player

@@ -1,3 +1,12 @@
+/*!
+ * @file
+ * @author Jackson McNeill
+ *
+ * A simple object-oriented UI system. This is intended to remain as minimal as possible, while providing necasary features for game HUDs and UIs. 
+ * Many objects do not support rotation; some do (usually if used in HUDs). This helps to keep this system minimal.
+ */
+
+
 #include "SDL.h"
 #include "SDL_ttf.h"
 #include <math.h>

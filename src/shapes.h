@@ -1,3 +1,10 @@
+/*!
+ * @file
+ * @author Jackson McNeill
+ *
+ * Rendering shapes that are abstracted over SDL's, offering additional features
+ */
+
 #include "SDL.h"
 
 //Local incluides

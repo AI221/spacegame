@@ -1,3 +1,9 @@
+/*!
+ * @file
+ * @author Jackson McNeill
+ * A minimap that you can register RenderedObject's positions to, and assign a color. 
+ */
+
 #include "SDL.h"
 #include <unordered_map>
 

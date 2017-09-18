@@ -144,10 +144,19 @@ extern int sGrid[2000][2000]; //TODO: Dynamically sized arrays for both of these
 int GE_PhysicsInit();
 
 
+/*!
+ * Create a physics object. It will be deleted upon its death, or upon physics engine shut down, but you may free it any time you like as long as PhysicsThreadMutex is locked. (or it is done during a physics tick under certain conditions)
+ */
 GE_PhysicsObject* GE_CreatePhysicsObject(Vector2r newPosition, Vector2r newVelocity, Vector2 shape,double mass);
 
+/*!
+ * Convience function that creates a new glue object, linking link to subject 's position. It will be deleted when the physics objected is freed.
+ */
 void GE_LinkVectorToPhysicsObjectPosition(GE_PhysicsObject* subject, Vector2r* link);
 
+/*!
+ * Convience function that creates a new glue object, linking link to subject 's velocity. It will be deleted when the physics objected is freed.
+ */
 void GE_LinkVectorToPhysicsObjectVelocity(GE_PhysicsObject* subject, Vector2r* link);
 
 

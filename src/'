@@ -1,0 +1,55 @@
+#include "stars.h"
+
+#define random_range_double(low,high) (  ((rand() % (std::abs(low)+high))+1.0)-low  )
+#define wraparround_clamp(number,maxval) (  number-(std::floor(number/maxval)*maxval)  )
+#define nwraparround_clamp(number,maxval) (number)
+
+GE_Stars* GE_CreateStars(SDL_Renderer* renderer, unsigned int number, unsigned int width, unsigned int height, Vector2 size, GE_Color color)
+{
+	GE_Stars* newStars = new GE_Stars{renderer,std::unordered_set<Vector2*>{},{static_cast<double>(width),static_cast<double>(height)},new GE_RectangleShape(renderer,color),size};
+	for (int i =0;i<=number;i++)
+	{
+		newStars->stars.insert(new Vector2{random_range_double(0,width),random_range_double(0,height)});
+	}
+	return newStars;
+}
+void GE_FreeStars(GE_Stars* subject)
+{
+	for (Vector2* subjectVector: subject->stars)
+	{
+		delete subjectVector;
+	}
+	delete subject->starRectangle;
+	delete subject;
+}
+
+void GE_BlitStars(GE_Stars* subject, Camera* camera)
+{
+	Camera* scaledcamera;
+#define scale 1
+printf("t %f,%f\n",subject->allStarsSize.x,subject->allStarsSize.y);
+
+	for (Vector2* subjectVector: subject->stars)
+	{
+		scaledcamera = new Camera{Vector2r{camera->pos.x*scale,camera->pos.y*scale,camera->pos.r},camera->screenHeight,camera->screenWidth};
+		Vector2 newSubjectVector = *subjectVector;
+	newSubjectVector.x = (newSubjectVector.x-camera->pos.x);
+	newSubjectVector.y = (newSubjectVector.y-camera->pos.y);
+		newSubjectVector={wraparround_clamp(newSubjectVector.x,camera->screenWidth),wraparround_clamp(newSubjectVector.y,camera->screenHeight)};
+	
+		newSubjectVector.x = newSubjectVector.x+(subject->allStarsSize.x/2);
+		newSubjectVector.y = newSubjectVector.y+(subject->allStarsSize.y/2);
+
+		//Vector2r position = GE_ApplyCameraOffset(scaledcamera,{newSubjectVector.x*scale,newSubjectVector.y*scale,0},subject->allStarsSize*scale);
+		
+
+		Vector2r position = {newSubjectVector.x,newSubjectVector.y,camera->pos.r};
+		GE_Vector2Rotation(&position);
+		newSubjectVector.x = (newSubjectVector.x+(camera->screenWidth/2))-(subject->allStarsSize.x/2);
+		newSubjectVector.y = (newSubjectVector.y+(camera->screenHeight/2))-(subject->allStarsSize.y/2);
+
+		delete scaledcamera;
+		subject->starRectangle->render(position,subject->starRectangleSize);
+	}
+
+}

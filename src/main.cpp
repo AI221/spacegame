@@ -41,6 +41,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "gluePhysicsObject.h"
 #include "gluePhysicsObjectInit.h"
 #include "engine.h"
+#include "stars.h"
 
 #ifdef GE_DEBUG
 #include "debugRenders.h"
@@ -276,9 +277,15 @@ int main(int argc, char* argv[])
 	
 	
 	auto progress = new GE_UI_ProgressBar(myRenderer, {00,150},{100,20},{0xff,0x00,0x00,0xff},{0xff,0xff,0xff,0xff},false); //TODO TEMP
-	progress->setProgress(.6);
 
 	double rt = 0;
+
+	double maxScreenSize = std::max(camera.screenWidth,camera.screenHeight)*5;
+
+	auto stars1 = GE_CreateStars(myRenderer, 550*5, maxScreenSize,maxScreenSize,{2,2},0.833333333, {0xff,0xff,0xff,0xff});
+	auto stars2 = GE_CreateStars(myRenderer, 300*5, maxScreenSize,maxScreenSize,{2,2},1.25, {0xff,0xff,0xff,0xff});
+	auto stars3 = GE_CreateStars(myRenderer, 20*5, maxScreenSize,maxScreenSize,{2,2},1.8, {0xff,0xff,0xff,0xff});
+
 
 	char newStr[256] = {0};
 
@@ -289,8 +296,23 @@ int main(int argc, char* argv[])
 		GE_BlitSprite(Sprites[GE_SpriteNameToID(SPRITE_DIR"color_black.bmp")],{0,0,0},{(double) camera.screenWidth,(double) camera.screenHeight},{0,0,25,25},GE_FLIP_NONE);		//TODO: Something less shitty
 		//find the focus object's size
 		
+		double absSpeedX = std::abs(playerSpeed.x)*0.16667;
+		double absSpeedY = std::abs(playerSpeed.y)*0.16667;
+		stars1->starRectangleSize.y = std::max((( absSpeedX )  )/20.0,2.0);
+		stars1->starRectangleSize.y = std::max((( absSpeedY )  )/20.0,2.0);
+
+		stars2->starRectangleSize.y = std::max((( absSpeedX )/1.25  )/20.0,2.0);
+		stars2->starRectangleSize.y = std::max((( absSpeedY )/1.25  )/20.0,2.0);
+
+		stars3->starRectangleSize.y = std::max((( absSpeedX )/1.8  )/20.0,2.0);
+		stars3->starRectangleSize.y = std::max((( absSpeedY )/1.8  )/20.0,2.0);
+		
+		GE_BlitStars(stars1,&camera);
+		GE_BlitStars(stars2,&camera);
 
 		render();
+		
+		GE_BlitStars(stars3,&camera); //last star layer is "above" us
 
 		
 
@@ -310,6 +332,7 @@ int main(int argc, char* argv[])
 		progress->setProgress(progress->getProgress()+0.001);
 		rt += 0.001;
 		progress->render(Vector2r{0,0,rt*360});
+
 
 		if ((!player->GetIsOnline()) && static_cast<int>(floor(ticknum / 5.0)) % 3) //Flash "Game over!" if the player is dead. Basically, this is (%number)/(dividedNumber), top being how often it's ON, bottom being how often it's OFF... except when it's not. I'll level with you: I figured out how to make timers based soley off of the tick number a long time ago. I no longer have a clue how this works. I adjusted it until I got the result I wanted. 
 		{

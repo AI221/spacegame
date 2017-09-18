@@ -1,3 +1,9 @@
+/*!
+ * @file
+ * @author Jackson McNeill
+ * Initialization function for the Glue Object system
+ */
+
 #include "gluePhysicsObject.h"
 #include "physics.h"
 

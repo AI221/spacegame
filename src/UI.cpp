@@ -378,7 +378,7 @@ void GE_UI_ProgressBar::render(Vector2r parrentPosition)
 		Vector2 result = (bigTopLeft-smallTopLeft);
 		result.x = std::abs(result.x);
 
-		parrentPosition.x += result.x;
+		parrentPosition.x += result.x; //basically, take the diffence in the resulting top-lefts of the rectangles and subtract that from the small one, aligning it to the big one's top left
 		parrentPosition.y -= result.y;
 	}
 
