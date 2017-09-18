@@ -1,6 +1,6 @@
 # About
 
-This is a Gamejam entry based off my 2D engine. I'm still new to C++ (and this project might require some butchering of the engine) so I'm making this a seperate branch.
+It's JUST STARS. There's no spaceship. I guarntee it. There's nothing. There's no physics engine running in the background. Absolutely none. Because it's just stars. This isn't some crappy version I made by commenting out the renderer. This is an application designed for stars, by stars, from the stars up.
 
 # Style
 
