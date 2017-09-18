@@ -282,9 +282,11 @@ int main(int argc, char* argv[])
 
 	double maxScreenSize = std::max(camera.screenWidth,camera.screenHeight)*5;
 
-	auto stars1 = GE_CreateStars(myRenderer, 550*5, maxScreenSize,maxScreenSize,{2,2},0.833333333, {0xff,0xff,0xff,0xff});
-	auto stars2 = GE_CreateStars(myRenderer, 300*5, maxScreenSize,maxScreenSize,{2,2},1.25, {0xff,0xff,0xff,0xff});
-	auto stars3 = GE_CreateStars(myRenderer, 20*5, maxScreenSize,maxScreenSize,{2,2},1.8, {0xff,0xff,0xff,0xff});
+	std::vector<GE_Color> starColors = {{0xff,0xff,0xff,0xff},{0xfb,0xf3,0xf9,0xff},{0xba,0xd8,0xfc,0xff}};
+	std::vector<int> starSizes = {2,2,2,2,2,2,1,1,3};
+	auto stars1 = GE_CreateStars(myRenderer, 550*5, maxScreenSize,maxScreenSize,starSizes,(0.833333333)/3,starColors);
+	auto stars2 = GE_CreateStars(myRenderer, 300*5, maxScreenSize,maxScreenSize,starSizes,0.833333333, starColors);
+	auto stars3 = GE_CreateStars(myRenderer, 20*5, maxScreenSize,maxScreenSize,starSizes,1.8, starColors);
 
 
 	char newStr[256] = {0};
@@ -298,14 +300,14 @@ int main(int argc, char* argv[])
 		
 		double absSpeedX = std::abs(playerSpeed.x)*0.16667;
 		double absSpeedY = std::abs(playerSpeed.y)*0.16667;
-		stars1->starRectangleSize.y = std::max((( absSpeedX )  )/20.0,2.0);
+		/*stars1->starRectangleSize.y = std::max((( absSpeedX )  )/20.0,2.0);
 		stars1->starRectangleSize.y = std::max((( absSpeedY )  )/20.0,2.0);
 
-		stars2->starRectangleSize.y = std::max((( absSpeedX )/1.25  )/20.0,2.0);
-		stars2->starRectangleSize.y = std::max((( absSpeedY )/1.25  )/20.0,2.0);
+		stars2->starRectangleSize.y = std::max((( absSpeedX )*2  )/20.0,2.0);
+		stars2->starRectangleSize.y = std::max((( absSpeedY )*2  )/20.0,2.0);
 
-		stars3->starRectangleSize.y = std::max((( absSpeedX )/1.8  )/20.0,2.0);
-		stars3->starRectangleSize.y = std::max((( absSpeedY )/1.8  )/20.0,2.0);
+		stars3->starRectangleSize.y = std::max((( absSpeedX )*3  )/20.0,2.0);
+		stars3->starRectangleSize.y = std::max((( absSpeedY )*3  )/20.0,2.0);*/
 		
 		GE_BlitStars(stars1,&camera);
 		GE_BlitStars(stars2,&camera);
@@ -323,7 +325,7 @@ int main(int argc, char* argv[])
 
 			healthTexts[i]->setText(newStr);
 		}
-		sprintf (newStr, "Speed: %.2f m/s",(abs(playerSpeed.x)+abs(playerSpeed.y))*0.16667); //TODO this will need to be changed with physics timescales
+		sprintf (newStr, "Speed: %.2f km/s",(abs(playerSpeed.x)+abs(playerSpeed.y))*0.16667); //TODO this will need to be changed with physics timescales
 		speedText->setText(newStr);
 
 
@@ -375,6 +377,10 @@ int main(int argc, char* argv[])
 	delete speedText;
 	delete GameOver;
 	delete minimap;
+
+	delete stars1;
+	delete stars2;
+	delete stars3;
 
 	GE_Shutdown();
 
