@@ -476,26 +476,60 @@ bool Enemie::C_Update()
 	//check if we're in the radius of our target player
 	if ( GE_Distance(this->position.x, this->position.y, targetPlayer->position.x, targetPlayer->position.y) < 500)
 	{
+		foundPlayer=true;
+		if (ticknum % 60 == 0 )
+		{
+			//spawn bullet
+		//	ShootBullet(renderer,this,{0,-3,0},{19,-5,0},false);
+		}
+	}
+	if (foundPlayer)
+	{
 		//printf("can see\n");
 		//turn toward the player
 		
 
-		double rotaryDistance = (this->position.r/DEG_TO_RAD)-(atan2(targetPlayer->position.x-this->position.x,targetPlayer->position.y-this->position.y));
-		//printf("rdist %f\n",rotaryDistance);
-		if (rotaryDistance < - 3.1415926 || (rotaryDistance > 0 && rotaryDistance < 3.1415926 ))
+		
+		double rotaryDistance = GE_GetRotationalDistance(this->position,targetPlayer->position);
+
+		printf("rotaryDistance %f\n",rotaryDistance);
+		printf("velocityr %f\n",velocity.r);
+
+
+		//if (rotaryDistance < -180 || (rotaryDistance > 0 && rotaryDistance < 180 ))
+		//double acceleration_r = (rotaryDistance > 0)? -0.2 : 0.2;
+		double acceleration_r = ((rotaryDistance < -180 || (rotaryDistance > 0 && rotaryDistance < 180 ))) ? -0.2 : 0.2;
+
+		printf("accel %f",acceleration_r);
+		
+		double timeAvailiable = std::abs( (180.0-rotaryDistance)/velocity.r );
+
+		//timeAvailiable = !std::isfinite(timeAvailiable) ? timeAvailiable = 0 :(timeAvailiable);
+
+
+		double timeToStop = std::abs( (velocity.r)/(0.5*acceleration_r) );
+		//timeToStop = 99999;
+
+
+		printf("ID %d\n",this->ID);
+		printf("time to stop %f\n",timeToStop);
+		printf("time avail %f\n",timeAvailiable);
+		printf("---------------\n");
+
+		if (timeToStop <= timeAvailiable)
 		{
-			this->position.r = this->position.r + 5;
+			printf("Decel\n");
+			//decelerate
+			velocity.r -= acceleration_r;
 		}
-		else	
+		else
 		{
-			this->position.r = this->position.r - 5;
-		}
-		if (ticknum % 60 == 0 )
-		{
-			//spawn bullet
-			ShootBullet(renderer,this,{0,-3,0},{0,-40,0},false);
+			printf("accel\n");
+			//accelerate
+			velocity.r += acceleration_r;
 		}
 	}
+	
 	
 	
 

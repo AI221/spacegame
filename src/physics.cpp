@@ -120,13 +120,16 @@ GE_PhysicsObject* GE_CreatePhysicsObject(Vector2r newPosition, Vector2r newVeloc
 }
 void GE_LinkVectorToPhysicsObjectPosition(GE_PhysicsObject* subject, Vector2r* link)
 {
-	subject->numGlueTargets++;
-	subject->glueTargets[subject->numGlueTargets] = GE_addGlueSubject(link,&subject->position,GE_PULL_ON_PHYSICS_TICK,sizeof(Vector2r));
+	GE_LinkGlueToPhysicsObject(subject, GE_addGlueSubject(link,&subject->position,GE_PULL_ON_PHYSICS_TICK,sizeof(Vector2r)) );
 }
 void GE_LinkVectorToPhysicsObjectVelocity(GE_PhysicsObject* subject, Vector2r* link)
 {
+	GE_LinkGlueToPhysicsObject(subject, GE_addGlueSubject(link,&subject->velocity,GE_PULL_ON_PHYSICS_TICK,sizeof(Vector2r)) );
+}
+void GE_LinkGlueToPhysicsObject(GE_PhysicsObject* subject, GE_GlueTarget* glue)
+{
 	subject->numGlueTargets++;
-	subject->glueTargets[subject->numGlueTargets] = GE_addGlueSubject(link,&subject->velocity,GE_PULL_ON_PHYSICS_TICK,sizeof(Vector2r));
+	subject->glueTargets[subject->numGlueTargets] = glue;
 }
 int GE_GetPhysicsObjectFromID(int fakeID, GE_PhysicsObject** physicsObjectPointer)
 {
@@ -616,10 +619,10 @@ void GE_InelasticCollision(GE_PhysicsObject* subject, Vector2 collisionPoint, Ve
 
 	printf("centerPoint %f,%f\n",centerPoint.x,centerPoint.y);
 
-	double adjacent = cos(abs(collisionPoint.x-centerPoint.x)/(GE_Distance(collisionPoint,centerPoint)));
+	double adjacent = std::cos(std::abs(collisionPoint.x-centerPoint.x)/(GE_Distance(collisionPoint,centerPoint)));
 
 
-	adjacent *= DEG_TO_RAD;
+	adjacent *= RAD_TO_DEG;
 
 	printf("adjacent %f\n",adjacent);
 

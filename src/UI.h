@@ -14,6 +14,7 @@
 #include <string>
 #include <functional>
 #include <cstring>
+#include <cmath>
 
 //Local includes
 
@@ -26,6 +27,50 @@
 //limits:
 #define MAX_SURFACE_UI_ELEMENTS 256
 
+struct GE_UI_FontStyle
+{
+	GE_Color color;
+	TTF_Font* font;
+};
+struct GE_UI_ButtonStyle
+{
+	GE_Color background;
+	GE_Color backgroundPressed;
+	GE_Color text;
+	GE_Color textPressed;
+	Vector2 paddingSize;
+	TTF_Font* font;
+};
+
+struct GE_UI_WindowTitleStyle
+{
+
+	GE_UI_FontStyle font;
+	double textOffset;
+	GE_UI_ButtonStyle XButton;
+	double buttonDistanceFromRight;
+	GE_Color background;
+	double height;
+	bool centerTitleText;
+
+};
+
+
+struct GE_UI_WindowStyle
+{
+	GE_UI_WindowTitleStyle titleStyle;
+	GE_Color background;
+	double borderSize;
+	GE_Color borderColor;
+};
+
+struct GE_UI_Style
+{
+	GE_UI_FontStyle standardFont;
+	GE_UI_FontStyle buttonFont;
+
+	GE_UI_WindowStyle windowStyle;
+};
 
 class GE_UI_Element
 {
@@ -37,13 +82,15 @@ class GE_UI_Element
 class GE_UI_Text : public GE_UI_Element
 {
 	public:
-		GE_UI_Text(SDL_Renderer* renderer, Vector2 position, Vector2 size, std::string text, SDL_Color color,TTF_Font* font);
+		GE_UI_Text(SDL_Renderer* renderer, Vector2 position, Vector2 size, std::string text, GE_Color color,TTF_Font* font);
+		GE_UI_Text(SDL_Renderer* renderer, Vector2 position, Vector2 size, std::string text, GE_UI_FontStyle style);
 		~GE_UI_Text();
 		void render(Vector2 parrentPosition);
 		void render();
 		void setText(const char* text);
 		void setText(std::string text);
 		void setSize(Vector2 newSize);
+		Vector2 getSize();
 		void setPosition(Vector2 newPosition);
 	
 		void centerX();
@@ -65,7 +112,7 @@ class GE_UI_Text : public GE_UI_Element
 		TTF_Font* font;//Sans = TTF_OpenFont("/usr/share/fonts/truetype/freefont/FreeSans.ttf", 15);
 		Vector2 position;
 		Vector2 size;
-		SDL_Color color;
+		GE_Color color;
 		SDL_Renderer* renderer;
 		SDL_Texture* Message;
 		int scrollPosition;
@@ -77,7 +124,7 @@ class GE_UI_Text : public GE_UI_Element
 class GE_UI_TextInput : public GE_UI_Element
 {
 	public:
-		GE_UI_TextInput(SDL_Renderer* renderer, Vector2 position, Vector2 size, SDL_Color textColor, SDL_Color color, TTF_Font* font);
+		GE_UI_TextInput(SDL_Renderer* renderer, Vector2 position, Vector2 size, GE_Color textColor, GE_Color color, TTF_Font* font);
 		~GE_UI_TextInput();
 		void render(Vector2 parrentPosition);
 		void render(); 
@@ -93,7 +140,7 @@ class GE_UI_TextInput : public GE_UI_Element
 		SDL_Renderer* renderer;
 		Vector2 position;
 		Vector2 size;
-		SDL_Color color;
+		GE_Color color;
 
 		GE_UI_Text* myText;
 		std::string text;
@@ -102,11 +149,12 @@ class GE_UI_TextInput : public GE_UI_Element
 class GE_UI_Button : public GE_UI_Element
 {
 	public:
-		GE_UI_Button(SDL_Renderer* renderer, Vector2 position, Vector2 paddingSize, std::string text, SDL_Color textColor, SDL_Color color, SDL_Color pressedColor, TTF_Font* font);
+		GE_UI_Button(SDL_Renderer* renderer, Vector2 position, Vector2 paddingSize, std::string text, GE_Color textColor, GE_Color color, GE_Color pressedColor, TTF_Font* font);
 		~GE_UI_Button();
 		void render(Vector2 parrentPosition);
 		void render();
 		void giveEvent(Vector2 parrentPosition, SDL_Event event);
+		Vector2 getSize();
 		std::function< void () > C_Pressed; //Callback	
 
 
@@ -117,8 +165,8 @@ class GE_UI_Button : public GE_UI_Element
 		GE_UI_Text* myText;
 		SDL_Renderer* renderer;
 		Vector2 paddingSize;
-		SDL_Color color;
-		SDL_Color pressedColor;
+		GE_Color color;
+		GE_Color pressedColor;
 };
 
 class GE_UI_ProgressBar : public GE_UI_Element
@@ -158,29 +206,72 @@ class GE_UI_DraggableProgressBar : public GE_UI_ProgressBar
 
 		bool pollMouse;
 };
+
+class GE_UI_Titlebar
+{
+	public:
+		GE_UI_Titlebar(SDL_Renderer* renderer, std::string name, GE_UI_WindowTitleStyle style);
+		~GE_UI_Titlebar();
+		void giveEvent (Vector2 parrentPosition, double parrentWidth, SDL_Event event);
+		void render(Vector2 parrentPosition, double parrentWidth);
+
+		bool wantsEvents;
+	private:
+		GE_UI_Text* title;
+		GE_RectangleShape* background;
+		GE_UI_Button* XButton;
+		GE_UI_WindowTitleStyle style;
+
+
+};
 	
 
 
-class GE_UI_Surface
+class GE_UI_Surface : public GE_UI_Element
 {
 	public:
-		GE_UI_Surface(SDL_Renderer* renderer, Vector2 position, Vector2 size, SDL_Color backgroundColor);
+		GE_UI_Surface(SDL_Renderer* renderer, Vector2 position, Vector2 size, GE_Color backgroundColor);
 		~GE_UI_Surface();
-		void render();
+		void render(Vector2 parrentPosition);
 		int addElement(GE_UI_Element* element);
 		GE_UI_Element* getElement(int elementID);
 		void giveEvent(SDL_Event event);
 		bool isOpen = false;
 
 		Vector2 position;
-		SDL_Rect positionAndSize;
+		Vector2 size;
 		
 	private:
 		GE_UI_Element* elements[MAX_SURFACE_UI_ELEMENTS];
 		int nextUIElement = 0;
 		SDL_Renderer* renderer;
-		SDL_Color backgroundColor;
+		GE_RectangleShape* backgroundRect;
 		
+};
+
+
+class GE_UI_Window: public GE_UI_Element
+{
+	public: 
+		GE_UI_Window(SDL_Renderer* renderer, std::string name, Vector2 position, Vector2 surfaceSize, GE_UI_Style style);
+		~GE_UI_Window();
+		void giveEvent(Vector2 parrentPosition, SDL_Event event);
+		void render(Vector2 parrentPosition);
+
+
+		bool wantsEvents;
+
+
+	private:
+		GE_UI_Titlebar* titlebar;
+		GE_UI_Surface* surface;
+		GE_RectangleShape* border;
+
+		Vector2 position;
+		Vector2 size;
+		double titleBarHeight;
+		double borderOffset;
+
 };
 
 #endif //__UI_INCLUDED

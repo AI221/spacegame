@@ -42,6 +42,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "gluePhysicsObjectInit.h"
 #include "engine.h"
 #include "stars.h"
+#include "shapes.h"
 
 #ifdef GE_DEBUG
 #include "debugRenders.h"
@@ -172,6 +173,14 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 	TTF_SetFontStyle(bigSans,TTF_STYLE_ITALIC);
+	TTF_Font* titleSans =  TTF_OpenFont(FREESANS_LOC, 18);
+	if(!titleSans) {
+		printf("TTF_OpenFont: %s\n", TTF_GetError());
+		return 1;
+	}
+	TTF_SetFontStyle(titleSans,TTF_STYLE_NORMAL | TTF_STYLE_BOLD);
+
+
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
 	{
 		printf("Unable to initialize SDL: %s", SDL_GetError());
@@ -201,6 +210,14 @@ int main(int argc, char* argv[])
 
 	GE_LoadSpritesFromDir(myRenderer, SPRITE_DIR);
 
+
+
+	//Let the renderer know approx what tick it is
+	
+	int rendererThreadsafeTicknum = 0;
+	GE_GlueTarget* ticknumGlue = GE_addGlueSubject(&rendererThreadsafeTicknum,&ticknum, GE_PULL_ON_PHYSICS_TICK,sizeof(int));
+	
+
 	
 	
 
@@ -212,8 +229,7 @@ int main(int argc, char* argv[])
 	//initialize the player
 	Player* player = new Player(myRenderer);
 	GE_LinkVectorToPhysicsObjectPosition(player,&(camera.pos));
-	player->numGlueTargets++;
-	player->glueTargets[player->numGlueTargets] = GE_addGlueSubject(&camerasGrid,&player->grid,GE_PULL_ON_PHYSICS_TICK,sizeof(GE_Rectangle));
+	GE_LinkGlueToPhysicsObject(player,GE_addGlueSubject(&camerasGrid,&player->grid,GE_PULL_ON_PHYSICS_TICK,sizeof(GE_Rectangle)) );
 
 
 //"locally scoped" definitions
@@ -233,8 +249,7 @@ int main(int argc, char* argv[])
 		newText->expandToTextSize();
 		printf("add element %d\n",myHUD->addElement(newText));
 		healthTexts[numHealthTexts] = newText;
-		player->numGlueTargets++;
-		player->glueTargets[player->numGlueTargets] = GE_addGlueSubject(&healthAmmount[numHealthTexts],&(player->iterableSubsystems[numHealthTexts]->health),GE_PULL_ON_PHYSICS_TICK,sizeof(double));
+		GE_LinkGlueToPhysicsObject(player,GE_addGlueSubject(&healthAmmount[numHealthTexts],&(player->iterableSubsystems[numHealthTexts]->health),GE_PULL_ON_PHYSICS_TICK,sizeof(double)) );
 		numHealthTexts++;
 	}
 	GE_UI_Text* speedText = new GE_UI_Text(myRenderer,{HUD_SIZE_X/2,15*static_cast<double>(numHealthTexts+1)},{0,0},"This message should've been updated.", {0x66,0xFF,0x00,0xFF},tinySans);
@@ -255,10 +270,15 @@ int main(int argc, char* argv[])
 	//spawn some enemys why not
 	
 
-	for (int i=0;i<20;i++)
+	for (int i=0;i<1;i++)
 	{	
 		double randomx = rand() % 5000 + 1;
 		double randomy = rand() % 5000 + 1;
+		
+		randomx = 150;
+		randomy = 150;
+
+
 		new Enemie(myRenderer, {randomx-1500,randomy-1500,0},1);
 	}
 	//new Enemie(myRenderer, {200,0,0},1);
@@ -280,23 +300,38 @@ int main(int argc, char* argv[])
 
 	double rt = 0;
 
-	double maxScreenSize = std::max(camera.screenWidth,camera.screenHeight)*5;
+#define additionalStars 3
+	double maxScreenSize = std::max(camera.screenWidth,camera.screenHeight)*additionalStars;
 
 	std::vector<GE_Color> starColors = {{0xff,0xff,0xff,0xff},{0xfb,0xf3,0xf9,0xff},{0xba,0xd8,0xfc,0xff}};
 	std::vector<int> starSizes = {2,2,2,2,2,2,1,1,3};
-	auto stars1 = GE_CreateStars(myRenderer, 550*5, maxScreenSize,maxScreenSize,starSizes,(0.833333333)/3,starColors);
-	auto stars2 = GE_CreateStars(myRenderer, 300*5, maxScreenSize,maxScreenSize,starSizes,0.833333333, starColors);
-	auto stars3 = GE_CreateStars(myRenderer, 20*5, maxScreenSize,maxScreenSize,starSizes,1.8, starColors);
+	GE_Stars* stars1 = GE_CreateStars(myRenderer, 550*additionalStars, maxScreenSize,maxScreenSize,{2,1,1,1},(0.833333333)/10,starColors);
+	GE_Stars* stars2 = GE_CreateStars(myRenderer, 300*additionalStars, maxScreenSize,maxScreenSize,starSizes,0.833333333/5, starColors);
+	GE_Stars* stars3 = GE_CreateStars(myRenderer, 100*additionalStars, maxScreenSize,maxScreenSize,starSizes,0.833333333/3,starColors); 
+	GE_Stars* stars4 = GE_CreateStars(myRenderer, 50*additionalStars, maxScreenSize,maxScreenSize,starSizes,0.833333333/2,starColors); 
+	GE_Stars* stars5 = GE_CreateStars(myRenderer, 20*additionalStars, maxScreenSize,maxScreenSize,starSizes,1.8, starColors);
+
+
+	GE_UI_FontStyle fstyle = {{0x00,0x00,0x00,0xff},titleSans};
+	GE_UI_WindowTitleStyle windowTitleStyle = {fstyle,0,{GE_Color{0xff,0x00,0x00,0xff},GE_Color{0x66,0x66,0x66,0xff},{0xff,0xff,0xff,0xff},fstyle.color,{15,7},tinySans},2,GE_Color{0x66,0xff,0x33,0xff},25,true};
+	GE_UI_WindowStyle windowStyle = {windowTitleStyle, GE_Color{0x00,0x00,0xff,0xff},2,GE_Color{0x66,0xff,0x33,0xff}};
+	GE_UI_Style style = GE_UI_Style{fstyle,{GE_Color{0x00,0x33,0x00,0xff},tinySans},windowStyle};
+
+
+	GE_UI_Window* window = new GE_UI_Window(myRenderer,"INVENTORY",{250,250},{640,320},style);
 
 
 	char newStr[256] = {0};
 
+
+
+
+	GE_RectangleShape* background = new GE_RectangleShape(myRenderer, GE_Color{0x00,0x00,0x00,0xff});
 	while (true)//player->GetIsOnline())
 	{
-		//printf("Tryin to render here\n");
-		//pthread_mutex_lock(&RenderEngineMutex);
-		GE_BlitSprite(Sprites[GE_SpriteNameToID(SPRITE_DIR"color_black.bmp")],{0,0,0},{(double) camera.screenWidth,(double) camera.screenHeight},{0,0,25,25},GE_FLIP_NONE);		//TODO: Something less shitty
-		//find the focus object's size
+
+		background->render({0,0,0},{static_cast<double>(camera.screenWidth),static_cast<double>(camera.screenHeight)});
+
 		
 		double absSpeedX = std::abs(playerSpeed.x)*0.16667;
 		double absSpeedY = std::abs(playerSpeed.y)*0.16667;
@@ -311,10 +346,12 @@ int main(int argc, char* argv[])
 		
 		GE_BlitStars(stars1,&camera);
 		GE_BlitStars(stars2,&camera);
+		GE_BlitStars(stars3,&camera);
+		GE_BlitStars(stars4,&camera);
 
 		render();
 		
-		GE_BlitStars(stars3,&camera); //last star layer is "above" us
+		GE_BlitStars(stars5,&camera); //last star layer is "above" us
 
 		
 
@@ -329,14 +366,15 @@ int main(int argc, char* argv[])
 		speedText->setText(newStr);
 
 
-		myHUD->render();
+		myHUD->render({0,0});
 		minimap->render({0,0});
-		progress->setProgress(progress->getProgress()+0.001);
+		//progress->setProgress(progress->getProgress()+0.001);
+		progress->setProgress(.60);
 		rt += 0.001;
 		progress->render(Vector2r{0,0,rt*360});
 
 
-		if ((!player->GetIsOnline()) && static_cast<int>(floor(ticknum / 5.0)) % 3) //Flash "Game over!" if the player is dead. Basically, this is (%number)/(dividedNumber), top being how often it's ON, bottom being how often it's OFF... except when it's not. I'll level with you: I figured out how to make timers based soley off of the tick number a long time ago. I no longer have a clue how this works. I adjusted it until I got the result I wanted. 
+		if ((!player->GetIsOnline()) && static_cast<int>(floor(rendererThreadsafeTicknum / 5.0)) % 3) //Flash "Game over!" if the player is dead. Basically, this is (%number)/(dividedNumber), numerator being how often it's ON, denominator being how often it's OFF... except when it's not. I'll level with you: I figured out how to make timers based soley off of the tick number a long time ago. I no longer have a clue how this works. I adjusted it until I got the result I wanted. 
 		{
 			GameOver->render({0,0});
 		}
@@ -355,6 +393,9 @@ int main(int argc, char* argv[])
 		#endif
 
 
+		//window->render({0,0});
+
+
 
 		SDL_RenderPresent(myRenderer); //Seems to be the VSyncer (expect ~16ms wait upon call)
 	}
@@ -363,6 +404,8 @@ int main(int argc, char* argv[])
 	TTF_CloseFont(tinySans);
 	TTF_CloseFont(bigSans);
 	printf("destroy sdl stuff\n");
+
+	delete ticknumGlue;
 
 	SDL_DestroyWindow(myWindow);
 	SDL_DestroyRenderer(myRenderer);
@@ -389,6 +432,43 @@ int main(int argc, char* argv[])
 }
 
 #endif //real
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

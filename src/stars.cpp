@@ -61,7 +61,10 @@ void GE_BlitStars(GE_Stars* subject, Camera* camera)
 		position.x = (position.x+(scaledcamera->screenWidth/2));//-(subject->allStarsSize.x/2);
 		position.y = (position.y+(scaledcamera->screenHeight/2));//-(subject->allStarsSize.y/2);
 
-		subject->starRectangles[subjectStar->color]->render(position,{static_cast<double>(subjectStar->size),static_cast<double>(subjectStar->size)});
+		if ( ( position.x+subjectStar->size >= 0) && (position.x-subjectStar->size <= scaledcamera->screenWidth) && (position.y+subjectStar->size >= 0) && (position.y-subjectStar->size <= scaledcamera->screenHeight))
+		{
+			subject->starRectangles[subjectStar->color]->render(position,{static_cast<double>(subjectStar->size),static_cast<double>(subjectStar->size)});
+		}
 	}
 
 }

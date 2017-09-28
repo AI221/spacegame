@@ -161,6 +161,13 @@ void GE_LinkVectorToPhysicsObjectVelocity(GE_PhysicsObject* subject, Vector2r* l
 
 
 /*!
+ * Link an arbitrary glue object so that it's destroyed when the linked physics object is destroyed
+ */
+void GE_LinkGlueToPhysicsObject(GE_PhysicsObject* subject, GE_GlueTarget* glue);
+
+
+
+/*!
  * Success: Gives you the physics object an ID is pointing to
  *
  * Failure: Doesn't touch your pointer, returns error code>0

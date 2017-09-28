@@ -11,6 +11,7 @@
 #include <math.h>
 #include <stdlib.h>     /* srand, rand */
 #include <time.h>       /* time */
+#include <cmath>
 
 //Local includes
 #include "vector2.h"
@@ -108,6 +109,7 @@ class Enemie : public GE_PhysicsObject
 		GE_RenderedObject* renderObject;
 		SDL_Renderer* renderer;
 		int level;
+		bool foundPlayer;
 
 };
 

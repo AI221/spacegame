@@ -7,13 +7,14 @@
 //TODO: Name-change due to scope of this file change.
 
 #include <math.h>
+#include <cmath>
 
 //Local includes
 #include "GeneralEngineCPP.h"
 
 #ifndef __VECTOR2_INCLUDED
 #define __VECTOR2_INCLUDED
-#define DEG_TO_RAD 57.2958
+#define RAD_TO_DEG 57.2957795130823231109784554604402728728018701076507568359375
 
 
 /*!
@@ -179,8 +180,8 @@ struct GE_Rectangle //TODO allow rectangles themselves to be rotated relative to
  */
 GE_FORCE_INLINE void GE_Vector2RotationCCW(double* x, double* y, double rotation)
 {
-	double sin_rotation = sin(rotation/DEG_TO_RAD); //posr must be used because this vector is a velocity vector, not a position vector
-	double cos_rotation = cos(rotation/DEG_TO_RAD);
+	double sin_rotation = sin(rotation/RAD_TO_DEG); //posr must be used because this vector is a velocity vector, not a position vector
+	double cos_rotation = cos(rotation/RAD_TO_DEG);
 
 	double new_x = ((*x)*cos_rotation)+((*y)*sin_rotation); //we cannot re-assign the x-value before the other transmformation
 	(*y) =	-((*x)*sin_rotation)+((*y)*cos_rotation);
@@ -220,8 +221,8 @@ GE_FORCE_INLINE void GE_Vector2RotationCCW(Vector2* subject, double rotation)
  */
 GE_FORCE_INLINE void GE_Vector2Rotation(double* x, double* y, double rotation)
 {
-	double sin_rotation = sin(rotation/DEG_TO_RAD); //posr must be used because this vector is a velocity vector, not a position vector
-	double cos_rotation = cos(rotation/DEG_TO_RAD);
+	double sin_rotation = sin(rotation/RAD_TO_DEG); //posr must be used because this vector is a velocity vector, not a position vector
+	double cos_rotation = cos(rotation/RAD_TO_DEG);
 
 	double new_x = ((*x)*cos_rotation)-((*y)*sin_rotation); //we cannot re-assign the x-value before the other transmformation
 	(*y) =	((*x)*sin_rotation)+((*y)*cos_rotation);
@@ -277,10 +278,19 @@ GE_FORCE_INLINE double GE_Distance(Vector2 subject, Vector2 subject2)
 /*!
 * Returns the result of a dot product with subject and subject2
 */
-GE_FORCE_INLINE double GE_Dot(Vector2 subject, Vector2 subject2)
+template<class XY>
+GE_FORCE_INLINE double GE_Dot(XY subject, XY subject2)
 {
 	return (subject.x*subject2.x)+(subject.y*subject2.y);
 }
+
+template<class XYR, class XY>
+GE_FORCE_INLINE double GE_GetRotationalDistance(XYR subject, XY victim)
+{
+	//based on: https://gamedev.stackexchange.com/a/124803 though it's pretty simple math, my major impedence was getting this done in a game jam after being up for 24+ hours
+	return ((subject.r/RAD_TO_DEG)-(atan2(victim.x-subject.x,victim.y-subject.y)))*RAD_TO_DEG;
+}
+
 
 
 

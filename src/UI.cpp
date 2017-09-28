@@ -18,7 +18,7 @@ void GE_UI_Text::setText(const char* text)
 	{
 		text = " ";
 	}
-	SDL_Surface* surfaceMessage = TTF_RenderText_Blended(font, text, color);
+	SDL_Surface* surfaceMessage = TTF_RenderText_Blended(font, text, static_cast<SDL_Color>(color));
 	if (surfaceMessage == NULL) //extra protection
 	{
 		return; //TODO CRASH NOTE: IF, DURING CONSTRUCTION, MESSAGE IS FAILED TO BE SET, THE NEXT RENDER() WILL CAUSE A CRASH.
@@ -44,6 +44,10 @@ void GE_UI_Text::setSize(Vector2 newSize)
 {
 	this->size = newSize;
 }	
+Vector2 GE_UI_Text::getSize()
+{
+	return this->size;
+}
 void GE_UI_Text::setPosition(Vector2 newPosition)
 {
 	this->position = newPosition;
@@ -66,7 +70,7 @@ void GE_UI_Text::expandToTextSize()
 	this->size.x = this->Message_rect.w;
 	this->size.y = this->Message_rect.h;
 }
-GE_UI_Text::GE_UI_Text(SDL_Renderer* renderer, Vector2 position, Vector2 size, std::string text, SDL_Color color, TTF_Font* font)
+GE_UI_Text::GE_UI_Text(SDL_Renderer* renderer, Vector2 position, Vector2 size, std::string text, GE_Color color, TTF_Font* font)
 {
 	this->font = font;
 
@@ -87,6 +91,11 @@ GE_UI_Text::GE_UI_Text(SDL_Renderer* renderer, Vector2 position, Vector2 size, s
 
 	//this->scrollPosition;
 	//this->cursorPosition;
+}
+
+GE_UI_Text::GE_UI_Text(SDL_Renderer* renderer, Vector2 position, Vector2 size, std::string text, GE_UI_FontStyle style)
+{
+	GE_UI_Text(renderer, position, size, text, style.color,style.font);
 }
 GE_UI_Text::~GE_UI_Text()
 {
@@ -126,7 +135,7 @@ void GE_UI_Text::render()
 {
 	render({0,0});
 }
-GE_UI_TextInput::GE_UI_TextInput(SDL_Renderer* renderer, Vector2 position, Vector2 size, SDL_Color textColor, SDL_Color color, TTF_Font* font)
+GE_UI_TextInput::GE_UI_TextInput(SDL_Renderer* renderer, Vector2 position, Vector2 size, GE_Color textColor, GE_Color color, TTF_Font* font)
 {
 	this->renderer = renderer;
 	this->position = position;
@@ -244,10 +253,13 @@ const char* GE_UI_TextInput::getText_cstr()
 }
 
 
-GE_UI_Button::GE_UI_Button(SDL_Renderer* renderer, Vector2 position, Vector2 paddingSize, std::string text, SDL_Color textColor, SDL_Color color, SDL_Color pressedColor, TTF_Font* font)
+GE_UI_Button::GE_UI_Button(SDL_Renderer* renderer, Vector2 position, Vector2 paddingSize, std::string text, GE_Color textColor, GE_Color color, GE_Color pressedColor, TTF_Font* font)
 {
-	myText = new GE_UI_Text(renderer,position,{0,0},text,textColor,font);
-	myText->setSize({static_cast<double>(myText->Message_rect.w), static_cast<double>(myText->Message_rect.h)});
+	myText = new GE_UI_Text(renderer,position+paddingSize/2,{0,0},text,textColor,font);
+	myText->expandToTextSize();
+	/*myText->setSize({myText->Message_rect.x+(paddingSize.x/2),myText->Message_rect.y+(paddingSize.y/2)});
+	//myText->setPosition({position.x+paddingSize.x/2+myText->Message_rect.x/2,position.y+paddingSize.y/2+myText->Message_rect.y/2});
+	myText->centerX();*/
 	this->renderer = renderer;
 	this->position = position;
 	positionAndSize.x = position.x;
@@ -325,6 +337,10 @@ void GE_UI_Button::giveEvent(Vector2 parrentPosition, SDL_Event event)
 		}
 	}		
 }
+Vector2 GE_UI_Button::getSize()
+{
+	return {myText->Message_rect.w+paddingSize.x,myText->Message_rect.y+paddingSize.y};
+}
 
 
 
@@ -351,6 +367,34 @@ void GE_UI_ProgressBar::render(Vector2 parrentPosition)
 {
 	render({parrentPosition.x,parrentPosition.y,0});
 }
+
+Vector2 GE_AlignChildRectToParrent(double parrentRotation, Vector2 parrentSize, double childRotation, Vector2 childSize)
+{
+	//find their top lefts
+	
+	//set the values equal to the center
+	Vector2 parrentTopLeft = parrentSize/2;
+	Vector2 childTopLeft = childSize/2;
+
+	//apply rotation to positions
+	GE_Vector2Rotation(&parrentTopLeft,parrentRotation);
+	GE_Vector2Rotation(&childTopLeft,childRotation);
+
+	//subtract the center to get the top left
+	
+	parrentTopLeft = parrentTopLeft-parrentSize/2;
+	childTopLeft = childTopLeft-childSize/2;
+
+
+	//find the difference between the top lefts
+	
+	Vector2 difference = childTopLeft-parrentTopLeft;
+
+
+	return difference;
+
+
+}
 void GE_UI_ProgressBar::render(Vector2r parrentPosition)
 {
 	background->render(parrentPosition+position,size);
@@ -360,26 +404,11 @@ void GE_UI_ProgressBar::render(Vector2r parrentPosition)
 
 	//Probably a more effecient way of doing this, but this works.
 
+	bar->render(parrentPosition+position,barSize);
 	if (parrentPosition.r != 0.0) //small micro-optmization, we don't need need to calculate all of this if we have no rotation because result.x and result.y will be 0
 	{
-		Vector2 bigTopLeft = size/2;
 
-		GE_Vector2Rotation(&bigTopLeft,parrentPosition.r);
-		
-		bigTopLeft = bigTopLeft - (size/2);
-
-
-		Vector2 smallTopLeft = barSize/2;
-
-		GE_Vector2Rotation(&smallTopLeft,parrentPosition.r);
-		
-		smallTopLeft = smallTopLeft - (barSize/2);
-
-		Vector2 result = (bigTopLeft-smallTopLeft);
-		result.x = std::abs(result.x);
-
-		parrentPosition.x += result.x; //basically, take the diffence in the resulting top-lefts of the rectangles and subtract that from the small one, aligning it to the big one's top left
-		parrentPosition.y -= result.y;
+		parrentPosition = parrentPosition+GE_AlignChildRectToParrent(parrentPosition.r,size,parrentPosition.r,barSize);
 	}
 
 	//printf("res %f,%f\n",result.x,result.y);
@@ -440,15 +469,54 @@ void GE_UI_DraggableProgressBar::giveEvent(Vector2 parrentPosition, SDL_Event ev
 }
 	
 
-GE_UI_Surface::GE_UI_Surface(SDL_Renderer* renderer,Vector2 position, Vector2 size, SDL_Color backgroundColor)
+	
+
+
+GE_UI_Titlebar::GE_UI_Titlebar(SDL_Renderer* renderer, std::string name, GE_UI_WindowTitleStyle style)
 {
-	this->position = position;
-	this->positionAndSize.x = position.x;
-	this->positionAndSize.y = position.y;
-	this->positionAndSize.w = size.x;
-	this->positionAndSize.h = size.y;
+	this->title = new GE_UI_Text(renderer,{style.textOffset,style.height/2},{0,style.height},name,style.font.color,style.font.font);
+	this->title->expandToTextSize();
+	this->title->centerY();
+	if (style.centerTitleText)
+	{
+		this->title->centerX();
+	}
+
+	this->background = new GE_RectangleShape(renderer,style.background);
+	this->XButton = new GE_UI_Button(renderer, {style.buttonDistanceFromRight*-1,0},style.XButton.paddingSize,"X",style.XButton.text,style.XButton.background,style.XButton.backgroundPressed,style.XButton.font);
+
+	this->style = style;
+
+	this->wantsEvents = true;
+}
+GE_UI_Titlebar::~GE_UI_Titlebar()
+{
+	delete title;
+	delete background;
+	delete XButton;
+}
+void GE_UI_Titlebar::giveEvent (Vector2 parrentPosition, double parrentWidth, SDL_Event event)
+{
+	XButton->giveEvent({parrentPosition.x+parrentWidth-XButton->getSize().x,parrentPosition.y}, event);
+}
+void GE_UI_Titlebar::render(Vector2 parrentPosition, double parrentWidth)
+{
+	background->render(parrentPosition,{parrentWidth,style.height});
+	title->render(parrentPosition+Vector2{style.centerTitleText? parrentWidth/2 : 0,0});
+	XButton->render({parrentPosition.x+parrentWidth-XButton->getSize().x,parrentPosition.y});
+}
+
+
+
+
+
+GE_UI_Surface::GE_UI_Surface(SDL_Renderer* renderer,Vector2 position, Vector2 size, GE_Color backgroundColor)
+{
 	this->renderer = renderer;
-	this->backgroundColor = backgroundColor;
+	this->position = position;
+	this->size = size;
+
+	this->backgroundRect = new GE_RectangleShape(renderer,backgroundColor);
 }
 GE_UI_Surface::~GE_UI_Surface() 
 {
@@ -464,13 +532,12 @@ GE_UI_Element* GE_UI_Surface::getElement(int elementID)
 {
 	return elements[elementID];
 }
-void GE_UI_Surface::render()
+void GE_UI_Surface::render(Vector2 parrentPosition)
 {
-	SDL_SetRenderDrawColor( renderer,backgroundColor.r,backgroundColor.g,backgroundColor.b,backgroundColor.a ); 
-	SDL_RenderFillRect( renderer, &positionAndSize ); 
+	backgroundRect->render(position+parrentPosition,size);
 	for (int i=0;i<nextUIElement;i++)
 	{
-		elements[i]->render(position);
+		elements[i]->render(position+parrentPosition);
 	}
 }
 void GE_UI_Surface::giveEvent(SDL_Event event)
@@ -487,3 +554,42 @@ void GE_UI_Surface::giveEvent(SDL_Event event)
 		}
 	}
 }
+
+
+GE_UI_Window::GE_UI_Window(SDL_Renderer* renderer, std::string name, Vector2 position, Vector2 surfaceSize, GE_UI_Style style)
+{
+	this->titlebar = new GE_UI_Titlebar(renderer, name, style.windowStyle.titleStyle);
+	this->surface = new GE_UI_Surface(renderer, position+Vector2{0,style.windowStyle.titleStyle.height},surfaceSize,style.windowStyle.background);
+	this->size = surfaceSize+Vector2{style.windowStyle.borderSize*2,style.windowStyle.borderSize+style.windowStyle.titleStyle.height};
+	
+	this->titleBarHeight = style.windowStyle.titleStyle.height;
+	this->borderOffset = style.windowStyle.borderSize;
+	this->position = position;
+
+	this->border = new GE_RectangleShape(renderer,style.windowStyle.borderColor);
+
+
+
+	this->wantsEvents = true;
+}
+
+GE_UI_Window::~GE_UI_Window()
+{
+	delete titlebar;
+	delete surface;
+}
+void GE_UI_Window::render(Vector2 parrentPosition)
+{
+	border->render(parrentPosition+position,size);
+
+	surface->render(parrentPosition+Vector2{borderOffset,0});
+	
+	titlebar->render(parrentPosition+position,size.x);
+}
+void GE_UI_Window::giveEvent(Vector2 parrentPosition, SDL_Event event)
+{
+	surface->giveEvent(event); //{parrentPosition.x,parrentPosition.y+titleBarHeight}
+
+	titlebar->giveEvent(parrentPosition+position,size.x,event);
+}
+
