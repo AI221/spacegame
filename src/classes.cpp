@@ -491,6 +491,9 @@ bool Enemie::C_Update()
 
 		
 		double rotaryDistance = GE_GetRotationalDistance(this->position,targetPlayer->position);
+		printf("rdi %f\n",((atan2(targetPlayer->position.x-this->position.x,targetPlayer->position.y-this->position.y)))*RAD_TO_DEG);
+		rotaryDistance = ((this->position.r/RAD_TO_DEG)-(atan2(targetPlayer->position.x-this->position.x,targetPlayer->position.y-this->position.y)))*RAD_TO_DEG;
+		rotaryDistance -= floor(rotaryDistance/360)*360;
 
 		printf("rotaryDistance %f\n",rotaryDistance);
 		printf("velocityr %f\n",velocity.r);
@@ -498,11 +501,21 @@ bool Enemie::C_Update()
 
 		//if (rotaryDistance < -180 || (rotaryDistance > 0 && rotaryDistance < 180 ))
 		//double acceleration_r = (rotaryDistance > 0)? -0.2 : 0.2;
-		double acceleration_r = ((rotaryDistance < -180 || (rotaryDistance > 0 && rotaryDistance < 180 ))) ? -0.2 : 0.2;
+		double acceleration_r;
+		if ((rotaryDistance < -90 || (rotaryDistance > 0 && rotaryDistance < 90 )))
+		{
+			acceleration_r = +0.2;
+			printf("neg\n");
+		}
+		else 
+		{
+			acceleration_r= -0.2;
+			printf("pos\n");
+		}
 
 		printf("accel %f",acceleration_r);
 		
-		double timeAvailiable = std::abs( (180.0-rotaryDistance)/velocity.r );
+		double timeAvailiable = std::abs( (180-rotaryDistance)/velocity.r );
 
 		//timeAvailiable = !std::isfinite(timeAvailiable) ? timeAvailiable = 0 :(timeAvailiable);
 
@@ -516,11 +529,12 @@ bool Enemie::C_Update()
 		printf("time avail %f\n",timeAvailiable);
 		printf("---------------\n");
 
-		if (timeToStop <= timeAvailiable)
+		if (timeToStop >= timeAvailiable)
 		{
 			printf("Decel\n");
 			//decelerate
 			velocity.r -= acceleration_r;
+			//velocity.r = 0;
 		}
 		else
 		{

@@ -275,8 +275,8 @@ int main(int argc, char* argv[])
 		double randomx = rand() % 5000 + 1;
 		double randomy = rand() % 5000 + 1;
 		
-		randomx = 150;
-		randomy = 150;
+		randomx = -50;
+		randomy = -50;
 
 
 		new Enemie(myRenderer, {randomx-1500,randomy-1500,0},1);

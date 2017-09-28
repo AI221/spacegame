@@ -404,7 +404,6 @@ void GE_UI_ProgressBar::render(Vector2r parrentPosition)
 
 	//Probably a more effecient way of doing this, but this works.
 
-	bar->render(parrentPosition+position,barSize);
 	if (parrentPosition.r != 0.0) //small micro-optmization, we don't need need to calculate all of this if we have no rotation because result.x and result.y will be 0
 	{
 
