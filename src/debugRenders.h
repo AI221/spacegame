@@ -27,6 +27,7 @@ extern Camera* GE_DEBUG_Camera;
 void GE_DEBUG_PassRenderer(SDL_Renderer* yourRenderer, Camera* yourCamera);
 
 void GE_DEBUG_TextAt(std::string text, Vector2 position);
+void GE_DEBUG_TextAt(std::string text, Vector2r position);
 
 
 #endif // __DEBUGRENDERS_INCLUDED

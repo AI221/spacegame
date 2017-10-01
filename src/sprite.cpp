@@ -172,7 +172,7 @@ void GE_BlitSprite(GE_Sprite* sprite, Vector2r position,Vector2 size, GE_Rectang
 }
 void GE_BlitSprite(GE_Sprite* sprite, SDL_Rect renderPosition, SDL_Rect renderAnimation,double rotation, SDL_RendererFlip flip) //not super recommended to invoke this function directly
 {
-		
+	GE_PhysicsRotationToRenderRotation(&rotation);	
 	SDL_RenderCopyEx(sprite->renderer, sprite->texture, &renderAnimation, &renderPosition,rotation,NULL,flip); //RenderCopyEx copies the data from the pointers to the SDL_Rects, meaning they can be discarded immediatly following the function call.
 }
 

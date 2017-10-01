@@ -15,6 +15,20 @@
 #ifndef __VECTOR2_INCLUDED
 #define __VECTOR2_INCLUDED
 #define RAD_TO_DEG 57.2957795130823231109784554604402728728018701076507568359375
+#define TWO_PI 6.283185307179586
+
+/*!
+  *Prevents rotation from being >2pi
+  */
+GE_FORCE_INLINE void GE_CapRotation(double* rotation)
+{
+	(*rotation) -= floor(*rotation/TWO_PI)*TWO_PI;
+}
+GE_FORCE_INLINE double GE_CapRotation(double rotation)
+{
+	GE_CapRotation(&rotation);
+	return rotation;
+}
 
 
 /*!
@@ -70,44 +84,42 @@ struct Vector2r
 	GE_FORCE_INLINE Vector2r operator+(Vector2r other)
 	{
 		Vector2r newVector = {this->x+other.x,this->y+other.y,this->r+other.r};
-		//prevent rotation from being >360
-		newVector.r -= floor(newVector.r/360)*360;
+		GE_CapRotation(&newVector.r);
 
 		return newVector;
 	}
 	GE_FORCE_INLINE Vector2r operator-(Vector2r other)
 	{
 		Vector2r newVector = {this->x-other.x,this->y-other.y,this->r-other.r};
-		//prevent rotation from being >360
-		newVector.r -= floor(newVector.r/360)*360;
+		GE_CapRotation(&newVector.r);
 
 		return newVector;
 	}
 	GE_FORCE_INLINE Vector2r operator*(Vector2r other)
 	{	
 		Vector2r newVector = {this->x*other.x,this->y*other.y,this->r*other.r};
-		newVector.r -= floor(newVector.r/360)*360;
+		GE_CapRotation(&newVector.r);
 
 		return newVector;
 	}
 	GE_FORCE_INLINE Vector2r operator/(Vector2r other)
 	{	
 		Vector2r newVector = {this->x/other.x,this->y/other.y,this->r/other.r};
-		newVector.r -= floor(newVector.r/360)*360;
+		GE_CapRotation(&newVector.r);
 
 		return newVector;
 	}
 	GE_FORCE_INLINE Vector2r operator*(double other)
 	{
 		Vector2r newVector = {this->x*other,this->y*other,this->r*other};
-		newVector.r -= floor(newVector.r/360)*360;
+		GE_CapRotation(&newVector.r);
 
 		return newVector;
 	}
 	GE_FORCE_INLINE Vector2r operator/(double other)
 	{
 		Vector2r newVector = {this->x/other,this->y/other,this->r/other};
-		newVector.r -= floor(newVector.r/360)*360;
+		GE_CapRotation(&newVector.r);
 
 		return newVector;
 	}
@@ -180,8 +192,8 @@ struct GE_Rectangle //TODO allow rectangles themselves to be rotated relative to
  */
 GE_FORCE_INLINE void GE_Vector2RotationCCW(double* x, double* y, double rotation)
 {
-	double sin_rotation = sin(rotation/RAD_TO_DEG); //posr must be used because this vector is a velocity vector, not a position vector
-	double cos_rotation = cos(rotation/RAD_TO_DEG);
+	double sin_rotation = sin(rotation); //posr must be used because this vector is a velocity vector, not a position vector
+	double cos_rotation = cos(rotation);
 
 	double new_x = ((*x)*cos_rotation)+((*y)*sin_rotation); //we cannot re-assign the x-value before the other transmformation
 	(*y) =	-((*x)*sin_rotation)+((*y)*cos_rotation);
@@ -221,8 +233,8 @@ GE_FORCE_INLINE void GE_Vector2RotationCCW(Vector2* subject, double rotation)
  */
 GE_FORCE_INLINE void GE_Vector2Rotation(double* x, double* y, double rotation)
 {
-	double sin_rotation = sin(rotation/RAD_TO_DEG); //posr must be used because this vector is a velocity vector, not a position vector
-	double cos_rotation = cos(rotation/RAD_TO_DEG);
+	double sin_rotation = sin(rotation); //posr must be used because this vector is a velocity vector, not a position vector
+	double cos_rotation = cos(rotation);
 
 	double new_x = ((*x)*cos_rotation)-((*y)*sin_rotation); //we cannot re-assign the x-value before the other transmformation
 	(*y) =	((*x)*sin_rotation)+((*y)*cos_rotation);
@@ -288,10 +300,18 @@ template<class XYR, class XY>
 GE_FORCE_INLINE double GE_GetRotationalDistance(XYR subject, XY victim)
 {
 	//based on: https://gamedev.stackexchange.com/a/124803 though it's pretty simple math, my major impedence was getting this done in a game jam after being up for 24+ hours
-	return ((subject.r/RAD_TO_DEG)-(atan2(victim.x-subject.x,victim.y-subject.y)))*RAD_TO_DEG;
+	return GE_CapRotation( (subject.r)-((atan2(victim.x-subject.x,victim.y-subject.y))) );
 }
 
 
 
+/*!
+ * Converts the rotation from radians to degrees
+ */
+void GE_PhysicsVectorToRenderVector(Vector2r* subject);
+/*!
+ * Converts from radians to degrees
+ */
+void GE_PhysicsRotationToRenderRotation(double* rotation);
 
-#endif //__VECTOR2_INCLUDED
+#endif //__VECTOR2_INCLUDED0.14285714285714285

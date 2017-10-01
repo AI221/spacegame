@@ -4,6 +4,7 @@
 
 
 Player* targetPlayer;
+Enemie* te;
 
 Subsystem::Subsystem(SDL_Renderer* renderer, std::string sprite, Vector2 size, GE_Rectangle animation, Vector2r relativePosition, int collisionRectangle, std::string name, GE_Rectangle* parrentGrid)
 {
@@ -317,8 +318,8 @@ bool Player::C_Update()
 			fwdMove = fwdMove-0.5;
 #else
 			//account for damaged thrusters -- if one is offline, we're going to spin when we move.
-			if (iterableSubsystems[0]->GetIsOnline()) GE_AddRelativeVelocity(this,{0,-0.25,0.050});
-			if (iterableSubsystems[4]->GetIsOnline()) GE_AddRelativeVelocity(this,{0,-0.25,-0.050});
+			if (iterableSubsystems[0]->GetIsOnline()) GE_AddRelativeVelocity(this,{0,-0.25,0.0008726646});
+			if (iterableSubsystems[4]->GetIsOnline()) GE_AddRelativeVelocity(this,{0,-0.25,-0.0008726646});
 #endif
 		
 		}
@@ -327,8 +328,8 @@ bool Player::C_Update()
 #ifdef unrealisticMove
 			fwdMove = fwdMove+0.5;
 #else
-			if (iterableSubsystems[0]->GetIsOnline()) GE_AddRelativeVelocity(this,{0,0.25,-0.050});
-			if (iterableSubsystems[4]->GetIsOnline()) GE_AddRelativeVelocity(this,{0,0.25,0.050});
+			if (iterableSubsystems[0]->GetIsOnline()) GE_AddRelativeVelocity(this,{0,0.25,-0.0008726646});
+			if (iterableSubsystems[4]->GetIsOnline()) GE_AddRelativeVelocity(this,{0,0.25,0.0008726646});
 #endif
 
 		}
@@ -342,11 +343,11 @@ bool Player::C_Update()
 		}
 		if(keysHeld[SDLK_q])
 		{
-			GE_AddRelativeVelocity(this,{0,0,-0.05});
+			GE_AddRelativeVelocity(this,{0,0,-0.0008726646});
 		}
 		if(keysHeld[SDLK_e])
 		{
-			GE_AddRelativeVelocity(this,{0,0,0.05});
+			GE_AddRelativeVelocity(this,{0,0,0.0008726646});
 		}
 		if(keysHeld[SDLK_x])
 		{
@@ -375,6 +376,9 @@ bool Player::C_Update()
 			//TODO GOD WHY
 			iterableSubsystems[1]->health = 0;
 		}
+		if (keysHeld[SDLK_t]) te->velocity.r += 0.02;
+		if (keysHeld[SDLK_y]) te->velocity.r -= 0.02;
+		if (keysHeld[SDLK_r]) te->velocity.r =0;
 
 
 #ifdef unrealisticMove
@@ -385,6 +389,7 @@ bool Player::C_Update()
 
 
 	}
+	GE_DEBUG_TextAt(std::to_string(position.r),Vector2{0,0});
 
 
 	
@@ -469,6 +474,7 @@ Enemie::~Enemie()
 }
 bool Enemie::C_Update()
 {
+	te = this;
 
 
 	//based on: https://gamedev.stackexchange.com/a/124803
@@ -492,8 +498,6 @@ bool Enemie::C_Update()
 		
 		double rotaryDistance = GE_GetRotationalDistance(this->position,targetPlayer->position);
 		printf("rdi %f\n",((atan2(targetPlayer->position.x-this->position.x,targetPlayer->position.y-this->position.y)))*RAD_TO_DEG);
-		rotaryDistance = ((this->position.r/RAD_TO_DEG)-(atan2(targetPlayer->position.x-this->position.x,targetPlayer->position.y-this->position.y)))*RAD_TO_DEG;
-		rotaryDistance -= floor(rotaryDistance/360)*360;
 
 		printf("rotaryDistance %f\n",rotaryDistance);
 		printf("velocityr %f\n",velocity.r);
@@ -501,7 +505,7 @@ bool Enemie::C_Update()
 
 		//if (rotaryDistance < -180 || (rotaryDistance > 0 && rotaryDistance < 180 ))
 		//double acceleration_r = (rotaryDistance > 0)? -0.2 : 0.2;
-		double acceleration_r;
+		/*double acceleration_r;
 		if ((rotaryDistance < -90 || (rotaryDistance > 0 && rotaryDistance < 90 )))
 		{
 			acceleration_r = +0.2;
@@ -542,6 +546,37 @@ bool Enemie::C_Update()
 			//accelerate
 			velocity.r += acceleration_r;
 		}
+		*/
+
+		printf("vi %f\n",velocity.r);
+
+		printf("p %f\n",position.r);
+
+
+		double acceleration_r = 0.002;
+
+		//double t1 = (M_PI-rotaryDistance)/acceleration_r;
+		double t1 = ((2*acceleration_r)*(M_PI-rotaryDistance))/acceleration_r;
+
+		printf("t1 %f (%f)\n",t1,t1/60);
+
+		double t2 = -velocity.r/acceleration_r;
+		
+		printf("t2 %f (%f)\n",t2,t2/60);
+
+		if (t1>t2)
+		{
+			velocity.r -= acceleration_r;
+		}
+		else
+		{
+			velocity.r += acceleration_r;
+		}
+
+		//velocity.r = 0;
+
+
+
 	}
 	
 	

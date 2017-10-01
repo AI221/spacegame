@@ -31,5 +31,7 @@ struct Camera
  */
 Vector2r GE_ApplyCameraOffset(Camera* camera, Vector2r subject, Vector2 size);
 
+	
+
 
 #endif //__CAMERA_INCLUDED

@@ -23,3 +23,11 @@ void Vector2r::addRelativeVelocity(Vector2r adder)
 	x += adder.x;
 	y += adder.y;
 }
+void GE_PhysicsVectorToRenderVector(Vector2r* subject)
+{	
+	subject->r *= RAD_TO_DEG; //SDL uses degrees instead of radians
+}
+void GE_PhysicsRotationToRenderRotation(double* rotation)
+{
+	(*rotation) = (*rotation)*RAD_TO_DEG;
+}

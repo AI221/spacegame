@@ -62,7 +62,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define SPRITE_DIR BASE_DIR"sprites/"
 
 #define FREESANS_LOC FONT_DIR"FreeSans.ttf"
-//#define NO_CAMERA_ROTATE true
+#define NO_CAMERA_ROTATE true
 
 
 

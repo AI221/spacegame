@@ -20,6 +20,9 @@
 #include "gluePhysicsObject.h"
 #include "minimap.h"
 
+//Debug includes
+#include "debugRenders.h"
+
 
 #
 

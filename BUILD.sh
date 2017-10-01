@@ -6,4 +6,4 @@ fi
 #make clean
 cmake .
 echo ";;			Running make clean & make "
-make
+make -j5

@@ -35,3 +35,7 @@ void GE_DEBUG_TextAt(std::string text, Vector2 position)
 	mytext.render({0,0});
 }
 
+void GE_DEBUG_TextAt(std::string text, Vector2r position)
+{
+	GE_DEBUG_TextAt(text,Vector2{position.x,position.y});
+}

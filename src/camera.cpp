@@ -37,11 +37,11 @@ Vector2r GE_ApplyCameraOffset(Camera* camera, Vector2r subject, Vector2 size)
 	subject.x = (subject.x+(camera->screenWidth/2))-(size.x/2);
 	subject.y = (subject.y+(camera->screenHeight/2))-(size.y/2);
 
-	subject.r = (camera->pos.r-360)-subject.r; //last newPosition.r might not be correct
+	subject.r = (camera->pos.r-TWO_PI)-subject.r; //last newPosition.r might not be correct //TODO ensure correct
 
-	subject.r -= floor(subject.r/360)*360;
 
 	return subject;
 
 
 }
+

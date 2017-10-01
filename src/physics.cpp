@@ -462,7 +462,12 @@ InternalResult GE_TickPhysics_ForObject_Internal(GE_PhysicsObject* cObj, int ID,
 			GE_PhysicsObject* victimObj = physicsObjects[i];
 			double maxSize = std::max(cObj->grid.w, cObj->grid.h);
 			double theirMaxSize = std::max(victimObj->grid.w, victimObj->grid.h);
-			if ( ( cObj->position.x+maxSize >= victimObj->position.x-theirMaxSize) && (cObj->position.x-maxSize <= victimObj->position.x+theirMaxSize) && (cObj->position.y+maxSize >= victimObj->position.y-theirMaxSize) && (cObj->position.y-maxSize <=victimObj->position.y+theirMaxSize))
+			if ( ( cObj->position.x+maxSize >= victimObj->position.x-theirMaxSize) && (cObj->position.x-maxSize <= victimObj->position.x+theirMaxSize) && (cObj->position.y+maxSize >= victimObj->position.y-theirMaxSize) && (cObj->position.y-maxSize <=victimObj->position.y+theirMaxSize)
+#ifdef PHYSICS_DEBUG_SLOWRENDERS
+|| true
+#endif
+					
+					)
 			{
 				InternalResult result = GE_CollisionFullCheck(cObj,physicsObjects[i]);
 				if (result.deleteMe)
@@ -599,7 +604,7 @@ Vector2 GE_GetRectangleCenterRealPosition(GE_Rectangle rectangle, Vector2r realP
 	return Vector2{rectangle.x+realPosition.x+(rectangle.w/2),rectangle.y+realPosition.y+(rectangle.h/2)};
 }
 
-void GE_InelasticCollision(GE_PhysicsObject* subject, Vector2 collisionPoint, Vector2r newVelocity, bool CCW)
+void GE_InelasticCollision(GE_PhysicsObject* subject, Vector2 collisionPoint, Vector2r newVelocity, bool CCW) //TODO deg rad fixes
 {
 	printf("b4newVelocity %f, %f, %f\n",newVelocity.x,newVelocity.y,newVelocity.r);
 	//newVelocity = newVelocity - subject->velocity;
@@ -622,12 +627,12 @@ void GE_InelasticCollision(GE_PhysicsObject* subject, Vector2 collisionPoint, Ve
 	double adjacent = std::cos(std::abs(collisionPoint.x-centerPoint.x)/(GE_Distance(collisionPoint,centerPoint)));
 
 
-	adjacent *= RAD_TO_DEG;
+	//adjacent *= RAD_TO_DEG;
 
 	printf("adjacent %f\n",adjacent);
 
 	//subject->velocity = Vector2r{0,0,0};
-	if (!CCW) adjacent += 180; //TODO temp
+	if (!CCW) adjacent += M_PI; //TODO temp
 	subject->velocity.addRelativeVelocity(Vector2r{newVelocity.x,newVelocity.y,adjacent});
 	
 	printf("new velocity real %f, %f, %f\n",subject->velocity.x,subject->velocity.y,subject->velocity.r);
