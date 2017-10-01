@@ -486,7 +486,7 @@ bool Enemie::C_Update()
 		if (ticknum % 60 == 0 )
 		{
 			//spawn bullet
-		//	ShootBullet(renderer,this,{0,-3,0},{19,-5,0},false);
+			//ShootBullet(renderer,this,{0,-3,0},{19,-7,0},false);
 		}
 	}
 	if (foundPlayer)
@@ -501,52 +501,6 @@ bool Enemie::C_Update()
 
 		printf("velocityr %f\n",velocity.r);
 
-
-		//if (rotaryDistance < -180 || (rotaryDistance > 0 && rotaryDistance < 180 ))
-		//double acceleration_r = (rotaryDistance > 0)? -0.2 : 0.2;
-		/*double acceleration_r;
-		if ((rotaryDistance < -90 || (rotaryDistance > 0 && rotaryDistance < 90 )))
-		{
-			acceleration_r = +0.2;
-			printf("neg\n");
-		}
-		else 
-		{
-			acceleration_r= -0.2;
-			printf("pos\n");
-		}
-
-		printf("accel %f",acceleration_r);
-		
-		double timeAvailiable = std::abs( (180-rotaryDistance)/velocity.r );
-
-		//timeAvailiable = !std::isfinite(timeAvailiable) ? timeAvailiable = 0 :(timeAvailiable);
-
-
-		double timeToStop = std::abs( (velocity.r)/(0.5*acceleration_r) );
-		//timeToStop = 99999;
-
-
-		printf("ID %d\n",this->ID);
-		printf("time to stop %f\n",timeToStop);
-		printf("time avail %f\n",timeAvailiable);
-		printf("---------------\n");
-
-		if (timeToStop >= timeAvailiable)
-		{
-			printf("Decel\n");
-			//decelerate
-			velocity.r -= acceleration_r;
-			//velocity.r = 0;
-		}
-		else
-		{
-			printf("accel\n");
-			//accelerate
-			velocity.r += acceleration_r;
-		}
-		*/
-
 		printf("vi %f\n",velocity.r);
 
 		printf("p %f\n",position.r);
@@ -556,16 +510,18 @@ bool Enemie::C_Update()
 		printf("rotaryDistance %f\n",rotaryDistance);
 
 
-		double acceleration_r = -0.002;
+		double acceleration_r;
 
 
-		if (rotaryDistance < 0)
+		if (rotaryDistance < 0 || (rotaryDistance > M_PI && rotaryDistance < TWO_PI ))
 		{
-			acceleration_r = -0.002;
+			printf("fwd\n");
+			acceleration_r = 0.002;
 		}
 		else
 		{
-			acceleration_r = 0.002;
+			printf("bck\n");
+			acceleration_r = -0.002;
 		}
 
 		//double t1 = (M_PI-rotaryDistance)/acceleration_r;
@@ -582,83 +538,31 @@ bool Enemie::C_Update()
 			return true;
 		}
 			
-			//((2*acceleration_r)*(rotaryDistance))/acceleration_r;
 
 
-		double t2 = std::abs(velocity.r*4/acceleration_r);
+		double t2 = std::abs(velocity.r*2/acceleration_r); //the *2 is not part of the original equation, but was added to help soften the spring effect.
 		
 		printf("t2 %f (%f)\n",t2,t2/60);
 
-
-		double realdetlax = velocity.r*t1+(0.5*acceleration_r*(pow(t1,2)));
-
-		realdetlax -= position.r;
-
-		printf("REAL detax %f\n",realdetlax);
-
-
-
-		double realtime = (rotaryDistance-position.r)/(0.5*velocity.r);
-
-		printf("Real time %f",realtime);
-
-		realdetlax = velocity.r*realtime+(0.5*acceleration_r*(pow(realtime,2)));
-		
-		printf("REAL REAL detax %f\n",realdetlax);
-
-		//if (realdetlax < rotaryDistance)
 	
-		if (rotaryDistance > 0.1 || rotaryDistance < -0.1)
-		{
-			if(t1>t2)
+			if(t1<t2)
 			{
-				velocity.r -= acceleration_r;
+				if (velocity.r > 0)
+				{
+					velocity.r -= std::abs(acceleration_r);
+				}
+				else
+				{
+					velocity.r += std::abs(acceleration_r);
+				}
 			}
 			else
 			{
 				velocity.r += acceleration_r;
 			}
-		}
-
-		/*
-
-		printf("positionr %f\n",position.r);
-		printf("halfroatry %f\n",(rotaryDistance/2));
-
-
-		double tmp = GE_CapRotation(position.r+(rotaryDistance/2));
-
-
-		printf("tmp %f\n",tmp);
-
-
-		double tmp2 = 2*acceleration_r*rotaryDistance;
-
-		printf("velocity %f tmp2 %f\n",velocity.r,tmp2);
-//(velocity.r+(0.5*acceleration_r*t1))/2
-		if ( velocity.r > (tmp2) )
-		{
-			printf("Decel\n");
-			velocity.r += acceleration_r;
-		}
-		else
-		{
-			printf("Accel\n");
-			velocity.r -= acceleration_r;
-		}
-
-		//velocity.r = 0;
-		
-		//GE_DEBUG_TextAt_PhysicsPosition("t1 "+std::to_string(t1)+" t2"+std::to_string(t2),position);
-		//GE_DEBUG_TextAt_PhysicsPosition("rotary dist "+std::to_string(rotaryDistance)+"("+std::to_string(M_PI-rotaryDistance)+")",GE_DEBUG_QuickAddY(position,15));
-
-*/
 
 	}
 	
-	
-	
-
 
 	return false;
 }
