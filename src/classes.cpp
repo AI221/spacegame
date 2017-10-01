@@ -574,6 +574,8 @@ bool Enemie::C_Update()
 		}
 
 		//velocity.r = 0;
+		
+		GE_DEBUG_TextAt_PhysicsPosition("test",position);
 
 
 

@@ -39,3 +39,8 @@ void GE_DEBUG_TextAt(std::string text, Vector2r position)
 {
 	GE_DEBUG_TextAt(text,Vector2{position.x,position.y});
 }
+
+void GE_DEBUG_TextAt_PhysicsPosition(std::string text, Vector2 position)
+{
+	GE_DEBUG_TextAt(text,(position-Vector2{GE_DEBUG_Camera->pos.x-GE_DEBUG_Camera->screenWidth,GE_DEBUG_Camera->pos.y-GE_DEBUG_Camera->screenHeight}));
+}

@@ -29,5 +29,13 @@ void GE_DEBUG_PassRenderer(SDL_Renderer* yourRenderer, Camera* yourCamera);
 void GE_DEBUG_TextAt(std::string text, Vector2 position);
 void GE_DEBUG_TextAt(std::string text, Vector2r position);
 
+void GE_DEBUG_TextAt_PhysicsPosition(std::string text, Vector2 position);
+
+template<class XY>
+void GE_DEBUG_TextAt_PhysicsPosition(std::string text, XY position)
+{
+	GE_DEBUG_TextAt_PhysicsPosition(text,{position.x,position.y});
+}
+
 
 #endif // __DEBUGRENDERS_INCLUDED
