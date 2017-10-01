@@ -56,9 +56,9 @@ void GE_BlitRenderedObject(GE_RenderedObject* subject, Camera* camera, double sc
 		GE_BlitSprite(Sprites[subject->spriteID],position,{subject->size.x*scale, subject->size.y*scale},subject->animation,GE_FLIP_NONE); //TODO
 	}
 #ifdef debug_renderedobject
-	else GE_DEBUG_TextAt("norender!~~~~~~~~~~~~~~~norender!",{position.x-100,position.y-100});
+	else GE_DEBUG_TextAt("norender!~~~~~~~~~~~~~~~~~~~~~~~~`~~~~~norender!",Vector2{position.x-100,position.y-100});
 	
-	GE_DEBUG_TextAt(std::to_string(position.x) + "," + std::to_string(position.y) + ",m "+std::to_string(maxSize),{position.x,position.y});
+	GE_DEBUG_TextAt(std::to_string(position.x) + "," + std::to_string(position.y) + ",m "+std::to_string(maxSize),Vector2{position.x,position.y});
 #endif
 }
 void GE_FreeRenderedObject(GE_RenderedObject* subject) //will not destroy renderer,or sprite. MUST be allocated with new

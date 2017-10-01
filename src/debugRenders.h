@@ -37,5 +37,12 @@ void GE_DEBUG_TextAt_PhysicsPosition(std::string text, XY position)
 	GE_DEBUG_TextAt_PhysicsPosition(text,{position.x,position.y});
 }
 
+std::string GE_DEBUG_VectorToString(Vector2 subject);
+std::string GE_DEBUG_VectorToString(Vector2r subject);
+
+Vector2 GE_DEBUG_QuickAddY(Vector2 positon, double addx);
+Vector2r GE_DEBUG_QuickAddY(Vector2r positon, double addx);
+
+
 
 #endif // __DEBUGRENDERS_INCLUDED

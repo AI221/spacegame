@@ -389,7 +389,7 @@ bool Player::C_Update()
 
 
 	}
-	GE_DEBUG_TextAt(std::to_string(position.r),Vector2{0,0});
+	//GE_DEBUG_TextAt(std::to_string(position.r),Vector2{0,0});
 
 
 	
@@ -499,7 +499,6 @@ bool Enemie::C_Update()
 		double rotaryDistance = GE_GetRotationalDistance(this->position,targetPlayer->position);
 		printf("rdi %f\n",((atan2(targetPlayer->position.x-this->position.x,targetPlayer->position.y-this->position.y)))*RAD_TO_DEG);
 
-		printf("rotaryDistance %f\n",rotaryDistance);
 		printf("velocityr %f\n",velocity.r);
 
 
@@ -553,31 +552,107 @@ bool Enemie::C_Update()
 		printf("p %f\n",position.r);
 
 
-		double acceleration_r = 0.002;
+		rotaryDistance = rotaryDistance-M_PI;
+		printf("rotaryDistance %f\n",rotaryDistance);
 
-		//double t1 = (M_PI-rotaryDistance)/acceleration_r;
-		double t1 = ((2*acceleration_r)*(M_PI-rotaryDistance))/acceleration_r;
 
-		printf("t1 %f (%f)\n",t1,t1/60);
+		double acceleration_r = -0.002;
 
-		double t2 = -velocity.r/acceleration_r;
-		
-		printf("t2 %f (%f)\n",t2,t2/60);
 
-		if (t1>t2)
+		if (rotaryDistance < 0)
 		{
-			velocity.r -= acceleration_r;
+			acceleration_r = -0.002;
 		}
 		else
 		{
+			acceleration_r = 0.002;
+		}
+
+		//double t1 = (M_PI-rotaryDistance)/acceleration_r;
+		double t1 =  (sqrt(std::abs((2*(rotaryDistance))/acceleration_r)))+  ( (velocity.r == 0.0)?(0.0):( std::abs(rotaryDistance/(velocity.r)) ) );
+
+		printf("sp %f\n",(velocity.r == 0)?(0):( std::abs(rotaryDistance/(velocity.r)) ) );
+
+
+		printf("t1 %f (%f)\n",t1,t1/60);
+		if (t1 != t1) 
+		{
+			printf("f %f\n",sqrt(std::abs((2*(rotaryDistance))/acceleration_r)));
+			
+			return true;
+		}
+			
+			//((2*acceleration_r)*(rotaryDistance))/acceleration_r;
+
+
+		double t2 = std::abs(velocity.r*4/acceleration_r);
+		
+		printf("t2 %f (%f)\n",t2,t2/60);
+
+
+		double realdetlax = velocity.r*t1+(0.5*acceleration_r*(pow(t1,2)));
+
+		realdetlax -= position.r;
+
+		printf("REAL detax %f\n",realdetlax);
+
+
+
+		double realtime = (rotaryDistance-position.r)/(0.5*velocity.r);
+
+		printf("Real time %f",realtime);
+
+		realdetlax = velocity.r*realtime+(0.5*acceleration_r*(pow(realtime,2)));
+		
+		printf("REAL REAL detax %f\n",realdetlax);
+
+		//if (realdetlax < rotaryDistance)
+	
+		if (rotaryDistance > 0.1 || rotaryDistance < -0.1)
+		{
+			if(t1>t2)
+			{
+				velocity.r -= acceleration_r;
+			}
+			else
+			{
+				velocity.r += acceleration_r;
+			}
+		}
+
+		/*
+
+		printf("positionr %f\n",position.r);
+		printf("halfroatry %f\n",(rotaryDistance/2));
+
+
+		double tmp = GE_CapRotation(position.r+(rotaryDistance/2));
+
+
+		printf("tmp %f\n",tmp);
+
+
+		double tmp2 = 2*acceleration_r*rotaryDistance;
+
+		printf("velocity %f tmp2 %f\n",velocity.r,tmp2);
+//(velocity.r+(0.5*acceleration_r*t1))/2
+		if ( velocity.r > (tmp2) )
+		{
+			printf("Decel\n");
 			velocity.r += acceleration_r;
+		}
+		else
+		{
+			printf("Accel\n");
+			velocity.r -= acceleration_r;
 		}
 
 		//velocity.r = 0;
 		
-		GE_DEBUG_TextAt_PhysicsPosition("test",position);
+		//GE_DEBUG_TextAt_PhysicsPosition("t1 "+std::to_string(t1)+" t2"+std::to_string(t2),position);
+		//GE_DEBUG_TextAt_PhysicsPosition("rotary dist "+std::to_string(rotaryDistance)+"("+std::to_string(M_PI-rotaryDistance)+")",GE_DEBUG_QuickAddY(position,15));
 
-
+*/
 
 	}
 	

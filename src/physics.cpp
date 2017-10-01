@@ -467,7 +467,7 @@ InternalResult GE_TickPhysics_ForObject_Internal(GE_PhysicsObject* cObj, int ID,
 || true
 #endif
 					
-					)
+			)
 			{
 				InternalResult result = GE_CollisionFullCheck(cObj,physicsObjects[i]);
 				if (result.deleteMe)

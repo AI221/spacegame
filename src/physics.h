@@ -26,7 +26,7 @@
 #include "gluePhysicsObject.h"
 #include "isOn.h"
 
-#define PHYSICS_DEBUG_SLOWRENDERS 
+//#define PHYSICS_DEBUG_SLOWRENDERS 
 
 #include "SDL.h" //TODO temp
 #ifdef PHYSICS_DEBUG_SLOWRENDERS

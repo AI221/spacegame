@@ -9,7 +9,7 @@
 
 SDL_Renderer* GE_DEBUG_Renderer;
 Camera* GE_DEBUG_Camera; 
-TTF_Font* tinySans;
+TTF_Font* tinySans; //memory leak - wontfix
 bool isInit = false;
 void init()
 {
@@ -42,5 +42,27 @@ void GE_DEBUG_TextAt(std::string text, Vector2r position)
 
 void GE_DEBUG_TextAt_PhysicsPosition(std::string text, Vector2 position)
 {
-	GE_DEBUG_TextAt(text,(position-Vector2{GE_DEBUG_Camera->pos.x-GE_DEBUG_Camera->screenWidth,GE_DEBUG_Camera->pos.y-GE_DEBUG_Camera->screenHeight}));
+	GE_DEBUG_TextAt(text,(position-Vector2{GE_DEBUG_Camera->pos.x-(GE_DEBUG_Camera->screenWidth/2),GE_DEBUG_Camera->pos.y-(GE_DEBUG_Camera->screenHeight/2)}));
+}
+
+Vector2 GE_DEBUG_QuickAddY(Vector2 positon, double addx)
+{
+	positon.y += addx;
+	return positon;
+}
+Vector2r GE_DEBUG_QuickAddY(Vector2r positon, double addx)
+{
+	positon.y += addx;
+	return positon;
+}
+
+
+std::string GE_DEBUG_VectorToString(Vector2 subject)
+{
+	return "X: "+std::to_string(subject.x) + " Y: "+std::to_string(subject.x);
+}
+
+std::string GE_DEBUG_VectorToString(Vector2r subject)
+{
+	return "X: "+std::to_string(subject.x) + " Y: "+std::to_string(subject.x) + " R: "+std::to_string(subject.r);
 }

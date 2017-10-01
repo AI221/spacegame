@@ -300,7 +300,7 @@ template<class XYR, class XY>
 GE_FORCE_INLINE double GE_GetRotationalDistance(XYR subject, XY victim)
 {
 	//based on: https://gamedev.stackexchange.com/a/124803 though it's pretty simple math, my major impedence was getting this done in a game jam after being up for 24+ hours
-	return GE_CapRotation( ((atan2(victim.x-subject.x,victim.y-subject.y))) );
+	return GE_CapRotation( (subject.r)-((atan2(victim.x-subject.x,victim.y-subject.y))) );
 }
 
 
