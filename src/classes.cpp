@@ -193,6 +193,8 @@ Player::Player(SDL_Renderer* renderer) : GE_PhysicsObject({100,0,0},{0,0,0},GE_R
 
 	iterableSubsystems[0]->SetLevel(4);
 
+	this->threadedEventStack = GE_ThreadedEventStack();
+
 }
 Player::~Player()
 {
@@ -256,8 +258,11 @@ bool Player::C_Update()
 
 		//handle events
 		SDL_Event event;
-		while (handleEvents(&event) != 0)
+
+		threadedEventStack.PourInputStackToOutput();
+		while (threadedEventStack.canGetEvent())
 		{
+			event = threadedEventStack.getEvent();
 			if (event.type == SDL_KEYDOWN)
 			{
 				if (event.key.keysym.sym <= 323)
@@ -462,6 +467,7 @@ Enemie::Enemie(SDL_Renderer* renderer, Vector2r position, int level) : GE_Physic
 	
 	callCallbackAfterCollisionFunction = true;
 	callCallbackUpdate = true;
+	lastTimeShotTick = ticknum;
 
 }
 Enemie::~Enemie()
@@ -480,86 +486,59 @@ bool Enemie::C_Update()
 	//based on: https://gamedev.stackexchange.com/a/124803
 	//printf("enemy up\n");
 	//check if we're in the radius of our target player
-	if ( GE_Distance(this->position.x, this->position.y, targetPlayer->position.x, targetPlayer->position.y) < 500)
+	double rotaryDistance = GE_GetRotationalDistance(this->position,targetPlayer->position)-M_PI;
+	double distanceToPlayer = GE_Distance(this->position.x, this->position.y, targetPlayer->position.x, targetPlayer->position.y);
+	printf("rdist %f\n",rotaryDistance);
+
+	printf("t %d l %d \n",ticknum,lastTimeShotTick);
+
+
+	if (distanceToPlayer < 500)
 	{
 		foundPlayer=true;
-		if (ticknum % 60 == 0 )
-		{
-			//spawn bullet
-			//ShootBullet(renderer,this,{0,-3,0},{19,-7,0},false);
+		if (ticknum-lastTimeShotTick >= 60)
+		{	
+			printf("cs\n");
+			if (rotaryDistance < 0.3 && rotaryDistance > -0.3)
+			{
+				lastTimeShotTick = ticknum;
+				ShootBullet(renderer,this,{0,-3,0},{19,-9,0},false);
+			}
 		}
+	}
+	else if (distanceToPlayer > 2000)
+	{
+		foundPlayer = false;
 	}
 	if (foundPlayer)
 	{
-		//printf("can see\n");
-		//turn toward the player
-		
-
-		
-		double rotaryDistance = GE_GetRotationalDistance(this->position,targetPlayer->position);
-		printf("rdi %f\n",((atan2(targetPlayer->position.x-this->position.x,targetPlayer->position.y-this->position.y)))*RAD_TO_DEG);
-
-		printf("velocityr %f\n",velocity.r);
-
-		printf("vi %f\n",velocity.r);
-
-		printf("p %f\n",position.r);
-
-
-		rotaryDistance = rotaryDistance-M_PI;
-		printf("rotaryDistance %f\n",rotaryDistance);
-
-
 		double acceleration_r;
-
-
 		if (rotaryDistance < 0 || (rotaryDistance > M_PI && rotaryDistance < TWO_PI ))
 		{
-			printf("fwd\n");
 			acceleration_r = 0.002;
 		}
 		else
 		{
-			printf("bck\n");
 			acceleration_r = -0.002;
 		}
-
-		//double t1 = (M_PI-rotaryDistance)/acceleration_r;
-		double t1 =  (sqrt(std::abs((2*(rotaryDistance))/acceleration_r)))+  ( (velocity.r == 0.0)?(0.0):( std::abs(rotaryDistance/(velocity.r)) ) );
-
-		printf("sp %f\n",(velocity.r == 0)?(0):( std::abs(rotaryDistance/(velocity.r)) ) );
-
-
-		printf("t1 %f (%f)\n",t1,t1/60);
-		if (t1 != t1) 
+		//double timeToDestination = (M_PI-rotaryDistance)/acceleration_r;
+		double timeToDestination =  (sqrt(std::abs((2*(rotaryDistance))/acceleration_r)))+( (velocity.r == 0.0)?(0.0):( std::abs(rotaryDistance/(velocity.r)) ) );
+		double timeToStop = std::abs(velocity.r*2/acceleration_r); //the *2 is not part of the original equation, but was added to help soften the spring effect.
+		if(timeToDestination<timeToStop)
 		{
-			printf("f %f\n",sqrt(std::abs((2*(rotaryDistance))/acceleration_r)));
-			
-			return true;
-		}
-			
-
-
-		double t2 = std::abs(velocity.r*2/acceleration_r); //the *2 is not part of the original equation, but was added to help soften the spring effect.
-		
-		printf("t2 %f (%f)\n",t2,t2/60);
-
-	
-			if(t1<t2)
+			if (velocity.r > 0)
 			{
-				if (velocity.r > 0)
-				{
-					velocity.r -= std::abs(acceleration_r);
-				}
-				else
-				{
-					velocity.r += std::abs(acceleration_r);
-				}
+				velocity.r -= std::abs(acceleration_r);
 			}
 			else
 			{
-				velocity.r += acceleration_r;
+				velocity.r += std::abs(acceleration_r);
 			}
+		}
+		else
+		{
+			velocity.r += acceleration_r;
+		}
 
 	}
 	

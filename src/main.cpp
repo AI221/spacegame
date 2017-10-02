@@ -43,6 +43,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "engine.h"
 #include "stars.h"
 #include "shapes.h"
+#include "gameRender.h"
 
 #ifdef GE_DEBUG
 #include "debugRenders.h"
@@ -103,38 +104,6 @@ void render()
 {
 	//printf("%d (differentiation) render\n",rand());
 	//printf("~Trying lock render\n");
-	pthread_mutex_lock(&RenderEngineMutex);
-	//printf("~Lock render\n");
-	
-
-	GE_GlueRenderCallback(); //update all positions from the buffer
-
-	camera.pos.x = (camera.pos.x+camerasGrid.w/2); //manipulate camera position now that it's updated
-	camera.pos.y = (camera.pos.y+camerasGrid.h/2);
-	#ifdef NO_CAMERA_ROTATE
-		camera.pos.r = 0;
-	#endif
-	for (int i=0; i <= numRenderedObjects; i++)
-	{
-		if //TODO move to GE_BlitRenderedObject ? As of now, this does NOT ACCOUNT FOR ROTATION 
-			/*(
-				(renderedObjects[i]->position.x-renderedObjects[i]->grid.w <= camera.screenWidth*1.5) *1.5 is derrived from minusing half of camera.screenWidth to position.x. It is there because camera.pos.x is at the center and not at the top left, so minusing half the camera width accounts for this.
-				&&(renderedObjects[i]->position.y-renderedObjects[i]->grid.h <= camera.screenHeight*1.5)
-				&&(renderedObjects[i]->position.x+renderedObjects[i]->grid.w >= camera.pos.x-camera.screenWidth) //Same as the last thing, but because it's >= here instead of <= , it's the opposite of the action. 
-				&&(renderedObjects[i]->position.y+renderedObjects[i]->grid.h >= camera.pos.y-camera.screenHeight)
-			)*/
-			(true)
-		{
-				
-			if (!deadRenderedObjects[i])
-			{
-				GE_BlitRenderedObject(renderedObjects[i],&camera,0.75);
-			}
-			//else{printf("encounter dead render object\n");}
-		}
-		//else {printf("out of range\n");}
-	}
-	pthread_mutex_unlock(&RenderEngineMutex);
 	//printf("Fin render\n");
 }
 
@@ -228,8 +197,6 @@ int main(int argc, char* argv[])
 
 	//initialize the player
 	Player* player = new Player(myRenderer);
-	GE_LinkVectorToPhysicsObjectPosition(player,&(camera.pos));
-	GE_LinkGlueToPhysicsObject(player,GE_addGlueSubject(&camerasGrid,&player->grid,GE_PULL_ON_PHYSICS_TICK,sizeof(GE_Rectangle)) );
 
 
 //"locally scoped" definitions
@@ -290,7 +257,6 @@ int main(int argc, char* argv[])
 		GE_DEBUG_PassRenderer(myRenderer,&camera);
 #endif
 	
-	pthread_mutex_unlock(&PhysicsEngineMutex);
 
 
 	GE_UI_Minimap* minimap = new GE_UI_Minimap(myRenderer, {0,0},{150,150},0.02, {0x00,0x33,0x00,255},{0x33,0x99,0x00,0xFF}, &camera); 
@@ -319,6 +285,8 @@ int main(int argc, char* argv[])
 
 
 	GE_UI_Window* window = new GE_UI_Window(myRenderer,"INVENTORY",{250,250},{640,320},style);
+	GE_UI_Window* window2 = new GE_UI_Window(myRenderer,"TESTING...1...2...3...",{250,250},{640,320},style);
+	GE_UI_Window* window3 = new GE_UI_Window(myRenderer,"MORE TESTING",{250,250},{640,320},style);
 
 
 	char newStr[256] = {0};
@@ -327,8 +295,27 @@ int main(int argc, char* argv[])
 
 
 	GE_RectangleShape* background = new GE_RectangleShape(myRenderer, GE_Color{0x00,0x00,0x00,0xff});
+
+
+
+	GE_UI_GameRender* gameRender = new GE_UI_GameRender(myRenderer, {0,0},{720,1080},player);
+
+	GE_UI_SetBackgroundElement(gameRender);
+	GE_UI_InsertTopLevelElement(window);
+	GE_UI_InsertTopLevelElement(window2);
+	GE_UI_InsertTopLevelElement(window3);
+	
+	pthread_mutex_unlock(&PhysicsEngineMutex);
 	while (true)//player->GetIsOnline())
 	{
+		GE_GlueRenderCallback(); //update all positions from the buffer
+
+
+
+		GE_UI_PullEvents();
+
+
+		camera = gameRender->camera; //TODO temp
 
 		background->render({0,0,0},{static_cast<double>(camera.screenWidth),static_cast<double>(camera.screenHeight)});
 
@@ -349,7 +336,9 @@ int main(int argc, char* argv[])
 		GE_BlitStars(stars3,&camera);
 		GE_BlitStars(stars4,&camera);
 
-		render();
+		//render();
+		gameRender->render({0,0});
+	
 		
 		GE_BlitStars(stars5,&camera); //last star layer is "above" us
 
@@ -396,6 +385,7 @@ int main(int argc, char* argv[])
 		//window->render({0,0});
 
 
+		GE_UI_Render();
 
 		SDL_RenderPresent(myRenderer); //Seems to be the VSyncer (expect ~16ms wait upon call)
 	}

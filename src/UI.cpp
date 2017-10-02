@@ -494,9 +494,32 @@ GE_UI_Titlebar::~GE_UI_Titlebar()
 	delete background;
 	delete XButton;
 }
-void GE_UI_Titlebar::giveEvent (Vector2 parrentPosition, double parrentWidth, SDL_Event event)
+void GE_UI_Titlebar::giveEvent(Vector2 parrentPosition, double parrentWidth, SDL_Event event, Vector2* windowPosition)
 {
 	XButton->giveEvent({parrentPosition.x+parrentWidth-XButton->getSize().x,parrentPosition.y}, event);
+
+	if (event.type == SDL_MOUSEBUTTONDOWN)
+	{
+		int x,y;
+		SDL_GetMouseState(&x,&y);
+		if (x>=parrentPosition.x && x<= parrentPosition.x+parrentWidth && y >= parrentPosition.y && y <= parrentPosition.y+style.height)
+		{
+			dragging = true;
+			initialDragPosition = {static_cast<double>(x)-parrentPosition.x,static_cast<double>(y)-parrentPosition.y};
+		}
+	}
+	else if (event.type == SDL_MOUSEBUTTONUP)
+	{
+		dragging = false;
+	}
+	if (dragging)
+	{
+		int x,y;
+		SDL_GetMouseState(&x,&y);
+		*windowPosition = {static_cast<double>(x)-initialDragPosition.x,static_cast<double>(y)-initialDragPosition.y};
+	}
+
+
 }
 void GE_UI_Titlebar::render(Vector2 parrentPosition, double parrentWidth)
 {
@@ -539,7 +562,7 @@ void GE_UI_Surface::render(Vector2 parrentPosition)
 		elements[i]->render(position+parrentPosition);
 	}
 }
-void GE_UI_Surface::giveEvent(SDL_Event event)
+void GE_UI_Surface::giveEvent(Vector2 parrentPosition, SDL_Event event)
 {
 	if (!isOpen)
 	{
@@ -549,7 +572,7 @@ void GE_UI_Surface::giveEvent(SDL_Event event)
 	{
 		if (elements[i]->wantsEvents)
 		{
-			elements[i]->giveEvent(position,event);
+			elements[i]->giveEvent(position+parrentPosition,event);
 		}
 	}
 }
@@ -557,13 +580,15 @@ void GE_UI_Surface::giveEvent(SDL_Event event)
 
 GE_UI_Window::GE_UI_Window(SDL_Renderer* renderer, std::string name, Vector2 position, Vector2 surfaceSize, GE_UI_Style style)
 {
-	this->titlebar = new GE_UI_Titlebar(renderer, name, style.windowStyle.titleStyle);
-	this->surface = new GE_UI_Surface(renderer, position+Vector2{0,style.windowStyle.titleStyle.height},surfaceSize,style.windowStyle.background);
-	this->size = surfaceSize+Vector2{style.windowStyle.borderSize*2,style.windowStyle.borderSize+style.windowStyle.titleStyle.height};
-	
 	this->titleBarHeight = style.windowStyle.titleStyle.height;
 	this->borderOffset = style.windowStyle.borderSize;
 	this->position = position;
+
+
+	this->titlebar = new GE_UI_Titlebar(renderer, name, style.windowStyle.titleStyle);
+	this->surface = new GE_UI_Surface(renderer, Vector2{borderOffset,style.windowStyle.titleStyle.height},surfaceSize,style.windowStyle.background);
+	this->size = surfaceSize+Vector2{style.windowStyle.borderSize*2,style.windowStyle.borderSize+style.windowStyle.titleStyle.height};
+	
 
 	this->border = new GE_RectangleShape(renderer,style.windowStyle.borderColor);
 
@@ -581,14 +606,100 @@ void GE_UI_Window::render(Vector2 parrentPosition)
 {
 	border->render(parrentPosition+position,size);
 
-	surface->render(parrentPosition+Vector2{borderOffset,0});
+	surface->render(parrentPosition+position);
 	
 	titlebar->render(parrentPosition+position,size.x);
 }
 void GE_UI_Window::giveEvent(Vector2 parrentPosition, SDL_Event event)
 {
-	surface->giveEvent(event); //{parrentPosition.x,parrentPosition.y+titleBarHeight}
+	surface->giveEvent(parrentPosition+position, event); //{parrentPosition.x,parrentPosition.y+titleBarHeight}
 
-	titlebar->giveEvent(parrentPosition+position,size.x,event);
+	titlebar->giveEvent(parrentPosition+position,size.x,event,&position);
+
+	
+	
 }
+bool GE_UI_Window::checkIfFocused(int mousex, int mousey)
+{
+	if (mousex >= position.x && mousex <= position.x+size.x && mousey >= position.y && mousey <= position.y+size.y)
+	{
+		return true;
+		printf("window focus\n");
+	}
+	return false;
+}
+
+
+
+std::list<GE_UI_TopLevelElement*> renderOrder;
+GE_UI_TopLevelElement* backgroundElement;
+bool backgroundFocused = true;
+
+void GE_UI_InsertTopLevelElement(GE_UI_TopLevelElement* element)
+{
+	renderOrder.insert(renderOrder.begin(),element);
+}
+void GE_UI_RemoveTopLevelElement(GE_UI_TopLevelElement* element)
+{
+	renderOrder.remove(element);
+}
+void GE_UI_SetTopElement(GE_UI_TopLevelElement* element)
+{
+	GE_UI_RemoveTopLevelElement(element);
+	renderOrder.insert(renderOrder.begin(), element); //gonna keep it like this rather than call own function; it might be changed later on not to bring to top focus.
+}
+void GE_UI_SetBackgroundElement(GE_UI_TopLevelElement* element)
+{
+	backgroundElement = element;
+}
+
+void GE_UI_PullEvents()
+{
+	SDL_Event event;
+	while (SDL_PollEvent(&event) != 0)
+	{
+		if (event.type == SDL_MOUSEBUTTONDOWN)
+		{
+			int x,y;
+			SDL_GetMouseState(&x,&y);
+			//check focus
+			bool focusShift = false;
+			for (auto i = renderOrder.begin();i != renderOrder.end();i++)
+			{
+				printf("t\n");
+				if ((*i)->checkIfFocused(x,y))
+				{
+					printf("Focus shift!\n");
+					GE_UI_SetTopElement(*i);
+					focusShift = true;
+					backgroundFocused = false;
+					break;
+				}
+			}
+			if (!focusShift)
+			{
+				backgroundFocused = true;
+			}
+
+		}
+		if (backgroundFocused)
+		{
+			backgroundElement->giveEvent({0,0},event);
+		}
+		else
+		{
+			(*renderOrder.begin())->giveEvent({0,0},event);
+		}
+	}
+}
+
+void GE_UI_Render()
+{
+	for (auto i = renderOrder.rbegin();i != renderOrder.rend();i++)
+	{
+		(*i)->render({0,0});
+	}
+}
+
+
 

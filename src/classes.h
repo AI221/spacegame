@@ -6,12 +6,12 @@
  */
 
 #include "SDL.h"
-#include "SDL_ttf.h"
-#include <string>
 #include <math.h>
 #include <stdlib.h>     /* srand, rand */
 #include <time.h>       /* time */
+#include <string>
 #include <cmath>
+#include <stack>
 
 //Local includes
 #include "vector2.h"
@@ -19,12 +19,12 @@
 #include "renderedObject.h"
 #include "gluePhysicsObject.h"
 #include "minimap.h"
+#include "threadedEventStack.h"
 
 //Debug includes
 #include "debugRenders.h"
 
 
-#
 
 //LIMITS:
 
@@ -90,12 +90,18 @@ class Player : public GE_PhysicsObject
 		Subsystem* iterableSubsystems[MAX_SUBSYSTEMS];
 		int numIterableSubsystems;
 
+
+		GE_ThreadedEventStack threadedEventStack;
+
+
 	
 	private:
 		GE_RenderedObject* renderObject;
 		bool keysHeld[323] = {false}; 
 		SDL_Renderer* renderer;
 		int nextTickCanShoot;
+
+
 
 
 };
@@ -113,6 +119,7 @@ class Enemie : public GE_PhysicsObject
 		SDL_Renderer* renderer;
 		int level;
 		bool foundPlayer;
+		int lastTimeShotTick;
 
 };
 

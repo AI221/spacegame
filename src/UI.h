@@ -15,6 +15,8 @@
 #include <functional>
 #include <cstring>
 #include <cmath>
+#include <list>
+
 
 //Local includes
 
@@ -79,6 +81,16 @@ class GE_UI_Element
 		virtual void giveEvent(Vector2 parrentPosition, SDL_Event event);
 		bool wantsEvents;
 };
+class GE_UI_TopLevelElement
+{
+	public:
+		virtual void render(Vector2 parrentPosition) = 0;
+		virtual void giveEvent(Vector2 parrentPosition, SDL_Event event) = 0;
+		virtual bool checkIfFocused(int mousex, int mousey) = 0;
+
+		bool wantsEvents;
+};
+
 class GE_UI_Text : public GE_UI_Element
 {
 	public:
@@ -212,7 +224,7 @@ class GE_UI_Titlebar
 	public:
 		GE_UI_Titlebar(SDL_Renderer* renderer, std::string name, GE_UI_WindowTitleStyle style);
 		~GE_UI_Titlebar();
-		void giveEvent (Vector2 parrentPosition, double parrentWidth, SDL_Event event);
+		void giveEvent(Vector2 parrentPosition, double parrentWidth, SDL_Event event, Vector2* windowPosition);
 		void render(Vector2 parrentPosition, double parrentWidth);
 
 		bool wantsEvents;
@@ -221,6 +233,9 @@ class GE_UI_Titlebar
 		GE_RectangleShape* background;
 		GE_UI_Button* XButton;
 		GE_UI_WindowTitleStyle style;
+
+		bool dragging;
+		Vector2 initialDragPosition;
 
 
 };
@@ -235,7 +250,10 @@ class GE_UI_Surface : public GE_UI_Element
 		void render(Vector2 parrentPosition);
 		int addElement(GE_UI_Element* element);
 		GE_UI_Element* getElement(int elementID);
-		void giveEvent(SDL_Event event);
+		void giveEvent(Vector2 position, SDL_Event event);
+		bool checkIfFocused(int mousex, int mousey);
+
+
 		bool isOpen = false;
 
 		Vector2 position;
@@ -250,13 +268,14 @@ class GE_UI_Surface : public GE_UI_Element
 };
 
 
-class GE_UI_Window: public GE_UI_Element
+class GE_UI_Window: public GE_UI_TopLevelElement
 {
 	public: 
 		GE_UI_Window(SDL_Renderer* renderer, std::string name, Vector2 position, Vector2 surfaceSize, GE_UI_Style style);
 		~GE_UI_Window();
 		void giveEvent(Vector2 parrentPosition, SDL_Event event);
 		void render(Vector2 parrentPosition);
+		bool checkIfFocused(int mousex, int mousey);
 
 
 		bool wantsEvents;
@@ -273,5 +292,18 @@ class GE_UI_Window: public GE_UI_Element
 		double borderOffset;
 
 };
+
+
+void GE_UI_InsertTopLevelElement(GE_UI_TopLevelElement* element);
+void GE_UI_RemoveTopLevelElement(GE_UI_TopLevelElement* element);
+void GE_UI_SetTopElement(GE_UI_TopLevelElement* element);
+void GE_UI_SetBackgroundElement(GE_UI_TopLevelElement* element);
+
+void GE_UI_PullEvents();
+void GE_UI_Render();
+
+
+
+
 
 #endif //__UI_INCLUDED
