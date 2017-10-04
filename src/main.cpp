@@ -262,9 +262,6 @@ int main(int argc, char* argv[])
 	GE_UI_Minimap* minimap = new GE_UI_Minimap(myRenderer, {0,0},{150,150},0.02, {0x00,0x33,0x00,255},{0x33,0x99,0x00,0xFF}, &camera); 
 	
 	
-	auto progress = new GE_UI_ProgressBar(myRenderer, {00,150},{100,20},{0xff,0x00,0x00,0xff},{0xff,0xff,0xff,0xff},false); //TODO TEMP
-
-	double rt = 0;
 
 #define additionalStars 3
 	double maxScreenSize = std::max(camera.screenWidth,camera.screenHeight)*additionalStars;
@@ -301,9 +298,9 @@ int main(int argc, char* argv[])
 	GE_UI_GameRender* gameRender = new GE_UI_GameRender(myRenderer, {0,0},{720,1080},player);
 
 	GE_UI_SetBackgroundElement(gameRender);
-	GE_UI_InsertTopLevelElement(window);
+	/*GE_UI_InsertTopLevelElement(window);
 	GE_UI_InsertTopLevelElement(window2);
-	GE_UI_InsertTopLevelElement(window3);
+	GE_UI_InsertTopLevelElement(window3);*/
 	
 	pthread_mutex_unlock(&PhysicsEngineMutex);
 	while (true)//player->GetIsOnline())
@@ -357,10 +354,6 @@ int main(int argc, char* argv[])
 
 		myHUD->render({0,0});
 		minimap->render({0,0});
-		//progress->setProgress(progress->getProgress()+0.001);
-		progress->setProgress(.60);
-		rt += 0.001;
-		progress->render(Vector2r{0,0,rt*360});
 
 
 		if ((!player->GetIsOnline()) && static_cast<int>(floor(rendererThreadsafeTicknum / 5.0)) % 3) //Flash "Game over!" if the player is dead. Basically, this is (%number)/(dividedNumber), numerator being how often it's ON, denominator being how often it's OFF... except when it's not. I'll level with you: I figured out how to make timers based soley off of the tick number a long time ago. I no longer have a clue how this works. I adjusted it until I got the result I wanted. 

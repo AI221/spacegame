@@ -522,8 +522,17 @@ bool Enemie::C_Update()
 			acceleration_r = -0.002;
 		}
 		//double timeToDestination = (M_PI-rotaryDistance)/acceleration_r;
-		double timeToDestination =  (sqrt(std::abs((2*(rotaryDistance))/acceleration_r)))+( (velocity.r == 0.0)?(0.0):( std::abs(rotaryDistance/(velocity.r)) ) );
-		double timeToStop = std::abs(velocity.r*2/acceleration_r); //the *2 is not part of the original equation, but was added to help soften the spring effect.
+		double a = 0.5*acceleration_r;
+
+
+		//printf("a %f b %f c %f\n",a,velocity.r,rotaryDistance);
+		double timeToDestination = (std::abs(rotaryDistance)<0.04) ? 0 : std::abs(   ( -velocity.r+( ((rotaryDistance >= 0)? -1 : 1)*std::sqrt(std::abs( std::pow(velocity.r,2)+(4*0.5*acceleration_r*(rotaryDistance)) ))) )/(acceleration_r)   );
+		//printf("time to dest %f",timeToDestination);
+		//printf(" mid %f\n",std::pow(velocity.r,2)+(4*(0.5*acceleration_r)*(-rotaryDistance+position.r)));
+		//printf("top %f\n",(-velocity.r+std::sqrt(std::pow(velocity.r,2)+(4*(0.5*acceleration_r)*(-rotaryDistance+position.r)))));
+		//double timeToDestination =  (sqrt(std::abs((2*(rotaryDistance))/acceleration_r)))+( (velocity.r == 0.0)?(0.0):( std::abs(rotaryDistance/(velocity.r)) ) );
+		double timeToStop = std::abs(velocity.r*1/acceleration_r); //the *2 is not part of the original equation, but was added to help soften the spring effect.
+		printf("time stop %f\n",timeToStop);
 		if(timeToDestination<timeToStop)
 		{
 			if (velocity.r > 0)
