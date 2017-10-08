@@ -26,6 +26,9 @@ int GE_Init(SDL_Renderer* renderer)
 	{
 		return error+300;
 	}
+	
+	
+	srand(time(NULL)); //set random seed to time
 
 	return 0;
 }

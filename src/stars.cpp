@@ -1,7 +1,5 @@
 #include "stars.h"
 
-#define random_range_double(low,high) (static_cast<double>(  ((rand() % (std::abs(low)+high+1)))-low  ))
-#define wraparround_clamp(number,maxval) (  number-(std::floor(number/maxval)*maxval)  )
 
 GE_Stars* GE_CreateStars(SDL_Renderer* renderer, unsigned int number, unsigned int width, unsigned int height,std::vector<int> sizes, double scale, std::vector<GE_Color> colors)
 {

@@ -71,6 +71,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //Definitions
 
 
+#include "inventory.h"
 
 
 //#define debug //wheather debug draws, menus, etc. is included. 
@@ -298,13 +299,59 @@ int main(int argc, char* argv[])
 	GE_UI_GameRender* gameRender = new GE_UI_GameRender(myRenderer, {0,0},{720,1080},player);
 
 	GE_UI_SetBackgroundElement(gameRender);
-	/*GE_UI_InsertTopLevelElement(window);
-	GE_UI_InsertTopLevelElement(window2);
+	GE_UI_InsertTopLevelElement(window);
+	/*GE_UI_InsertTopLevelElement(window2);
 	GE_UI_InsertTopLevelElement(window3);*/
+
 	
 	pthread_mutex_unlock(&PhysicsEngineMutex);
+
+	GE_UI_Text* txt = new GE_UI_Text(myRenderer,{35,35-15},{35,35},"placeholder",GE_Color{0xff,0x00,0x00,0xff},tinySans);
+	txt->alignLeft();
+	auto inv_ = new Inventory(2500);
+	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,64});
+	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,63});
+	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,21});
+	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,272});
+
+	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,64});
+	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,63});
+	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,21});
+	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,272});
+
+	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,64});
+	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,63});
+	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,21});
+	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,272});
+
+	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,64});
+	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,63});
+	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,21});
+	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,272});
+
+	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,64});
+	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,63});
+	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,21});
+	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,272});
+
+	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,64});
+	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,63});
+	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,21});
+	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,272});
+
+	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,64});
+	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,63});
+	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,21});
+	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,272});
+
+	UI_InventoryView* inv = new UI_InventoryView(myRenderer, {0,0},{250,250},inv_,txt,{8,8},GE_Color{0xff,0xff,0xff,0x33});
+
+	window->surface->addElement(inv);
+
 	while (true)//player->GetIsOnline())
 	{
+
+
 		GE_GlueRenderCallback(); //update all positions from the buffer
 
 
@@ -356,10 +403,6 @@ int main(int argc, char* argv[])
 		minimap->render({0,0});
 
 
-		if ((!player->GetIsOnline()) && static_cast<int>(floor(rendererThreadsafeTicknum / 5.0)) % 3) //Flash "Game over!" if the player is dead. Basically, this is (%number)/(dividedNumber), numerator being how often it's ON, denominator being how often it's OFF... except when it's not. I'll level with you: I figured out how to make timers based soley off of the tick number a long time ago. I no longer have a clue how this works. I adjusted it until I got the result I wanted. 
-		{
-			GameOver->render({0,0});
-		}
 
 
 		#ifdef PHYSICS_DEBUG_SLOWRENDERS
@@ -379,6 +422,17 @@ int main(int argc, char* argv[])
 
 
 		GE_UI_Render();
+		
+		
+		//renderInventoryBox(ItemStack{ITEM_NAMES::IRON,64},{0,0},txt);
+		//inv->render({0,0});
+
+		
+		
+		if ((!player->GetIsOnline()) && static_cast<int>(floor(rendererThreadsafeTicknum / 5.0)) % 3) //Flash "Game over!" if the player is dead. Basically, this is (%number)/(dividedNumber), numerator being how often it's ON, denominator being how often it's OFF... except when it's not. I'll level with you: I figured out how to make timers based soley off of the tick number a long time ago. I no longer have a clue how this works. I adjusted it until I got the result I wanted. 
+		{
+			GameOver->render({0,0});
+		}
 
 		SDL_RenderPresent(myRenderer); //Seems to be the VSyncer (expect ~16ms wait upon call)
 	}

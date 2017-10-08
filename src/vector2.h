@@ -31,6 +31,8 @@ GE_FORCE_INLINE double GE_CapRotation(double rotation)
 }
 
 
+struct IntVector2;
+
 /*!
  * A point in 2D space with no rotation. 
  */
@@ -38,17 +40,20 @@ struct Vector2
 {
 	double x;
 	double y;
-	GE_FORCE_INLINE Vector2 operator+(Vector2 other)
+	template<class XY>
+	GE_FORCE_INLINE Vector2 operator+(XY other)
 	{
 		Vector2 newVector = {this->x+other.x,this->y+other.y};
 		return newVector;
 	}
-	GE_FORCE_INLINE Vector2 operator-(Vector2 other)
+	template<class XY>
+	GE_FORCE_INLINE Vector2 operator-(XY other)
 	{
 		Vector2 newVector = {this->x-other.x,this->y-other.y};
 		return newVector;
 	}
-	GE_FORCE_INLINE Vector2 operator*(Vector2 other)
+	template<class XY>
+	GE_FORCE_INLINE Vector2 operator*(XY other)
 	{	
 		Vector2 newVector = {this->x*other.x,this->y*other.y};
 		return newVector;
@@ -68,6 +73,28 @@ struct Vector2
 		x = std::abs(x);
 		y = std::abs(y);
 	}
+	template<class XY>
+	GE_FORCE_INLINE bool operator>(XY other)
+	{
+		return ( (x > other.x) && (y > other.y) );
+	}
+	template<class XY>
+	GE_FORCE_INLINE bool operator<(XY other)
+	{
+		return ( (x < other.x) && (y < other.y) );
+	}
+	template<class XY>
+	GE_FORCE_INLINE bool operator>=(XY other)
+	{
+		return ( (x >= other.x) && (y >= other.y) );
+	}
+	template<class XY>
+	GE_FORCE_INLINE bool operator<=(XY other)
+	{
+		return ( (x <= other.x) && (y <= other.y) );
+	}
+
+	//Vector2 operator=(const IntVector2& subject);
 };
 
 
@@ -156,6 +183,69 @@ struct Vector2r
 		return newVector;
 	}
 		
+};
+
+
+struct IntVector2
+{
+	int x;
+	int y;
+	template<class XY>
+	GE_FORCE_INLINE IntVector2 operator+(XY other)
+	{
+		IntVector2 newVector = {static_cast<int>(this->x+other.x),static_cast<int>(this->y+other.y)};
+		return newVector;
+	}
+	template<class XY>
+	GE_FORCE_INLINE IntVector2 operator-(XY other)
+	{
+		IntVector2 newVector = {static_cast<int>(this->x-other.x),static_cast<int>(this->y-other.y)};
+		return newVector;
+	}
+	template<class XY>
+	GE_FORCE_INLINE IntVector2 operator*(XY other)
+	{	
+		IntVector2 newVector = {static_cast<int>(this->x*other.x),static_cast<int>(this->y*other.y)};
+		return newVector;
+	}
+	GE_FORCE_INLINE IntVector2 operator*(double other)
+	{
+		IntVector2 newVector = {static_cast<int>(this->x*other),static_cast<int>(this->y*other)};
+		return newVector;
+	}
+	GE_FORCE_INLINE IntVector2 operator/(double other)
+	{
+		IntVector2 newVector = {static_cast<int>(this->x/other),static_cast<int>(this->y/other)};
+		return newVector;
+	}
+	GE_FORCE_INLINE void abs()
+	{
+		x = std::abs(x);
+		y = std::abs(y);
+	}
+
+	template<class XY>
+	GE_FORCE_INLINE bool operator>(XY other)
+	{
+		return ( (x > other.x) && (y > other.y) );
+	}
+	template<class XY>
+	GE_FORCE_INLINE bool operator<(XY other)
+	{
+		return ( (x < other.x) && (y < other.y) );
+	}
+	template<class XY>
+	GE_FORCE_INLINE bool operator>=(XY other)
+	{
+		return ( (x >= other.x) && (y >= other.y) );
+	}
+	template<class XY>
+	GE_FORCE_INLINE bool operator<=(XY other)
+	{
+		return ( (x <= other.x) && (y <= other.y) );
+	}
+
+
 };
 
 /*

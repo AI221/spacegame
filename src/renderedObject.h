@@ -63,6 +63,7 @@ extern int numRenderedObjects;
  */
 int GE_RenderedObjectInit();
 
+void GE_ChangeRenderedObjectSprite(GE_RenderedObject* subject, std::string spriteName);
 
 /*!
  * Adds a GE_RenderedObject to the global lists of rendered objects, and returns a pointer to it back to you.

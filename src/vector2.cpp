@@ -31,3 +31,11 @@ void GE_PhysicsRotationToRenderRotation(double* rotation)
 {
 	(*rotation) = (*rotation)*RAD_TO_DEG;
 }
+
+/*
+Vector2 Vector2::operator=(const IntVector2& subject)
+{
+	x = static_cast<double>(subject.x);
+	y = static_cast<double>(subject.y);
+	return *this;
+}*/

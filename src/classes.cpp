@@ -2,7 +2,6 @@
 
 #define SPRITE_DIR "../sprites/"
 
-
 Player* targetPlayer;
 Enemie* te;
 
@@ -11,6 +10,7 @@ Subsystem::Subsystem(SDL_Renderer* renderer, std::string sprite, Vector2 size, G
 	printf("stt\n");
 	this->renderer = renderer;
 	renderObject = GE_CreateRenderedObject(renderer,SPRITE_DIR+sprite); //TODO
+	this->spriteName = SPRITE_DIR+sprite;
 	pthread_mutex_lock(&RenderEngineMutex);
 
 	renderObject->grid = *parrentGrid;
@@ -50,12 +50,19 @@ void Subsystem::CheckCollision(int checkCollisionRectangle)
 	{
 		//printf("yuppers\n");
 		health -= 25; //TODO more dynamicness
+		if (!GetIsOnline())
+		{
+			GE_ChangeRenderedObjectSprite(renderObject,(spriteName.substr(0,spriteName.size()-4)+"_broken.png"));
+		}
+		
+			
 	}
 }
 void Subsystem::Update(Vector2r parrentPosition)
 {
 
-	if (GetIsOnline())
+		printf("%s", (spriteName.substr(0,spriteName.size()-4)+"_broken.png\n").c_str());
+	if (true)//GetIsOnline())
 	{
 		double halfrectw = parrentGrid->w/2;
 		double halfrecth = parrentGrid->h/2;
@@ -79,7 +86,7 @@ void Subsystem::Update(Vector2r parrentPosition)
 	}
 	else
 	{
-		position = {-999999,-999999,-999999}; //TODO: Replace the image of us with a "broken part" image instead"
+		//position = {-999999,-999999,-999999}; //TODO: Replace the image of us with a "broken part" image instead"
 
 	}
 
@@ -105,13 +112,6 @@ Subsystem::~Subsystem()
 
 
 
-int handleEvents(SDL_Event* event)
-{
-	int succ = SDL_PollEvent(event);
-	//TODO: Do various handlings
-	return succ;
-}
-
 
 #define bump() numIterableSubsystems++;
 #define sizePlusDoubleSize(x,y)  {x*2,y*2}, {0,0,x,y}
@@ -122,8 +122,6 @@ Player::Player(SDL_Renderer* renderer) : GE_PhysicsObject({100,0,0},{0,0,0},GE_R
 {
 
 
-	//TODO MOVE TO GAME ENGINE CODE IN GE_INIT
-	srand(time(NULL));
 
 	this->renderer = renderer;
 	/*renderObject = GE_CreateRenderedObject(renderer,SPRITE_DIR"WholeShipv2.png"); //TODO
@@ -519,10 +517,9 @@ bool Enemie::C_Update()
 		}
 		else
 		{
-			acceleration_r = -0.002;
+			acceleration_r = -0.02;
 		}
 		//double timeToDestination = (M_PI-rotaryDistance)/acceleration_r;
-		double a = 0.5*acceleration_r;
 
 
 		//printf("a %f b %f c %f\n",a,velocity.r,rotaryDistance);
@@ -531,8 +528,8 @@ bool Enemie::C_Update()
 		//printf(" mid %f\n",std::pow(velocity.r,2)+(4*(0.5*acceleration_r)*(-rotaryDistance+position.r)));
 		//printf("top %f\n",(-velocity.r+std::sqrt(std::pow(velocity.r,2)+(4*(0.5*acceleration_r)*(-rotaryDistance+position.r)))));
 		//double timeToDestination =  (sqrt(std::abs((2*(rotaryDistance))/acceleration_r)))+( (velocity.r == 0.0)?(0.0):( std::abs(rotaryDistance/(velocity.r)) ) );
-		double timeToStop = std::abs(velocity.r*1/acceleration_r); //the *2 is not part of the original equation, but was added to help soften the spring effect.
-		printf("time stop %f\n",timeToStop);
+		double timeToStop = std::abs(velocity.r/acceleration_r); //the *2 is not part of the original equation, but was added to help soften the spring effect.
+		//printf("time stop %f\n",timeToStop);
 		if(timeToDestination<timeToStop)
 		{
 			if (velocity.r > 0)

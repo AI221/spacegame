@@ -122,6 +122,7 @@ int GE_SpriteNameToID(std::string name)
 	{
 		if (Sprite_Names[i] == name)
 		{
+//			printf("thing %s\n",Sprite_Names[i].c_str());
 			return i;
 		}
 	}

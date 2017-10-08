@@ -65,6 +65,10 @@ void GE_UI_Text::center()
 	centerX();
 	centerY();
 }
+void GE_UI_Text::alignLeft()
+{
+	doAlignLeft = true;
+}
 void GE_UI_Text::expandToTextSize()
 {
 	this->size.x = this->Message_rect.w;
@@ -88,6 +92,7 @@ GE_UI_Text::GE_UI_Text(SDL_Renderer* renderer, Vector2 position, Vector2 size, s
 
 	this->doCenterX = false;
 	this->doCenterY = false;
+	this->doAlignLeft = false;
 
 	//this->scrollPosition;
 	//this->cursorPosition;
@@ -127,6 +132,10 @@ void GE_UI_Text::render(Vector2 parrentPosition)
 	if (doCenterY)
 	{
 		transformedRect.y -= (this->Message_rect.h/2);
+	}
+	if (doAlignLeft)
+	{
+		transformedRect.x -=(this->Message_rect.w);
 	}
 
 	SDL_RenderCopy(renderer, Message,&animationRect,&transformedRect);	
@@ -564,10 +573,6 @@ void GE_UI_Surface::render(Vector2 parrentPosition)
 }
 void GE_UI_Surface::giveEvent(Vector2 parrentPosition, SDL_Event event)
 {
-	if (!isOpen)
-	{
-		return;
-	}
 	for (int i=0;i<nextUIElement;i++)
 	{
 		if (elements[i]->wantsEvents)
@@ -615,8 +620,6 @@ void GE_UI_Window::giveEvent(Vector2 parrentPosition, SDL_Event event)
 	surface->giveEvent(parrentPosition+position, event); //{parrentPosition.x,parrentPosition.y+titleBarHeight}
 
 	titlebar->giveEvent(parrentPosition+position,size.x,event,&position);
-
-	
 	
 }
 bool GE_UI_Window::checkIfFocused(int mousex, int mousey)
@@ -703,3 +706,9 @@ void GE_UI_Render()
 
 
 
+IntVector2 GE_UI_GetMousePosition()
+{
+	IntVector2 returnval;
+	SDL_GetMouseState(&returnval.x,&returnval.y);
+	return returnval;
+}

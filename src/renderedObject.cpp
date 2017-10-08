@@ -30,10 +30,15 @@ int GE_RenderedObjectInit()
 	memset(deadRenderedObjects,1,sizeof(deadRenderedObjects)); //Fill deadRendredObjects with 1, so that any unintialized object is "dead"
 	return 0;
 }
+void GE_ChangeRenderedObjectSprite(GE_RenderedObject* subject, std::string spriteName)
+{
+	subject->spriteID = GE_SpriteNameToID(spriteName);	
+}
 GE_RenderedObject* GE_CreateRenderedObject(SDL_Renderer* renderer, std::string spriteName, int ID) // size is not included (despite it being a value often set at start) due to its linked nature.
 {
 	printf("Create RenderedObject\n");
-	GE_RenderedObject* renderedObject = new GE_RenderedObject{renderer, GE_SpriteNameToID(spriteName), Vector2r{0,0,0}, Vector2{0,0}, GE_Rectangle{0,0,0,0}, };
+	GE_RenderedObject* renderedObject = new GE_RenderedObject{renderer, -1, Vector2r{0,0,0}, Vector2{0,0}, GE_Rectangle{0,0,0,0}, };
+	GE_ChangeRenderedObjectSprite(renderedObject,spriteName);
 	renderedObjects[ID] = renderedObject;
 	pthread_mutex_lock(&RenderEngineMutex);
 	deadRenderedObjects[ID] = false; //Mark us as alive

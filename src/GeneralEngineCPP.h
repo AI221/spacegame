@@ -54,5 +54,23 @@
 #define GE_FORCE_INLINE inline __attribute__((always_inline))
 
 
+/*!
+ * Reduce accuracy
+ * Example: GE_ReduceAccuracy(26,25) -> 25 , GE_ReduceAccuracy(24,25) -> 0 , GE_ReduceAccuracy(25,25) ->25 GE_ReduceAccuracy(51,25) ->50
+ */
+#define GE_ReduceAccuracy(number,accuracyDegree) (  std::floor(number/accuracyDegree)*accuracyDegree  )
+
+
+/*!
+ * Generate a random value between low, high
+ */
+#define random_range_double(low,high) (static_cast<double>(  ((rand() % (std::abs(low)+high+1)))-low  ))
+
+/*!
+ * "Wraps arround", think the Asteroids ship at the edge of the screen. 
+ * Examples:
+ * wraparround_clamp(10,25)->25 wraparroundclamp(26,25) ->1 wraparroundclamp(50,25)->0
+ */
+#define wraparround_clamp(number,maxval) (  number-(std::floor(number/maxval)*maxval)  )
 
 #endif // __GENERALENGINECPP_INCLUDED

@@ -13,6 +13,10 @@ GE_RectangleShape::GE_RectangleShape(SDL_Renderer* renderer, GE_Color color)
 
 	colorTexture = SDL_CreateTextureFromSurface(renderer, LoadingSurface);
 
+
+	SDL_SetTextureBlendMode(colorTexture, SDL_BLENDMODE_BLEND);
+	SDL_SetTextureAlphaMod(colorTexture, color.a);
+
 	SDL_FreeSurface(LoadingSurface);
 }
 GE_RectangleShape::~GE_RectangleShape()

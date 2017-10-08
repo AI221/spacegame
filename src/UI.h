@@ -112,6 +112,13 @@ class GE_UI_Text : public GE_UI_Element
 		 */
 		void center();
 
+
+		/*!
+		 * Align the text to the left
+		 */
+		void alignLeft();
+
+
 		/*!
 		 * Expand so that our boundries are equal to the ammount of text we're currently holding at this moment
 		 */
@@ -132,6 +139,7 @@ class GE_UI_Text : public GE_UI_Element
 
 		bool doCenterX;
 		bool doCenterY;
+		bool doAlignLeft;
 };
 class GE_UI_TextInput : public GE_UI_Element
 {
@@ -190,8 +198,6 @@ class GE_UI_ProgressBar : public GE_UI_Element
 		void render(Vector2r parrentPosition); //due to its use in HUDs, this supports rotation
 		void setProgress(double progress);
 		double getProgress();
-		
-		bool wantsEvents;
 	private:
 		SDL_Renderer* renderer;
 		Vector2 position;
@@ -210,8 +216,6 @@ class GE_UI_DraggableProgressBar : public GE_UI_ProgressBar
 		GE_UI_DraggableProgressBar(SDL_Renderer* renderer, Vector2 position, Vector2 size, GE_Color color, GE_Color background, bool showProgressNumber);
 		~GE_UI_DraggableProgressBar();
 		void giveEvent(Vector2 parrentPosition, SDL_Event event);
-
-		bool wantsEvents;
 	private:
 		Vector2 position;
 		Vector2 size;
@@ -227,7 +231,7 @@ class GE_UI_Titlebar
 		void giveEvent(Vector2 parrentPosition, double parrentWidth, SDL_Event event, Vector2* windowPosition);
 		void render(Vector2 parrentPosition, double parrentWidth);
 
-		bool wantsEvents;
+		bool wantsEvents; //TODO temp
 	private:
 		GE_UI_Text* title;
 		GE_RectangleShape* background;
@@ -254,8 +258,6 @@ class GE_UI_Surface : public GE_UI_Element
 		bool checkIfFocused(int mousex, int mousey);
 
 
-		bool isOpen = false;
-
 		Vector2 position;
 		Vector2 size;
 		
@@ -277,13 +279,11 @@ class GE_UI_Window: public GE_UI_TopLevelElement
 		void render(Vector2 parrentPosition);
 		bool checkIfFocused(int mousex, int mousey);
 
-
-		bool wantsEvents;
+		GE_UI_Surface* surface;
 
 
 	private:
 		GE_UI_Titlebar* titlebar;
-		GE_UI_Surface* surface;
 		GE_RectangleShape* border;
 
 		Vector2 position;
@@ -301,6 +301,9 @@ void GE_UI_SetBackgroundElement(GE_UI_TopLevelElement* element);
 
 void GE_UI_PullEvents();
 void GE_UI_Render();
+
+
+IntVector2 GE_UI_GetMousePosition();
 
 
 

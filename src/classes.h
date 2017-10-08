@@ -20,6 +20,7 @@
 #include "gluePhysicsObject.h"
 #include "minimap.h"
 #include "threadedEventStack.h"
+#include "inventory.h"
 
 //Debug includes
 #include "debugRenders.h"
@@ -44,12 +45,12 @@ enum TYPES
 };
 
 
-extern GE_UI_DraggableProgressBar* progress;
-
 
 //config
 
 #define STD_BULLET_MASS 2
+
+
 
 class Subsystem
 {
@@ -67,6 +68,7 @@ class Subsystem
 	private:
 		SDL_Renderer* renderer; 
 		GE_RenderedObject* renderObject;
+		std::string spriteName;
 		Vector2r relativePosition;
 		int collisionRectangle;
 		int level; //posibilites...
@@ -77,7 +79,6 @@ class Subsystem
 };
 
 
-int handleEvents(SDL_Event* event);
 
 class Player : public GE_PhysicsObject
 {
