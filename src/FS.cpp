@@ -87,6 +87,8 @@ DirList GE_ListInDir(std::string directory)
 			it++;
 		}
 	}
+
+	closedir(dir);
 	list.error = 0;
 	return list;
 

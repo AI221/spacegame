@@ -238,6 +238,7 @@ int main(int argc, char* argv[])
 	//spawn some enemys why not
 	
 
+	Enemie*  lastenemy;
 	for (int i=0;i<1;i++)
 	{	
 		double randomx = rand() % 5000 + 1;
@@ -247,7 +248,7 @@ int main(int argc, char* argv[])
 		randomy = -50;
 
 
-		new Enemie(myRenderer, {randomx-1500,randomy-1500,0},1);
+		lastenemy = new Enemie(myRenderer, {randomx-1500,randomy-1500,0},1);
 	}
 	//new Enemie(myRenderer, {200,0,0},1);
 
@@ -282,7 +283,10 @@ int main(int argc, char* argv[])
 	GE_UI_Style style = GE_UI_Style{fstyle,{GE_Color{0x00,0x33,0x00,0xff},tinySans},windowStyle};
 
 
-	GE_UI_Window* window = new GE_UI_Window(myRenderer,"INVENTORY",{250,250},{640,320},style);
+	GE_UI_Window* window = new GE_UI_Window(myRenderer,"INVENTORY",{250,250},{618,320},style);
+
+
+
 	GE_UI_Window* window2 = new GE_UI_Window(myRenderer,"TESTING...1...2...3...",{250,250},{640,320},style);
 	GE_UI_Window* window3 = new GE_UI_Window(myRenderer,"MORE TESTING",{250,250},{640,320},style);
 
@@ -306,9 +310,11 @@ int main(int argc, char* argv[])
 	
 	pthread_mutex_unlock(&PhysicsEngineMutex);
 
+
+	initInventory(myRenderer);
 	GE_UI_Text* txt = new GE_UI_Text(myRenderer,{35,35-15},{35,35},"placeholder",GE_Color{0xff,0x00,0x00,0xff},tinySans);
 	txt->alignLeft();
-	auto inv_ = new Inventory(2500);
+	auto inv_ = new Inventory(2500,lastenemy);
 	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,64});
 	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,63});
 	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,21});
@@ -344,9 +350,17 @@ int main(int argc, char* argv[])
 	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,21});
 	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,272});
 
-	UI_InventoryView* inv = new UI_InventoryView(myRenderer, {0,0},{250,250},inv_,txt,{8,8},GE_Color{0xff,0xff,0xff,0x33});
+	UI_InventoryView* inv = new UI_InventoryView(myRenderer, {0,0},{309,250},inv_,txt,{8,8},GE_Color{0xff,0xff,0xff,0x33},GE_Color{0x00,0x33,0x00,255},GE_Color{0xff,0x00,0x00,0xff});
 
+	/*auto inv_2 = new Inventory((2500));
+
+	auto inv2 = new UI_InventoryView(myRenderer,{309,0},{309,250},inv_2,txt,{8,8},GE_Color{0xff,0xff,0xff,0x33},GE_Color{0x00,0x33,0x00,255},GE_Color{0x00,0xff,0x00,0xff});
+
+	*/
 	window->surface->addElement(inv);
+	/*window->surface->addElement(inv2);
+	*/
+
 
 	while (true)//player->GetIsOnline())
 	{
@@ -356,7 +370,10 @@ int main(int argc, char* argv[])
 
 
 
-		GE_UI_PullEvents();
+		if (GE_UI_PullEvents())
+		{
+			break; //returns true if quit
+		}
 
 
 		camera = gameRender->camera; //TODO temp
@@ -378,7 +395,7 @@ int main(int argc, char* argv[])
 		GE_BlitStars(stars1,&camera);
 		GE_BlitStars(stars2,&camera);
 		GE_BlitStars(stars3,&camera);
-		GE_BlitStars(stars4,&camera);
+		GE_BlitStars(stars4,&camera); 
 
 		//render();
 		gameRender->render({0,0});
@@ -437,6 +454,7 @@ int main(int argc, char* argv[])
 		SDL_RenderPresent(myRenderer); //Seems to be the VSyncer (expect ~16ms wait upon call)
 	}
 	printf("--BEGIN SHUTDOWN--\n");
+	pthread_mutex_lock(&PhysicsEngineMutex);
 
 	TTF_CloseFont(tinySans);
 	TTF_CloseFont(bigSans);
@@ -449,12 +467,8 @@ int main(int argc, char* argv[])
 	printf("plr\n");
 	GE_FreePhysicsObject(player);
 	printf("hud\n");
-	delete myHUD;
-	for (int i=0;i<numHealthTexts;i++)
-	{
-		delete healthTexts[i];
-	}
-	delete speedText;
+	delete myHUD; //removes elements added
+
 	delete GameOver;
 	delete minimap;
 
@@ -462,6 +476,8 @@ int main(int argc, char* argv[])
 	delete stars2;
 	delete stars3;
 
+	printf("--Engine shutdown--\n");
+	pthread_mutex_unlock(&PhysicsEngineMutex);
 	GE_Shutdown();
 
 	printf("Bye.\n");

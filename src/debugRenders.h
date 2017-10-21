@@ -3,6 +3,7 @@
  * @author Jackson McNeill
  *
  * Debug-grade renderers for debugging. 
+ * DO NOT USE WHILE PERFORMANCE TESTING! Debug renders have a tendancy to cause bad and inconsistant performance.
  */
 
 //debug: include pretty much everything
@@ -40,6 +41,7 @@ void GE_DEBUG_TextAt_PhysicsPosition(std::string text, XY position)
 std::string GE_DEBUG_VectorToString(Vector2 subject);
 std::string GE_DEBUG_VectorToString(Vector2r subject);
 
+void GE_DEBUG_Cursor_TextAtCursor();
 Vector2 GE_DEBUG_QuickAddY(Vector2 positon, double addx);
 Vector2r GE_DEBUG_QuickAddY(Vector2r positon, double addx);
 

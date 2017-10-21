@@ -61,7 +61,6 @@ void Subsystem::CheckCollision(int checkCollisionRectangle)
 void Subsystem::Update(Vector2r parrentPosition)
 {
 
-		printf("%s", (spriteName.substr(0,spriteName.size()-4)+"_broken.png\n").c_str());
 	if (true)//GetIsOnline())
 	{
 		double halfrectw = parrentGrid->w/2;
@@ -117,7 +116,9 @@ Subsystem::~Subsystem()
 #define sizePlusDoubleSize(x,y)  {x*2,y*2}, {0,0,x,y}
 #define positionDouble(x,y) {x*2,y*2,0}
 //the above inserts TWO PARAMETERS
-
+TTF_Font* tSans;
+TTF_Font* titleSans;
+GE_UI_Text* txt;
 Player::Player(SDL_Renderer* renderer) : GE_PhysicsObject({100,0,0},{0,0,0},GE_Rectangle{0,0,98,102},25)
 {
 
@@ -193,6 +194,38 @@ Player::Player(SDL_Renderer* renderer) : GE_PhysicsObject({100,0,0},{0,0,0},GE_R
 
 	this->threadedEventStack = GE_ThreadedEventStack();
 
+
+	this->inventory = new Inventory(2000,this);
+
+
+
+	this->inventory->storage.push_back(ItemStack{ITEM_NAMES::IRON,63});
+	this->inventory->storage.push_back(ItemStack{ITEM_NAMES::IRON,63});
+	this->inventory->storage.push_back(ItemStack{ITEM_NAMES::DUCT_TAPE,63});
+	this->inventory->storage.push_back(ItemStack{ITEM_NAMES::IRON,63});
+
+#define BASE_DIR "../"
+
+
+#define FONT_DIR BASE_DIR"fonts/"
+
+#define FREESANS_LOC FONT_DIR"FreeSans.ttf"
+tSans = TTF_OpenFont(FREESANS_LOC, 15);
+if(!tSans) {
+	printf("TTF_OpenFont: %s\n", TTF_GetError());
+}
+TTF_Font* bigSans =  TTF_OpenFont(FREESANS_LOC, 72);
+if(!bigSans) {
+	printf("TTF_OpenFont: %s\n", TTF_GetError());
+}
+TTF_SetFontStyle(bigSans,TTF_STYLE_ITALIC);
+titleSans =  TTF_OpenFont(FREESANS_LOC, 18);
+if(!titleSans) {
+	printf("TTF_OpenFont: %s\n", TTF_GetError());
+}
+	txt = new GE_UI_Text(renderer,{35,35-15},{35,35},"placeholder",GE_Color{0xff,0x00,0x00,0xff},tSans);
+
+
 }
 Player::~Player()
 {
@@ -229,7 +262,6 @@ void ShootBullet(SDL_Renderer* renderer, GE_PhysicsObject* host, Vector2r addToV
 
 	GE_AddVelocity(mybullet,addToVelocity);
 }
-
 
 
 //#define unrealisticMove
@@ -295,6 +327,25 @@ bool Player::C_Update()
 					GE_LinkVectorToPhysicsObjectPosition(me,&(ro->position));
 
 				}
+if (event.key.keysym.sym == SDLK_t)
+{
+pthread_mutex_lock(&RenderEngineMutex);
+				GE_UI_FontStyle fstyle = {{0x00,0x00,0x00,0xff},titleSans};
+	GE_UI_WindowTitleStyle windowTitleStyle = {fstyle,0,{GE_Color{0xff,0x00,0x00,0xff},GE_Color{0x66,0x66,0x66,0xff},{0xff,0xff,0xff,0xff},fstyle.color,{15,7},tSans},2,GE_Color{0x66,0xff,0x33,0xff},25,true};
+	GE_UI_WindowStyle windowStyle = {windowTitleStyle, GE_Color{0x00,0x00,0xff,0xff},2,GE_Color{0x66,0xff,0x33,0xff}};
+	GE_UI_Style style = GE_UI_Style{fstyle,{GE_Color{0x00,0x33,0x00,0xff},tSans},windowStyle};
+
+
+	GE_UI_Window* window = new GE_UI_Window(renderer,"INVENTORY",{250,250},{618,320},style);
+
+
+	UI_InventoryView* inv = new UI_InventoryView(renderer, {0,0},{309,250},inventory,txt,{8,8},GE_Color{0xff,0xff,0xff,0x33},GE_Color{0x00,0x33,0x00,255},GE_Color{0xff,0x00,0x00,0xff});
+	window->surface->addElement(inv);
+
+	GE_UI_InsertTopLevelElement(window);
+			pthread_mutex_unlock(&RenderEngineMutex);
+}
+
 
 			}
 			if (event.key.keysym.sym == SDLK_j)
@@ -304,6 +355,10 @@ bool Player::C_Update()
 			if (event.key.keysym.sym == SDLK_l)
 			{
 				PhysicsDelaySeconds = 0.16667;
+			}
+			if (event.key.keysym.sym == SDLK_h)
+			{
+				PhysicsDelaySeconds = 60;
 			}
 			if (event.type == SDL_KEYUP)
 			{
@@ -352,6 +407,12 @@ bool Player::C_Update()
 		{
 			GE_AddRelativeVelocity(this,{0,0,0.0008726646});
 		}
+
+
+		if (keysHeld[SDLK_t])
+		{
+		}
+	
 		if(keysHeld[SDLK_x])
 		{
 			printf("posx %f\n",position.x);
@@ -369,7 +430,8 @@ bool Player::C_Update()
 #ifdef unrealisticMove
 			fwdMove = 0;
 #endif
-		} if (keysHeld[SDLK_n])
+		} 
+		if (keysHeld[SDLK_n])
 		{
 			velocity = {-1,0,0};
 		}
@@ -486,9 +548,9 @@ bool Enemie::C_Update()
 	//check if we're in the radius of our target player
 	double rotaryDistance = GE_GetRotationalDistance(this->position,targetPlayer->position)-M_PI;
 	double distanceToPlayer = GE_Distance(this->position.x, this->position.y, targetPlayer->position.x, targetPlayer->position.y);
-	printf("rdist %f\n",rotaryDistance);
+	//printf("rdist %f\n",rotaryDistance);
 
-	printf("t %d l %d \n",ticknum,lastTimeShotTick);
+	//printf("t %d l %d \n",ticknum,lastTimeShotTick);
 
 
 	if (distanceToPlayer < 500)
@@ -496,11 +558,11 @@ bool Enemie::C_Update()
 		foundPlayer=true;
 		if (ticknum-lastTimeShotTick >= 60)
 		{	
-			printf("cs\n");
+			//printf("cs\n");
 			if (rotaryDistance < 0.3 && rotaryDistance > -0.3)
 			{
 				lastTimeShotTick = ticknum;
-				ShootBullet(renderer,this,{0,-3,0},{19,-9,0},false);
+				//ShootBullet(renderer,this,{0,-3,0},{19,-9,0},false);
 			}
 		}
 	}

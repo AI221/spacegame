@@ -3,6 +3,7 @@
 
 
 void GE_UI_Element::giveEvent(Vector2 parrentPosition, SDL_Event event) {} //defined so that not all derivatives must define it
+GE_UI_Element::~GE_UI_Element() {}
 
 
 
@@ -480,7 +481,7 @@ void GE_UI_DraggableProgressBar::giveEvent(Vector2 parrentPosition, SDL_Event ev
 	
 
 
-GE_UI_Titlebar::GE_UI_Titlebar(SDL_Renderer* renderer, std::string name, GE_UI_WindowTitleStyle style)
+GE_UI_Titlebar::GE_UI_Titlebar(SDL_Renderer* renderer, std::string name, GE_UI_Window* parrent, GE_UI_WindowTitleStyle style)
 {
 	this->title = new GE_UI_Text(renderer,{style.textOffset,style.height/2},{0,style.height},name,style.font.color,style.font.font);
 	this->title->expandToTextSize();
@@ -492,8 +493,15 @@ GE_UI_Titlebar::GE_UI_Titlebar(SDL_Renderer* renderer, std::string name, GE_UI_W
 
 	this->background = new GE_RectangleShape(renderer,style.background);
 	this->XButton = new GE_UI_Button(renderer, {style.buttonDistanceFromRight*-1,0},style.XButton.paddingSize,"X",style.XButton.text,style.XButton.background,style.XButton.backgroundPressed,style.XButton.font);
+	auto buttonCallback = [parrent] ()
+	{
+		delete parrent;
+	};
+	this->XButton->C_Pressed = buttonCallback;
 
 	this->style = style;
+
+	this->parrent = parrent;
 
 	this->wantsEvents = true;
 }
@@ -511,7 +519,7 @@ void GE_UI_Titlebar::giveEvent(Vector2 parrentPosition, double parrentWidth, SDL
 	{
 		int x,y;
 		SDL_GetMouseState(&x,&y);
-		if (x>=parrentPosition.x && x<= parrentPosition.x+parrentWidth && y >= parrentPosition.y && y <= parrentPosition.y+style.height)
+		if ((!XButton->pressed) && x>=parrentPosition.x && x<= parrentPosition.x+parrentWidth && y >= parrentPosition.y && y <= parrentPosition.y+style.height)
 		{
 			dragging = true;
 			initialDragPosition = {static_cast<double>(x)-parrentPosition.x,static_cast<double>(y)-parrentPosition.y};
@@ -551,7 +559,11 @@ GE_UI_Surface::GE_UI_Surface(SDL_Renderer* renderer,Vector2 position, Vector2 si
 }
 GE_UI_Surface::~GE_UI_Surface() 
 {
-	//do nothing. we didn't allocate the UI elements given to us, so we have no business deleting them.
+	for (int i=0;i<nextUIElement;i++)
+	{
+		delete elements[i];
+	}
+	delete backgroundRect;
 }
 int GE_UI_Surface::addElement(GE_UI_Element* element)
 {
@@ -590,7 +602,7 @@ GE_UI_Window::GE_UI_Window(SDL_Renderer* renderer, std::string name, Vector2 pos
 	this->position = position;
 
 
-	this->titlebar = new GE_UI_Titlebar(renderer, name, style.windowStyle.titleStyle);
+	this->titlebar = new GE_UI_Titlebar(renderer, name, this, style.windowStyle.titleStyle);
 	this->surface = new GE_UI_Surface(renderer, Vector2{borderOffset,style.windowStyle.titleStyle.height},surfaceSize,style.windowStyle.background);
 	this->size = surfaceSize+Vector2{style.windowStyle.borderSize*2,style.windowStyle.borderSize+style.windowStyle.titleStyle.height};
 	
@@ -599,13 +611,20 @@ GE_UI_Window::GE_UI_Window(SDL_Renderer* renderer, std::string name, Vector2 pos
 
 
 
-	this->wantsEvents = true;
+	//this->wantsEvents = true;
+	this->wantsEvents = false;
 }
 
 GE_UI_Window::~GE_UI_Window()
 {
 	delete titlebar;
 	delete surface;
+	delete border;
+
+
+	//remove us from the focus stack, if we're on it
+	
+	GE_UI_RemoveTopLevelElement(this);
 }
 void GE_UI_Window::render(Vector2 parrentPosition)
 {
@@ -637,6 +656,8 @@ bool GE_UI_Window::checkIfFocused(int mousex, int mousey)
 std::list<GE_UI_TopLevelElement*> renderOrder;
 GE_UI_TopLevelElement* backgroundElement;
 bool backgroundFocused = true;
+GE_UI_TopLevelElement* cursorFollower;
+bool hasCursorFollower;
 
 void GE_UI_InsertTopLevelElement(GE_UI_TopLevelElement* element)
 {
@@ -645,6 +666,10 @@ void GE_UI_InsertTopLevelElement(GE_UI_TopLevelElement* element)
 void GE_UI_RemoveTopLevelElement(GE_UI_TopLevelElement* element)
 {
 	renderOrder.remove(element);
+	if (renderOrder.size() <= 0) //Focus background if nothing else left
+	{
+		backgroundFocused = true;
+	}
 }
 void GE_UI_SetTopElement(GE_UI_TopLevelElement* element)
 {
@@ -655,8 +680,13 @@ void GE_UI_SetBackgroundElement(GE_UI_TopLevelElement* element)
 {
 	backgroundElement = element;
 }
+void GE_UI_SetCursorFollower(GE_UI_TopLevelElement* element)
+{
+	cursorFollower = element;
+	hasCursorFollower = true;
+}
 
-void GE_UI_PullEvents()
+bool GE_UI_PullEvents()
 {
 	SDL_Event event;
 	while (SDL_PollEvent(&event) != 0)
@@ -685,15 +715,27 @@ void GE_UI_PullEvents()
 			}
 
 		}
+		else if ( event.type == SDL_QUIT)
+		{
+			return true;
+		}
 		if (backgroundFocused)
 		{
 			backgroundElement->giveEvent({0,0},event);
 		}
 		else
 		{
-			(*renderOrder.begin())->giveEvent({0,0},event);
+			if (renderOrder.size() > 0) //extra sanity check
+			{
+				(*renderOrder.begin())->giveEvent({0,0},event);
+			}
+			else
+			{
+				printf("[WARNING] - No focused windows and background isn't focused\n");
+			}
 		}
 	}
+	return false;
 }
 
 void GE_UI_Render()
@@ -702,6 +744,12 @@ void GE_UI_Render()
 	{
 		(*i)->render({0,0});
 	}
+	if (hasCursorFollower)
+	{
+		IntVector2 cursorPos = GE_UI_GetMousePosition();
+		cursorFollower->render(Vector2{static_cast<double>(cursorPos.x),static_cast<double>(cursorPos.y)});
+	}
+
 }
 
 

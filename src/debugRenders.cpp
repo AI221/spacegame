@@ -7,8 +7,8 @@
 
 #define FREESANS_LOC FONT_DIR"FreeSans.ttf"
 
-SDL_Renderer* GE_DEBUG_Renderer;
-Camera* GE_DEBUG_Camera; 
+SDL_Renderer* GE_DEBUG_Renderer;//memory leak - wontfix
+Camera* GE_DEBUG_Camera; //memory leak - wontfix
 TTF_Font* tinySans; //memory leak - wontfix
 bool isInit = false;
 void init()
@@ -44,6 +44,14 @@ void GE_DEBUG_TextAt_PhysicsPosition(std::string text, Vector2 position)
 {
 	GE_DEBUG_TextAt(text,(position-Vector2{GE_DEBUG_Camera->pos.x-(GE_DEBUG_Camera->screenWidth/2),GE_DEBUG_Camera->pos.y-(GE_DEBUG_Camera->screenHeight/2)}));
 }
+
+void GE_DEBUG_Cursor_TextAtCursor()
+{
+	int x,y;
+	SDL_GetMouseState(&x,&y);
+	GE_DEBUG_TextAt("  x "+std::to_string(x)+" y "+std::to_string(y),Vector2{static_cast<double>(x),static_cast<double>(y)});
+}
+	
 
 Vector2 GE_DEBUG_QuickAddY(Vector2 positon, double addx)
 {

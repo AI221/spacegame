@@ -6,9 +6,7 @@
  */
 
 #include "SDL.h"
-#include <math.h>
 #include <stdlib.h>     /* srand, rand */
-#include <time.h>       /* time */
 #include <string>
 #include <cmath>
 #include <stack>
@@ -101,6 +99,10 @@ class Player : public GE_PhysicsObject
 		bool keysHeld[323] = {false}; 
 		SDL_Renderer* renderer;
 		int nextTickCanShoot;
+
+		Inventory* inventory;
+
+		
 
 
 

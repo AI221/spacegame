@@ -370,7 +370,8 @@ GE_FORCE_INLINE double GE_Distance(double x1, double y1, double x2, double y2)
  * Distance between 2 vectors
  * @return The distance between the 2 vectors, in a double
  */
-GE_FORCE_INLINE double GE_Distance(Vector2 subject, Vector2 subject2)
+template <class XY>
+GE_FORCE_INLINE double GE_Distance(XY subject, XY subject2)
 {
 	return GE_Distance(subject.x,subject.y,subject2.x,subject2.y);
 }
