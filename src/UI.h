@@ -9,8 +9,8 @@
  */
 
 
-#include "SDL.h"
-#include "SDL_ttf.h"
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include <math.h>
 #include <iostream>
 #include <string>

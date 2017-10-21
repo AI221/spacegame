@@ -5,7 +5,7 @@
  * Also holds other things specific to this game.
  */
 
-#include "SDL.h"
+#include <SDL2/SDL.h>
 #include <stdlib.h>     /* srand, rand */
 #include <string>
 #include <cmath>

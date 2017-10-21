@@ -4,7 +4,7 @@
  * A minimap that you can register RenderedObject's positions to, and assign a color. 
  */
 
-#include "SDL.h"
+#include <SDL2/SDL.h>
 #include <unordered_map>
 
 //Local includes

@@ -5,7 +5,7 @@
  * Rendering shapes that are abstracted over SDL's, offering additional features
  */
 
-#include "SDL.h"
+#include <SDL2/SDL.h>
 #include <cmath>
 
 //Local incluides

@@ -4,7 +4,7 @@
  *
  * Allows the game engine to have a better custom event system than SDL events. Also wraps arround SDL events
  */
-#include "SDL.h"
+#include <SDL2/SDL.h>
 
 #ifndef __EVENT_DEFINED
 #define __EVENT_DEFINED

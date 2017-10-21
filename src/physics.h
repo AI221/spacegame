@@ -28,7 +28,7 @@
 
 //#define PHYSICS_DEBUG_SLOWRENDERS 
 
-#include "SDL.h" //TODO temp
+#include <SDL2/SDL.h>
 #ifdef PHYSICS_DEBUG_SLOWRENDERS
 	//#include<SDL2/SDL.h>
 	#include "camera.h"
