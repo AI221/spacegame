@@ -162,7 +162,7 @@ int main(int argc, char* argv[])
 	SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "0" );
 
 	camera.pos = {0,0,0};
-	camera.screenWidth = 640;
+	camera.screenWidth = 1080;
 	camera.screenHeight = 720;
 	
 	SDL_Window* myWindow = SDL_CreateWindow("Spacegame", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, camera.screenWidth, camera.screenHeight, 0);

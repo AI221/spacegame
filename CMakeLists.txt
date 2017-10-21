@@ -35,16 +35,18 @@ set (CMAKE_RC_COMPILER ${COMPILER_PREFIX}windres)
 set (CMAKE_PKGCONFIG_EXECUTABLE ${COMPILER_PREFIX}pkg-config)
 set (PKG_CONFIG_EXECUTABLE ${COMPILER_PREFIX}pkg-config)
 
+#Remove the -rdynamic option that mingw doesn't like
+set (CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
+set (CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "") 
+
+
 SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
-SET(BUILD_SHARED_LIBRARIES OFF)
-SET(CMAKE_EXE_LINKER_FLAGS "-static")
-link_libraries("-static")
 
 
 #set (TARGET_ENVIRONMENT /usr/i686-w64-mingw32)
 set (CMAKE_FIND_ROOT_PATH ${TARGET_ENVIRONMENT})
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -lmingw32 -mwindows -lSDL2main -static-libgcc -static-libstdc++ -Wl,--export-all-symbols ")#-g3")-export-dynamic")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -lmingw32 -mwindows -static-libgcc -static-libstdc++ ")#-g3")-export-dynamic")
 endif ()
 
 file(GLOB spacegame_SRC
