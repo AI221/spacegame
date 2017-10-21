@@ -20,6 +20,8 @@
 #include "threadedEventStack.h"
 #include "inventory.h"
 
+#include "GeneralEngineCPP.h"
+
 //Debug includes
 #include "debugRenders.h"
 
