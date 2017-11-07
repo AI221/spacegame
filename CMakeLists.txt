@@ -18,35 +18,38 @@ option(WINDOWS "WINDOWS" OFF)
 
 #nix
 if (NOT WINDOWS)
-set (CMAKE_C_COMPILER "/usr/bin/gcc")
-set (CMAKE_CXX_COMPILER "/usr/bin/g++")
+	set (CMAKE_C_COMPILER "/usr/bin/gcc")
+	set (CMAKE_CXX_COMPILER "/usr/bin/g++")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -g3") #-g3
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -g3 -pthread") #-g3
 else ()
-#win
-set (CMAKE_SYSTEM_NAME "Windows")
-set (CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
-set (CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
-set (CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
-set (COMPILER_PREFIX x86_64-w64-mingw32-)
-set (CMAKE_C_COMPILER ${COMPILER_PREFIX}gcc)
-set (CMAKE_CXX_COMPILER ${COMPILER_PREFIX}c++)
-set (CMAKE_RC_COMPILER ${COMPILER_PREFIX}windres)
-set (CMAKE_PKGCONFIG_EXECUTABLE ${COMPILER_PREFIX}pkg-config)
-set (PKG_CONFIG_EXECUTABLE ${COMPILER_PREFIX}pkg-config)
+	#win
+	set (CMAKE_SYSTEM_NAME "Windows")
+	set (CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+	set (CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+	set (CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+	set (COMPILER_PREFIX x86_64-w64-mingw32-)
+	set (CMAKE_C_COMPILER ${COMPILER_PREFIX}gcc)
+	set (CMAKE_CXX_COMPILER ${COMPILER_PREFIX}c++)
+	set (CMAKE_RC_COMPILER ${COMPILER_PREFIX}windres)
+	set (CMAKE_PKGCONFIG_EXECUTABLE ${COMPILER_PREFIX}pkg-config)
+	set (PKG_CONFIG_EXECUTABLE ${COMPILER_PREFIX}pkg-config)
 
-#Remove the -rdynamic option that mingw doesn't like
-set (CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
-set (CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "") 
-
-
-SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+	#Remove the -rdynamic option that mingw doesn't like
+	set (CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
+	set (CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "") 
 
 
-#set (TARGET_ENVIRONMENT /usr/i686-w64-mingw32)
-set (CMAKE_FIND_ROOT_PATH ${TARGET_ENVIRONMENT})
+	SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -lmingw32 -mwindows -static-libgcc -static-libstdc++ -fpermissive")#-g3")-export-dynamic")
+
+	#set (TARGET_ENVIRONMENT /usr/i686-w64-mingw32)
+	set (CMAKE_FIND_ROOT_PATH ${TARGET_ENVIRONMENT})
+
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -lmingw32 -mwindows -static-libgcc -static-libstdc++ -fpermissive")#-g3")-export-dynamic")
+
+
+
 endif ()
 
 file(GLOB spacegame_SRC

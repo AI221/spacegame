@@ -8,7 +8,6 @@
 #ifdef outdatedOS
 
 # include <windows.h>
-#include <stdio.h>
 
 #else
 
@@ -17,6 +16,7 @@
 
 #endif
 
+#include <stdio.h>
 #include <vector>
 #include <string>
 #include <regex>

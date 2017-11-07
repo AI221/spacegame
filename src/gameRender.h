@@ -7,6 +7,9 @@
 #include "classes.h"
 
 
+#include <pthread.h>
+
+
 
 #ifndef __GAME_RENDER_INCLUDED
 #define __GAME_RENDER_INCLUDED

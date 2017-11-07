@@ -5,8 +5,6 @@
  * Generic macros and preprocessor definitions (Such as what OS is being compiled for) 
  */
 
-#define pthread_mutex_lock(a)
-#define pthread_mutex_unlock(a)
 
 
 //Debug?
