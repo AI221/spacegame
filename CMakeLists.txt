@@ -46,7 +46,7 @@ else ()
 	#set (TARGET_ENVIRONMENT /usr/i686-w64-mingw32)
 	set (CMAKE_FIND_ROOT_PATH ${TARGET_ENVIRONMENT})
 
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -lmingw32 -mwindows -static-libgcc -static-libstdc++ -fpermissive")#-g3")-export-dynamic")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -lmingw32 -mwindows -static-libgcc -static-libstdc++ -fpermissive ")#-g3")-export-dynamic")
 
 
 
@@ -75,7 +75,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g3")
 include_directories("${PROJECT_BINARY_DIR}" "include/" ) 
 
 # add the executable
-add_executable(${PROJECT_NAME} ${spacegame_SRC} "include/jsoncpp/json/json.h" )
+add_executable(${PROJECT_NAME} ${spacegame_SRC} "include/jsoncpp/jsoncpp.cpp" )
 
 
 
@@ -94,7 +94,7 @@ find_package (Threads)
 
 INCLUDE_DIRECTORIES(${SDL2_INCLUDE_DIRS} ${SDL2TTF_INCLUDE_DIRS} )
 #NOTE THE ORDER. Threads MUST come first or you're in for hell with compiler errors
-TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT} ${SDL2_LIBRARIES} ${SDL2TTF_LIBRARIES} ${SDL2IMAGE_LIBRARIES} jsoncpp m)  #m is the math library
+TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT} ${SDL2_LIBRARIES} ${SDL2TTF_LIBRARIES} ${SDL2IMAGE_LIBRARIES} m)  #m is the math library
 
 
 
