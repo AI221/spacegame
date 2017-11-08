@@ -21,7 +21,7 @@ if (NOT WINDOWS)
 	set (CMAKE_C_COMPILER "/usr/bin/gcc")
 	set (CMAKE_CXX_COMPILER "/usr/bin/g++")
 
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -g3 -pthread") #-g3
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -g3") #-g3
 else ()
 	#win
 	set (CMAKE_SYSTEM_NAME "Windows")
@@ -72,10 +72,10 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g3")
 
 # add the binary tree to the search path for include files
 # so that we will find TutorialConfig.h
-include_directories("${PROJECT_BINARY_DIR}")
+include_directories("${PROJECT_BINARY_DIR}" "include/" ) 
 
 # add the executable
-add_executable(${PROJECT_NAME} ${spacegame_SRC})
+add_executable(${PROJECT_NAME} ${spacegame_SRC} "include/jsoncpp/json/json.h" )
 
 
 
@@ -86,14 +86,15 @@ PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2)
 PKG_SEARCH_MODULE(SDL2TTF REQUIRED SDL2_ttf>=2.0.0)
 PKG_SEARCH_MODULE(SDL2IMAGE REQUIRED SDL2_image>=2.0.0)
 
+
 find_package (Threads)
 
 
 
 
-INCLUDE_DIRECTORIES(${SDL2_INCLUDE_DIRS} ${SDL2TTF_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(${SDL2_INCLUDE_DIRS} ${SDL2TTF_INCLUDE_DIRS} )
 #NOTE THE ORDER. Threads MUST come first or you're in for hell with compiler errors
-TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT} ${SDL2_LIBRARIES} ${SDL2TTF_LIBRARIES} ${SDL2IMAGE_LIBRARIES} m) #m is the math library
+TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT} ${SDL2_LIBRARIES} ${SDL2TTF_LIBRARIES} ${SDL2IMAGE_LIBRARIES} jsoncpp m)  #m is the math library
 
 
 

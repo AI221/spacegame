@@ -25,13 +25,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <libgen.h>
 #include <string>
 #include <vector>
+#include <iostream>
+
+
+#include <jsoncpp/json/json.h>
 
 
 #include "vector2.h"
 #include "FS.h"
 #include "GeneralEngineCPP.h"
+#include "json.h"
 
 #ifndef __SPRITE_INCLUDED
 #define __SPRITE_INCLUDED
@@ -116,12 +122,12 @@ GE_Sprite* GE_CreateSprite(SDL_Renderer* renderer, std::string path); //should n
 /*!
  * Converts an SDL_RWops of a .bmp , .png , etc. to a SDL_Texture 
  */
-int GE_BMPPathToImg(SDL_Texture** result, SDL_Renderer* renderer, SDL_RWops * data);
+int GE_ImgPathToTexture(SDL_Texture** result, SDL_Renderer* renderer, SDL_RWops * data);
 
 /*!
  * Converts an image file (.bmp , .png , etc.) to an SDL_Texture
  */
-int GE_BMPPathToImg(SDL_Texture** result, SDL_Renderer* renderer, std::string path);
+int GE_ImgPathToTexture(SDL_Texture** result, SDL_Renderer* renderer, std::string path);
 
 /*!
  * Deletes a GE_Sprite that was allocated with new (GE_CreateSprite allocates with new)

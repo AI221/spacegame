@@ -26,6 +26,11 @@ int GE_Init(SDL_Renderer* renderer)
 	{
 		return error+300;
 	}
+	error = GE_JsonInit();
+	if (error != 0)
+	{
+		return error+400;
+	}
 	
 	
 	srand(time(NULL)); //set random seed to time

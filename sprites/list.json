@@ -1,0 +1,38 @@
+{
+	"spritelist" : [
+
+		"player/playerThruster_broken.png",
+		"player/playerLSmallTurret.png",
+		"player/playerLifeSupport_broken.png",
+		"player/playerRSmallTurret_broken.png",
+		"player/playerShipHead.png",
+		"player/playerLSmallTurret_broken.png",
+		"player/playerCoreReactor.png",
+		"player/playerThruster.png",
+		"player/playerRShield.png",
+		"player/playerCoreReactor_broken.png",
+		"player/playerDownCamera.png",
+		"player/playerLShield_broken.png",
+		"player/playerRSmallTurret.png",
+		"player/playerLShield.png",
+		"player/playerShipHead_broken.png",
+		"player/stdBulletPlayer.png",
+		"player/playerUpCamera.png",
+		"player/playerLifeSupport.png",
+		"player/playerRShield_broken.png",
+
+		"enemie1/stdBulletEnemy.png",
+		"enemie1/enemy.png",
+
+		"enginedefault/simple.bmp",
+		"enginedefault/simple-animation.bmp",
+		"enginedefault/player.png",
+
+		"inventory/inv_iron.png",
+		"inventory/inv_duct-tape.png",
+
+		"debug/DEBUG_nothingHere.bmp",
+		"debug/DEBUG_somethingHere.bmp"
+		
+	]
+}

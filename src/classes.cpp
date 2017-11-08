@@ -1,7 +1,5 @@
 #include "classes.h"
 
-#define SPRITE_DIR "../sprites/"
-
 Player* targetPlayer;
 Enemie* te;
 
@@ -9,8 +7,8 @@ Subsystem::Subsystem(SDL_Renderer* renderer, std::string sprite, Vector2 size, G
 {
 	printf("stt\n");
 	this->renderer = renderer;
-	renderObject = GE_CreateRenderedObject(renderer,SPRITE_DIR+sprite); //TODO
-	this->spriteName = SPRITE_DIR+sprite;
+	renderObject = GE_CreateRenderedObject(renderer,sprite); //TODO
+	this->spriteName = sprite;
 	pthread_mutex_lock(&RenderEngineMutex);
 
 	renderObject->grid = *parrentGrid;
@@ -52,7 +50,7 @@ void Subsystem::CheckCollision(int checkCollisionRectangle)
 		health -= 25; //TODO more dynamicness
 		if (!GetIsOnline())
 		{
-			GE_ChangeRenderedObjectSprite(renderObject,(spriteName.substr(0,spriteName.size()-4)+"_broken.png"));
+			GE_ChangeRenderedObjectSprite(renderObject,(spriteName.substr(0,spriteName.size()-4)+"_broken"));
 		}
 		
 			
@@ -125,7 +123,7 @@ Player::Player(SDL_Renderer* renderer) : GE_PhysicsObject({100,0,0},{0,0,0},GE_R
 
 
 	this->renderer = renderer;
-	/*renderObject = GE_CreateRenderedObject(renderer,SPRITE_DIR"WholeShipv2.png"); //TODO
+	/*renderObject = GE_CreateRenderedObject(renderer,SPRITE_DIR"WholeShipv2"); //TODO
 	renderObject->size = {98,102};
 	renderObject->animation = {0,0,49,51};*/
 
@@ -164,23 +162,23 @@ Player::Player(SDL_Renderer* renderer) : GE_PhysicsObject({100,0,0},{0,0,0},GE_R
 
 	numIterableSubsystems = 0;
 
-	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerThruster.png",sizePlusDoubleSize(5,51),positionDouble(9,0),0,"Left Thruster",&grid);
+	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerThruster",sizePlusDoubleSize(5,51),positionDouble(9,0),0,"Left Thruster",&grid);
 	bump();
-	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerCoreReactor.png",sizePlusDoubleSize(21,26),positionDouble(14,13),1,"Core Reactor",&grid);
+	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerCoreReactor",sizePlusDoubleSize(21,26),positionDouble(14,13),1,"Core Reactor",&grid);
 	bump();
-	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerLShield.png",sizePlusDoubleSize(9,19),positionDouble(0,15),2,"Left Shield",&grid);
+	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerLShield",sizePlusDoubleSize(9,19),positionDouble(0,15),2,"Left Shield",&grid);
 	bump();
-	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerRShield.png",sizePlusDoubleSize(9,19),positionDouble(39,15),3,"Right Shield",&grid);
+	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerRShield",sizePlusDoubleSize(9,19),positionDouble(39,15),3,"Right Shield",&grid);
 	bump();
-	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerThruster.png",sizePlusDoubleSize(5,51),positionDouble(35,0),4,"Right Thruster",&grid);
+	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerThruster",sizePlusDoubleSize(5,51),positionDouble(35,0),4,"Right Thruster",&grid);
 	bump();
-	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerLifeSupport.png",sizePlusDoubleSize(21,14),positionDouble(14,35),5,"Life Support",&grid);
+	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerLifeSupport",sizePlusDoubleSize(21,14),positionDouble(14,35),5,"Life Support",&grid);
 	bump();
-	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerShipHead.png",sizePlusDoubleSize(21,11),positionDouble(14,2),6,"Bridge",&grid);  //~~
+	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerShipHead",sizePlusDoubleSize(21,11),positionDouble(14,2),6,"Bridge",&grid);  //~~
 	bump();
-	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerLSmallTurret.png",sizePlusDoubleSize(4,9),positionDouble(5,21),7,"Left Turret",&grid); 
+	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerLSmallTurret",sizePlusDoubleSize(4,9),positionDouble(5,21),7,"Left Turret",&grid); 
 	bump();
-	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerRSmallTurret.png",sizePlusDoubleSize(4,9),positionDouble(40,21),8,"Right Turret",&grid);
+	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerRSmallTurret",sizePlusDoubleSize(4,9),positionDouble(40,21),8,"Right Turret",&grid);
 	bump();
 
 
@@ -253,7 +251,7 @@ void ShootBullet(SDL_Renderer* renderer, GE_PhysicsObject* host, Vector2r addToV
 	addToPosition.x = addToPosition.x + host->grid.w/2;
 	addToPosition.y = addToPosition.y + host->grid.h/2;
 
-	StdBullet* mybullet = new StdBullet(renderer,host->position+addToPosition,(isPlayer) ? (SPRITE_DIR"stdBulletPlayer.png") : (SPRITE_DIR"stdBulletEnemy.png"));
+	StdBullet* mybullet = new StdBullet(renderer,host->position+addToPosition,(isPlayer) ? ("stdBulletPlayer") : ("stdBulletEnemy"));
 	GE_PhysicsObject* mybulletpo;
 	GE_GetPhysicsObjectFromID(mybullet->ID,&mybulletpo);
 
@@ -314,7 +312,7 @@ bool Player::C_Update()
 				if (event.key.keysym.sym == SDLK_u)
 				{
 
-					GE_RenderedObject* ro = GE_CreateRenderedObject(this->renderer,SPRITE_DIR"simple.bmp");	
+					GE_RenderedObject* ro = GE_CreateRenderedObject(this->renderer,"simple.bmp");	
 					ro->size = {25,25};
 					ro->animation = {0,0,8,9};
 					
@@ -509,7 +507,7 @@ Enemie::Enemie(SDL_Renderer* renderer, Vector2r position, int level) : GE_Physic
 
 	type = TYPE_ENEMY;
 	
-	renderObject = GE_CreateRenderedObject(renderer,SPRITE_DIR"enemy.png"); 
+	renderObject = GE_CreateRenderedObject(renderer,"enemy"); 
 	pthread_mutex_lock(&RenderEngineMutex);
 	renderObjectID = numRenderedObjects;
 	renderObject->size = {38,42};

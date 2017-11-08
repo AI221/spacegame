@@ -20,6 +20,9 @@ std::string Sprite_Names[MAX_SPRITES_LOADED];
 int countSprites = -1;
 
 
+//TODO: De-hardcode "../sprites/"
+
+
 
 /*!
  * This is an embedded monocolor BMP image, used in place of a missing file. This needs to be embedded, because it HAS to be available. 
@@ -31,7 +34,7 @@ int GE_SpriteInit(SDL_Renderer* renderer)
 	SDL_RWops* MissingImage_RWops = SDL_RWFromMem(MissingImage_HEX, sizeof(MissingImage_HEX));
 	//load that image
 	SDL_Texture* spriteTexture;
-	int error = GE_BMPPathToImg(&spriteTexture,renderer,MissingImage_RWops);
+	int error = GE_ImgPathToTexture(&spriteTexture,renderer,MissingImage_RWops);
 	if (error > 0)
 	{
 		return error;
@@ -57,7 +60,9 @@ GE_Sprite* GE_CreateSprite(SDL_Renderer* renderer, SDL_Texture* spriteTexture)
 GE_Sprite* GE_CreateSprite(SDL_Renderer* renderer, std::string path)
 {
 	SDL_Texture* spriteTexture;
-	int error = GE_BMPPathToImg(&spriteTexture, renderer,path);
+
+	printf("path %s\n",path.c_str());
+	int error = GE_ImgPathToTexture(&spriteTexture, renderer,path);
 	if (error > 0)
 	{
 		
@@ -70,12 +75,34 @@ GE_Sprite* GE_CreateSprite(SDL_Renderer* renderer, std::string path)
 
 
 
+
+
 /*!
  * Loads all sprites from a directory. Do not place anything but compatible image types (.bmp, .png , etc.) in this folder. This will not recursively search directories.
  */
 int GE_LoadSpritesFromDir(SDL_Renderer* renderer, std::string directory)
 {
-	DirList list = GE_ListInDir(directory);
+	//DirList list = GE_ListInDir(directory);
+	
+	
+
+
+
+
+
+
+	std::string buffer = GE_ReadAllFromFile("../sprites/list.json");
+
+
+	Json::Value root;
+
+	GE_ReadJson(buffer,&root);
+
+
+	Json::Value spritelist = root["spritelist"];
+	
+
+	/*
 	switch (list.error)
 	{
 		case 1:
@@ -87,10 +114,14 @@ int GE_LoadSpritesFromDir(SDL_Renderer* renderer, std::string directory)
 			return list.error;
 			break;
 	};
-	for (int i = 0; i < list.list.size(); i++)
+	*/
+	for (int i = 0; i < spritelist.size(); i++)
 	{
-		GE_LoadSpriteFromPath(renderer, directory+list.list[i]);
+		GE_LoadSpriteFromPath(renderer, ("../sprites/"+spritelist[i].asString()).c_str() );
+
+		printf(" im new %s\n",("../sprites/"+spritelist[i].asString()).c_str());
 	}
+
 	return 0;
 
 }
@@ -110,8 +141,20 @@ int GE_LoadSpriteFromPath(SDL_Renderer* renderer, std::string path)
 	}
 	countSprites++;
 
+	
 
-	Sprite_Names[countSprites] = path; //sprite names are relative paths to simplify things
+	path = std::string(basename(( char*) (path.c_str()) )); //kind of ugly
+
+	int dotspot = path.find(".");
+	if (dotspot != 0)
+	{
+		path = path.substr(0,dotspot);
+	}
+
+
+
+
+	Sprite_Names[countSprites] = path; 
 	printf("add %s\n",path.c_str());
 
 	return 0;
@@ -197,16 +240,16 @@ void GE_FreeAllSprites()
  * @param renderer The renderer to use for this
  * @param path The path to grab the BMP image from, relative or absolute.
  */
-int GE_BMPPathToImg(SDL_Texture** result, SDL_Renderer* renderer, std::string path)
+int GE_ImgPathToTexture(SDL_Texture** result, SDL_Renderer* renderer, std::string path)
 {
-	return GE_BMPPathToImg(result, renderer, SDL_RWFromFile(path.c_str(),"rb"));
+	return GE_ImgPathToTexture(result, renderer, SDL_RWFromFile(path.c_str(),"rb"));
 }
 
 /*!
  * Same as other overload.
  * @param data Will be deleted
  */
-int GE_BMPPathToImg(SDL_Texture** result, SDL_Renderer* renderer, SDL_RWops* data)
+int GE_ImgPathToTexture(SDL_Texture** result, SDL_Renderer* renderer, SDL_RWops* data)
 {
 	SDL_Surface* LoadingSurface;
 	LoadingSurface = IMG_Load_RW(data,1);

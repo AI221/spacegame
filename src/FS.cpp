@@ -116,3 +116,23 @@ char* GE_GetFileExtension(char* fullfilename)
 	}
 	return NULL;
 }
+
+
+std::string GE_ReadAllFromFile(const char* fullfilename)
+{
+	char buffer[1024*16] = "";
+	SDL_RWops *file = SDL_RWFromFile(fullfilename, "r");
+
+	if (file != NULL) 
+	{
+
+		if (file->read(file, buffer, sizeof (buffer), 1) > 0) {
+			printf("Hello, %s!\n", buffer);
+		}
+		file->close(file);
+	}
+
+	return std::string(buffer);
+
+
+}

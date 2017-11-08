@@ -11,6 +11,7 @@
 #include "sprite.h"
 #include "renderedObject.h"
 #include "isOn.h"
+#include "json.h"
 
 
 
