@@ -32,6 +32,7 @@ void GE_UI_GameRender::giveEvent(Vector2 parrentPosition, SDL_Event event)
 }
 void GE_UI_GameRender::render(Vector2 parrentPosition)
 {
+	GE_DeleteRenderedObjectsMarkedForDeletion();
 	pthread_mutex_lock(&RenderEngineMutex);
 
 	camera.pos.x = (camera.pos.x+camerasGrid.w/2); //manipulate camera position now that it's updated

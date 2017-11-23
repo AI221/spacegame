@@ -60,7 +60,7 @@ file(GLOB spacegame_SRC
 
 
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g3")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
 
 
 

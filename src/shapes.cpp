@@ -27,6 +27,10 @@ SDL_Rect renderAnimation = {0,0,1,1}; //this is constant for all rectangles
 void GE_RectangleShape::render(Vector2r position, Vector2 size)
 {
 	SDL_Rect renderPosition = {static_cast<int>(position.x+.5),static_cast<int>(position.y+.5),static_cast<int>(size.x+.5),static_cast<int>(size.y+.5)};
+	if (position.r == 0) //optimization to opt for SDL_Rects when no rotation is needed
+	{
+
+	}
 	GE_PhysicsRotationToRenderRotation(&position.r);
 	SDL_RenderCopyEx(this->renderer, this->colorTexture, &renderAnimation, &renderPosition,position.r,NULL,SDL_FLIP_NONE); //RenderCopyEx copies the data from the pointers to the SDL_Rects, meaning they can be discarded immediatly following the function call.
 }

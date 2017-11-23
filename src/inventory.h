@@ -1,12 +1,13 @@
-#include "UI.h"
-#include "sprite.h"
-#include "GeneralEngineCPP.h"
-#include "physics.h"
-
+#include <pthread.h>
 #include <vector>
 #include <cmath>
 #include <stack>
 #include <unordered_set>
+
+#include "UI.h"
+#include "sprite.h"
+#include "GeneralEngineCPP.h"
+#include "physics.h"
 
 #ifndef __INVENTORY_ELEMENTS_INCLUDED
 #define __INVENTORY_ELEMENTS_INCLUDED
@@ -76,6 +77,8 @@ class Inventory
 		int currentMass;
 		Vector2r linkedPosition;
 		std::stack<Schedule> scheduleStack;
+
+		pthread_mutex_t schedulemutex = PTHREAD_MUTEX_INITIALIZER;
 };
 
 
@@ -93,7 +96,7 @@ class UI_FloatingInventoryElement : public GE_UI_TopLevelElement
 class UI_InventoryView : public GE_UI_Element
 {
 	public:
-		UI_InventoryView(SDL_Renderer* renderer, Vector2 position, Vector2 size, Inventory* inventory, GE_UI_Text* countText, Vector2 paddingSize, GE_Color highlightColor, GE_Color emptySlotColor, GE_Color borderColor);
+		UI_InventoryView(SDL_Renderer* renderer, Vector2 position, Vector2 size, Inventory* inventory, GE_UI_FontStyle countTextStyle, Vector2 paddingSize, GE_Color highlightColor, GE_Color emptySlotColor, GE_Color borderColor);
 		~UI_InventoryView();
 		void render(Vector2 parrentPosition);
 		void giveEvent(Vector2 parrentPosition, SDL_Event event);
@@ -104,7 +107,7 @@ class UI_InventoryView : public GE_UI_Element
 		Vector2 size;
 		Vector2 paddingSize;
 		Inventory* inventory;
-		GE_UI_Text* countText;
+		GE_UI_FontStyle countTextStyle;
 		GE_RectangleShape* highlightRectangle;
 		GE_RectangleShape* emptySlotRectangle;
 		GE_RectangleShape* borderRectangle;
@@ -112,6 +115,7 @@ class UI_InventoryView : public GE_UI_Element
 
 		int ammountItemsPerRow;
 		int ammmountRows;
+		std::vector<GE_UI_Text*> inventoryAmmountTexts;
 
 
 };

@@ -5,6 +5,12 @@
 void GE_UI_Element::giveEvent(Vector2 parrentPosition, SDL_Event event) {} //defined so that not all derivatives must define it
 GE_UI_Element::~GE_UI_Element() {}
 
+GE_UI_TopLevelElement::~GE_UI_TopLevelElement() 
+{
+	GE_UI_RemoveTopLevelElement(this);
+}
+
+
 
 
 /*
@@ -15,10 +21,21 @@ GE_UI_Element::~GE_UI_Element() {}
 
 void GE_UI_Text::setText(const char* text)
 {
-	if (strlen(text) == 0) //this lil statement prevents everything from crashing and burning by preventing surfaceMessage from being NULL.
+	size_t textSize = strlen(text);
+	if (textSize == 0) //this lil statement prevents everything from crashing and burning by preventing surfaceMessage from being NULL.
 	{
 		text = " ";
 	}
+	if (strcmp(text,currentText)== 0 ) //don't re-render text we've already rendered. cannot cause segfault for surfaceMessage being unitialized -- text will be set to " " if blank, and current texted is initialzed as blank.
+	{
+	//	printf("%s and %s are the same\n",text,currentText);
+		return;
+	}
+	//	printf("%s and %s are different\n",text,currentText);
+	size_t end = std::min(sizeof(currentText),textSize);
+	strncpy(currentText,text,end);
+	currentText[end] = '\0';
+
 	SDL_Surface* surfaceMessage = TTF_RenderText_Blended(font, text, static_cast<SDL_Color>(color));
 	if (surfaceMessage == NULL) //extra protection
 	{
@@ -75,7 +92,7 @@ void GE_UI_Text::expandToTextSize()
 	this->size.x = this->Message_rect.w;
 	this->size.y = this->Message_rect.h;
 }
-GE_UI_Text::GE_UI_Text(SDL_Renderer* renderer, Vector2 position, Vector2 size, std::string text, GE_Color color, TTF_Font* font)
+void GE_UI_Text::_init(SDL_Renderer* renderer, Vector2 position, Vector2 size, std::string text, GE_Color color, TTF_Font* font)
 {
 	this->font = font;
 
@@ -88,6 +105,7 @@ GE_UI_Text::GE_UI_Text(SDL_Renderer* renderer, Vector2 position, Vector2 size, s
 
 	this->color = color;
 	Message = NULL; //Initialized Message to NULL so that setText knows it shouldn't be freed ( because it doesn't yet exist)
+	currentText[0] = '\0'; //initialize currentText to be blank
 	setText(text); //Fills Message variable belonging to this class
 	this->wantsEvents = false;
 
@@ -99,9 +117,13 @@ GE_UI_Text::GE_UI_Text(SDL_Renderer* renderer, Vector2 position, Vector2 size, s
 	//this->cursorPosition;
 }
 
+GE_UI_Text::GE_UI_Text(SDL_Renderer* renderer, Vector2 position, Vector2 size, std::string text, GE_Color color, TTF_Font* font)
+{
+	_init(renderer,position,size,text,color,font);
+}
 GE_UI_Text::GE_UI_Text(SDL_Renderer* renderer, Vector2 position, Vector2 size, std::string text, GE_UI_FontStyle style)
 {
-	GE_UI_Text(renderer, position, size, text, style.color,style.font);
+	_init(renderer, position, size, text, style.color,style.font);
 }
 GE_UI_Text::~GE_UI_Text()
 {
@@ -654,6 +676,7 @@ bool GE_UI_Window::checkIfFocused(int mousex, int mousey)
 
 
 std::list<GE_UI_TopLevelElement*> renderOrder;
+std::list<GE_UI_OmniEventReciever*> omniEventRecievers;
 GE_UI_TopLevelElement* backgroundElement;
 bool backgroundFocused = true;
 GE_UI_TopLevelElement* cursorFollower;
@@ -670,6 +693,14 @@ void GE_UI_RemoveTopLevelElement(GE_UI_TopLevelElement* element)
 	{
 		backgroundFocused = true;
 	}
+}
+void GE_UI_InsertOmniEventReciever(GE_UI_OmniEventReciever* element)
+{
+	omniEventRecievers.insert(omniEventRecievers.begin(),element);
+}
+void GE_UI_RemoveOmniEventReciever(GE_UI_OmniEventReciever* element)
+{
+	omniEventRecievers.remove(element);
 }
 void GE_UI_SetTopElement(GE_UI_TopLevelElement* element)
 {
@@ -691,6 +722,11 @@ bool GE_UI_PullEvents()
 	SDL_Event event;
 	while (SDL_PollEvent(&event) != 0)
 	{
+		//give it to omni event recievers
+		for (GE_UI_OmniEventReciever* it : omniEventRecievers)
+		{
+			it->giveEvent(event);
+		}
 		if (event.type == SDL_MOUSEBUTTONDOWN)
 		{
 			int x,y;
@@ -759,4 +795,24 @@ IntVector2 GE_UI_GetMousePosition()
 	IntVector2 returnval;
 	SDL_GetMouseState(&returnval.x,&returnval.y);
 	return returnval;
+}
+
+
+void GE_ShutdownUI()
+{
+	/*
+	for (GE_UI_TopLevelElement* i : renderOrder) //prblem is that delete removes the obj from this list which fucks it up
+	{
+		printf("Freed a window\n");
+		delete i;
+	}
+	*/
+
+	while (!renderOrder.empty()) //top level elements should remove themselves from the render order list. as a result this part is a little strange.
+	{
+		printf("Freed a window\n");
+		delete *renderOrder.begin();
+
+	}
+
 }

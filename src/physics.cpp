@@ -30,6 +30,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 double PhysicsDelaySeconds = 0.16667;
 
 
+bool PhysicsEngineThreadShutdown = false;
+
 pthread_t PhysicsEngineThread;
 
 pthread_mutex_t PhysicsEngineMutex = PTHREAD_MUTEX_INITIALIZER;
@@ -250,7 +252,8 @@ void* GE_physicsThreadMain(void *)
 		
 
 	}
-	printf("Physics Engine is shutting down.\n");
+	printf("Physics Engine thread is shutting down.\n");
+	PhysicsEngineThreadShutdown = true;
 	return (void*)NULL;
 }
 
@@ -261,7 +264,7 @@ void GE_TickPhysics()
 {
 temp2 = 0;
 	ticknum++;
-	printf("Physics tick #%d\n",ticknum);
+	//printf("Physics tick #%d\n",ticknum);
 	for (int i=0;i < (numPhysicsObjects+1); i++)
 	{
 		//printf("i %d\n",i);
@@ -277,7 +280,7 @@ temp2 = 0;
 		}
 		//printf("x %d y %d\n",physicsObjects[i]->position.x,physicsObjects[i]->position.y);
 	}
-	printf("this tick had %d collision full checks\n",temp2);
+	//printf("this tick had %d collision full checks\n",temp2);
 }
 
 struct InternalResult

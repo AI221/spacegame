@@ -90,6 +90,7 @@ class GE_UI_TopLevelElement
 		virtual void render(Vector2 parrentPosition) = 0;
 		virtual void giveEvent(Vector2 parrentPosition, SDL_Event event) = 0;
 		virtual bool checkIfFocused(int mousex, int mousey) = 0;
+		virtual ~GE_UI_TopLevelElement();
 
 		bool wantsEvents;
 };
@@ -102,6 +103,10 @@ class GE_UI_Text : public GE_UI_Element
 		~GE_UI_Text();
 		void render(Vector2 parrentPosition);
 		void render();
+
+		/*!
+		 * Note that settings text above 2048 characters, while permitted, will not be optimized for not re-rendering text that is the same as the previous set.
+		 */
 		void setText(const char* text);
 		void setText(std::string text);
 		void setSize(Vector2 newSize);
@@ -137,12 +142,15 @@ class GE_UI_Text : public GE_UI_Element
 		GE_Color color;
 		SDL_Renderer* renderer;
 		SDL_Texture* Message;
+		char currentText[2048];
 		int scrollPosition;
 		int cursorPosition;
 
 		bool doCenterX;
 		bool doCenterY;
 		bool doAlignLeft;
+
+		void _init(SDL_Renderer* renderer, Vector2 position, Vector2 size, std::string text, GE_Color color,TTF_Font* font);
 };
 class GE_UI_TextInput : public GE_UI_Element
 {
@@ -300,8 +308,26 @@ class GE_UI_Window: public GE_UI_TopLevelElement
 };
 
 
+/*!
+ * This recieves all events all the time
+ *
+ * Typical use is to have one single one for your entire game and to never remove it until shutdown. But you could add and remove one every frame if you wanted to. Must be called from the renderer thread, or while the rendering thread is locked
+ */
+class GE_UI_OmniEventReciever
+{
+	public:
+		virtual ~GE_UI_OmniEventReciever(){};
+		virtual void giveEvent(SDL_Event event) = 0;
+};
+
+
+
+
+
 void GE_UI_InsertTopLevelElement(GE_UI_TopLevelElement* element);
 void GE_UI_RemoveTopLevelElement(GE_UI_TopLevelElement* element);
+void GE_UI_InsertOmniEventReciever(GE_UI_OmniEventReciever* element);
+void GE_UI_RemoveOmniEventReciever(GE_UI_OmniEventReciever* element);
 void GE_UI_SetTopElement(GE_UI_TopLevelElement* element);
 void GE_UI_SetBackgroundElement(GE_UI_TopLevelElement* element);
 void GE_UI_SetCursorFollower(GE_UI_TopLevelElement* element);
@@ -314,6 +340,7 @@ IntVector2 GE_UI_GetMousePosition();
 
 
 
+void GE_ShutdownUI();
 
 
 #endif //__UI_INCLUDED

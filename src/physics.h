@@ -26,7 +26,7 @@
 #include "gluePhysicsObject.h"
 #include "isOn.h"
 
-#define PHYSICS_DEBUG_SLOWRENDERS 
+//#define PHYSICS_DEBUG_SLOWRENDERS 
 
 #include <SDL2/SDL.h>
 #ifdef PHYSICS_DEBUG_SLOWRENDERS
@@ -53,6 +53,11 @@ extern bool DEBUG_allowPhysicsTick;
 //RUNTIME CONFIG
 
 extern double PhysicsDelaySeconds;
+
+
+extern bool PhysicsEngineThreadShutdown;
+
+
 
 /*!
  * The basic Physics object structure. It's recommended that your game objects inhereit from this, though you can do non-OO design alternatively using glueObject's buffering.

@@ -5,6 +5,7 @@
  * A simple object designed to be linked to a networkObject or physicsObject.
  */
 #include <pthread.h>
+#include <stack>
 
 #include "vector2.h"
 #include "sprite.h"
@@ -86,5 +87,8 @@ void GE_BlitRenderedObject(GE_RenderedObject* subject, Camera* camera, double sc
  * @param subject A pointer to the GE_RenderedObject to free
  */
 void GE_FreeRenderedObject(GE_RenderedObject* subject); 
+
+void GE_ScheduleFreeRenderedObject(int subjectID);
+void GE_DeleteRenderedObjectsMarkedForDeletion();
 
 #endif //__RENDEREDPHYSICSOBJECT_INCLUDED

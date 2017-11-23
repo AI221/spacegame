@@ -4,6 +4,7 @@
  *
  * General engine things that don't really belong anywhere else
  */
+#include <SDL2/SDL.h>
 
 #include "gluePhysicsObject.h"
 #include "gluePhysicsObjectInit.h"
@@ -12,6 +13,7 @@
 #include "renderedObject.h"
 #include "isOn.h"
 #include "json.h"
+#include "UI.h"
 
 
 

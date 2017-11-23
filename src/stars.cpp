@@ -24,7 +24,7 @@ GE_Stars* GE_CreateStars(SDL_Renderer* renderer, unsigned int number, unsigned i
 }
 void GE_FreeStars(GE_Stars* subject)
 {
-	for (GE_SingleStar* subjectStar: subject->stars)
+	for (GE_SingleStar* subjectStar : subject->stars)
 	{
 		delete subjectStar;
 	}

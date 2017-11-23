@@ -94,6 +94,7 @@ class Player : public GE_PhysicsObject
 
 		GE_ThreadedEventStack threadedEventStack;
 
+		Inventory* inventory;
 
 	
 	private:
@@ -102,7 +103,6 @@ class Player : public GE_PhysicsObject
 		SDL_Renderer* renderer;
 		int nextTickCanShoot;
 
-		Inventory* inventory;
 
 		
 

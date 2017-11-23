@@ -32,7 +32,9 @@
 		"inventory/inv_duct-tape.png",
 
 		"debug/DEBUG_nothingHere.bmp",
-		"debug/DEBUG_somethingHere.bmp"
+		"debug/DEBUG_somethingHere.bmp",
+
+		"ui/mainmenu/background-ss.png"
 		
 	]
 }

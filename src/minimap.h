@@ -5,7 +5,10 @@
  */
 
 #include <SDL2/SDL.h>
+#include <pthread.h>
 #include <unordered_map>
+#include <stack>
+
 
 //Local includes
 #include "UI.h"
@@ -16,9 +19,20 @@
 #ifndef __MINIMAP_INCLUDED
 #define __MINIMAP_INCLUDED
 
+/*!
+ * Make an object show up on the minimap
+ */
 void GE_LinkMinimapToRenderedObject(GE_RenderedObject* subject, SDL_Color color);
 
+/*!
+ * Deleted a minimap target -- may only be used in the render thread, or whilst the render thread is locked.
+ */
 void GE_FreeMinimapTarget(GE_RenderedObject* linkedRenderedObject);
+
+/*!
+ * Schedules a minimap target to be deleted. Safe to call from any thread!
+ */
+void GE_ScheduleFreeMinimapTarget(GE_RenderedObject* linkedRenderedObject);
 
 class GE_UI_Minimap : public GE_UI_Element
 {

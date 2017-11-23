@@ -21,9 +21,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 pthread_mutex_t RenderEngineMutex = PTHREAD_MUTEX_INITIALIZER;
 
+pthread_mutex_t deleteObjectStackMutex = PTHREAD_MUTEX_INITIALIZER;
+
 GE_RenderedObject* renderedObjects[MAX_RENDER_OBJECTS]; //TODO dimensions and what not
 bool deadRenderedObjects[MAX_RENDER_OBJECTS] = {1,};
 int numRenderedObjects = -1; 
+
+std::stack<int> scheduleToDelete;
+
 
 int GE_RenderedObjectInit()
 {
@@ -34,6 +39,9 @@ void GE_ChangeRenderedObjectSprite(GE_RenderedObject* subject, std::string sprit
 {
 	subject->spriteID = GE_SpriteNameToID(spriteName);	
 }
+
+
+
 GE_RenderedObject* GE_CreateRenderedObject(SDL_Renderer* renderer, std::string spriteName, int ID) // size is not included (despite it being a value often set at start) due to its linked nature.
 {
 	printf("Create RenderedObject\n");
@@ -66,7 +74,30 @@ void GE_BlitRenderedObject(GE_RenderedObject* subject, Camera* camera, double sc
 	GE_DEBUG_TextAt(std::to_string(position.x) + "," + std::to_string(position.y) + ",m "+std::to_string(maxSize),Vector2{position.x,position.y});
 #endif
 }
-void GE_FreeRenderedObject(GE_RenderedObject* subject) //will not destroy renderer,or sprite. MUST be allocated with new
+void GE_FreeRenderedObject(int subjectID) //will not destroy renderer,or sprite. MUST be allocated with new
 {
-	delete subject;
+	deadRenderedObjects[subjectID] = true;
+	delete renderedObjects[subjectID];
+}
+void GE_ScheduleFreeRenderedObject(int subjectID)
+{
+	pthread_mutex_lock(&deleteObjectStackMutex);
+
+	scheduleToDelete.push(subjectID);
+
+	pthread_mutex_unlock(&deleteObjectStackMutex);
+
+}
+void GE_DeleteRenderedObjectsMarkedForDeletion()
+{
+
+	pthread_mutex_lock(&deleteObjectStackMutex);
+	while (!scheduleToDelete.empty())
+	{
+		int i = scheduleToDelete.top();
+		scheduleToDelete.pop();
+
+		GE_FreeRenderedObject(i);
+	}
+	pthread_mutex_unlock(&deleteObjectStackMutex);
 }

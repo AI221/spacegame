@@ -9,12 +9,12 @@
 
 SDL_Renderer* GE_DEBUG_Renderer;//memory leak - wontfix
 Camera* GE_DEBUG_Camera; //memory leak - wontfix
-TTF_Font* tinySans; //memory leak - wontfix
+TTF_Font* debugSans; //memory leak - wontfix
 bool isInit = false;
 void init()
 {
-	tinySans = TTF_OpenFont(FREESANS_LOC, 15);
-	if(!tinySans) {
+	debugSans = TTF_OpenFont(FREESANS_LOC, 15);
+	if(!debugSans) {
 		printf("TTF_OpenFont error (from debugRenders.cpp): %s\n", TTF_GetError());
 		exit(100);
 	}
@@ -30,7 +30,7 @@ void GE_DEBUG_PassRenderer(SDL_Renderer* yourRenderer, Camera* yourCamera)
 void GE_DEBUG_TextAt(std::string text, Vector2 position)
 {
 	initIfNeeded();
-	auto mytext = GE_UI_Text(GE_DEBUG_Renderer, position, {0,0}, text, {0xff,0xff,0x99,0xFF},tinySans); //create a new text to render it once. debug-grade effeciency
+	auto mytext = GE_UI_Text(GE_DEBUG_Renderer, position, {0,0}, text, {0xff,0xff,0x99,0xFF},debugSans); //create a new text to render it once. debug-grade effeciency
 	mytext.expandToTextSize();
 	mytext.render({0,0});
 }

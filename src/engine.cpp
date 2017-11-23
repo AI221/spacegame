@@ -42,8 +42,14 @@ void GE_Shutdown()
 {
 	printf("----FULL ENGINE SHUTDOWN----\n");
 	GE_IsOn = false;
+	while (!PhysicsEngineThreadShutdown) //dont want to free physics engine things before it's finished a tick.
+	{
+		SDL_Delay(16);
+	} 
 	GE_ShutdownPhysicsEngine();
-	printf("sprits\n");
+	printf("sprites\n");
 	GE_FreeAllSprites();
+	printf("UI\n");
+	GE_ShutdownUI();
 
 }

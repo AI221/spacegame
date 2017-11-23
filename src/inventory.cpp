@@ -1,6 +1,5 @@
 #include "inventory.h"
 
-#define SPRITE_DIR "../sprites/"
 
 Inventory* globalHeldItemInventory;
 bool globalItemHeld = false;
@@ -36,9 +35,9 @@ std::string itemHumanNames[] = {
 };
 std::string itemSpriteNames[] = 
 {
-	"Err",
-	SPRITE_DIR"inv_iron.png",
-	SPRITE_DIR"inv_duct-tape.png"
+	"ERR",
+	"inv_iron",
+	"inv_duct-tape"
 };
 
 double itemMasses[] = { 
@@ -169,6 +168,7 @@ struct Schedule
 
 void Inventory::handleSchedules()
 {
+	pthread_mutex_lock(&schedulemutex);
 	while (!scheduleStack.empty())
 	{
 		Schedule i = scheduleStack.top();	
@@ -187,26 +187,33 @@ void Inventory::handleSchedules()
 			transferHeldFromPeer(i.data.scheduleTransferHeld.peer);
 		}
 	}
+	pthread_mutex_unlock(&schedulemutex);
 }
 
 void Inventory::schedulePickup(int itemID)
 {
+	pthread_mutex_lock(&schedulemutex);
 	USchedule u;
 	u.schedulePickup = {itemID};
 	scheduleStack.push(Schedule{u,PICKUP});
+	pthread_mutex_unlock(&schedulemutex);
 }
 
 void Inventory::scheduleTransferFromPeer(Inventory* peer, int itemID)
 {
+	pthread_mutex_lock(&schedulemutex);
 	USchedule u;
 	u.scheduleTransfer = {peer,itemID};
 	scheduleStack.push(Schedule{u,PEER});
+	pthread_mutex_unlock(&schedulemutex);
 }
 void Inventory::scheduleTransferHeldFromPeer(Inventory* peer)
 {
+	pthread_mutex_lock(&schedulemutex);
 	USchedule u;
 	u.scheduleTransferHeld = {peer};
 	scheduleStack.push(Schedule{u,HELD});
+	pthread_mutex_unlock(&schedulemutex);
 }
 
 
@@ -247,12 +254,12 @@ bool UI_FloatingInventoryElement::checkIfFocused(int mousex, int mousey)
 
 
 
-UI_InventoryView::UI_InventoryView(SDL_Renderer* renderer, Vector2 position, Vector2 size, Inventory* inventory, GE_UI_Text* countText, Vector2 paddingSize, GE_Color highlightColor, GE_Color emptySlotColor, GE_Color borderColor)
+UI_InventoryView::UI_InventoryView(SDL_Renderer* renderer, Vector2 position, Vector2 size, Inventory* inventory, GE_UI_FontStyle countTextStyle, Vector2 paddingSize, GE_Color highlightColor, GE_Color emptySlotColor, GE_Color borderColor)
 {
 	this->renderer = renderer;
 	this->position = position;
 
-	this->countText = countText;
+	this->countTextStyle = countTextStyle;
 
 	this->inventory = inventory;
 
@@ -276,12 +283,25 @@ void UI_InventoryView::setSize(Vector2 size)
 {
 	ammountItemsPerRow = ((size.x-paddingSize.x)/(INV_SQUARE_SIZE+paddingSize.x));
 	ammmountRows = ((size.y-paddingSize.y)/(INV_SQUARE_SIZE+paddingSize.y))-1;
+
+	int totalTexts = ammmountRows*ammountItemsPerRow;
+	for (int i=0;i<totalTexts;i++)
+	{
+		inventoryAmmountTexts.insert(inventoryAmmountTexts.end(),new GE_UI_Text(renderer,{0,0},{50,100},"",countTextStyle));
+	}
 	this->size = size;
 }
 UI_InventoryView::~UI_InventoryView()
 {
 	inventoriesInView.erase(inventory);
 	delete highlightRectangle;
+	delete emptySlotRectangle;
+	delete borderRectangle;
+
+	for (GE_UI_Text* i : inventoryAmmountTexts)
+	{
+		delete i;
+	}
 }
 void UI_InventoryView::render(Vector2 parrentPosition)
 {
@@ -296,9 +316,11 @@ void UI_InventoryView::render(Vector2 parrentPosition)
 	//GE_DEBUG_TextAt(std::to_string(ammountItemsPerRow),parrentPosition);
 	int currentItemsOnRow = -1;
 	int countRows = 0;
+	auto currentInvNumberText = inventoryAmmountTexts.begin();
 
 	auto it = inventory->storage.begin();
 	auto end = inventory->storage.end();
+
 
 	while (true) 
 	{
@@ -324,9 +346,10 @@ void UI_InventoryView::render(Vector2 parrentPosition)
 		emptySlotRectangle->render(parrentPosition+additionalPosition,SIZE_OF_ITEM);
 		if (it != end)
 		{
-			renderInventoryBox(&(*it), parrentPosition+additionalPosition, countText);
+			renderInventoryBox(&(*it), parrentPosition+additionalPosition, (*currentInvNumberText));
 			//GE_DEBUG_TextAt(std::to_string(currentItemsOnRow),parrentPosition+additionalPosition);
 			it++;
+			currentInvNumberText++;
 		}
 	}
 
@@ -405,7 +428,7 @@ void UI_InventoryView::giveEvent(Vector2 parrentPosition, SDL_Event event)
 				{
 					globalHeldItemInventory = inventory;
 					globalItemHeld = true;
-					globalCountText = countText;
+					globalCountText = inventoryAmmountTexts.at(item);
 				}
 			}
 		}
