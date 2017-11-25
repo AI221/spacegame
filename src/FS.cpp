@@ -17,6 +17,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "FS.h"
 #include <iostream>
 
+std::string GE_ReverseSlashes(std::string victim) 
+{
+	//sigh... why must windows do everything backwards? In this case, LITERALLY backwards?
+	return std::regex_replace(victim, std::regex("/"), std::string("\\"));
+}
 
 #ifdef outdatedOS
 
@@ -47,11 +52,6 @@ DirList GE_ListInDir(std::string directory) //TODO: Test this.
 	list.list = names;
 }
 
-std::string GE_ReverseSlashes(std::string victim) //  / -> \
-{
-	//sigh... why must windows do everything backwards? In this case, LITERALLY backwards?
-	return std::regex_replace(victim, std::regex("/"), (std::string) "\\");
-}
 
 
 #else 
@@ -87,6 +87,8 @@ DirList GE_ListInDir(std::string directory)
 			it++;
 		}
 	}
+
+	closedir(dir);
 	list.error = 0;
 	return list;
 
@@ -113,4 +115,24 @@ char* GE_GetFileExtension(char* fullfilename)
 		return fullfilename + index;
 	}
 	return NULL;
+}
+
+
+std::string GE_ReadAllFromFile(const char* fullfilename)
+{
+	char buffer[1024*16] = "";
+	SDL_RWops *file = SDL_RWFromFile(fullfilename, "r");
+
+	if (file != NULL) 
+	{
+
+		if (file->read(file, buffer, sizeof (buffer), 1) > 0) {
+			printf("Hello, %s!\n", buffer);
+		}
+		file->close(file);
+	}
+
+	return std::string(buffer);
+
+
 }

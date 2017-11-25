@@ -1,55 +1,76 @@
-#ifdef DEBUG_RENDERS
 #include "debugRenders.h"
 
-Sprite* nothingHere;
-Sprite* somethingHere;
-bool loadSprites = false;
+#define BASE_DIR "../"
 
-void Debug_sGrid_Render(Vector2r camerapos)
-{ //pulled from my prototype
-	
-	//welcome to the oldest code in the engine
 
-	if (!loadSprites)
-	{
-		loadSprites=true;
-		nothingHere = GE_CreateSprite(myRenderer,SPRITE_DIR"DEBUG_nothingHere.bmp",10,10);
-		somethingHere = GE_CreateSprite(myRenderer, SPRITE_DIR"DEBUG_somethingHere.bmp",10,10);
+#define FONT_DIR BASE_DIR"fonts/"
+
+#define FREESANS_LOC FONT_DIR"FreeSans.ttf"
+
+SDL_Renderer* GE_DEBUG_Renderer;//memory leak - wontfix
+Camera* GE_DEBUG_Camera; //memory leak - wontfix
+TTF_Font* debugSans; //memory leak - wontfix
+bool isInit = false;
+void init()
+{
+	debugSans = TTF_OpenFont(FREESANS_LOC, 15);
+	if(!debugSans) {
+		printf("TTF_OpenFont error (from debugRenders.cpp): %s\n", TTF_GetError());
+		exit(100);
 	}
+}
+#define initIfNeeded() if(!isInit) {isInit = true; init();} //glorious inline initialization
 
-	GE_BlitSprite(somethingHere,{0,0,0},{25,25},{10,10},GE_FLIP_NONE);
-	camera.pos = allPhysicsObjects[camFocusedObj]->position;
-	camera.pos.x -= 640/2;
-	camera.pos.y -= 580/2;
-	camera.pos.x = camera.pos.x/10;
-	camera.pos.y = camera.pos.y/10;
-	
-	//camera.pos.x = 10;
-	//camera.pos.y = 10;
-	int camerax = (int) camera.pos.x;
-	int cameray = (int) camera.pos.y;
-	for (int i = 0; i < 70; i++) { //start from camera position, increase forward 
-		for (int o = 0; o < 70; o++) {
-			//std::cout << "i " << i <<" t " << i+camerax << std::endl;
-			if ((i+camerax < 0) || (o+cameray < 0)) {} else {
-				if ( sGrid[i+camerax][o+cameray] != 0)
-				{
-					GE_BlitSprite(somethingHere,{i*10,o*10,0},{25,25},{0,0,8,9},GE_FLIP_NONE);
-					//std::cout << "nothingHere; ";`
-				} 
-				else 
-				{
-					GE_BlitSprite(nothingHere,{i*10,o*10,0},{25,25},{0,0,8,9},GE_FLIP_NONE);
-					//std::cout << "somethingHere; ";
-					//
-					
-				
-				}
-			}
-		}
-	}
-
-
+void GE_DEBUG_PassRenderer(SDL_Renderer* yourRenderer, Camera* yourCamera)
+{
+	initIfNeeded();
+	GE_DEBUG_Renderer = yourRenderer;
+	GE_DEBUG_Camera = yourCamera;
+}
+void GE_DEBUG_TextAt(std::string text, Vector2 position)
+{
+	initIfNeeded();
+	auto mytext = GE_UI_Text(GE_DEBUG_Renderer, position, {0,0}, text, {0xff,0xff,0x99,0xFF},debugSans); //create a new text to render it once. debug-grade effeciency
+	mytext.expandToTextSize();
+	mytext.render({0,0});
 }
 
-#endif //DEBUG_RENDERS
+void GE_DEBUG_TextAt(std::string text, Vector2r position)
+{
+	GE_DEBUG_TextAt(text,Vector2{position.x,position.y});
+}
+
+void GE_DEBUG_TextAt_PhysicsPosition(std::string text, Vector2 position)
+{
+	GE_DEBUG_TextAt(text,(position-Vector2{GE_DEBUG_Camera->pos.x-(GE_DEBUG_Camera->screenWidth/2),GE_DEBUG_Camera->pos.y-(GE_DEBUG_Camera->screenHeight/2)}));
+}
+
+void GE_DEBUG_Cursor_TextAtCursor()
+{
+	int x,y;
+	SDL_GetMouseState(&x,&y);
+	GE_DEBUG_TextAt("  x "+std::to_string(x)+" y "+std::to_string(y),Vector2{static_cast<double>(x),static_cast<double>(y)});
+}
+	
+
+Vector2 GE_DEBUG_QuickAddY(Vector2 positon, double addx)
+{
+	positon.y += addx;
+	return positon;
+}
+Vector2r GE_DEBUG_QuickAddY(Vector2r positon, double addx)
+{
+	positon.y += addx;
+	return positon;
+}
+
+
+std::string GE_DEBUG_VectorToString(Vector2 subject)
+{
+	return "X: "+std::to_string(subject.x) + " Y: "+std::to_string(subject.x);
+}
+
+std::string GE_DEBUG_VectorToString(Vector2r subject)
+{
+	return "X: "+std::to_string(subject.x) + " Y: "+std::to_string(subject.x) + " R: "+std::to_string(subject.r);
+}

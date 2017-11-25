@@ -5,13 +5,27 @@
  * A simple object designed to be linked to a networkObject or physicsObject.
  */
 #include <pthread.h>
+#include <stack>
 
 #include "vector2.h"
 #include "sprite.h"
 #include "camera.h"
 
+#include "GeneralEngineCPP.h"
+
+
+
 #ifndef __RENDEREDPHYSICSOBJECT_INCLUDED
 #define __RENDEREDPHYSICSOBJECT_INCLUDED
+
+#ifdef GE_DEBUG
+#include "debugRenders.h"
+#endif
+
+//LIMITS
+
+
+#define MAX_RENDER_OBJECTS 10024
 
 /*!
  * The type of object linked to
@@ -37,14 +51,20 @@ struct GE_RenderedObject
 	int spriteID;
 	Vector2r position; //start linked data ; we will receive our position either through networking, the physics engine, or by beaming radiation at the exact position this value is stored in RAM
 	Vector2 size;
+	GE_Rectangle grid;
 	GE_Rectangle animation; //end linked data
-
-	GE_LinkedType linkedType;
-	int linkedID;
 };
 
-extern GE_RenderedObject* renderedObjects[1000]; //TODO dimensions and what not
+extern GE_RenderedObject* renderedObjects[MAX_RENDER_OBJECTS]; //TODO dimensions and what not
+extern bool deadRenderedObjects[MAX_RENDER_OBJECTS];
 extern int numRenderedObjects;
+
+/*!
+ * Always call before using a rendered object
+ */
+int GE_RenderedObjectInit();
+
+void GE_ChangeRenderedObjectSprite(GE_RenderedObject* subject, std::string spriteName);
 
 /*!
  * Adds a GE_RenderedObject to the global lists of rendered objects, and returns a pointer to it back to you.
@@ -53,18 +73,22 @@ extern int numRenderedObjects;
  * @param spriteName The name of the spirte the GE_RenderedObject will use
  */
 GE_RenderedObject* GE_CreateRenderedObject(SDL_Renderer* renderer, std::string spriteName);
+GE_RenderedObject* GE_CreateRenderedObject(SDL_Renderer* renderer, std::string spriteName, int ID);
 
 /*! 
  * Blits a rendered object and applys camera offset
  * @param subject A pointer to the GE_RenderedObject to use
  * @param camera A pointer to the camera to use
  */
-void GE_BlitRenderedObject(GE_RenderedObject* subject, Camera* camera);
+void GE_BlitRenderedObject(GE_RenderedObject* subject, Camera* camera, double scale);
 
 /*! 
  * Frees a GE_RenderedObject allocated with new. Does not destroy its renderer or sprite. 
  * @param subject A pointer to the GE_RenderedObject to free
  */
 void GE_FreeRenderedObject(GE_RenderedObject* subject); 
+
+void GE_ScheduleFreeRenderedObject(int subjectID);
+void GE_DeleteRenderedObjectsMarkedForDeletion();
 
 #endif //__RENDEREDPHYSICSOBJECT_INCLUDED

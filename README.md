@@ -1,6 +1,6 @@
 # About
 
-This a 2D engine. It is designed around space games, and will eventually be used in a space game of my own.
+This is a Gamejam entry based off my 2D engine. I'm still new to C++ (and this project might require some butchering of the engine) so I'm making this a seperate branch.
 
 # Style
 
@@ -28,3 +28,5 @@ You'll need:
 * SDL2
 * SDL2_TTF
 * SDL_Image
+* Unix sockets
+* Pthread

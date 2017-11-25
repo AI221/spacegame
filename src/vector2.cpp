@@ -17,70 +17,25 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "vector2.h" 
-
-void GE_Vector2RotationCCW(Vector2r* subject)
-{
-	GE_Vector2RotationCCW(&subject->x,&subject->y,subject->r);
-}
-void GE_Vector2RotationCCW(Vector2r* subject, double rotation)
-{
-	GE_Vector2RotationCCW(&subject->x,&subject->y,rotation);
-}
-void GE_Vector2RotationCCW(Vector2* subject, double rotation)
-{
-	GE_Vector2RotationCCW(&subject->x,&subject->y,rotation);
-}
-void GE_Vector2RotationCCW(double* x, double* y, double rotation)
-{
-	double sin_rotation = sin(rotation/DEG_TO_RAD); //posr must be used because this vector is a velocity vector, not a position vector
-	double cos_rotation = cos(rotation/DEG_TO_RAD);
-
-	double new_x = ((*x)*cos_rotation)+((*y)*sin_rotation); //we cannot re-assign the x-value before the other transmformation
-	(*y) =	-((*x)*sin_rotation)+((*y)*cos_rotation);
-
-	*x = new_x;
-
-}
-
-
-void GE_Vector2Rotation(Vector2r* subject)
-{
-	GE_Vector2Rotation(&subject->x,&subject->y,subject->r);
-}
-void GE_Vector2Rotation(Vector2r* subject, double rotation)
-{
-	GE_Vector2Rotation(&subject->x,&subject->y,rotation);
-}
-void GE_Vector2Rotation(Vector2* subject, double rotation)
-{
-	GE_Vector2Rotation(&subject->x,&subject->y,rotation);
-}
-
-void GE_Vector2Rotation(double* x, double* y, double rotation)
-{
-	double sin_rotation = sin(rotation/DEG_TO_RAD); //posr must be used because this vector is a velocity vector, not a position vector
-	double cos_rotation = cos(rotation/DEG_TO_RAD);
-
-	double new_x = ((*x)*cos_rotation)-((*y)*sin_rotation); //we cannot re-assign the x-value before the other transmformation
-	(*y) =	((*x)*sin_rotation)+((*y)*cos_rotation);
-
-	*x = new_x;
-
-}
-
-double GE_Distance(Vector2 subject, Vector2 subject2)
-{
-	return GE_Distance(subject.x,subject.y,subject2.x,subject2.y);
-}
-
-double GE_Distance(double x1, double y1, double x2, double y2) 
-{
-	return sqrt((pow(x2-x1,2))+(pow(y2-y1,2)));
-}
-
 void Vector2r::addRelativeVelocity(Vector2r adder)
 {
 	GE_Vector2RotationCCW(&adder);
 	x += adder.x;
 	y += adder.y;
 }
+void GE_PhysicsVectorToRenderVector(Vector2r* subject)
+{	
+	subject->r *= RAD_TO_DEG; //SDL uses degrees instead of radians
+}
+void GE_PhysicsRotationToRenderRotation(double* rotation)
+{
+	(*rotation) = (*rotation)*RAD_TO_DEG;
+}
+
+/*
+Vector2 Vector2::operator=(const IntVector2& subject)
+{
+	x = static_cast<double>(subject.x);
+	y = static_cast<double>(subject.y);
+	return *this;
+}*/

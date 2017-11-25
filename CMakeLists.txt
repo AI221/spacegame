@@ -13,8 +13,44 @@ set (EXECUTABLE_OUTPUT_PATH bin)
 
 set( CMAKE_EXPORT_COMPILE_COMMANDS ON )
 
-set (CMAKE_C_COMPILER "/usr/bin/gcc")
-set (CMAKE_CXX_COMPILER "/usr/bin/g++")
+#option
+option(WINDOWS "WINDOWS" OFF)
+
+#nix
+if (NOT WINDOWS)
+	set (CMAKE_C_COMPILER "/usr/bin/gcc")
+	set (CMAKE_CXX_COMPILER "/usr/bin/g++")
+
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -g3") #-g3
+else ()
+	#win
+	set (CMAKE_SYSTEM_NAME "Windows")
+	set (CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+	set (CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+	set (CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+	set (COMPILER_PREFIX x86_64-w64-mingw32-)
+	set (CMAKE_C_COMPILER ${COMPILER_PREFIX}gcc)
+	set (CMAKE_CXX_COMPILER ${COMPILER_PREFIX}c++)
+	set (CMAKE_RC_COMPILER ${COMPILER_PREFIX}windres)
+	set (CMAKE_PKGCONFIG_EXECUTABLE ${COMPILER_PREFIX}pkg-config)
+	set (PKG_CONFIG_EXECUTABLE ${COMPILER_PREFIX}pkg-config)
+
+	#Remove the -rdynamic option that mingw doesn't like
+	set (CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
+	set (CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "") 
+
+
+	SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+
+
+	#set (TARGET_ENVIRONMENT /usr/i686-w64-mingw32)
+	set (CMAKE_FIND_ROOT_PATH ${TARGET_ENVIRONMENT})
+
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -lmingw32 -mwindows -static-libgcc -static-libstdc++ -fpermissive ")#-g3")-export-dynamic")
+
+
+
+endif ()
 
 file(GLOB spacegame_SRC
 	"src/*.h"
@@ -24,8 +60,7 @@ file(GLOB spacegame_SRC
 
 
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -g3")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g3")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
 
 
 
@@ -37,10 +72,10 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g3")
 
 # add the binary tree to the search path for include files
 # so that we will find TutorialConfig.h
-include_directories("${PROJECT_BINARY_DIR}")
+include_directories("${PROJECT_BINARY_DIR}" "include/" ) 
 
 # add the executable
-add_executable(${PROJECT_NAME} ${spacegame_SRC})
+add_executable(${PROJECT_NAME} ${spacegame_SRC} "include/jsoncpp/jsoncpp.cpp" )
 
 
 
@@ -51,14 +86,15 @@ PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2)
 PKG_SEARCH_MODULE(SDL2TTF REQUIRED SDL2_ttf>=2.0.0)
 PKG_SEARCH_MODULE(SDL2IMAGE REQUIRED SDL2_image>=2.0.0)
 
+
 find_package (Threads)
 
 
 
 
-INCLUDE_DIRECTORIES(${SDL2_INCLUDE_DIRS} ${SDL2TTF_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(${SDL2_INCLUDE_DIRS} ${SDL2TTF_INCLUDE_DIRS} )
 #NOTE THE ORDER. Threads MUST come first or you're in for hell with compiler errors
-TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT} ${SDL2_LIBRARIES} ${SDL2TTF_LIBRARIES} ${SDL2IMAGE_LIBRARIES} m) #m is the math library
+TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT} ${SDL2_LIBRARIES} ${SDL2TTF_LIBRARIES} ${SDL2IMAGE_LIBRARIES} m)  #m is the math library
 
 
 

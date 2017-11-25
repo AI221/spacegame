@@ -11,80 +11,103 @@
 #include <pthread.h>
 #include <math.h>
 #include <pthread.h>
+#include <unistd.h>
 #include <stdio.h>
-
+#include <sys/time.h>
+#include <chrono>
+#include <thread>
 #include <iostream>
 #include <functional>
 
+//Local includes
+
 #include "vector2.h"
 #include "GeneralEngineCPP.h"
+#include "gluePhysicsObject.h"
+#include "isOn.h"
 
-//#define physics_debug 
+//#define PHYSICS_DEBUG_SLOWRENDERS 
 
-#include<SDL2/SDL.h> //TODO temp
-#ifdef physics_debug
+#include <SDL2/SDL.h>
+#ifdef PHYSICS_DEBUG_SLOWRENDERS
 	//#include<SDL2/SDL.h>
 	#include "camera.h"
 	#include "renderedObject.h"
-	void GE_DEBUG_PassRendererToPhysicsEngine(SDL_Renderer* yourRenderer, Camera* yourCamera);
+	#include "debugRenders.h"
 #endif
+
 
 #ifndef __PHYSICS_INCLUDED
 #define __PHYSICS_INCLUDED
+	
+	
+extern bool DEBUG_allowPhysicsTick;
 
 //LIMITS:
-#define MAX_PHYSICS_OBJECTS 1024 //maximum ammount of physics objects in the game
+#define MAX_PHYSICS_OBJECTS 10024 //maximum ammount of physics objects in the game
 #define MAX_COLLISION_RECTANGLES_PER_OBJECT 32 //TODO: test if this is a good limit in practice
+#define MAX_GLUE_OBJECTS_PER_OBJECT 32 
 #define MAX_PHYSICS_ENGINE_DONE_CALLBACKS 64
 #define MAX_PHYSICS_ENGINE_PRE_CALLBACKS 64
 
+//RUNTIME CONFIG
+
+extern double PhysicsDelaySeconds;
 
 
-struct GE_PhysicsObject
+extern bool PhysicsEngineThreadShutdown;
+
+
+
+/*!
+ * The basic Physics object structure. It's recommended that your game objects inhereit from this, though you can do non-OO design alternatively using glueObject's buffering.
+ */
+class GE_PhysicsObject
 {
-	Vector2r position;
-	Vector2r velocity;
-	GE_Rectangle grid; //simplified version of all collisionRectangles
-	Vector2 warpedShape;
-	int ID;
-	GE_Rectangle collisionRectangles[MAX_COLLISION_RECTANGLES_PER_OBJECT];
-	int numCollisionRectangles;
-	Vector2r lastGoodPosition;
-	bool callCallbackBeforeCollisionFunction;
-	bool callCallbackAfterCollisionFunction;
+	public:
+		GE_PhysicsObject(Vector2r position, Vector2r velocity, GE_Rectangle grid, double mass);
+		virtual ~GE_PhysicsObject();
 
-	/*!
-	 * A callback upon collision
-	 * @param cObj your physics object
-	 * @param victimObj the colliding physics object
-	 * @return True if you deleted a physics object
-	 */
-	std::function< bool (GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj)> C_Collision; 
 
-	/*!
-	 * Weather or not to call the update callback
-	 */
-	bool callCallbackUpdate;
-	
-	/*!
-	 * Called during a physics tick, after position updates & collision calculations
-	 */
-	std::function< bool (GE_PhysicsObject* cObj)> C_Update;
 
-	
 
-	//The following 2 datas are for game-speific implemtations, e.g. having classes like player, enemie, or really anything. Meaning there is no standard way to use these in the engine.
-	
+		Vector2r position;
+		Vector2r velocity;
+		double mass;
+		GE_Rectangle grid; //simplified version of all collisionRectangles
+		Vector2 warpedShape;
+		int ID;
+		GE_Rectangle collisionRectangles[MAX_COLLISION_RECTANGLES_PER_OBJECT];
+		int numCollisionRectangles;
+		GE_GlueTarget* glueTargets[MAX_GLUE_OBJECTS_PER_OBJECT]; //Hold glue targets to delete them right before we're deleted //TODO this forces you to keep your glue active until you kill the physics object. This is undesired.
+		int numGlueTargets;
+		Vector2r lastGoodPosition;
+		bool callCallbackBeforeCollisionFunction;
+		bool callCallbackAfterCollisionFunction;
 
-	/*!
-	 * The type of data stored in ts. I recommend creating a enum for this, but that's game-specific.
-	 */
-	int type;
+		/*!
+		 * A callback upon collision
+		 * @param victimID the ID of the colliding physics object
+		 * @param collisionRectangleID The ID of YOUR collision rectangle that was collided with 
+		 * @return True if you want YOUR physics object to be deleted.
+		 */
+		virtual bool C_Collision(int victimID, int collisionRectangleID);
 
-	/*!
-	 * Type-specific data (e.g. Health)
-	 */
-	void* ts;
+		/*!
+		 * Weather or not to call the update callback
+		 */
+		bool callCallbackUpdate;
+		
+		/*!
+		 * Called during a physics tick, after position updates & collision calculations
+		 */
+		virtual bool C_Update();
+
+		/*!
+		 * Game-specific. Intended for specifying what type this object is. Default is 0. I'd recommend to use an enum with this.
+		 */
+		int type;
+		
 
 
 };
@@ -110,6 +133,8 @@ extern int numPhysicsTickPreCallbacks;
 
 extern bool deadPhysicsObjects[MAX_PHYSICS_OBJECTS];
 
+extern int ticknum;
+
 
 extern int sGrid[2000][2000]; //TODO: Dynamically sized arrays for both of these
 
@@ -124,7 +149,27 @@ extern int sGrid[2000][2000]; //TODO: Dynamically sized arrays for both of these
 int GE_PhysicsInit();
 
 
-GE_PhysicsObject* GE_CreatePhysicsObject(Vector2r newPosition, Vector2r newVelocity, Vector2 shape);
+/*!
+ * Create a physics object. It will be deleted upon its death, or upon physics engine shut down, but you may free it any time you like as long as PhysicsThreadMutex is locked. (or it is done during a physics tick under certain conditions)
+ */
+GE_PhysicsObject* GE_CreatePhysicsObject(Vector2r newPosition, Vector2r newVelocity, Vector2 shape,double mass);
+
+/*!
+ * Convience function that creates a new glue object, linking link to subject 's position. It will be deleted when the physics objected is freed.
+ */
+void GE_LinkVectorToPhysicsObjectPosition(GE_PhysicsObject* subject, Vector2r* link);
+
+/*!
+ * Convience function that creates a new glue object, linking link to subject 's velocity. It will be deleted when the physics objected is freed.
+ */
+void GE_LinkVectorToPhysicsObjectVelocity(GE_PhysicsObject* subject, Vector2r* link);
+
+
+/*!
+ * Link an arbitrary glue object so that it's destroyed when the linked physics object is destroyed
+ */
+void GE_LinkGlueToPhysicsObject(GE_PhysicsObject* subject, GE_GlueTarget* glue);
+
 
 
 /*!
@@ -189,12 +234,7 @@ void GE_TickPhysics();
  * The function called for every physics object, during a physics tick. In general: Don't touch this
  * @param cObj The pointer to the physics object to tick
  */ 
-void GE_TickPhysics_ForObject(GE_PhysicsObject* cObj,int ID);
-
-/*!
- * The function called when a full collision check is determined to be necessary. In general: Don't touch this
- */
-void GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj);
+bool GE_TickPhysics_ForObject(GE_PhysicsObject* cObj,int ID);
 
 /*! 
  * Frees the memory used by a physics object. 
@@ -208,6 +248,17 @@ void GE_FreePhysicsObject(GE_PhysicsObject* physicsObject); //MUST be allocated 
  * @param points An array that can contain 4 Vector2* s. 
  * @param hostPosition a Vector2r , note the r, that the GE_Rectangle rect belongs to. It is used to be added to the positions of points, and its rotation will translate them.
  */
-void GE_RectangleToPoints(GE_Rectangle rect, Vector2* points, Vector2r hostPosition);
+void GE_RectangleToPoints(GE_Rectangle rect, GE_Rectangle grid, Vector2* points, Vector2r hostPosition);
+
+Vector2r GE_InelasticCollisionVelocityExchange(Vector2r velocity1, Vector2r velocity2, double mass1, double mass2);
+
+
+Vector2 GE_GetRectangleCenterRealPosition(GE_Rectangle rectangle, Vector2r realPosition);
+
+void GE_InelasticCollision(GE_PhysicsObject* subject, Vector2 collisionPoint, Vector2r newVelocity, bool CCW);
+/*!
+ * Frees all physics objects in memory. Call on shutdown.
+ */
+void GE_ShutdownPhysicsEngine();
 
 #endif //PHYSICS_INCLUDED

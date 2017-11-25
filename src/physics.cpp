@@ -16,8 +16,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "physics.h"
 
+#ifdef PHYSICS_DEBUG_SLOWRENDERS
+
+	bool DEBUG_allowPhysicsTick = true;
+
+	bool DEBUG_isCObj = false;
+
+#endif
 
 
+//Config defaults 
+
+double PhysicsDelaySeconds = 0.16667;
+
+
+bool PhysicsEngineThreadShutdown = false;
 
 pthread_t PhysicsEngineThread;
 
@@ -30,12 +43,60 @@ bool deadPhysicsObjects[MAX_PHYSICS_OBJECTS]; //TODO shift all elements down ins
 int fakeToRealPhysicsID[MAX_PHYSICS_OBJECTS]; 
 int numFakePhysicsIDs = -1;
 
+int ticknum = 0;
+
 std::function< void ()> C_PhysicsTickDoneCallbacks[MAX_PHYSICS_ENGINE_DONE_CALLBACKS];
 int numPhysicsTickDoneCallbacks = -1;
 
 std::function< void ()> C_PhysicsTickPreCallbacks[MAX_PHYSICS_ENGINE_PRE_CALLBACKS];
 int numPhysicsTickPreCallbacks = -1;
 
+
+GE_PhysicsObject::GE_PhysicsObject(Vector2r position, Vector2r velocity, GE_Rectangle grid, double mass)
+{
+	numFakePhysicsIDs++;
+	numPhysicsObjects++;
+
+	this->position = position;
+	this->velocity = velocity;
+	this->grid = grid; //TODO automate 
+	this->mass = mass;
+
+	warpedShape = {0,0};
+
+	ID = numFakePhysicsIDs;
+
+	numCollisionRectangles = 0;
+	numGlueTargets = -1;
+
+	lastGoodPosition = position;
+
+
+	//TODO temp
+	callCallbackAfterCollisionFunction = false;
+	callCallbackBeforeCollisionFunction = false;
+
+	//end temp
+	
+	fakeToRealPhysicsID[numFakePhysicsIDs] = numPhysicsObjects;
+	physicsObjects[numPhysicsObjects] = this;
+
+	callCallbackUpdate = false;
+	type = 0;
+}
+bool GE_PhysicsObject::C_Update()
+{
+	printf("!!Shouldn't be called!!\n");
+	return false;
+}
+bool GE_PhysicsObject::C_Collision(int victimID, int collisionRectangleID)
+{
+	return false;
+}
+GE_PhysicsObject::~GE_PhysicsObject()
+{
+	printf("NORMAL REMOVAL FUNCTION\n");
+}
 
 
 
@@ -45,14 +106,12 @@ int GE_PhysicsInit()
 	pthread_create(&PhysicsEngineThread,NULL,GE_physicsThreadMain,NULL );
 	return 0;
 }
-GE_PhysicsObject* GE_CreatePhysicsObject(Vector2r newPosition, Vector2r newVelocity, Vector2 shape)
+GE_PhysicsObject* GE_CreatePhysicsObject(Vector2r newPosition, Vector2r newVelocity, Vector2 shape,double mass)
 {
 	GE_NoGreaterThan_NULL(numPhysicsObjects,MAX_PHYSICS_OBJECTS);
 	//TODO: Auto-generate shape.
 
-	numFakePhysicsIDs++;
-	numPhysicsObjects++;
-	GE_PhysicsObject* newPhysicsObject = new GE_PhysicsObject{newPosition, newVelocity, {0,0,shape.x, shape.y},{0,0},numFakePhysicsIDs,{},0,{0,0,0},false};
+	GE_PhysicsObject* newPhysicsObject = new GE_PhysicsObject(newPosition, newVelocity, {0,0,shape.x, shape.y},mass);
 
 	fakeToRealPhysicsID[numFakePhysicsIDs] = numPhysicsObjects;
 	physicsObjects[numPhysicsObjects] = newPhysicsObject;
@@ -61,7 +120,19 @@ GE_PhysicsObject* GE_CreatePhysicsObject(Vector2r newPosition, Vector2r newVeloc
 	deadPhysicsObjects[numPhysicsObjects] = false;
 	return newPhysicsObject;
 }
-
+void GE_LinkVectorToPhysicsObjectPosition(GE_PhysicsObject* subject, Vector2r* link)
+{
+	GE_LinkGlueToPhysicsObject(subject, GE_addGlueSubject(link,&subject->position,GE_PULL_ON_PHYSICS_TICK,sizeof(Vector2r)) );
+}
+void GE_LinkVectorToPhysicsObjectVelocity(GE_PhysicsObject* subject, Vector2r* link)
+{
+	GE_LinkGlueToPhysicsObject(subject, GE_addGlueSubject(link,&subject->velocity,GE_PULL_ON_PHYSICS_TICK,sizeof(Vector2r)) );
+}
+void GE_LinkGlueToPhysicsObject(GE_PhysicsObject* subject, GE_GlueTarget* glue)
+{
+	subject->numGlueTargets++;
+	subject->glueTargets[subject->numGlueTargets] = glue;
+}
 int GE_GetPhysicsObjectFromID(int fakeID, GE_PhysicsObject** physicsObjectPointer)
 {
 	if (fakeID > numFakePhysicsIDs)
@@ -80,12 +151,6 @@ int GE_GetPhysicsObjectFromID(int fakeID, GE_PhysicsObject** physicsObjectPointe
 }
  
 
-void GE_AddPhysicsObjectCollisionCallback(GE_PhysicsObject* subject, std::function< bool (GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj)> C_Collision, bool callCallbackBeforeCollisionFunction)
-{
-	subject->C_Collision = C_Collision;
-	subject->callCallbackBeforeCollisionFunction = callCallbackBeforeCollisionFunction;
-	subject->callCallbackAfterCollisionFunction = !callCallbackBeforeCollisionFunction;
-}
 int GE_AddPhysicsDoneCallback(std::function<void ()> callback)
 {
 	GE_NoGreaterThan(numPhysicsTickDoneCallbacks,MAX_PHYSICS_ENGINE_DONE_CALLBACKS);
@@ -126,15 +191,32 @@ void GE_AddRelativeVelocity(GE_PhysicsObject* physicsObject, Vector2r moreVeloci
 	physicsObject->velocity.addRelativeVelocity({moreVelocity.x,moreVelocity.y,physicsObject->position.r}); //TODO: De-OOify
 }
 
+double GE_GetUNIXTime()
+{
+	struct timeval tv;
+	gettimeofday(&tv,NULL);
+	
+	return static_cast<double>(tv.tv_sec)+(static_cast<double>(tv.tv_usec)/(static_cast<double>(10e6))); //Add the microseconds divded by 10e6 to end up with seconds.microseconds
+	//Static casting intensifies
+}
 
+
+ 
 void* GE_physicsThreadMain(void *)
 {
-	while(true)
+	double startTime, finishTime;
+	while(GE_IsOn)
 	{
-		//printf("Try lock physen\n");
-		pthread_mutex_lock(&PhysicsEngineMutex);	
-		//printf("Lock physen\n");
+
+#ifdef PHYSICS_DEBUG_SLOWRENDERS
+		if (DEBUG_allowPhysicsTick) //For freezing the physics engine
+		{
+#endif
 		
+		startTime = GE_GetUNIXTime();
+		
+		//printf("Try lock physics engine\n");
+		pthread_mutex_lock(&PhysicsEngineMutex);	
 		for (int i=0;i<numPhysicsTickPreCallbacks+1;i++)
 		{
 			C_PhysicsTickPreCallbacks[i]();
@@ -145,69 +227,92 @@ void* GE_physicsThreadMain(void *)
 			C_PhysicsTickDoneCallbacks[i]();
 		}
 		pthread_mutex_unlock(&PhysicsEngineMutex);
-		//printf("fin, wait 16ms\n");
 
-		SDL_Delay(16); //delay outside of mutex lock, else will hog the mutex and never let other sections run
+		//wait the rest of the 16.6ms
+		/*printf("time them %f time now %f\n",(float)pt.tv_usec,(float) nt.tv_usec);
+		printf("tick took %f\n",(float)(nt.tv_usec-pt.tv_usec));
+		printf("Unlock physics engine sleep for %f\n",fmax(PhysicsDelaySeconds-(nt.tv_usec-pt.tv_usec),0));*/
+		finishTime = GE_GetUNIXTime();
+		double sleepTime = fmax((PhysicsDelaySeconds-(finishTime-startTime))*10e4,0);
+
+
+		/*printf("delta time %f\n",(finishTime-startTime));
+		printf("sleep time %f\n",sleepTime);
+		printf("finish time %f\n",finishTime);*/
+		usleep(sleepTime); //delay the physics engine thread to get a perfect 16.67ms/tick
+
+		//10e4 is derrived from 10e6 (to take seconds and microseconds and produce seconds with decimals, eg. 1.656785) 
+	
+
+#ifdef PHYSICS_DEBUG_SLOWRENDERS
+		}
+		SDL_Delay(1); //prevent from taking up a whole core, sdl is available to physics engine in debug mode
+#endif
+
+		
+
 	}
+	printf("Physics Engine thread is shutting down.\n");
+	PhysicsEngineThreadShutdown = true;
+	return (void*)NULL;
 }
 
+int temp2 = 0;
 
 int numCollisionsTemp = 0;
 void GE_TickPhysics()
 {
+temp2 = 0;
+	ticknum++;
+	//printf("Physics tick #%d\n",ticknum);
 	for (int i=0;i < (numPhysicsObjects+1); i++)
 	{
 		//printf("i %d\n",i);
 		if(!deadPhysicsObjects[i])
 		{
-			printf("1 check\n");
-			GE_TickPhysics_ForObject(physicsObjects[i],i);
+			if (!GE_TickPhysics_ForObject(physicsObjects[i],i))
+			{
+				if(physicsObjects[i]->callCallbackUpdate)
+				{
+					physicsObjects[i]->C_Update();
+				}
+			}
 		}
 		//printf("x %d y %d\n",physicsObjects[i]->position.x,physicsObjects[i]->position.y);
 	}
+	//printf("this tick had %d collision full checks\n",temp2);
 }
-//TODO: Factor in the fakeID, move the sGrid-removal to a seperate function called upon physicsObject death
-void GE_TickPhysics_ForObject(GE_PhysicsObject* cObj, int ID)
+
+struct InternalResult
 {
-	printf("forobj\n");
-	//move ourselves forward
-	//first set velocity
-	
-	cObj->position = cObj->position+cObj->velocity;
-
-
-	cObj->grid.x = (int) cObj->position.x/10;
-	cObj->grid.y = (int) cObj->position.y/10;
-
-	//Calculate how the shape warps. The shape will stretch as you move faster to avoid clipping
-	cObj->warpedShape.x = ((abs(cObj->velocity.x)/10)+2)*(cObj->grid.w/10);
-	cObj->warpedShape.y = ((abs(cObj->velocity.y)/10)+2)*(cObj->grid.h/10);
-
-	for (int i=0;i < (numPhysicsObjects+1); i++)
-	{
-		//printf("i %d\n",i);
-		if(!deadPhysicsObjects[i] && i != ID)
-		{
-			GE_CollisionFullCheck(cObj,physicsObjects[i]); 
-		}
-	}
-	
-	cObj->lastGoodPosition = cObj->position;
-}
-void GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj)
+	bool deleteMe;
+	bool didCollide;
+};
+unsigned int temp;
+InternalResult GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj)
 {
+	temp++;
+	temp2++;
+	//printf("Collision full check #%d (this tick: %d)\n",temp,temp2);
+
+	Vector2 theirPoints[4] = {};
+	Vector2 myPoints[4] = {};
 	for (int a=0; a < cObj->numCollisionRectangles;a++)
 	{
 		//iterate through each of our rectangles...
 
-		Vector2 myPoints[4] = {};
-		GE_RectangleToPoints(cObj->collisionRectangles[a],myPoints,cObj->position);
+#ifdef PHYSICS_DEBUG_SLOWRENDERS
+		DEBUG_isCObj = true;
+#endif
+		GE_RectangleToPoints(cObj->collisionRectangles[a],cObj->grid,myPoints,cObj->position);
 
 		for (int b=0; b < victimObj->numCollisionRectangles;b++)
 		{
 
-			Vector2 theirPoints[4] = {};
-			GE_RectangleToPoints(victimObj->collisionRectangles[b],theirPoints,victimObj->position);
+#ifdef PHYSICS_DEBUG_SLOWRENDERS
+			DEBUG_isCObj = false;
+#endif
+			GE_RectangleToPoints(victimObj->collisionRectangles[b],victimObj->grid,theirPoints,victimObj->position);
 			
 
 			//iterate through each of my points, checking it against each victim point.
@@ -215,57 +320,114 @@ void GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj)
 			{
 				
 				
-				bool check1 = (myPoints[me].x >= theirPoints[0].x) && (myPoints[me].y >= theirPoints[0].y);
-				bool check2 = (myPoints[me].x <= theirPoints[3].x) && (myPoints[me].y <= theirPoints[3].y);
+				/*bool check0 = (myPoints[me].x >= theirPoints[0].x) && (myPoints[me].y >= theirPoints[0].y);
+				bool check1 = true;//(myPoints[me].x >= theirPoints[1].x) && (myPoints[me].y <= theirPoints[1].y);
+				bool check2 = (myPoints[me].x <= theirPoints[2].x) && (myPoints[me].y >= theirPoints[2].y);
+				bool check3 = true;//(myPoints[me].x <= theirPoints[3].x) && (myPoints[me].y >= theirPoints[3].y);*/
 
-				if (check1 && check2)
+				bool check = false;
+
+				//Algorithm credits: Raymond Manzoni (https://math.stackexchange.com/users/21783/raymond-manzoni), How to check if a point is inside a rectangle?, URL (version: 2012-09-03): https://math.stackexchange.com/q/190373
+
+				Vector2 AM = myPoints[me]-theirPoints[0]; //M-A
+				Vector2 AB = theirPoints[1]-theirPoints[0];
+				Vector2 AD = theirPoints[2]-theirPoints[0]; //bottom-left minus top left
+
+				/*printf("AM %f,%f\n",AM.x,AM.y);
+				printf("dot %f\n",GE_Dot(AM,AB));
+				printf("check pt1 %d\n",( 0.0 < GE_Dot(AM,AB) < GE_Dot(AB,AB) ));*/
+
+				double AMAB = GE_Dot(AM,AB);
+				double AMAD = GE_Dot(AM,AD);
+
+				check = ( ( 0.0 < AMAB ) && ( AMAB < GE_Dot(AB,AB) ) && ( 0.0 < AMAD ) && ( AMAD < GE_Dot(AD,AD) ) ) ;
+
+
+				
+
+				if (check)
 				{
+					bool killMe = false;
+					bool doReturn = false;
 					if (cObj->callCallbackBeforeCollisionFunction)
 					{
-						if (cObj->C_Collision(cObj,victimObj))
-						{
-							return;
-						}
+						killMe = cObj->C_Collision(victimObj->ID,a);
+						doReturn = true;
+						printf("cobj wants before\n");
 					}
 					if (victimObj->callCallbackBeforeCollisionFunction)
 					{
-						if (victimObj->C_Collision(victimObj,cObj))
+						if(victimObj->C_Collision(cObj->ID,b))
 						{
-							return;
+							printf("victim die\n");
+							GE_FreePhysicsObject(victimObj);
 						}
-
+						doReturn = true;
+						printf("victim wants before\n");
 					}
+					if (killMe)
+					{
+						printf("cobj die\n");
+						GE_FreePhysicsObject(cObj); 
+						return {true,true};
+					}
+					
+					if (doReturn)
+					{
+						printf("no die\n");
+						return {false,false};
+					} 
+				
 					numCollisionsTemp++;
 					std::cout << "FULL COLLISION DETECTED #" << numCollisionsTemp << std::endl;
 
-					Vector2r newVelocity;
 					cObj->position = cObj->lastGoodPosition;
+
 					victimObj->position = victimObj->lastGoodPosition;
 
 
-					Vector2r cObjsVelocity = cObj->velocity;
-					cObj->velocity = victimObj->velocity;
-					victimObj->velocity = cObjsVelocity;
+
+					//TODO: Add the inverse of the speed given to the other object in order to hace conservation of energy (specifically: not duplicating the energy transfered).
+
+					Vector2r cObjVelocity = cObj->velocity;
+					
+					Vector2r newVelocity = ((victimObj->velocity*victimObj->mass)/cObj->mass)/2;
+
+					GE_InelasticCollision(cObj,myPoints[me],newVelocity,false);
+					
+					//newVelocity = cObjVelocity*cObj->mass;//GE_InelasticCollisionVelocityExchange(cObj->velocity,victimObj->velocity,cObj->mass,victimObj->mass);
+					newVelocity = ((cObjVelocity*cObj->mass)/victimObj->mass)/2;
+					
+					GE_InelasticCollision(victimObj,myPoints[me],newVelocity,true);
+
+
+
+
+
 
 
 					//TODO: is it possible that the object order (the victimObj's tick might not have occured yet) could be causing our troubles?
 
 					if (cObj->callCallbackAfterCollisionFunction)
 					{
-						if (cObj->C_Collision(cObj,victimObj))
-						{
-							return;
-						}
+						killMe = cObj->C_Collision(victimObj->ID,a); //reuse of variable; okay because of the return
+						
 					}
 					if (victimObj->callCallbackAfterCollisionFunction)
 					{
-						if (victimObj->C_Collision(victimObj,cObj))
+						if(victimObj->C_Collision(cObj->ID,b))
 						{
-							return;
+							GE_FreePhysicsObject(victimObj);
+							printf("~~~~~Kill      them\n");
 						}
-
 					}
-					return;
+					if (killMe)
+					{
+						printf("~~~~~KillMe\n");
+						GE_FreePhysicsObject(cObj);
+						return {true,true};
+					}
+					return {false,true};
 				}
 				else
 				{
@@ -275,29 +437,115 @@ void GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj)
 			}
 		}
 	}
+	return {false,false};
 }
+InternalResult GE_TickPhysics_ForObject_Internal(GE_PhysicsObject* cObj, int ID, Vector2r* velocity)
+{
+	//move ourselves forward
+	//first set velocity
+	
+	cObj->position = cObj->position+(*velocity);
+
+
+	cObj->grid.x = (int) (cObj->position.x/10);
+	cObj->grid.y = (int) (cObj->position.y/10);
+
+	//Marked for removal, old code related to sGrid system	
+	//Calculate how the shape warps. The shape will stretch as you move faster to avoid clipping
+	//cObj->warpedShape.x = ((abs(cObj->velocity.x)/10)+2)*(cObj->grid.w/10);
+	//cObj->warpedShape.y = ((abs(cObj->velocity.y)/10)+2)*(cObj->grid.h/10);
+
+
+
+	for (int i=0;i < (numPhysicsObjects+1); i++)
+	{
+		//printf("i %d\n",i);
+		if(!deadPhysicsObjects[i] && i != ID)
+		{
+			GE_PhysicsObject* victimObj = physicsObjects[i];
+			double maxSize = std::max(cObj->grid.w, cObj->grid.h);
+			double theirMaxSize = std::max(victimObj->grid.w, victimObj->grid.h);
+			if ( ( cObj->position.x+maxSize >= victimObj->position.x-theirMaxSize) && (cObj->position.x-maxSize <= victimObj->position.x+theirMaxSize) && (cObj->position.y+maxSize >= victimObj->position.y-theirMaxSize) && (cObj->position.y-maxSize <=victimObj->position.y+theirMaxSize)
+#ifdef PHYSICS_DEBUG_SLOWRENDERS
+|| true
+#endif
+					
+			)
+			{
+				InternalResult result = GE_CollisionFullCheck(cObj,physicsObjects[i]);
+				if (result.deleteMe)
+				{
+					return {true,true};	
+				}
+				else if (result.didCollide)
+				{
+					return {true,false};
+				}
+			}
+		}
+	}
+	
+	cObj->lastGoodPosition = cObj->position;
+	return {false,false};
+}
+bool GE_TickPhysics_ForObject(GE_PhysicsObject* cObj, int ID)
+{
+	//To avoid Clipping/"Bullet through paper" effect, we will slow down the physics simulation for a specific object by an unsigned nonzero integer and then slow down velocity accordingly. The user SHOULD NOT be able to tell any of this is happening. For performance, velocity is passed as a pointer to the internal function.
+	
+	unsigned int miniTickrate = fmax(ceil(  ((abs(cObj->velocity.x)+abs(cObj->velocity.y))/20) ),1.0); //minimum of 1. //TODO adjust this to good value
+	
+	
+	Vector2r* velocity = new Vector2r{cObj->velocity.x/miniTickrate, cObj->velocity.y/miniTickrate, cObj->velocity.r/miniTickrate};
+
+	//printf("MINITICKRATE: %d\n,",miniTickrate);
+
+
+	for (int i = 0; i <= miniTickrate; i++)
+	{//TODO: Because of this mini-tick system, objects that collide with a i/miniTickrate value of <1 will have non-up-to-date velocities being added. 
+		InternalResult result = GE_TickPhysics_ForObject_Internal(cObj,ID,velocity); 
+		if (result.deleteMe)
+		{
+			printf("deleteme\n");
+			return true;
+		}
+		else if (result.didCollide)
+		{
+			printf("BREAK but not\n");
+			//break;
+			velocity = new Vector2r{cObj->velocity.x/miniTickrate, cObj->velocity.y/miniTickrate, cObj->velocity.r/miniTickrate};
+		}
+	}
+	delete velocity;
+	return false;
+
+}
+
 
 
 void GE_FreePhysicsObject(GE_PhysicsObject* physicsObject) //MUST be allocated with new
 {
-	deadPhysicsObjects[physicsObject->ID] = true;
+	printf("I AM DELETING FAKEID #%d\n",physicsObject->ID);
+	printf("num glues %d",physicsObject->numGlueTargets);
+
+
+	int realID = fakeToRealPhysicsID[physicsObject->ID];
+
+	fakeToRealPhysicsID[physicsObject->ID] = -1; //indicate we're dead first 
+	deadPhysicsObjects[realID] = true; 
+
+	for (int i=0;i<=physicsObject->numGlueTargets;i++)
+	{
+		printf("le %d\n",i);
+		GE_FreeGlueObject(physicsObject->glueTargets[i]);
+		physicsObject->glueTargets[i] = NULL;
+	}
+	printf("Deleting physics object itself...\n");
 	delete physicsObject;
+	printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1test\n");
 }
 
-#ifdef physics_debug
 
-	SDL_Renderer* debugRenderer;
-	Camera* debugCamera;
-
-	void GE_DEBUG_PassRendererToPhysicsEngine(SDL_Renderer* yourRenderer, Camera* yourCamera)
-	{
-		debugRenderer = yourRenderer;
-		debugCamera = yourCamera;
-	}
-#endif
-
-
-void GE_RectangleToPoints(GE_Rectangle rect, Vector2* points, Vector2r hostPosition) 
+void GE_RectangleToPoints(GE_Rectangle rect, GE_Rectangle grid, Vector2* points, Vector2r hostPosition) 
 {
 		
 	//Points make collision checking easy because you cannot rotate a point in space (or rather, rotating it would have no effect)
@@ -307,8 +555,8 @@ void GE_RectangleToPoints(GE_Rectangle rect, Vector2* points, Vector2r hostPosit
 	points[2] = {rect.x , rect.y+rect.h}; //bottom left
 	points[3] = {rect.x+rect.w , rect.y+rect.h}; //bottom right
 
-	double halfrectw = rect.w/2;
-	double halfrecth = rect.h/2;
+	double halfrectw = grid.w/2;//rect.w/2; //TODO I think this needs to be the size of the full object?
+	double halfrecth = grid.h/2;//rect.h/2;
 	for (int i =0; i < 4; i++)
 	{
 		points[i].x -= halfrectw;
@@ -318,11 +566,15 @@ void GE_RectangleToPoints(GE_Rectangle rect, Vector2* points, Vector2r hostPosit
 		points[i].y += halfrecth+hostPosition.y;
 
 
-		#ifdef physics_debug
+		#ifdef PHYSICS_DEBUG_SLOWRENDERS
 
 			pthread_mutex_lock(&RenderEngineMutex);
 			//note that the physics debugRender does NOT include rotation of the screen, and probably never will. it is good enough for its purpose.
-			SDL_SetRenderDrawColor( debugRenderer, 0xFF, 0xFF, 0x00, 0xFF ); 
+			SDL_SetRenderDrawColor( GE_DEBUG_Renderer, 0xFF, 0x00, 0x00, 0xFF ); 
+			if (DEBUG_isCObj)
+				SDL_SetRenderDrawColor( GE_DEBUG_Renderer, 0xFF, 0xFF, 0x00, 0xFF ); 
+
+			SDL_SetRenderDrawColor( GE_DEBUG_Renderer, 0xFF, rect.w*3,rect.h*3, 0xFF ); 
 
 			SDL_Rect debugRect;
 
@@ -335,12 +587,70 @@ void GE_RectangleToPoints(GE_Rectangle rect, Vector2* points, Vector2r hostPosit
 			debugRect.x -=1;
 			debugRect.y -=1;
 
-			debugRect.x -= (debugCamera->pos.x-debugCamera->screenWidth/2);
-			debugRect.y -= (debugCamera->pos.y-debugCamera->screenHeight/2);
+			debugRect.x -= (GE_DEBUG_Camera->pos.x-GE_DEBUG_Camera->screenWidth/2);
+			debugRect.y -= (GE_DEBUG_Camera->pos.y-GE_DEBUG_Camera->screenHeight/2);
 
-			SDL_RenderFillRect( debugRenderer, &debugRect ); 
+			SDL_RenderFillRect( GE_DEBUG_Renderer, &debugRect ); 
 			pthread_mutex_unlock(&RenderEngineMutex);
 		#endif
 
 	}
+}
+
+Vector2r GE_InelasticCollisionVelocityExchange(Vector2r velocity1, Vector2r velocity2, double mass1, double mass2) 
+{
+	return Vector2r{(mass1*velocity1.x+mass2*velocity2.x)/(mass1+mass2),(mass1*velocity1.y+mass2*velocity2.y)/(mass1+mass2),0};
+}
+
+Vector2 GE_GetRectangleCenterRealPosition(GE_Rectangle rectangle, Vector2r realPosition)
+{
+	return Vector2{rectangle.x+realPosition.x+(rectangle.w/2),rectangle.y+realPosition.y+(rectangle.h/2)};
+}
+
+void GE_InelasticCollision(GE_PhysicsObject* subject, Vector2 collisionPoint, Vector2r newVelocity, bool CCW) //TODO deg rad fixes
+{
+	printf("b4newVelocity %f, %f, %f\n",newVelocity.x,newVelocity.y,newVelocity.r);
+	//newVelocity = newVelocity - subject->velocity;
+	printf("velocity real %f, %f, %f\n",subject->velocity.x,subject->velocity.y,subject->velocity.r);
+	printf("newVelocity %f, %f, %f\n",newVelocity.x,newVelocity.y,newVelocity.r);
+
+	//find the point of collision
+	
+	//Vector2 collisionPoint = myPoints[me];
+
+	printf("collisionPoint %f,%f\n",collisionPoint.x,collisionPoint.y);
+
+
+	//find the angle to apply the velocity at
+	
+	Vector2 centerPoint = GE_GetRectangleCenterRealPosition(subject->grid, subject->position);
+
+	printf("centerPoint %f,%f\n",centerPoint.x,centerPoint.y);
+
+	double adjacent = std::cos(std::abs(collisionPoint.x-centerPoint.x)/(GE_Distance(collisionPoint,centerPoint)));
+
+
+	//adjacent *= RAD_TO_DEG;
+
+	printf("adjacent %f\n",adjacent);
+
+	//subject->velocity = Vector2r{0,0,0};
+	if (!CCW) adjacent += M_PI; //TODO temp
+	subject->velocity.addRelativeVelocity(Vector2r{newVelocity.x,newVelocity.y,adjacent});
+	
+	printf("new velocity real %f, %f, %f\n",subject->velocity.x,subject->velocity.y,subject->velocity.r);
+}
+
+void GE_ShutdownPhysicsEngine()
+{
+	pthread_mutex_lock(&PhysicsEngineMutex);
+	for (int i=0;i < (numPhysicsObjects+1); i++)
+	{
+		if (!deadPhysicsObjects[i])
+		{
+			GE_FreePhysicsObject(physicsObjects[i]);
+			deadPhysicsObjects[i] = true;
+		}
+	}
+	pthread_mutex_unlock(&PhysicsEngineMutex);
 }

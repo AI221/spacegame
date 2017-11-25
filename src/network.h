@@ -6,8 +6,13 @@
  */
 #include <stdio.h> 
 #include <string.h>   
+#include "GeneralEngineCPP.h"
 
 //net includes
+#ifdef outdatedOS
+
+#else
+
 #include <unistd.h>  
 #include <netinet/in.h> 
 #include <stdlib.h> 
@@ -15,11 +20,19 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 
+#endif //outdatedOS
+
 #include <string>
 
 
 #ifndef __NETWORK_INCLUDED
 #define __NETWORK_INCLUDED 
+
+#ifdef outdatedOS
+
+#else
+
+#define NETWORKING_ENABLED
 
 /*!
  * A TCP socket abstraction
@@ -92,5 +105,7 @@ int GE_Write(GE_NetworkSocket* cSocket, char* buffer, size_t buffersize);
  * @param socket The network socket to free
  */
 void GE_FreeNetworkSocket(GE_NetworkSocket* socket);
+
+#endif //outdatedOS
 
 #endif // __NETWORK_INCLUDED

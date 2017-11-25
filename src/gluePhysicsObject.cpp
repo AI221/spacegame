@@ -17,72 +17,43 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "gluePhysicsObject.h"
 
-GE_GlueTarget targets[MAX_GLUE_TARGETS];
-Vector2r positionBuffer[MAX_GLUE_TARGETS];
-Vector2r velocityBuffer[MAX_GLUE_TARGETS];
+GE_GlueTarget* targets[MAX_GLUE_TARGETS];
+bool deadTargets[MAX_GLUE_TARGETS];
 int countGlueTargets = -1;
 
 pthread_mutex_t GlueMutex;
 
-int GE_GlueInit()
-{
-	GE_AddPhysicsPreCallback(GE_GluePreCallback);
-	GE_AddPhysicsDoneCallback(GE_GlueCallback);
 
-	return 0;
-}
 void GE_GluePreCallback()
 {
 	//TODO mutexes
+	pthread_mutex_lock(&GlueMutex);
 	
-	GE_PhysicsObject* cObj;
 	for (int i = 0; i < countGlueTargets+1; i++)
 	{
-		if (GE_GetPhysicsObjectFromID(targets[i].physicsObjectID,&cObj) == 0) 
+		if (!deadTargets[i])
 		{
-			if(targets[i].typeAddPosition == GE_ADD_TYPE_NORM)
+			if (targets[i]->pullOn == GE_PULL_ON_RENDER)
 			{
-				GE_AddVelocity(cObj,targets[i].addPosition);
+				memcpy(targets[i]->updateData,targets[i]->buffer,targets[i]->sizeOfPullData); //Copy from the buffer to the updated value
 			}
-
-			if(targets[i].typeAddVelocity == GE_ADD_TYPE_NORM)
-			{
-				GE_AddVelocity(cObj,targets[i].addVelocity);
-			}
-			else if (targets[i].typeAddVelocity == GE_ADD_TYPE_RELATIVE)
-			{
-				GE_AddRelativeVelocity(cObj,targets[i].addVelocity);
-			}
-			targets[i].typeAddVelocity = GE_ADD_TYPE_NONE;
-			targets[i].typeAddPosition = GE_ADD_TYPE_NONE;
 		}
 	}
-			
-		
+	pthread_mutex_unlock(&GlueMutex);
 }
 void GE_GlueCallback()
 {
 	//printf("try lock render\n");
 	pthread_mutex_lock(&GlueMutex);
 	//printf("lock render\n");
-	GE_PhysicsObject* cObj;
 	for (int i = 0; i < countGlueTargets+1; i++)
 	{
-		if (GE_GetPhysicsObjectFromID(targets[i].physicsObjectID,&cObj) == 0) //if no error from getting the ID
+		if (!deadTargets[i])
 		{
-			//(*(targets[i].subject)) = cObj->position;
-			
-			positionBuffer[i] = cObj->position;
-			velocityBuffer[i] = cObj->velocity;
-			//printf("X: %f \n",targets[i].subject->x);
-			
-			//transfer new velocities/positions
-			
-
-		}
-		else
-		{
-			printf("[temp err - handle] failed to get po from id\n");
+			if (targets[i]->pullOn == GE_PULL_ON_PHYSICS_TICK)
+			{
+				memcpy(targets[i]->buffer,targets[i]->pullData,targets[i]->sizeOfPullData);//Copy to the buffer the pulled data
+			}
 		}
 		
 	}
@@ -94,26 +65,41 @@ void GE_GlueRenderCallback()
 	pthread_mutex_lock(&GlueMutex);
 	for (int i = 0; i < countGlueTargets+1; i++)
 	{
-		(*(targets[i].subject)) = positionBuffer[i];
+		if (!deadTargets[i])
+		{
+			if (targets[i]->pullOn == GE_PULL_ON_PHYSICS_TICK)
+			{
+				memcpy(targets[i]->updateData,targets[i]->buffer,targets[i]->sizeOfPullData);//Copy to the update data from the buffer
+			}
+			else if (targets[i]->pullOn == GE_PULL_ON_RENDER)
+			{
+				memcpy(targets[i]->buffer,targets[i]->pullData,targets[i]->sizeOfPullData);//Copy to the buffer the pulled data
+			}
+		}
+
 	}
 	pthread_mutex_unlock(&GlueMutex);
 }
-int GE_addGlueSubject(Vector2r* subject, int physicsID)
+GE_GlueTarget* GE_addGlueSubject(void* updateData, void* pullData, GE_PULL_ON pullOn, size_t sizeOfPullData)
 {
-	GE_NoGreaterThan(countGlueTargets,MAX_GLUE_TARGETS);
-	targets[countGlueTargets+1] = GE_GlueTarget{subject, physicsID,NULL,GE_ADD_TYPE_NONE,NULL,GE_ADD_TYPE_NONE};
-	countGlueTargets++;
-	return 0;
+	GE_NoGreaterThan_NULL(countGlueTargets,MAX_GLUE_TARGETS);
+	void* bufferAlloc = malloc(sizeOfPullData);//allocate a buffer of size sizeOfPullData to store the data in between taking it after one source runs and copying it before another one runs. c++ doesn't seem to have a delete function for operator new that I can find, so I will use malloc here.
+
+
+	int newGlueID = countGlueTargets+1;
+	GE_GlueTarget* newGlue = new GE_GlueTarget{updateData, pullData,pullOn,sizeOfPullData,bufferAlloc,newGlueID};
+	memcpy(newGlue->buffer,newGlue->pullData,newGlue->sizeOfPullData);//Copy to the buffer the pulled data - we need to do this to avoid potentially writing an unitialized value to the buffer
+	targets[newGlueID] = newGlue;
+	countGlueTargets++; //NOTE: This is assumed to be an atomic operation and thus be thread-safe to write while other threads are reading. This is true for x86.
+	return newGlue;
 }
 
-void GE_glueAddVelocity(int targetID, Vector2r ammount, GE_ADD_TYPE type)
+void GE_FreeGlueObject(GE_GlueTarget* subject)
 {
-	targets[targetID].addVelocity = ammount;
-	targets[targetID].typeAddVelocity = type;
-}
-
-void GE_glueAddPosition(int targetID, Vector2r ammount, GE_ADD_TYPE type)
-{
-	targets[targetID].addPosition = ammount;
-	targets[targetID].typeAddPosition = type;
+	pthread_mutex_lock(&GlueMutex);
+	printf("KILL GLUE OBJECT %d\n",subject->ID);
+	deadTargets[subject->ID] = true;
+	free(subject->buffer);
+	delete subject;
+	pthread_mutex_unlock(&GlueMutex);
 }

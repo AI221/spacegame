@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "camera.h"
 
 
-Vector2r GE_ApplyCameraOffset(Camera* camera, Vector2r subject)
+Vector2r GE_ApplyCameraOffset(Camera* camera, Vector2r subject, Vector2 size)
 {
 	
 	/*double sin_angle = sin((camera->pos.r/DEG_TO_RAD));
@@ -28,20 +28,20 @@ Vector2r GE_ApplyCameraOffset(Camera* camera, Vector2r subject)
 	newPosition.y = ((subject->x-camera->pos.x))*sin_angle + ((subject->y-camera->pos.y))*cos_angle;*/
 
 
-	subject.x -= camera->pos.x;
-	subject.y -= camera->pos.y;
+	subject.x = (subject.x-camera->pos.x)+(size.x/2);
+	subject.y = (subject.y-camera->pos.y)+(size.y/2);
 
 
 	GE_Vector2Rotation(&subject,camera->pos.r);
 
-	subject.x += (camera->screenWidth)/2;
-	subject.y += (camera->screenHeight)/2;
+	subject.x = (subject.x+(camera->screenWidth/2))-(size.x/2);
+	subject.y = (subject.y+(camera->screenHeight/2))-(size.y/2);
 
-	subject.r = (camera->pos.r-360)-subject.r; //last newPosition.r might not be correct
+	subject.r = (camera->pos.r)-subject.r; //last newPosition.r might not be correct //TODO ensure correct
 
-	subject.r -= floor(subject.r/360)*360;
 
 	return subject;
 
 
 }
+

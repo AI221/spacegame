@@ -1,6 +1,0 @@
-<map id="PhysicsObject" name="PhysicsObject">
-<area shape="rect" id="node2" href="$structVector2r.html" title="Vector2r" alt="" coords="5,5,76,32"/>
-<area shape="rect" id="node3" href="$structVector2.html" title="Vector2" alt="" coords="142,5,209,32"/>
-<area shape="rect" id="node4" href="$structRectangle.html" title="Rectangle" alt="" coords="249,5,331,32"/>
-<area shape="rect" id="node5" href="$structGridInfo.html" title="GridInfo" alt="" coords="404,5,472,32"/>
-</map>

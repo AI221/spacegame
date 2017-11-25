@@ -7,9 +7,7 @@
 #include "GeneralEngineCPP.h"
 #ifdef outdatedOS
 
-#include "windows.h"
-#include <stdio.h>
-#include <regex>
+# include <windows.h>
 
 #else
 
@@ -18,8 +16,11 @@
 
 #endif
 
+#include <SDL2/SDL.h>
+#include <stdio.h>
 #include <vector>
 #include <string>
+#include <regex>
 
 #ifndef __DIRLIST_INCLUDED
 #define __DIRLIST_INCLUDED
@@ -54,6 +55,8 @@ std::string GE_ReverseSlashes(std::string victim);
  * Gets file extension. From https://stackoverflow.com/questions/10389983/how-to-get-file-suffix-in-c#10390104
  */
 char* GE_GetFileExtension(char* fullfilename);
+
+std::string GE_ReadAllFromFile(const char* fullfilename);
 
 #endif //__DIRLIST_INCLUDED
 
