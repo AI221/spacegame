@@ -18,6 +18,10 @@
 #include <thread>
 #include <iostream>
 #include <functional>
+#include <map>
+#include <vector>
+#include <unordered_map>
+#include <list>
 
 //Local includes
 
@@ -28,9 +32,8 @@
 
 //#define PHYSICS_DEBUG_SLOWRENDERS 
 
-#include <SDL2/SDL.h>
 #ifdef PHYSICS_DEBUG_SLOWRENDERS
-	//#include<SDL2/SDL.h>
+	#include<SDL2/SDL.h>
 	#include "camera.h"
 	#include "renderedObject.h"
 	#include "debugRenders.h"
@@ -44,11 +47,15 @@
 extern bool DEBUG_allowPhysicsTick;
 
 //LIMITS:
-#define MAX_PHYSICS_OBJECTS 10024 //maximum ammount of physics objects in the game
 #define MAX_COLLISION_RECTANGLES_PER_OBJECT 32 //TODO: test if this is a good limit in practice
 #define MAX_GLUE_OBJECTS_PER_OBJECT 32 
 #define MAX_PHYSICS_ENGINE_DONE_CALLBACKS 64
 #define MAX_PHYSICS_ENGINE_PRE_CALLBACKS 64
+
+
+//CONFIGS
+
+#define PHYSICS_AREA_SIZE 500
 
 //RUNTIME CONFIG
 
@@ -57,6 +64,13 @@ extern double PhysicsDelaySeconds;
 
 extern bool PhysicsEngineThreadShutdown;
 
+
+
+
+#define physics_area_single_coord_t long long int
+#define physics_area_coord_t std::pair<physics_area_single_coord_t,physics_area_single_coord_t>
+#define physics_area_t std::list<GE_PhysicsObject*>
+#define physics_object_area_list_t std::list<physics_area_t*>
 
 
 /*!
@@ -91,7 +105,7 @@ class GE_PhysicsObject
 		 * @param collisionRectangleID The ID of YOUR collision rectangle that was collided with 
 		 * @return True if you want YOUR physics object to be deleted.
 		 */
-		virtual bool C_Collision(int victimID, int collisionRectangleID);
+		virtual bool C_Collision(GE_PhysicsObject* victim, int collisionRectangleID);
 
 		/*!
 		 * Weather or not to call the update callback
@@ -104,6 +118,14 @@ class GE_PhysicsObject
 		virtual bool C_Update();
 
 		/*!
+		 * Which area(s) the physics object is in the world (basically, a cached value you don't have to worry about)
+		 */
+		physics_object_area_list_t areas;
+
+		
+		
+
+		/*!
 		 * Game-specific. Intended for specifying what type this object is. Default is 0. I'd recommend to use an enum with this.
 		 */
 		int type;
@@ -112,18 +134,13 @@ class GE_PhysicsObject
 
 };
 
-
 extern pthread_t PhysicsEngineThread;
 
 extern pthread_mutex_t PhysicsEngineMutex;
 
-	//pthread_create(&GlueThread,NULL,GE_glueThreadMain,NULL);
 
-extern GE_PhysicsObject* physicsObjects[MAX_PHYSICS_OBJECTS];
+extern std::list<GE_PhysicsObject*> physicsObjects;
 extern int numPhysicsObjects; 
-
-extern int fakeToRealPhysicsID[MAX_PHYSICS_OBJECTS]; 
-extern int numFakePhysicsIDs;
 
 extern std::function< void ()> C_PhysicsTickDoneCallbacks[MAX_PHYSICS_ENGINE_DONE_CALLBACKS];
 extern int numPhysicsTickDoneCallbacks;
@@ -131,15 +148,9 @@ extern int numPhysicsTickDoneCallbacks;
 extern std::function< void ()> C_PhysicsTickPreCallbacks[MAX_PHYSICS_ENGINE_PRE_CALLBACKS];
 extern int numPhysicsTickPreCallbacks;
 
-extern bool deadPhysicsObjects[MAX_PHYSICS_OBJECTS];
 
 extern int ticknum;
 
-
-extern int sGrid[2000][2000]; //TODO: Dynamically sized arrays for both of these
-
-//extern int collisionSpots[2000][1]; 
-//extern int nextCollisionSpot;
 
 
 
@@ -147,12 +158,6 @@ extern int sGrid[2000][2000]; //TODO: Dynamically sized arrays for both of these
  * Spawns a new thread containing the physics engine. 
 */
 int GE_PhysicsInit();
-
-
-/*!
- * Create a physics object. It will be deleted upon its death, or upon physics engine shut down, but you may free it any time you like as long as PhysicsThreadMutex is locked. (or it is done during a physics tick under certain conditions)
- */
-GE_PhysicsObject* GE_CreatePhysicsObject(Vector2r newPosition, Vector2r newVelocity, Vector2 shape,double mass);
 
 /*!
  * Convience function that creates a new glue object, linking link to subject 's position. It will be deleted when the physics objected is freed.
@@ -170,17 +175,6 @@ void GE_LinkVectorToPhysicsObjectVelocity(GE_PhysicsObject* subject, Vector2r* l
  */
 void GE_LinkGlueToPhysicsObject(GE_PhysicsObject* subject, GE_GlueTarget* glue);
 
-
-
-/*!
- * Success: Gives you the physics object an ID is pointing to
- *
- * Failure: Doesn't touch your pointer, returns error code>0
- * @return 0: Success 1: Object is dead or otherwise doesn't exist.
- * @param fakeID The ID of the physics object 
- * @param physicsObjectPointer - A pointer to a pointer of a physics object. This will modify the pointer of a physics object.
- */
-int GE_GetPhysicsObjectFromID(int fakeID, GE_PhysicsObject** physicsObjectPointer);
 
 /*!
  * Adds a callback which will be ran after each physics tick. Used by the engine itself for gluing things to the physics engine.
@@ -234,7 +228,7 @@ void GE_TickPhysics();
  * The function called for every physics object, during a physics tick. In general: Don't touch this
  * @param cObj The pointer to the physics object to tick
  */ 
-bool GE_TickPhysics_ForObject(GE_PhysicsObject* cObj,int ID);
+bool GE_TickPhysics_ForObject(GE_PhysicsObject* cObj);
 
 /*! 
  * Frees the memory used by a physics object. 

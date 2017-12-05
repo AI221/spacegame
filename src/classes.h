@@ -68,6 +68,8 @@ class Subsystem
 	private:
 		SDL_Renderer* renderer; 
 		GE_RenderedObject* renderObject;
+		int renderObjectID;
+
 		std::string spriteName;
 		Vector2r relativePosition;
 		int collisionRectangle;
@@ -86,7 +88,7 @@ class Player : public GE_PhysicsObject
 		Player(SDL_Renderer* renderer);
 		~Player();
 		bool C_Update();
-		bool C_Collision(int victimID, int collisionRectangleID);
+		bool C_Collision(GE_PhysicsObject* victim, int collisionRectangleID);
 		bool GetIsOnline();
 		Subsystem* iterableSubsystems[MAX_SUBSYSTEMS];
 		int numIterableSubsystems;
@@ -117,7 +119,7 @@ class Enemie : public GE_PhysicsObject
 		Enemie(SDL_Renderer* renderer, Vector2r position, int level);
 		~Enemie();
 		bool C_Update();
-		bool C_Collision(int victimID, int collisionRectangleID);
+		bool C_Collision(GE_PhysicsObject* victim, int collisionRectangleID);
 	private:
 		int renderObjectID;
 		GE_RenderedObject* renderObject;
@@ -135,9 +137,8 @@ class BulletType : public GE_PhysicsObject
 		BulletType(Vector2r position, Vector2r velocity, GE_Rectangle grid, double mass);
 		~BulletType();
 		int level;
-		bool C_Collision(int victimID, int collisionRectangleID);
+		bool C_Collision(GE_PhysicsObject* victim, int collisionRectangleID);
 	private:
-		int renderObjectID;
 		GE_RenderedObject* renderObject;
 		
 

@@ -51,5 +51,8 @@ void GE_Shutdown()
 	GE_FreeAllSprites();
 	printf("UI\n");
 	GE_ShutdownUI();
+	printf("RenderedObject\n");
+	GE_ShutdownRenderedObject();
+
 
 }

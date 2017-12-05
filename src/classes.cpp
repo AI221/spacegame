@@ -8,7 +8,7 @@ Subsystem::Subsystem(SDL_Renderer* renderer, std::string sprite, Vector2 size, G
 	this->renderer = renderer;
 	renderObject = GE_CreateRenderedObject(renderer,sprite); //TODO
 	this->spriteName = sprite;
-	pthread_mutex_lock(&RenderEngineMutex);
+	this->renderObjectID=numRenderedObjects;
 
 	renderObject->grid = *parrentGrid;
 	printf("Size: %f\n ",size.x);
@@ -16,7 +16,6 @@ Subsystem::Subsystem(SDL_Renderer* renderer, std::string sprite, Vector2 size, G
 
 	renderObject->size = size;
 	renderObject->animation = animation;
-	pthread_mutex_unlock(&RenderEngineMutex);
 
 	this->relativePosition = relativePosition;
 
@@ -102,7 +101,8 @@ void Subsystem::SetLevel(int level)
 		
 Subsystem::~Subsystem()
 {
-	delete glueTarget;
+	GE_ScheduleFreeRenderedObject(renderObject);
+	GE_FreeGlueObject(glueTarget);
 }
 
 
@@ -226,8 +226,6 @@ void ShootBullet(SDL_Renderer* renderer, GE_PhysicsObject* host, Vector2r addToV
 	addToPosition.y = addToPosition.y + host->grid.h/2;
 
 	StdBullet* mybullet = new StdBullet(renderer,host->position+addToPosition,(isPlayer) ? ("stdBulletPlayer") : ("stdBulletEnemy"));
-	GE_PhysicsObject* mybulletpo;
-	GE_GetPhysicsObjectFromID(mybullet->ID,&mybulletpo);
 
 	addToVelocity.x += host->velocity.x; //avoid use of vector addition because we don't want the rotation to be added.
 	addToVelocity.y += host->velocity.y;
@@ -271,7 +269,7 @@ bool Player::C_Update()
 				{
 					keysHeld[event.key.keysym.sym] = true;
 				}
-				if(event.key.keysym.sym == SDLK_SPACE && ticknum >= nextTickCanShoot )
+				if(event.key.keysym.sym == SDLK_SPACE)// && ticknum >= nextTickCanShoot )
 				{
 					if (iterableSubsystems[7]->GetIsOnline()) ShootBullet(renderer,this,{0,-10,0},{12,-60,0},true);
 					if (iterableSubsystems[8]->GetIsOnline()) ShootBullet(renderer,this,{0,-10,0},{86,-60,0},true); //(49*2)-12=86 , because the other turret is at the opposite side of the ship
@@ -291,7 +289,7 @@ bool Player::C_Update()
 					ro->animation = {0,0,8,9};
 					
 
-					GE_PhysicsObject* me = GE_CreatePhysicsObject({this->position.x+50,this->position.y+150,0},{0,0,0},{25,25},25);
+					GE_PhysicsObject* me = new GE_PhysicsObject({this->position.x+50,this->position.y+150,0},{0,0,0},{25,25},25);
 					me->collisionRectangles[me->numCollisionRectangles] = {0,0,25,25};
 					me->numCollisionRectangles++;
 					me->callCallbackBeforeCollisionFunction = true;
@@ -409,11 +407,9 @@ bool Player::C_Update()
 
 	return false;
 }
-bool Player::C_Collision(int victimID, int collisionRectangleID)
+bool Player::C_Collision(GE_PhysicsObject* victim, int collisionRectangleID)
 {
 	//get physics object
-	GE_PhysicsObject* victim;
-	GE_GetPhysicsObjectFromID(victimID, &victim);
 	
 	//is it a bullet?
 	if (victim->type == TYPE_DESTROYSUB)
@@ -447,13 +443,9 @@ Enemie::Enemie(SDL_Renderer* renderer, Vector2r position, int level) : GE_Physic
 	type = TYPE_ENEMY;
 	
 	renderObject = GE_CreateRenderedObject(renderer,"enemy"); 
-	pthread_mutex_lock(&RenderEngineMutex);
 	renderObjectID = numRenderedObjects;
 	renderObject->size = {38,42};
 	renderObject->animation = {0,0,19,21};
-
-
-	pthread_mutex_unlock(&RenderEngineMutex);
 
 	GE_LinkVectorToPhysicsObjectPosition(this,&(renderObject->position)); 
 	
@@ -469,7 +461,7 @@ Enemie::Enemie(SDL_Renderer* renderer, Vector2r position, int level) : GE_Physic
 Enemie::~Enemie()
 {
 	GE_ScheduleFreeMinimapTarget(renderObject);
-	GE_ScheduleFreeRenderedObject(renderObjectID);
+	GE_ScheduleFreeRenderedObject(renderObject);
 }
 
 bool canStop(double velocity, double distance, double acceleration)
@@ -554,13 +546,11 @@ bool Enemie::C_Update()
 
 	return false;
 }
-bool Enemie::C_Collision(int victimID, int collisionRectangleID)
+bool Enemie::C_Collision(GE_PhysicsObject* victim, int collisionRectangleID)
 {
 	printf("enemy coll\n");
 	//SDL_Delay(1600);
 	//get physics object
-	GE_PhysicsObject* victim;
-	GE_GetPhysicsObjectFromID(victimID, &victim);
 	
 	//is it a bullet?
 	if (victim->type == TYPE_DESTROYSUB)
@@ -579,30 +569,21 @@ BulletType::BulletType(Vector2r position, Vector2r velocity, GE_Rectangle grid, 
 {
 	type = TYPE_DESTROYSUB;
 }
-bool BulletType::C_Collision(int victimID, int collisionRectangleID)
+bool BulletType::C_Collision(GE_PhysicsObject* victim, int collisionRectangleID)
 {
 	//printf("Collision! I should be dead now!\n");
 	return true; //Tell the physics engine to delete me.
 }
 BulletType::~BulletType()
 {
-/*	printf("!!!!!!!!!!!!!I WAS CALLED\n");
-
-	pthread_mutex_lock(&RenderEngineMutex);
-	deadRenderedObjects[renderObjectID] = true;
-	delete renderObject;
-	pthread_mutex_unlock(&RenderEngineMutex);*/
 }
 
 
 StdBullet::StdBullet(SDL_Renderer* renderer, Vector2r position, const char* spriteName) : BulletType(position,{0,0,0},GE_Rectangle{0,0,2,10},STD_BULLET_MASS)
 {
 	renderObject = GE_CreateRenderedObject(renderer,spriteName); 
-	pthread_mutex_lock(&RenderEngineMutex);
-	renderObjectID = numRenderedObjects;
 	renderObject->size = {2,10};
 	renderObject->animation = {0,0,1,5};
-	pthread_mutex_unlock(&RenderEngineMutex);
 	printf("fin ro\n");
 
 	GE_LinkVectorToPhysicsObjectPosition(this,&(renderObject->position)); 
@@ -618,7 +599,7 @@ StdBullet::~StdBullet()
 {
 	printf("!!!!!!!!!!!!!I WAS CALLED\n");
 
-	GE_ScheduleFreeRenderedObject(renderObjectID);
+	GE_ScheduleFreeRenderedObject(renderObject);
 
 }
 

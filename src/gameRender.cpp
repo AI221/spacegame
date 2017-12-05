@@ -1,4 +1,7 @@
 #include "gameRender.h"
+#ifdef PHYSICS_DEBUG_SLOWRENDERS
+#define NO_CAMERA_ROTATE
+#endif
 
 GE_UI_GameRender::GE_UI_GameRender(SDL_Renderer* renderer, Vector2 position, Vector2 size, Player* focusObject)
 {
@@ -40,7 +43,7 @@ void GE_UI_GameRender::render(Vector2 parrentPosition)
 	#ifdef NO_CAMERA_ROTATE
 		camera.pos.r = 0;
 	#endif
-	for (int i=0; i <= numRenderedObjects; i++)
+	for (int i=0; i <= numRenderedObjectsReadable; i++)
 	{
 		if (!deadRenderedObjects[i])
 		{

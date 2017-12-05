@@ -37,11 +37,11 @@ pthread_t PhysicsEngineThread;
 pthread_mutex_t PhysicsEngineMutex = PTHREAD_MUTEX_INITIALIZER;
 
 
-GE_PhysicsObject* physicsObjects[MAX_PHYSICS_OBJECTS];
+std::list<GE_PhysicsObject*> physicsObjects;
 int numPhysicsObjects = -1; 
-bool deadPhysicsObjects[MAX_PHYSICS_OBJECTS]; //TODO shift all elements down instead of this patch
-int fakeToRealPhysicsID[MAX_PHYSICS_OBJECTS]; 
-int numFakePhysicsIDs = -1;
+
+std::map<physics_area_coord_t,physics_area_t*> world; 
+
 
 int ticknum = 0;
 
@@ -54,7 +54,6 @@ int numPhysicsTickPreCallbacks = -1;
 
 GE_PhysicsObject::GE_PhysicsObject(Vector2r position, Vector2r velocity, GE_Rectangle grid, double mass)
 {
-	numFakePhysicsIDs++;
 	numPhysicsObjects++;
 
 	this->position = position;
@@ -64,7 +63,6 @@ GE_PhysicsObject::GE_PhysicsObject(Vector2r position, Vector2r velocity, GE_Rect
 
 	warpedShape = {0,0};
 
-	ID = numFakePhysicsIDs;
 
 	numCollisionRectangles = 0;
 	numGlueTargets = -1;
@@ -78,8 +76,7 @@ GE_PhysicsObject::GE_PhysicsObject(Vector2r position, Vector2r velocity, GE_Rect
 
 	//end temp
 	
-	fakeToRealPhysicsID[numFakePhysicsIDs] = numPhysicsObjects;
-	physicsObjects[numPhysicsObjects] = this;
+	physicsObjects.insert(physicsObjects.end(),this);
 
 	callCallbackUpdate = false;
 	type = 0;
@@ -89,7 +86,7 @@ bool GE_PhysicsObject::C_Update()
 	printf("!!Shouldn't be called!!\n");
 	return false;
 }
-bool GE_PhysicsObject::C_Collision(int victimID, int collisionRectangleID)
+bool GE_PhysicsObject::C_Collision(GE_PhysicsObject* victim, int collisionRectangleID)
 {
 	return false;
 }
@@ -106,20 +103,6 @@ int GE_PhysicsInit()
 	pthread_create(&PhysicsEngineThread,NULL,GE_physicsThreadMain,NULL );
 	return 0;
 }
-GE_PhysicsObject* GE_CreatePhysicsObject(Vector2r newPosition, Vector2r newVelocity, Vector2 shape,double mass)
-{
-	GE_NoGreaterThan_NULL(numPhysicsObjects,MAX_PHYSICS_OBJECTS);
-	//TODO: Auto-generate shape.
-
-	GE_PhysicsObject* newPhysicsObject = new GE_PhysicsObject(newPosition, newVelocity, {0,0,shape.x, shape.y},mass);
-
-	fakeToRealPhysicsID[numFakePhysicsIDs] = numPhysicsObjects;
-	physicsObjects[numPhysicsObjects] = newPhysicsObject;
-
-
-	deadPhysicsObjects[numPhysicsObjects] = false;
-	return newPhysicsObject;
-}
 void GE_LinkVectorToPhysicsObjectPosition(GE_PhysicsObject* subject, Vector2r* link)
 {
 	GE_LinkGlueToPhysicsObject(subject, GE_addGlueSubject(link,&subject->position,GE_PULL_ON_PHYSICS_TICK,sizeof(Vector2r)) );
@@ -133,24 +116,6 @@ void GE_LinkGlueToPhysicsObject(GE_PhysicsObject* subject, GE_GlueTarget* glue)
 	subject->numGlueTargets++;
 	subject->glueTargets[subject->numGlueTargets] = glue;
 }
-int GE_GetPhysicsObjectFromID(int fakeID, GE_PhysicsObject** physicsObjectPointer)
-{
-	if (fakeID > numFakePhysicsIDs)
-	{
-		return 1;
-	}
-	int physicsObjectID = fakeToRealPhysicsID[fakeID];
-	if (physicsObjectID == -1)
-	{
-		return 1;
-	}
-	(*physicsObjectPointer) = physicsObjects[physicsObjectID];
-
-
-	return 0;
-}
- 
-
 int GE_AddPhysicsDoneCallback(std::function<void ()> callback)
 {
 	GE_NoGreaterThan(numPhysicsTickDoneCallbacks,MAX_PHYSICS_ENGINE_DONE_CALLBACKS);
@@ -264,23 +229,24 @@ void GE_TickPhysics()
 {
 temp2 = 0;
 	ticknum++;
-	//printf("Physics tick #%d\n",ticknum);
-	for (int i=0;i < (numPhysicsObjects+1); i++)
+	printf("Physics tick #%d\n",ticknum);
+	
+	
+//	if (ticknum == 20)	exit(0);
+
+	auto local_physicsObjects = physicsObjects;
+	for (GE_PhysicsObject* object : local_physicsObjects)
 	{
-		//printf("i %d\n",i);
-		if(!deadPhysicsObjects[i])
+		if (!GE_TickPhysics_ForObject(object))
 		{
-			if (!GE_TickPhysics_ForObject(physicsObjects[i],i))
+			if(object->callCallbackUpdate)
 			{
-				if(physicsObjects[i]->callCallbackUpdate)
-				{
-					physicsObjects[i]->C_Update();
-				}
+				object->C_Update();
 			}
 		}
 		//printf("x %d y %d\n",physicsObjects[i]->position.x,physicsObjects[i]->position.y);
 	}
-	//printf("this tick had %d collision full checks\n",temp2);
+	printf("this tick had %d collision full checks\n",temp2);
 }
 
 struct InternalResult
@@ -351,13 +317,13 @@ InternalResult GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* v
 					bool doReturn = false;
 					if (cObj->callCallbackBeforeCollisionFunction)
 					{
-						killMe = cObj->C_Collision(victimObj->ID,a);
+						killMe = cObj->C_Collision(victimObj,a);
 						doReturn = true;
 						printf("cobj wants before\n");
 					}
 					if (victimObj->callCallbackBeforeCollisionFunction)
 					{
-						if(victimObj->C_Collision(cObj->ID,b))
+						if(victimObj->C_Collision(cObj,b))
 						{
 							printf("victim die\n");
 							GE_FreePhysicsObject(victimObj);
@@ -410,12 +376,12 @@ InternalResult GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* v
 
 					if (cObj->callCallbackAfterCollisionFunction)
 					{
-						killMe = cObj->C_Collision(victimObj->ID,a); //reuse of variable; okay because of the return
+						killMe = cObj->C_Collision(victimObj,a); //reuse of variable; okay because of the return
 						
 					}
 					if (victimObj->callCallbackAfterCollisionFunction)
 					{
-						if(victimObj->C_Collision(cObj->ID,b))
+						if(victimObj->C_Collision(cObj,b))
 						{
 							GE_FreePhysicsObject(victimObj);
 							printf("~~~~~Kill      them\n");
@@ -439,47 +405,80 @@ InternalResult GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* v
 	}
 	return {false,false};
 }
-InternalResult GE_TickPhysics_ForObject_Internal(GE_PhysicsObject* cObj, int ID, Vector2r* velocity)
+InternalResult GE_TickPhysics_ForObject_Internal(GE_PhysicsObject* cObj, Vector2r* velocity)
 {
 	//move ourselves forward
-	//first set velocity
-	
 	cObj->position = cObj->position+(*velocity);
 
 
-	cObj->grid.x = (int) (cObj->position.x/10);
-	cObj->grid.y = (int) (cObj->position.y/10);
-
-	//Marked for removal, old code related to sGrid system	
-	//Calculate how the shape warps. The shape will stretch as you move faster to avoid clipping
-	//cObj->warpedShape.x = ((abs(cObj->velocity.x)/10)+2)*(cObj->grid.w/10);
-	//cObj->warpedShape.y = ((abs(cObj->velocity.y)/10)+2)*(cObj->grid.h/10);
-
-
-
-	for (int i=0;i < (numPhysicsObjects+1); i++)
+	//remove us from the old areas first
+	
+	physics_object_area_list_t::iterator it;
+	while (true)
 	{
-		//printf("i %d\n",i);
-		if(!deadPhysicsObjects[i] && i != ID)
+		it = cObj->areas.begin();
+		if (it == cObj->areas.end())
 		{
-			GE_PhysicsObject* victimObj = physicsObjects[i];
-			double maxSize = std::max(cObj->grid.w, cObj->grid.h);
-			double theirMaxSize = std::max(victimObj->grid.w, victimObj->grid.h);
-			if ( ( cObj->position.x+maxSize >= victimObj->position.x-theirMaxSize) && (cObj->position.x-maxSize <= victimObj->position.x+theirMaxSize) && (cObj->position.y+maxSize >= victimObj->position.y-theirMaxSize) && (cObj->position.y-maxSize <=victimObj->position.y+theirMaxSize)
+			break;
+		}
+		(*it)->remove(cObj);
+		cObj->areas.erase(it);
+	}
+
+	physics_area_single_coord_t xMin = std::floor<int>(cObj->position.x/PHYSICS_AREA_SIZE);
+	physics_area_single_coord_t yMin = std::floor<int>(cObj->position.y/PHYSICS_AREA_SIZE);
+
+	physics_area_single_coord_t xMax = std::floor<int>((cObj->position.x+cObj->grid.w)/PHYSICS_AREA_SIZE);
+	physics_area_single_coord_t yMax = std::floor<int>((cObj->position.y+cObj->grid.h)/PHYSICS_AREA_SIZE);
+
+
+	for(physics_area_single_coord_t x=xMin;x<=xMax;x++)
+	{
+		for (physics_area_single_coord_t y=yMin;y<=yMax;y++)
+		{
 #ifdef PHYSICS_DEBUG_SLOWRENDERS
-|| true
+			GE_DEBUG_TextAt_PhysicsPosition(std::to_string(x)+", y "+std::to_string(y),cObj->position);
 #endif
-					
-			)
+			physics_area_coord_t coord = physics_area_coord_t(x,y);
+			auto area_it = world.find(coord);
+			physics_area_t* area = area_it->second;
+			if (area_it == world.end())
 			{
-				InternalResult result = GE_CollisionFullCheck(cObj,physicsObjects[i]);
-				if (result.deleteMe)
+				world[coord]  = new physics_area_t();
+				area = world[coord];
+				//auto nothing=  std::list<GE_PhysicsObject*>();
+
+				//area_it->second = new physics_area_t();
+			}
+			
+
+			auto spot = area->begin();
+			area->insert(spot, cObj);
+
+			cObj->areas.insert(cObj->areas.begin(),area);
+		}
+	}
+
+
+	
+
+	for (physics_area_t* area : cObj->areas)
+	{
+
+		for (auto it = area->begin(); it != area->end();it++)
+		{
+			GE_PhysicsObject* victimObj = *it;
+			if(victimObj != cObj)
+			{
+				double maxSize = fmax(cObj->grid.w, cObj->grid.h); //fmax tested to be about 2x faster than std::max in this situation
+				double theirMaxSize = fmax(victimObj->grid.w, victimObj->grid.h);
+				if ( ( cObj->position.x+maxSize >= victimObj->position.x-theirMaxSize) && (cObj->position.x-maxSize <= victimObj->position.x+theirMaxSize) && (cObj->position.y+maxSize >= victimObj->position.y-theirMaxSize) && (cObj->position.y-maxSize <=victimObj->position.y+theirMaxSize)) //tested to help a lot as compared to just running a full check.
 				{
-					return {true,true};	
-				}
-				else if (result.didCollide)
-				{
-					return {true,false};
+					InternalResult result = GE_CollisionFullCheck(cObj,victimObj);
+					if (result.deleteMe || result.didCollide)
+					{
+						return result;
+					}
 				}
 			}
 		}
@@ -488,7 +487,7 @@ InternalResult GE_TickPhysics_ForObject_Internal(GE_PhysicsObject* cObj, int ID,
 	cObj->lastGoodPosition = cObj->position;
 	return {false,false};
 }
-bool GE_TickPhysics_ForObject(GE_PhysicsObject* cObj, int ID)
+bool GE_TickPhysics_ForObject(GE_PhysicsObject* cObj)
 {
 	//To avoid Clipping/"Bullet through paper" effect, we will slow down the physics simulation for a specific object by an unsigned nonzero integer and then slow down velocity accordingly. The user SHOULD NOT be able to tell any of this is happening. For performance, velocity is passed as a pointer to the internal function.
 	
@@ -502,7 +501,7 @@ bool GE_TickPhysics_ForObject(GE_PhysicsObject* cObj, int ID)
 
 	for (int i = 0; i <= miniTickrate; i++)
 	{//TODO: Because of this mini-tick system, objects that collide with a i/miniTickrate value of <1 will have non-up-to-date velocities being added. 
-		InternalResult result = GE_TickPhysics_ForObject_Internal(cObj,ID,velocity); 
+		InternalResult result = GE_TickPhysics_ForObject_Internal(cObj,velocity); 
 		if (result.deleteMe)
 		{
 			printf("deleteme\n");
@@ -524,14 +523,10 @@ bool GE_TickPhysics_ForObject(GE_PhysicsObject* cObj, int ID)
 
 void GE_FreePhysicsObject(GE_PhysicsObject* physicsObject) //MUST be allocated with new
 {
-	printf("I AM DELETING FAKEID #%d\n",physicsObject->ID);
+	printf("I AM DELETING ID #%d\n",physicsObject->ID);
 	printf("num glues %d",physicsObject->numGlueTargets);
 
-
-	int realID = fakeToRealPhysicsID[physicsObject->ID];
-
-	fakeToRealPhysicsID[physicsObject->ID] = -1; //indicate we're dead first 
-	deadPhysicsObjects[realID] = true; 
+	physicsObjects.remove(physicsObject);
 
 	for (int i=0;i<=physicsObject->numGlueTargets;i++)
 	{
@@ -644,13 +639,9 @@ void GE_InelasticCollision(GE_PhysicsObject* subject, Vector2 collisionPoint, Ve
 void GE_ShutdownPhysicsEngine()
 {
 	pthread_mutex_lock(&PhysicsEngineMutex);
-	for (int i=0;i < (numPhysicsObjects+1); i++)
+	for (GE_PhysicsObject* object : physicsObjects)
 	{
-		if (!deadPhysicsObjects[i])
-		{
-			GE_FreePhysicsObject(physicsObjects[i]);
-			deadPhysicsObjects[i] = true;
-		}
+		GE_FreePhysicsObject(object);
 	}
 	pthread_mutex_unlock(&PhysicsEngineMutex);
 }

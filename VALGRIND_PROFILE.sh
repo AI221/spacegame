@@ -1,3 +1,3 @@
 #/bin/sh
 cd bin
-valgrind --tool=callgrind ./Spacegame
+valgrind --tool=callgrind --dump-instr=yes --collect-jumps=yes ./Spacegame

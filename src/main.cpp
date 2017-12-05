@@ -63,7 +63,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define SPRITE_DIR BASE_DIR"sprites/"
 
 #define FREESANS_LOC FONT_DIR"FreeSans.ttf"
-//#define NO_CAMERA_ROTATE true
+
+
+#ifdef PHYSICS_DEBUG_SLOWRENDERS
+#define NO_CAMERA_ROTATE true
+#endif
 
 
 
@@ -295,6 +299,17 @@ int main(int argc, char* argv[])
 	}
 	//new Enemie(renderer, {200,0,0},1);
 
+#define tonsofbulletstest
+#ifdef tonsofbulletstest
+	for (int i =0;i<10000;i++)
+	{
+#define range 10000000
+		new StdBullet(renderer,{random_range_double(range*-1,range),random_range_double(range*-1,range),2}, "stdBulletPlayer");
+	}
+
+#endif
+
+	
 
 
 	
@@ -433,6 +448,10 @@ int main(int argc, char* argv[])
 
 		camera = gameRender->camera; //TODO temp
 
+#ifdef NO_CAMERA_ROTATE
+		camera.pos.r = 0;
+#endif
+
 		background->render({0,0,0},{static_cast<double>(camera.screenWidth),static_cast<double>(camera.screenHeight)});
 
 		
@@ -477,17 +496,6 @@ int main(int argc, char* argv[])
 
 
 
-		#ifdef PHYSICS_DEBUG_SLOWRENDERS
-		for (int i=0;i<numPhysicsTickPreCallbacks+1;i++)
-		{
-			C_PhysicsTickPreCallbacks[i]();
-		}
-		GE_TickPhysics();
-		for (int i=0;i<numPhysicsTickDoneCallbacks+1;i++)
-		{
-			C_PhysicsTickDoneCallbacks[i]();
-		}
-		#endif
 
 
 		//window->render({0,0});
@@ -505,6 +513,21 @@ int main(int argc, char* argv[])
 		{
 			GameOver->render({0,0});
 		}
+
+
+		GE_DEBUG_TextAt(std::to_string(numRenderedObjectsReadable),Vector2{0,0});
+
+		#ifdef PHYSICS_DEBUG_SLOWRENDERS
+		for (int i=0;i<numPhysicsTickPreCallbacks+1;i++)
+		{
+			C_PhysicsTickPreCallbacks[i]();
+		}
+		GE_TickPhysics();
+		for (int i=0;i<numPhysicsTickDoneCallbacks+1;i++)
+		{
+			C_PhysicsTickDoneCallbacks[i]();
+		}
+		#endif
 
 		SDL_RenderPresent(renderer); //Seems to be the VSyncer (expect ~16ms wait upon call)
 	}

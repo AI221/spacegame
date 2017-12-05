@@ -4,12 +4,14 @@
  *
  * A simple object designed to be linked to a networkObject or physicsObject.
  */
+
 #include <pthread.h>
 #include <stack>
 
 #include "vector2.h"
 #include "sprite.h"
 #include "camera.h"
+#include "gluePhysicsObject.h"
 
 #include "GeneralEngineCPP.h"
 
@@ -53,11 +55,14 @@ struct GE_RenderedObject
 	Vector2 size;
 	GE_Rectangle grid;
 	GE_Rectangle animation; //end linked data
+
+	int ID;
 };
 
 extern GE_RenderedObject* renderedObjects[MAX_RENDER_OBJECTS]; //TODO dimensions and what not
 extern bool deadRenderedObjects[MAX_RENDER_OBJECTS];
 extern int numRenderedObjects;
+extern int numRenderedObjectsReadable;
 
 /*!
  * Always call before using a rendered object
@@ -88,7 +93,12 @@ void GE_BlitRenderedObject(GE_RenderedObject* subject, Camera* camera, double sc
  */
 void GE_FreeRenderedObject(GE_RenderedObject* subject); 
 
-void GE_ScheduleFreeRenderedObject(int subjectID);
+void GE_ScheduleFreeRenderedObject(GE_RenderedObject* subject);
 void GE_DeleteRenderedObjectsMarkedForDeletion();
+
+
+
+
+void GE_ShutdownRenderedObject();
 
 #endif //__RENDEREDPHYSICSOBJECT_INCLUDED
