@@ -1,0 +1,7 @@
+
+
+for keeping track of items in lists:
+JUST USE THE SERVER'S POINTER IN MEMORY ex(0xfbc3342...)! The client can map it to whatever it wants ex(0xfbc3342... to 0xfae213...) and everything's all good.
+
+
+

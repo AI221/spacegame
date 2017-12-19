@@ -7,11 +7,13 @@
 
 #include <pthread.h>
 #include <stack>
+#include <list>
 
 #include "vector2.h"
 #include "sprite.h"
 #include "camera.h"
 #include "gluePhysicsObject.h"
+
 
 #include "GeneralEngineCPP.h"
 
@@ -24,10 +26,8 @@
 #include "debugRenders.h"
 #endif
 
-//LIMITS
 
-
-#define MAX_RENDER_OBJECTS 10024
+#define rendered_objects_list_t std::list<GE_RenderedObject*>
 
 /*!
  * The type of object linked to
@@ -55,14 +55,9 @@ struct GE_RenderedObject
 	Vector2 size;
 	GE_Rectangle grid;
 	GE_Rectangle animation; //end linked data
-
-	int ID;
 };
 
-extern GE_RenderedObject* renderedObjects[MAX_RENDER_OBJECTS]; //TODO dimensions and what not
-extern bool deadRenderedObjects[MAX_RENDER_OBJECTS];
-extern int numRenderedObjects;
-extern int numRenderedObjectsReadable;
+extern rendered_objects_list_t renderedObjects;
 
 /*!
  * Always call before using a rendered object

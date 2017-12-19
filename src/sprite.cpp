@@ -20,7 +20,6 @@ std::string Sprite_Names[MAX_SPRITES_LOADED];
 int countSprites = -1;
 
 
-//TODO: De-hardcode "../sprites/"
 
 
 

@@ -105,8 +105,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // awful system that should probably be replaced but isn't that important so it probably never will
 //#define real
 //#define spritetest
-//#define gluetest
-#define physicstest
+#define gluetest
 //#define nettest
 
 #ifdef real
@@ -300,7 +299,7 @@ int main(int argc, char* argv[])
 
 //#define tonsofbulletstest
 #ifdef tonsofbulletstest
-	for (int i =0;i<5000;i++)
+	for (int i =0;i<10000;i++)
 	{
 #define range 10000000
 		new StdBullet(renderer,{random_range_double(range*-1,range),random_range_double(range*-1,range),2}, "stdBulletPlayer");
@@ -723,7 +722,7 @@ int main(int argc, char* argv[])
 	Vector2r test;
 	GE_LinkVectorToPhysicsObjectPosition(po,&(ro->position));
 	int physicsTick;
-	GE_GlueTarget* tickglue  = GE_addGlueSubject(&physicsTick,&ticknum,GE_PULL_ON_RENDER,sizeof(physicsTick));
+	GE_addGlueSubject(&physicsTick,&ticknum,GE_PULL_ON_RENDER,sizeof(physicsTick));
 	printf("mtx unlock\n");
 
 
@@ -732,13 +731,6 @@ int main(int argc, char* argv[])
 	SDL_Event event;
 	while (true)
 	{
-		printf("tick %d",physicsTick);
-			if (physicsTick == 25)
-			{
-				GE_FreeGlueObject(tickglue);
-				physicsTick = 26;
-			}
-				
 			GE_GlueRenderCallback(); //update all positions from the buffer
 			GE_BlitRenderedObject(ro,&camera,1);
 			SDL_RenderPresent(renderer);
@@ -752,113 +744,6 @@ int main(int argc, char* argv[])
 }
 
 #endif //gluetest
-#ifdef physicstest
-int main(int argc, char* argv[])
-{
-
-	Camera camera;
-	SDL_Renderer* renderer;
-
-	int ttferror = TTF_Init();
-	if (ttferror < 0) 
-	{
-		//TODO: Handle error...
-		printf("TTF_Init error %d\n",ttferror);
-		return ttferror;
-	}
-
-	SDL_Window* myWindow;
-
-
-	camera.pos = {0,0,0};
-	camera.screenWidth = 1080;
-	camera.screenHeight = 720;
-
-	
-	myWindow = SDL_CreateWindow("Spacegame", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, camera.screenWidth, camera.screenHeight, 0);
-
-	renderer = SDL_CreateRenderer(myWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-
-	//Initialize the engine
-	int error = GE_Init(renderer);
-	if (error != 0)
-	{
-		printf("Game engine initialization error: %d\n",error);
-	}
-
-	
-	//Initialize stuff we need
-
-	GE_LoadSpritesFromDir(renderer, SPRITE_DIR);
-
-	printf("alsfd\n");
-	
-	GE_RenderedObject* ro = GE_CreateRenderedObject(renderer, SPRITE_DIR"simple.bmp");
-	ro->size = {25,25};
-	ro->animation = {0,0,8,9};
-	ro->position = {0,0,0};
-	
-	GE_RenderedObject* ro2 = GE_CreateRenderedObject(renderer, SPRITE_DIR"simple.bmp");
-
-	ro2->size = {25,25};
-	ro2->animation = {0,0,8,9};
-	ro2->position = {0,0,0};
-
-
-	printf("mutex lock\n");
-	pthread_mutex_lock(&PhysicsEngineMutex);
-
-	GE_PhysicsObject* po = new GE_PhysicsObject({0,0,0},{1,1,0},GE_Rectangle{0,0,25,25},5);
-
-
-	
-
-
-	po->collisionRectangles[po->numCollisionRectangles] = {0,0,25,25};
-	po->numCollisionRectangles++;
-
-	po->velocity = {0,-0.59,0};
-
-
-
-	GE_PhysicsObject* po2 = new GE_PhysicsObject({0.0,-50,1},{0,0,0},GE_Rectangle{0,0,25,25},5);
-
-	po2->collisionRectangles[po2->numCollisionRectangles] = {0,0,25,25};
-	po2->numCollisionRectangles++;
-
-	pthread_mutex_unlock(&PhysicsEngineMutex);
-	GE_LinkVectorToPhysicsObjectPosition(po,&(ro->position));
-	GE_LinkVectorToPhysicsObjectPosition(po2,&(ro2->position));
-	int physicsTick;
-	GE_GlueTarget* tickglue  = GE_addGlueSubject(&physicsTick,&ticknum,GE_PULL_ON_RENDER,sizeof(physicsTick));
-	printf("mtx unlock\n");
-
-
-	
-	GE_RectangleShape* background = new GE_RectangleShape(renderer, GE_Color{0x00,0x00,0x00,0xff});
-
-	
-	PhysicsDelaySeconds = 3;
-	SDL_Event event;
-	while (true)
-	{
-		background->render({0,0,0},{static_cast<double>(camera.screenWidth),static_cast<double>(camera.screenHeight)});
-		GE_GlueRenderCallback(); //update all positions from the buffer
-		GE_BlitRenderedObject(ro,&camera,1);
-		GE_BlitRenderedObject(ro2,&camera,1);
-		SDL_RenderPresent(renderer);
-		printf("am not kill \n");
-	}
-	GE_FreeAllSprites();
-	GE_FreePhysicsObject(po);
-	GE_FreeRenderedObject(ro);
-
-	return 0;
-}
-
-
-
-#endif //physicstest
 #ifdef nettest
 
 

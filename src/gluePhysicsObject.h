@@ -8,14 +8,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
-#include <new>
+#include <list>
 
 #include "vector2.h"
 #include "GeneralEngineCPP.h"
-
-//LIMITS
-
-#define MAX_GLUE_TARGETS 10024
 
 #ifndef __GLUE_PHYSICS_OBJECT_INCLUDED
 #define __GLUE_PHYSICS_OBJECT_INCLUDED
@@ -36,8 +32,6 @@ struct GE_GlueTarget
 	size_t sizeOfPullData;
 
 	void* buffer;
-
-	int ID;
 };
 
 

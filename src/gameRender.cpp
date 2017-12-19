@@ -43,12 +43,9 @@ void GE_UI_GameRender::render(Vector2 parrentPosition)
 	#ifdef NO_CAMERA_ROTATE
 		camera.pos.r = 0;
 	#endif
-	for (int i=0; i <= numRenderedObjectsReadable; i++)
+	for (GE_RenderedObject* object : renderedObjects)
 	{
-		if (!deadRenderedObjects[i])
-		{
-			GE_BlitRenderedObject(renderedObjects[i],&camera,0.75);
-		}
+		GE_BlitRenderedObject(object,&camera,0.75);
 	}
 	pthread_mutex_unlock(&RenderEngineMutex);
 

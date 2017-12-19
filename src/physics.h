@@ -22,6 +22,7 @@
 #include <vector>
 #include <unordered_map>
 #include <list>
+#include <forward_list>
 
 //Local includes
 
@@ -55,7 +56,9 @@ extern bool DEBUG_allowPhysicsTick;
 
 //CONFIGS
 
+//Optimization
 #define PHYSICS_AREA_SIZE 500
+#define PHYSICS_MAX_SPEED_BEFORE_BROKEN_INTO_MINI_TICKS 20 //e.g if set to 20, an object moving at 100 units/tick would be broken up into 5 ticks of 20 units/tick
 
 //RUNTIME CONFIG
 
@@ -67,10 +70,13 @@ extern bool PhysicsEngineThreadShutdown;
 
 
 
-#define physics_area_single_coord_t long long int
-#define physics_area_coord_t std::pair<physics_area_single_coord_t,physics_area_single_coord_t>
-#define physics_area_t std::list<GE_PhysicsObject*>
-#define physics_object_area_list_t std::list<physics_area_t*>
+class GE_PhysicsObject;
+
+
+typedef long long int physics_area_single_coord_t;
+typedef std::pair<physics_area_single_coord_t,physics_area_single_coord_t> physics_area_coord_t;
+typedef std::forward_list<GE_PhysicsObject*> physics_area_t;
+typedef std::vector<physics_area_t*> physics_object_area_list_t;
 
 
 /*!
@@ -138,9 +144,6 @@ extern pthread_t PhysicsEngineThread;
 
 extern pthread_mutex_t PhysicsEngineMutex;
 
-
-extern std::list<GE_PhysicsObject*> physicsObjects;
-extern int numPhysicsObjects; 
 
 extern std::function< void ()> C_PhysicsTickDoneCallbacks[MAX_PHYSICS_ENGINE_DONE_CALLBACKS];
 extern int numPhysicsTickDoneCallbacks;
@@ -249,7 +252,7 @@ Vector2r GE_InelasticCollisionVelocityExchange(Vector2r velocity1, Vector2r velo
 
 Vector2 GE_GetRectangleCenterRealPosition(GE_Rectangle rectangle, Vector2r realPosition);
 
-void GE_InelasticCollision(GE_PhysicsObject* subject, Vector2 collisionPoint, Vector2r newVelocity, bool CCW);
+void GE_InelasticCollision(GE_PhysicsObject* subject, Vector2 collisionPoint, Vector2r momentum, bool CCW);
 /*!
  * Frees all physics objects in memory. Call on shutdown.
  */

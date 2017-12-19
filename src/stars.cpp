@@ -1,6 +1,12 @@
 #include "stars.h"
 
 
+//TODO: ideas-
+/*Apply the same "repeat star field" thing but to a whole pre-rendered plate of stars
+ * Procedurally generate stars as you fly along
+ */
+
+
 GE_Stars* GE_CreateStars(SDL_Renderer* renderer, unsigned int number, unsigned int width, unsigned int height,std::vector<int> sizes, double scale, std::vector<GE_Color> colors)
 {
 	GE_Stars* newStars = new GE_Stars{renderer,std::unordered_set<GE_SingleStar*>{},{static_cast<double>(width),static_cast<double>(height)},scale,std::vector<GE_RectangleShape*>{}};

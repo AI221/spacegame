@@ -17,11 +17,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "gluePhysicsObject.h"
 
-GE_GlueTarget* targets[MAX_GLUE_TARGETS];
-bool deadTargets[MAX_GLUE_TARGETS];
-int countGlueTargets = -1;
 
-pthread_mutex_t GlueMutex;
+std::list<GE_GlueTarget*> targets;
+
+
+pthread_mutex_t GlueMutex = PTHREAD_MUTEX_INITIALIZER;
 
 
 void GE_GluePreCallback()
@@ -29,14 +29,11 @@ void GE_GluePreCallback()
 	//TODO mutexes
 	pthread_mutex_lock(&GlueMutex);
 	
-	for (int i = 0; i < countGlueTargets+1; i++)
+	for (GE_GlueTarget* target : targets)
 	{
-		if (!deadTargets[i])
+		if (target->pullOn == GE_PULL_ON_RENDER)
 		{
-			if (targets[i]->pullOn == GE_PULL_ON_RENDER)
-			{
-				memcpy(targets[i]->updateData,targets[i]->buffer,targets[i]->sizeOfPullData); //Copy from the buffer to the updated value
-			}
+			memcpy(target->updateData,target->buffer,target->sizeOfPullData); //Copy from the buffer to the updated value
 		}
 	}
 	pthread_mutex_unlock(&GlueMutex);
@@ -46,14 +43,11 @@ void GE_GlueCallback()
 	//printf("try lock render\n");
 	pthread_mutex_lock(&GlueMutex);
 	//printf("lock render\n");
-	for (int i = 0; i < countGlueTargets+1; i++)
+	for (GE_GlueTarget* target : targets)
 	{
-		if (!deadTargets[i])
+		if (target->pullOn == GE_PULL_ON_PHYSICS_TICK)
 		{
-			if (targets[i]->pullOn == GE_PULL_ON_PHYSICS_TICK)
-			{
-				memcpy(targets[i]->buffer,targets[i]->pullData,targets[i]->sizeOfPullData);//Copy to the buffer the pulled data
-			}
+			memcpy(target->buffer,target->pullData,target->sizeOfPullData);//Copy to the buffer the pulled data
 		}
 		
 	}
@@ -63,18 +57,15 @@ void GE_GlueCallback()
 void GE_GlueRenderCallback()
 {
 	pthread_mutex_lock(&GlueMutex);
-	for (int i = 0; i < countGlueTargets+1; i++)
+	for (GE_GlueTarget* target : targets)
 	{
-		if (!deadTargets[i])
+		if (target->pullOn == GE_PULL_ON_PHYSICS_TICK)
 		{
-			if (targets[i]->pullOn == GE_PULL_ON_PHYSICS_TICK)
-			{
-				memcpy(targets[i]->updateData,targets[i]->buffer,targets[i]->sizeOfPullData);//Copy to the update data from the buffer
-			}
-			else if (targets[i]->pullOn == GE_PULL_ON_RENDER)
-			{
-				memcpy(targets[i]->buffer,targets[i]->pullData,targets[i]->sizeOfPullData);//Copy to the buffer the pulled data
-			}
+			memcpy(target->updateData,target->buffer,target->sizeOfPullData);//Copy to the update data from the buffer
+		}
+		else if (target->pullOn == GE_PULL_ON_RENDER)
+		{
+			memcpy(target->buffer,target->pullData,target->sizeOfPullData);//Copy to the buffer the pulled data
 		}
 
 	}
@@ -82,24 +73,26 @@ void GE_GlueRenderCallback()
 }
 GE_GlueTarget* GE_addGlueSubject(void* updateData, void* pullData, GE_PULL_ON pullOn, size_t sizeOfPullData)
 {
-	GE_NoGreaterThan_NULL(countGlueTargets,MAX_GLUE_TARGETS);
+	pthread_mutex_lock(&GlueMutex);
 	void* bufferAlloc = malloc(sizeOfPullData);//allocate a buffer of size sizeOfPullData to store the data in between taking it after one source runs and copying it before another one runs. c++ doesn't seem to have a delete function for operator new that I can find, so I will use malloc here.
 
 
-	int newGlueID = countGlueTargets+1;
-	GE_GlueTarget* newGlue = new GE_GlueTarget{updateData, pullData,pullOn,sizeOfPullData,bufferAlloc,newGlueID};
+	GE_GlueTarget* newGlue = new GE_GlueTarget{updateData, pullData,pullOn,sizeOfPullData,bufferAlloc};
+	targets.insert(targets.end(),newGlue);
 	memcpy(newGlue->buffer,newGlue->pullData,newGlue->sizeOfPullData);//Copy to the buffer the pulled data - we need to do this to avoid potentially writing an unitialized value to the buffer
-	targets[newGlueID] = newGlue;
-	countGlueTargets++; //NOTE: This is assumed to be an atomic operation and thus be thread-safe to write while other threads are reading. This is true for x86.
+	pthread_mutex_unlock(&GlueMutex);
+
 	return newGlue;
 }
 
 void GE_FreeGlueObject(GE_GlueTarget* subject)
 {
 	pthread_mutex_lock(&GlueMutex);
-	printf("KILL GLUE OBJECT %d\n",subject->ID);
-	deadTargets[subject->ID] = true;
+	printf("KILL GLUE OBJECT\n");
+	targets.remove(subject);
+	pthread_mutex_unlock(&GlueMutex); //no longer in the list of glue targets; thread-safe to unlock now
+
 	free(subject->buffer);
+
 	delete subject;
-	pthread_mutex_unlock(&GlueMutex);
 }

@@ -68,7 +68,6 @@ class Subsystem
 	private:
 		SDL_Renderer* renderer; 
 		GE_RenderedObject* renderObject;
-		int renderObjectID;
 
 		std::string spriteName;
 		Vector2r relativePosition;
@@ -121,7 +120,6 @@ class Enemie : public GE_PhysicsObject
 		bool C_Update();
 		bool C_Collision(GE_PhysicsObject* victim, int collisionRectangleID);
 	private:
-		int renderObjectID;
 		GE_RenderedObject* renderObject;
 		SDL_Renderer* renderer;
 		int level;
@@ -151,7 +149,6 @@ class StdBullet : public BulletType //Hah
 		~StdBullet();
 
 	private:
-		int renderObjectID;
 		GE_RenderedObject* renderObject;
 };
 

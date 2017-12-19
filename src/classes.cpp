@@ -8,7 +8,6 @@ Subsystem::Subsystem(SDL_Renderer* renderer, std::string sprite, Vector2 size, G
 	this->renderer = renderer;
 	renderObject = GE_CreateRenderedObject(renderer,sprite); //TODO
 	this->spriteName = sprite;
-	this->renderObjectID=numRenderedObjects;
 
 	renderObject->grid = *parrentGrid;
 	printf("Size: %f\n ",size.x);
@@ -443,7 +442,6 @@ Enemie::Enemie(SDL_Renderer* renderer, Vector2r position, int level) : GE_Physic
 	type = TYPE_ENEMY;
 	
 	renderObject = GE_CreateRenderedObject(renderer,"enemy"); 
-	renderObjectID = numRenderedObjects;
 	renderObject->size = {38,42};
 	renderObject->animation = {0,0,19,21};
 

@@ -23,22 +23,30 @@ pthread_mutex_t RenderEngineMutex = PTHREAD_MUTEX_INITIALIZER;
 
 pthread_mutex_t deleteObjectStackMutex = PTHREAD_MUTEX_INITIALIZER;
 
-GE_RenderedObject* renderedObjects[MAX_RENDER_OBJECTS]; //TODO dimensions and what not
-bool deadRenderedObjects[MAX_RENDER_OBJECTS] = {1,};
-int numRenderedObjects = -1; //Writable by the physics engine AND render engine -- must lock createObjectMutex to write
+rendered_objects_list_t renderedObjects;
+
+
+/*int numRenderedObjects = -1; //Writable by the physics engine AND render engine -- must lock createObjectMutex to write
 int numRenderedObjectsReadable = -1; //pulled on render tick; render objects gaurnteed not to be messed with by the physics engine. DO NOT WRITE TO! Let this be managed by glue.
-//Reason: A race condition could occur where the physics engine starts creating a render object, then the renderer does immediatly after. Physics engine finished and unlocks createObjectMutex, then render engine goes through and finishes and sets numRenderedObjectsReadable to numRenderedObjects. But Physics Engine was still touching its renderedObject, and hadn't finished the tick, thus a race condition has occured. Render engine doesn't need this protection cause it is only 1 thread, and cannot be touching a rendered object and rendering things simultaniously.
+//Reason: A race condition could occur where the physics engine starts creating a render object, then the renderer does immediatly after. Physics engine finished and unlocks createObjectMutex, then render engine goes through and finishes and sets numRenderedObjectsReadable to numRenderedObjects. But Physics Engine was still touching its renderedObject, and hadn't finished the tick, thus a race condition has occured. Render engine doesn't need this protection cause it is only 1 thread, and cannot be touching a rendered object and rendering things simultaniously.*/
+rendered_objects_list_t::iterator lastObject;
+rendered_objects_list_t::iterator lastReadableObject;
+
 GE_GlueTarget* numRenderedObjectsToNumRenderedObjectReadableGlue;
 
 pthread_mutex_t createObjectMutex = PTHREAD_MUTEX_INITIALIZER;
 
+pthread_mutex_t listShiftMutex = PTHREAD_MUTEX_INITIALIZER;
+
 std::stack<GE_RenderedObject*> scheduleToDelete;
+
+
+
 
 
 int GE_RenderedObjectInit()
 {
-	memset(deadRenderedObjects,1,sizeof(deadRenderedObjects)); //Fill deadRendredObjects with 1, so that any unintialized object is "dead"
-	numRenderedObjectsToNumRenderedObjectReadableGlue = GE_addGlueSubject(&numRenderedObjectsReadable,&numRenderedObjects,GE_PULL_ON_RENDER,sizeof(numRenderedObjectsReadable));
+	numRenderedObjectsToNumRenderedObjectReadableGlue = GE_addGlueSubject(&lastReadableObject,&lastObject,GE_PULL_ON_RENDER,sizeof(lastReadableObject));
 
 	return 0;
 }
@@ -53,25 +61,22 @@ void GE_ChangeRenderedObjectSprite(GE_RenderedObject* subject, std::string sprit
 GE_RenderedObject* GE_ScheduleCreateRenderedObject(SDL_Renderer* renderer, std::string spriteName)
 {
 	pthread_mutex_lock(&createObjectMutex);
-	GE_RenderedObject* returnval = GE_CreateRenderedObject(renderer,spriteName,numRenderedObjects+1); //do everything the same -- numRenderedObjectsReadable will not be updated till the physics thread finishes this tick
+	GE_RenderedObject* returnval = GE_CreateRenderedObject(renderer,spriteName); //do everything the same -- numRenderedObjectsReadable will not be updated till the physics thread finishes this tick
 	pthread_mutex_unlock(&createObjectMutex);
 	
 	return returnval;
 }
 
-GE_RenderedObject* GE_CreateRenderedObject(SDL_Renderer* renderer, std::string spriteName, int ID) // size is not included (despite it being a value often set at start) due to its linked nature.
+GE_RenderedObject* GE_CreateRenderedObject(SDL_Renderer* renderer, std::string spriteName) // size is not included (despite it being a value often set at start) due to its linked nature.
 {
 	printf("Create RenderedObject\n");
-	GE_RenderedObject* renderedObject = new GE_RenderedObject{renderer, -1, Vector2r{0,0,0}, Vector2{0,0}, GE_Rectangle{0,0,0,0},GE_Rectangle{0,0,0,0}, ID};
+	GE_RenderedObject* renderedObject = new GE_RenderedObject{renderer, -1, Vector2r{0,0,0}, Vector2{0,0}, GE_Rectangle{0,0,0,0},GE_Rectangle{0,0,0,0}};
 	GE_ChangeRenderedObjectSprite(renderedObject,spriteName);
-	renderedObjects[ID] = renderedObject;
-	deadRenderedObjects[ID] = false; //Mark us as alive
-	numRenderedObjects = std::max(numRenderedObjects,ID); //Increase the num rendered objects to at least our ID
+	pthread_mutex_lock(&listShiftMutex);
+	renderedObjects.insert(renderedObjects.end(), renderedObject);
+	lastObject = renderedObjects.end();
+	pthread_mutex_unlock(&listShiftMutex);
 	return renderedObject;
-}
-GE_RenderedObject* GE_CreateRenderedObject(SDL_Renderer* renderer, std::string spriteName) 
-{
-	return GE_CreateRenderedObject(renderer,spriteName,numRenderedObjects+1);
 }
 void GE_BlitRenderedObject(GE_RenderedObject* subject, Camera* camera, double scale)
 {
@@ -91,7 +96,12 @@ void GE_BlitRenderedObject(GE_RenderedObject* subject, Camera* camera, double sc
 }
 void GE_FreeRenderedObject(GE_RenderedObject* subject) //will not destroy renderer,or sprite. MUST be allocated with new
 {
-	deadRenderedObjects[subject->ID] = true;
+	pthread_mutex_lock(&listShiftMutex);
+	renderedObjects.remove(subject);
+	lastObject = renderedObjects.end();
+	lastReadableObject = lastObject;
+	pthread_mutex_unlock(&listShiftMutex);
+
 	delete subject;
 }
 void GE_ScheduleFreeRenderedObject(GE_RenderedObject* subject)
