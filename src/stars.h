@@ -12,6 +12,7 @@
 #include "vector2.h"
 #include "shapes.h"
 #include "camera.h"
+#include "UI.h"
 
 
 
@@ -27,19 +28,22 @@ struct GE_SingleStar
 
 };
 
-struct GE_Stars
+class GE_Stars : public GE_UI_Element
 {
+	public:
+		GE_Stars(SDL_Renderer* renderer, unsigned int number, unsigned int width, unsigned int height,std::vector<int> sizes, double scale, std::vector<GE_Color> colors,Camera* camera);
+		~GE_Stars();
+
+		void render(Vector2 parrentPosition);
+
+	private:
+
 	SDL_Renderer* renderer;
 	std::unordered_set<GE_SingleStar*> stars;
 	Vector2 allStarsSize;
 	double allStarsScale;
 	std::vector<GE_RectangleShape*> starRectangles;
+	Camera* camera;
 };
-
-GE_Stars* GE_CreateStars(SDL_Renderer* renderer, unsigned int number, unsigned int width, unsigned int height,std::vector<int> sizes, double scale, std::vector<GE_Color> colors);
-void GE_FreeStars(GE_Stars* subject);
-
-void GE_BlitStars(GE_Stars* subject, Camera* camera);
-
 
 #endif // __STARS_INCLUDED

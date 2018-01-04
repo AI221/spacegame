@@ -60,13 +60,13 @@ std::function< void ()> C_PhysicsTickPreCallbacks[MAX_PHYSICS_ENGINE_PRE_CALLBAC
 int numPhysicsTickPreCallbacks = -1;
 
 
-GE_PhysicsObject::GE_PhysicsObject(Vector2r position, Vector2r velocity, GE_Rectangle grid, double mass)
+GE_PhysicsObject::GE_PhysicsObject(Vector2r position, Vector2r velocity, double mass)
 {
 	numPhysicsObjects++;
 
 	this->position = position;
 	this->velocity = velocity;
-	this->grid = grid; //TODO automate 
+	this->grid = {0,0};
 	this->mass = mass;
 
 	warpedShape = {0,0};
@@ -97,6 +97,30 @@ bool GE_PhysicsObject::C_Update()
 bool GE_PhysicsObject::C_Collision(GE_PhysicsObject* victim, int collisionRectangleID)
 {
 	return false;
+}
+void GE_PhysicsObject::addCollisionRectangle(GE_Rectangle newRectangle)
+{
+	//add rectangle
+	collisionRectangles[numCollisionRectangles] = newRectangle;
+	numCollisionRectangles++;
+
+	//update cached values
+	Vector2 myPoints[4] = {};
+	grid = {0,0};
+	///Vector2 minPoint = {0,0};
+	for (int i=0;i<numCollisionRectangles;i++)
+	{
+		GE_RectangleToPoints(collisionRectangles[i],Vector2{0,0},myPoints,Vector2r{0,0,0});
+		for (int o=0;o<4;o++)
+		{
+			grid.x = fmax(grid.x,myPoints[o].x);
+			grid.y = fmax(grid.y,myPoints[o].y);
+
+			//minPoint.x = fmin(minPoint.x,myPoints[o].x);
+			//minPoint.y = fmin(minPoint.y,myPoints[o].y);
+		}
+	}
+	diameter = fmax(grid.x,grid.y);
 }
 GE_PhysicsObject::~GE_PhysicsObject()
 {
@@ -472,8 +496,8 @@ InternalResult GE_TickPhysics_ForObject_Internal(GE_PhysicsObject* cObj, Vector2
 	physics_area_single_coord_t xMin = (cObj->position.x/PHYSICS_AREA_SIZE);
 	physics_area_single_coord_t yMin = (cObj->position.y/PHYSICS_AREA_SIZE);
 
-	physics_area_single_coord_t xMax = ((cObj->position.x+cObj->grid.w)/PHYSICS_AREA_SIZE);
-	physics_area_single_coord_t yMax = ((cObj->position.y+cObj->grid.h)/PHYSICS_AREA_SIZE);
+	physics_area_single_coord_t xMax = ((cObj->position.x+cObj->grid.x)/PHYSICS_AREA_SIZE);
+	physics_area_single_coord_t yMax = ((cObj->position.y+cObj->grid.x)/PHYSICS_AREA_SIZE);
 
 
 	for(physics_area_single_coord_t x=xMin;x<=xMax;x++)
@@ -513,8 +537,8 @@ InternalResult GE_TickPhysics_ForObject_Internal(GE_PhysicsObject* cObj, Vector2
 			GE_PhysicsObject* victimObj = *it;
 			if(victimObj != cObj && checkNotDead(victimObj))
 			{
-				double maxSize = fmax(cObj->grid.w, cObj->grid.h); //fmax tested to be about 2x faster than std::max in this situation
-				double theirMaxSize = fmax(victimObj->grid.w, victimObj->grid.h);
+				double maxSize = fmax(cObj->grid.x, cObj->grid.x); //fmax tested to be about 2x faster than std::max in this situation
+				double theirMaxSize = fmax(victimObj->grid.x, victimObj->grid.x);
 				if ( ( cObj->position.x+maxSize >= victimObj->position.x-theirMaxSize) && (cObj->position.x-maxSize <= victimObj->position.x+theirMaxSize) && (cObj->position.y+maxSize >= victimObj->position.y-theirMaxSize) && (cObj->position.y-maxSize <=victimObj->position.y+theirMaxSize)) //tested to help a lot as compared to just running a full check.
 				{
 					InternalResult result = GE_CollisionFullCheck(cObj,victimObj);
@@ -572,7 +596,7 @@ void GE_FreePhysicsObject(GE_PhysicsObject* physicsObject)
 
 
 
-void GE_RectangleToPoints(GE_Rectangle rect, GE_Rectangle grid, Vector2* points, Vector2r hostPosition) 
+void GE_RectangleToPoints(GE_Rectangle rect, Vector2 grid, Vector2* points, Vector2r hostPosition) 
 {
 		
 	//Points make collision checking easy because you cannot rotate a point in space (or rather, rotating it would have no effect)
@@ -582,8 +606,8 @@ void GE_RectangleToPoints(GE_Rectangle rect, GE_Rectangle grid, Vector2* points,
 	points[2] = {rect.x , rect.y+rect.h}; //bottom left
 	points[3] = {rect.x+rect.w , rect.y+rect.h}; //bottom right
 
-	double halfrectw = grid.w/2;//rect.w/2; //TODO I think this needs to be the size of the full object?
-	double halfrecth = grid.h/2;//rect.h/2;
+	double halfrectw = grid.x/2;//rect.w/2; //TODO I think this needs to be the size of the full object?
+	double halfrecth = grid.x/2;//rect.h/2;
 	for (int i =0; i < 4; i++)
 	{
 		points[i].x -= halfrectw;
@@ -647,7 +671,7 @@ void GE_InelasticCollision(GE_PhysicsObject* subject, Vector2 collisionPoint, Ve
 
 	//find the angle to apply the velocity at
 	
-	Vector2 centerPoint = GE_GetRectangleCenterRealPosition(subject->grid, subject->position);
+	Vector2 centerPoint = (subject->grid/2)+subject->position; //NOTE: Changed
 
 	printf("centerPoint %f,%f\n",centerPoint.x,centerPoint.y);
 

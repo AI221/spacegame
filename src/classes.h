@@ -55,7 +55,7 @@ enum TYPES
 class Subsystem
 {
 	public:
-		Subsystem(SDL_Renderer* renderer, std::string sprite, Vector2 size, GE_Rectangle animation, Vector2r relativePosition, int collisionRectangle, std::string name, GE_Rectangle* parrentGrid);
+		Subsystem(SDL_Renderer* renderer, std::string sprite, Vector2 size, GE_Rectangle animation, Vector2r relativePosition, int collisionRectangle, std::string name, Vector2* parrentGrid);
 		~Subsystem();
 		void CheckCollision(int checkCollisionRectangle);
 		void Update(Vector2r parrentPosition);
@@ -73,7 +73,7 @@ class Subsystem
 		Vector2r relativePosition;
 		int collisionRectangle;
 		int level; //posibilites...
-		GE_Rectangle* parrentGrid;
+		Vector2* parrentGrid;
 		Vector2r position;
 		GE_GlueTarget* glueTarget;
 
@@ -132,7 +132,7 @@ class Enemie : public GE_PhysicsObject
 class BulletType : public GE_PhysicsObject
 {
 	public:
-		BulletType(Vector2r position, Vector2r velocity, GE_Rectangle grid, double mass);
+		BulletType(Vector2r position, Vector2r velocity,double mass);
 		~BulletType();
 		int level;
 		bool C_Collision(GE_PhysicsObject* victim, int collisionRectangleID);

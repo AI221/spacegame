@@ -85,7 +85,7 @@ typedef std::vector<physics_area_t*> physics_object_area_list_t;
 class GE_PhysicsObject
 {
 	public:
-		GE_PhysicsObject(Vector2r position, Vector2r velocity, GE_Rectangle grid, double mass);
+		GE_PhysicsObject(Vector2r position, Vector2r velocity, double mass);
 		virtual ~GE_PhysicsObject();
 
 
@@ -94,16 +94,21 @@ class GE_PhysicsObject
 		Vector2r position;
 		Vector2r velocity;
 		double mass;
-		GE_Rectangle grid; //simplified version of all collisionRectangles
 		Vector2 warpedShape;
 		int ID;
 		GE_Rectangle collisionRectangles[MAX_COLLISION_RECTANGLES_PER_OBJECT];
 		int numCollisionRectangles;
+		Vector2 grid; //the bounding box is the smallest box that can fit all collision rectangles
 		GE_GlueTarget* glueTargets[MAX_GLUE_OBJECTS_PER_OBJECT]; //Hold glue targets to delete them right before we're deleted //TODO this forces you to keep your glue active until you kill the physics object. This is undesired.
 		int numGlueTargets;
 		Vector2r lastGoodPosition;
 		bool callCallbackBeforeCollisionFunction;
 		bool callCallbackAfterCollisionFunction;
+
+		/*!
+		 * Adds a collision rectangle to this object and updates cached values
+		 */
+		void addCollisionRectangle(GE_Rectangle newRectangle);
 
 		/*!
 		 * A callback upon collision
@@ -123,10 +128,13 @@ class GE_PhysicsObject
 		 */
 		virtual bool C_Update();
 
+
+
 		/*!
 		 * Which area(s) the physics object is in the world (basically, a cached value you don't have to worry about)
 		 */
 		physics_object_area_list_t areas;
+		double diameter; //the maximum space the object can take up; used for collision checking optimizations
 
 		
 		
@@ -245,7 +253,7 @@ void GE_FreePhysicsObject(GE_PhysicsObject* physicsObject); //MUST be allocated 
  * @param points An array that can contain 4 Vector2* s. 
  * @param hostPosition a Vector2r , note the r, that the GE_Rectangle rect belongs to. It is used to be added to the positions of points, and its rotation will translate them.
  */
-void GE_RectangleToPoints(GE_Rectangle rect, GE_Rectangle grid, Vector2* points, Vector2r hostPosition);
+void GE_RectangleToPoints(GE_Rectangle rect, Vector2 grid, Vector2* points, Vector2r hostPosition);
 
 Vector2r GE_InelasticCollisionVelocityExchange(Vector2r velocity1, Vector2r velocity2, double mass1, double mass2);
 

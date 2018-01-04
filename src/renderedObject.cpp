@@ -70,7 +70,7 @@ GE_RenderedObject* GE_ScheduleCreateRenderedObject(SDL_Renderer* renderer, std::
 GE_RenderedObject* GE_CreateRenderedObject(SDL_Renderer* renderer, std::string spriteName) // size is not included (despite it being a value often set at start) due to its linked nature.
 {
 	printf("Create RenderedObject\n");
-	GE_RenderedObject* renderedObject = new GE_RenderedObject{renderer, -1, Vector2r{0,0,0}, Vector2{0,0}, GE_Rectangle{0,0,0,0},GE_Rectangle{0,0,0,0}};
+	GE_RenderedObject* renderedObject = new GE_RenderedObject{renderer, -1, Vector2r{0,0,0}, Vector2{0,0},GE_Rectangle{0,0,0,0}};
 	GE_ChangeRenderedObjectSprite(renderedObject,spriteName);
 	pthread_mutex_lock(&listShiftMutex);
 	renderedObjects.insert(renderedObjects.end(), renderedObject);

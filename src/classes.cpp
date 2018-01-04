@@ -2,14 +2,13 @@
 
 Player* targetPlayer;
 
-Subsystem::Subsystem(SDL_Renderer* renderer, std::string sprite, Vector2 size, GE_Rectangle animation, Vector2r relativePosition, int collisionRectangle, std::string name, GE_Rectangle* parrentGrid)
+Subsystem::Subsystem(SDL_Renderer* renderer, std::string sprite, Vector2 size, GE_Rectangle animation, Vector2r relativePosition, int collisionRectangle, std::string name, Vector2* parrentGrid)
 {
 	printf("stt\n");
 	this->renderer = renderer;
 	renderObject = GE_CreateRenderedObject(renderer,sprite); //TODO
 	this->spriteName = sprite;
 
-	renderObject->grid = *parrentGrid;
 	printf("Size: %f\n ",size.x);
 	printf("anim %f\n",animation.w);
 
@@ -58,8 +57,8 @@ void Subsystem::Update(Vector2r parrentPosition)
 
 	if (true)//GetIsOnline())
 	{
-		double halfrectw = parrentGrid->w/2;
-		double halfrecth = parrentGrid->h/2;
+		double halfrectw = parrentGrid->x/2;
+		double halfrecth = parrentGrid->y/2;
 		//printf("x %f\n",(halfrectw));
 		Vector2r rotationMatrix = relativePosition;
 
@@ -112,7 +111,7 @@ Subsystem::~Subsystem()
 #define sizePlusDoubleSize(x,y)  {x*2,y*2}, {0,0,x,y}
 #define positionDouble(x,y) {x*2,y*2,0}
 //the above inserts TWO PARAMETERS
-Player::Player(SDL_Renderer* renderer) : GE_PhysicsObject({100,0,0},{0,0,0},GE_Rectangle{0,0,98,102},25)
+Player::Player(SDL_Renderer* renderer) : GE_PhysicsObject({100,0,0},{0,0,0},25)
 {
 
 
@@ -128,24 +127,15 @@ Player::Player(SDL_Renderer* renderer) : GE_PhysicsObject({100,0,0},{0,0,0},GE_R
 
 	//If I'd more time I'd make this... uh, better in every way.
 
-	collisionRectangles[numCollisionRectangles] = {18,0,10,102}; 
-	numCollisionRectangles++;
-	collisionRectangles[numCollisionRectangles] = {28,26,42,52}; 
-	numCollisionRectangles++;
-	collisionRectangles[numCollisionRectangles] = {0,30,4,38}; 
-	numCollisionRectangles++;
-	collisionRectangles[numCollisionRectangles] = {90,30,4,38}; 
-	numCollisionRectangles++;
-	collisionRectangles[numCollisionRectangles] = {70,0,10,102}; 
-	numCollisionRectangles++;
-	collisionRectangles[numCollisionRectangles] = {28,70,42,22}; 
-	numCollisionRectangles++;
-	collisionRectangles[numCollisionRectangles] = {28,4,42,22};  //~~
-	numCollisionRectangles++;
-	collisionRectangles[numCollisionRectangles] = {10,42,9,18};  
-	numCollisionRectangles++;
-	collisionRectangles[numCollisionRectangles] = {80,42,9,18};  
-	numCollisionRectangles++;
+	addCollisionRectangle(GE_Rectangle{18,0,10,102});
+	addCollisionRectangle(GE_Rectangle{28,26,42,52}); 
+	addCollisionRectangle(GE_Rectangle{0,30,4,38}); 
+	addCollisionRectangle(GE_Rectangle{90,30,4,38}); 
+	addCollisionRectangle(GE_Rectangle{70,0,10,102}); 
+	addCollisionRectangle(GE_Rectangle{28,70,42,22}); 
+	addCollisionRectangle(GE_Rectangle{28,4,42,22});  //~~
+	addCollisionRectangle(GE_Rectangle{10,42,9,18});  
+	addCollisionRectangle(GE_Rectangle{80,42,9,18});  
 
 	callCallbackUpdate = true;
 
@@ -215,14 +205,14 @@ Player::~Player()
 
 void ShootBullet(SDL_Renderer* renderer, GE_PhysicsObject* host, Vector2r addToVelocity, Vector2r addToPosition, bool isPlayer)
 {
-	addToPosition.x = addToPosition.x - host->grid.w/2;
-	addToPosition.y = addToPosition.y - host->grid.h/2;
+	addToPosition.x = addToPosition.x - host->grid.x/2;
+	addToPosition.y = addToPosition.y - host->grid.x/2;
 
 	GE_Vector2RotationCCW(&addToPosition,host->position.r);
 	GE_Vector2RotationCCW(&addToVelocity,host->position.r);
 
-	addToPosition.x = addToPosition.x + host->grid.w/2;
-	addToPosition.y = addToPosition.y + host->grid.h/2;
+	addToPosition.x = addToPosition.x + host->grid.x/2;
+	addToPosition.y = addToPosition.y + host->grid.x/2;
 
 	StdBullet* mybullet = new StdBullet(renderer,host->position+addToPosition,(isPlayer) ? ("stdBulletPlayer") : ("stdBulletEnemy"));
 
@@ -288,9 +278,8 @@ bool Player::C_Update()
 					ro->animation = {0,0,8,9};
 					
 
-					GE_PhysicsObject* me = new GE_PhysicsObject({this->position.x+50,this->position.y+150,0},{0,0,0},{25,25},25);
-					me->collisionRectangles[me->numCollisionRectangles] = {0,0,25,25};
-					me->numCollisionRectangles++;
+					GE_PhysicsObject* me = new GE_PhysicsObject({this->position.x+50,this->position.y+150,0},{25,25},25);
+					me->addCollisionRectangle(GE_Rectangle{0,0,25,25});
 					me->callCallbackBeforeCollisionFunction = true;
 
 					GE_LinkVectorToPhysicsObjectPosition(me,&(ro->position));
@@ -433,7 +422,7 @@ bool Player::GetIsOnline()
 
 
 
-Enemie::Enemie(SDL_Renderer* renderer, Vector2r position, int level) : GE_PhysicsObject(position,{0,0,0},GE_Rectangle{0,0,38,42},25)
+Enemie::Enemie(SDL_Renderer* renderer, Vector2r position, int level) : GE_PhysicsObject(position,{0,0,0},25)
 {
 	this->renderer = renderer;
 
@@ -447,8 +436,7 @@ Enemie::Enemie(SDL_Renderer* renderer, Vector2r position, int level) : GE_Physic
 
 	GE_LinkVectorToPhysicsObjectPosition(this,&(renderObject->position)); 
 	
-	collisionRectangles[numCollisionRectangles] = {0,0,38,42}; 
-	numCollisionRectangles++;
+	addCollisionRectangle(GE_Rectangle{0,0,38,42}); 
 
 	
 	callCallbackAfterCollisionFunction = true;
@@ -563,7 +551,7 @@ bool Enemie::C_Collision(GE_PhysicsObject* victim, int collisionRectangleID)
 
 
 
-BulletType::BulletType(Vector2r position, Vector2r velocity, GE_Rectangle grid, double mass) : GE_PhysicsObject(position,velocity,grid, mass)
+BulletType::BulletType(Vector2r position, Vector2r velocity, double mass) : GE_PhysicsObject(position,velocity, mass)
 {
 	type = TYPE_DESTROYSUB;
 }
@@ -577,7 +565,7 @@ BulletType::~BulletType()
 }
 
 
-StdBullet::StdBullet(SDL_Renderer* renderer, Vector2r position, const char* spriteName) : BulletType(position,{0,0,0},GE_Rectangle{0,0,2,10},STD_BULLET_MASS)
+StdBullet::StdBullet(SDL_Renderer* renderer, Vector2r position, const char* spriteName) : BulletType(position,{0,0,0},STD_BULLET_MASS)
 {
 	renderObject = GE_CreateRenderedObject(renderer,spriteName); 
 	renderObject->size = {2,10};
@@ -586,8 +574,7 @@ StdBullet::StdBullet(SDL_Renderer* renderer, Vector2r position, const char* spri
 
 	GE_LinkVectorToPhysicsObjectPosition(this,&(renderObject->position)); 
 	
-	collisionRectangles[numCollisionRectangles] = {0,0,4,10}; 
-	numCollisionRectangles++;
+	addCollisionRectangle(GE_Rectangle{0,0,4,10}); 
 
 	
 	callCallbackAfterCollisionFunction = true;

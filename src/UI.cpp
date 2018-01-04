@@ -13,10 +13,6 @@ GE_UI_TopLevelElement::~GE_UI_TopLevelElement()
 
 
 
-/*
-	The OO paradign makes a lot of sense for UI development. For this reason, I'm actually going to keep this OO. 
-*/
-
 //TODO: memory management. yikes.
 
 void GE_UI_Text::setText(const char* text)
@@ -665,12 +661,12 @@ void GE_UI_Window::giveEvent(Vector2 parrentPosition, SDL_Event event)
 }
 bool GE_UI_Window::checkIfFocused(int mousex, int mousey)
 {
-	if (mousex >= position.x && mousex <= position.x+size.x && mousey >= position.y && mousey <= position.y+size.y)
+	/*if (mousex >= position.x && mousex <= position.x+size.x && mousey >= position.y && mousey <= position.y+size.y)
 	{
 		return true;
-		printf("window focus\n");
 	}
-	return false;
+	return false;*/
+	return checkIfFocused_ForBox(mousex,mousey,position,size);
 }
 
 

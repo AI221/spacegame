@@ -53,7 +53,6 @@ struct GE_RenderedObject
 	int spriteID;
 	Vector2r position; //start linked data ; we will receive our position either through networking, the physics engine, or by beaming radiation at the exact position this value is stored in RAM
 	Vector2 size;
-	GE_Rectangle grid;
 	GE_Rectangle animation; //end linked data
 };
 

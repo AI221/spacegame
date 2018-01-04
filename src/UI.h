@@ -84,7 +84,7 @@ class GE_UI_Element
 		virtual ~GE_UI_Element();
 		bool wantsEvents;
 };
-class GE_UI_TopLevelElement
+class GE_UI_TopLevelElement : public GE_UI_Element
 {
 	public:
 		virtual void render(Vector2 parrentPosition) = 0;
@@ -94,6 +94,16 @@ class GE_UI_TopLevelElement
 
 		bool wantsEvents;
 };
+
+
+GE_FORCE_INLINE bool checkIfFocused_ForBox(int mousex, int mousey, Vector2 position, Vector2 size) //inline convinience function for checking wheather the mouse clicked a box 
+{
+	if (mousex >= position.x && mousex <= position.x+size.x && mousey >= position.y && mousey <= position.y+size.y)
+	{
+		return true;
+	}
+	return false;
+}
 
 class GE_UI_Text : public GE_UI_Element
 {
