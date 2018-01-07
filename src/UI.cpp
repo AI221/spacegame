@@ -88,8 +88,20 @@ void GE_UI_Text::expandToTextSize()
 	this->size.x = this->Message_rect.w;
 	this->size.y = this->Message_rect.h;
 }
+
 void GE_UI_Text::_init(SDL_Renderer* renderer, Vector2 position, Vector2 size, std::string text, GE_Color color, TTF_Font* font)
 {
+	//sanity checks because you don't want errors on font rendering(hard to trace)
+	
+	if (font == NULL)
+	{
+		printf("[Fatal] 0001: GE_UI_Text -- Your TTF_Font* was NULL.\n");
+		exit(EXIT_FAILURE);
+	}
+	
+
+
+
 	this->font = font;
 
 
@@ -629,8 +641,7 @@ GE_UI_Window::GE_UI_Window(SDL_Renderer* renderer, std::string name, Vector2 pos
 
 
 
-	//this->wantsEvents = true;
-	this->wantsEvents = false;
+	this->wantsEvents = true;
 }
 
 GE_UI_Window::~GE_UI_Window()
@@ -673,7 +684,7 @@ bool GE_UI_Window::checkIfFocused(int mousex, int mousey)
 
 std::list<GE_UI_TopLevelElement*> renderOrder;
 std::list<GE_UI_OmniEventReciever*> omniEventRecievers;
-GE_UI_TopLevelElement* backgroundElement;
+GE_UI_TopLevelElement* backgroundElement= NULL;
 bool backgroundFocused = true;
 GE_UI_TopLevelElement* cursorFollower;
 bool hasCursorFollower;
@@ -706,6 +717,11 @@ void GE_UI_SetTopElement(GE_UI_TopLevelElement* element)
 void GE_UI_SetBackgroundElement(GE_UI_TopLevelElement* element)
 {
 	backgroundElement = element;
+}
+void GE_UI_RemoveBackgroundElement()
+{
+	backgroundElement = NULL;
+	backgroundFocused = false;
 }
 void GE_UI_SetCursorFollower(GE_UI_TopLevelElement* element)
 {
@@ -751,7 +767,7 @@ bool GE_UI_PullEvents()
 		{
 			return true;
 		}
-		if (backgroundFocused)
+		if (backgroundFocused && backgroundElement != NULL)
 		{
 			backgroundElement->giveEvent({0,0},event);
 		}
@@ -772,10 +788,17 @@ bool GE_UI_PullEvents()
 
 void GE_UI_Render()
 {
+	//First render background
+	if (backgroundElement != NULL)
+	{
+		backgroundElement->render({0,0});
+	}
+
 	for (auto i = renderOrder.rbegin();i != renderOrder.rend();i++)
 	{
 		(*i)->render({0,0});
 	}
+	
 	if (hasCursorFollower)
 	{
 		IntVector2 cursorPos = GE_UI_GetMousePosition();

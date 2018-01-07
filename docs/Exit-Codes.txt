@@ -1,0 +1,6 @@
+Exit error codes for game engine
+
+
+Category 0000 - UI
+0001: 
+	Your TTF_Font* passed to GE_UI_Text was NULL. You might not have directly created a GE_UI_Text -- you might search in other UI functions that use it(there are many).

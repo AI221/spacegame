@@ -86,9 +86,12 @@ void GE_UI_Minimap::render(Vector2 parrentPosition)
 	//remove anything scheduled for removal
 	
 	deleteTargetsScheduledForRemoval();
-	
+
 	for (auto i : minimapTargets)
 	{
+		//camera gets scaled way down to fit a minimap
+		Camera scaledcamera = Camera{Vector2r{camera->pos.x*scale,camera->pos.y*scale,camera->pos.r},static_cast<int>(size.y),static_cast<int>(size.x)};
+
 		printf("RenderATarget\n");
 		GE_MinimapTarget* subject_minimap = i.second;
 		if (subject_minimap != NULL)
@@ -96,11 +99,11 @@ void GE_UI_Minimap::render(Vector2 parrentPosition)
 			GE_RenderedObject* subject = i.first;
 			SDL_Color color = subject_minimap->color;
 
-			Camera* scaledcamera = new Camera{Vector2r{camera->pos.x*scale,camera->pos.y*scale,camera->pos.r},static_cast<int>(size.y),static_cast<int>(size.x)};
-			Vector2r position = GE_ApplyCameraOffset(scaledcamera,{subject->position.x*scale,subject->position.y*scale,subject->position.r},{subject->size.x*scale, subject->size.y*scale});
-			delete scaledcamera;
-			if ((position.x>=effectivePosition.x)&&(position.y>=effectivePosition.y)&&(position.x<=size.x)&&(position.y<=size.y))
+			//apply camera offset
+			Vector2r position = GE_ApplyCameraOffset(&scaledcamera,{subject->position.x*scale,subject->position.y*scale,subject->position.r},{subject->size.x*scale, subject->size.y*scale});
+			if ((position.x>=effectivePosition.x)&&(position.y>=effectivePosition.y)&&(position.x<=size.x)&&(position.y<=size.y)) //check if the object is within the bounds of the minimap
 			{
+				//render the object
 				SDL_SetRenderDrawColor(renderer,color.r, color.g, color.b, color.a);
 				temprect = SDL_Rect{static_cast<int>(position.x),static_cast<int>(position.y),3,3};
 				SDL_RenderFillRect(renderer,&temprect);

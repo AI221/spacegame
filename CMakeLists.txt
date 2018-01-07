@@ -13,15 +13,18 @@ set (EXECUTABLE_OUTPUT_PATH bin)
 
 set( CMAKE_EXPORT_COMPILE_COMMANDS ON )
 
+set(CMAKE_BUILD_TYPE Debug)
+
 #option
 option(WINDOWS "WINDOWS" OFF)
+
 
 #nix
 if (NOT WINDOWS)
 	set (CMAKE_C_COMPILER "/usr/bin/gcc")
 	set (CMAKE_CXX_COMPILER "/usr/bin/g++")
 
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -g3") #-g3
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11") #-g3
 else ()
 	#win
 	set (CMAKE_SYSTEM_NAME "Windows")

@@ -72,6 +72,6 @@
  * Examples:
  * wraparround_clamp(10,25)->25 wraparroundclamp(26,25) ->1 wraparroundclamp(50,25)->0
  */
-#define wraparround_clamp(number,maxval) (  number-(std::floor(number/maxval)*maxval)  )
+#define wraparround_clamp(number,maxval) (  (number)-(std::floor((number)/(maxval))*(maxval))  )
 
 #endif // __GENERALENGINECPP_INCLUDED

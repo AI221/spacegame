@@ -28,6 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <functional>
 #include <string>
 #include <iostream>
+#include <cmath>
 
 //Local includes
 #include "GeneralEngineCPP.h"
@@ -119,16 +120,17 @@ SDL_Renderer* renderer;
 Camera camera;
 GE_Rectangle camerasGrid;
 
+int rendererThreadsafeTicknum;
 
 
 TTF_Font* tinySans;
 TTF_Font* bigSans;
 TTF_Font* titleSans;
 
-GE_UI_FontStyle fstyle = {{0x00,0x00,0x00,0xff},titleSans};
-GE_UI_WindowTitleStyle windowTitleStyle = {fstyle,0,{GE_Color{0xff,0x00,0x00,0xff},GE_Color{0x66,0x66,0x66,0xff},{0xff,0xff,0xff,0xff},fstyle.color,{15,7},tinySans},2,GE_Color{0x66,0xff,0x33,0xff},25,true};
-GE_UI_WindowStyle windowStyle = {windowTitleStyle, GE_Color{0x12,0x1f,0x1d,255},1,GE_Color{0x66,0xff,0x33,0xff}};
-GE_UI_Style style = GE_UI_Style{fstyle,{GE_Color{0x00,0x33,0x00,0xff},tinySans},windowStyle};
+GE_UI_FontStyle fstyle;
+GE_UI_WindowTitleStyle windowTitleStyle;
+GE_UI_WindowStyle windowStyle;
+GE_UI_Style style;
 GE_Color gameBackgroundColor = {0x00,0x00,0x00,255};
 
 
@@ -167,12 +169,18 @@ class MyOmniEventReciever : public GE_UI_OmniEventReciever
 		}
 	
 };
+
+
+#define SHAKE_TICKS 15
+#define NUM_SHAKES 2.5
+#define SHAKE_DISTANCE 5
 class UI_HealthView : public GE_UI_Element
 {
 	public:
 
 		UI_HealthView(SDL_Renderer* renderer,Vector2 position, Vector2 size, Camera* camera)
 		{
+			this->size = size;
 			mySurface = new GE_UI_Surface(renderer,position,size,{0x00,0x33,0x00,255});
 
 			numHealthTexts = 0;
@@ -186,6 +194,9 @@ class UI_HealthView : public GE_UI_Element
 				printf("add element %d\n",mySurface->addElement(newText));
 				healthTexts[numHealthTexts] = newText;
 				GE_LinkGlueToPhysicsObject(player,GE_addGlueSubject(&healthAmmount[numHealthTexts],&(player->iterableSubsystems[numHealthTexts]->health),GE_PULL_ON_PHYSICS_TICK,sizeof(double)) );
+				healthAmmount[numHealthTexts] = 100;
+				lastHealth[numHealthTexts] = 100;
+				shakeHealthTillTick[numHealthTexts] = -1;
 				numHealthTexts++;
 			}
 			speedText = new GE_UI_Text(renderer,{size.x/2,15*static_cast<double>(numHealthTexts+1)},{0,0},"This message should've been updated.", {0x66,0xFF,0x00,0xFF},tinySans);
@@ -209,20 +220,40 @@ class UI_HealthView : public GE_UI_Element
 			for (int i=0;i<numHealthTexts;i++)
 			{
 				sprintf(newStr, "%s: %.2f%%",player->iterableSubsystems[i]->name.c_str(),healthAmmount[i]); //name: healthpercentage%
-
 				healthTexts[i]->setText(newStr);
+				
+				if (lastHealth[i] != healthAmmount[i])
+				{
+					shakeHealthTillTick[i] = rendererThreadsafeTicknum+SHAKE_TICKS;
+				}
+				if (shakeHealthTillTick[i] >= rendererThreadsafeTicknum)
+				{
+					int ticksElasped = (rendererThreadsafeTicknum+SHAKE_TICKS)-shakeHealthTillTick[i];
+					const double oneRevolution = 2*M_PI;
+
+					healthTexts[i]->setPosition({(size.x/2)+sin( (ticksElasped*oneRevolution*NUM_SHAKES)/SHAKE_TICKS )*SHAKE_DISTANCE  ,15*static_cast<double>(i)});	
+				}
+				
+				lastHealth[i] = healthAmmount[i];
 			}
 			sprintf (newStr, "Speed: %.2f km/s",(abs(playerSpeed.x)+abs(playerSpeed.y))*0.16667); //TODO this will need to be changed with physics timescales
 			speedText->setText(newStr);
+
+
 
 
 			mySurface->render({0,0});
 
 		}
 	private:
+		Vector2 size;
+
 		int numHealthTexts;
 		GE_UI_Surface* mySurface;
 		GE_UI_Text* healthTexts[MAX_SUBSYSTEMS];
+		double lastHealth[MAX_SUBSYSTEMS];
+		int shakeHealthTillTick[MAX_SUBSYSTEMS]; //stores what tick shaking the object will stop, or -1 if the object is not shaking
+
 		double healthAmmount[MAX_SUBSYSTEMS];
 		GE_UI_Text* speedText;
 		Vector2r playerSpeed;
@@ -291,7 +322,7 @@ class UI_GameView : public GE_UI_TopLevelElement //Includes a UI_WorldView and H
 				worldView = new UI_WorldView(renderer,position,size,camera);
 				mySurface->addElement(worldView);
 
-				mySurface->addElement( new UI_HealthView(renderer,{static_cast<double>(camera->screenWidth)-size.x,static_cast<double>(camera->screenHeight)-size.y},{300,200},camera) );
+				mySurface->addElement( new UI_HealthView(renderer,{static_cast<double>(camera->screenWidth)-300,static_cast<double>(camera->screenHeight)-200},{300,200},camera) );
 
 				mySurface->addElement( new GE_UI_Minimap(renderer, {0,0},{150,150},0.02, {0x00,0x33,0x00,255},{0x33,0x99,0x00,0xFF}, camera) ); 
 
@@ -318,6 +349,78 @@ class UI_GameView : public GE_UI_TopLevelElement //Includes a UI_WorldView and H
 		UI_WorldView* worldView;
 		Vector2 position;
 		Vector2 size;
+};
+class UI_MainMenu : public GE_UI_TopLevelElement
+{
+	public:
+		UI_MainMenu(SDL_Renderer* renderer, Vector2 position, Vector2 size)
+		{
+			this->position = position;
+			this->size = size;
+
+
+			mySurface = new GE_UI_Surface(renderer,position,size,gameBackgroundColor);
+
+
+			starsCamera = {Vector2r{0,0,0},static_cast<int>(size.x),static_cast<int>(size.y)};
+
+#define additionalStars 3
+			double maxScreenSize = std::max(camera.screenWidth,camera.screenHeight)*additionalStars;
+			std::vector<GE_Color> starColors = {{0xff,0xff,0xff,0xff},{0xfb,0xf3,0xf9,0xff},{0xba,0xd8,0xfc,0xff}};
+			std::vector<int> starSizes = {2,2,2,2,2,2,1,1,3};
+
+			mySurface->addElement( new GE_Stars(renderer, 550*additionalStars, maxScreenSize,maxScreenSize,{2,1,1,1},(0.833333333)/10,starColors,&camera) );
+			mySurface->addElement( new GE_Stars(renderer, 300*additionalStars, maxScreenSize,maxScreenSize,starSizes,0.833333333/5, starColors,&camera) );
+			mySurface->addElement( new GE_Stars(renderer, 100*additionalStars, maxScreenSize,maxScreenSize,starSizes,0.833333333/3,starColors,&camera) ); 
+			mySurface->addElement( new GE_Stars(renderer, 50*additionalStars, maxScreenSize,maxScreenSize,starSizes,0.833333333/2,starColors,&camera) ); 
+			mySurface->addElement( new GE_Stars(renderer, 20*additionalStars, maxScreenSize,maxScreenSize,starSizes,1.8, starColors,&camera ) );
+
+
+			lastTick = rendererThreadsafeTicknum;
+
+		}
+		void render(Vector2 parrentPosition)
+		{
+			int dt = rendererThreadsafeTicknum-lastTick;
+#define mode_length 60
+#define mode_num 4
+			int currentState = static_cast<int>(wraparround_clamp(rendererThreadsafeTicknum,mode_length*mode_num));
+
+			printf("current state %d\n",currentState);
+
+			if (currentState < mode_length)
+			{
+				camera.pos.x += 10;//*dt;
+			}
+			else if (currentState < mode_length*2)
+			{
+				camera.pos.x -= 10;//*dt;
+			}
+
+			//camera.pos = {static_cast<double>(rendererThreadsafeTicknum)*3,static_cast<double>(rendererThreadsafeTicknum)*3,0};
+
+			mySurface->render(parrentPosition);
+		}
+		void giveEvent(Vector2 parrentPosition, SDL_Event event)
+		{
+
+		}
+		bool checkIfFocused(int mousex, int mousey)
+		{
+			return checkIfFocused_ForBox(mousex,mousey,position,size);
+		}
+
+	private:
+		SDL_Renderer* renderer;
+		Vector2 position;
+		Vector2 size;
+		GE_UI_Surface* mySurface;
+		Camera starsCamera;
+
+
+		int lastTick;
+
+
 };
 
 int main(int argc, char* argv[])
@@ -360,13 +463,13 @@ int main(int argc, char* argv[])
 	}
 	atexit(SDL_Quit);
 
-	//Hints
+	//hints
 	SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "0" );
-	//Initialization
+	//initialization
 	SDL_Window* myWindow = SDL_CreateWindow("Spacegame", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, camera.screenWidth, camera.screenHeight, 0);
 	renderer = SDL_CreateRenderer(myWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
-	//Initialize the engine
+	//initialize the engine
 	pthread_mutex_lock(&PhysicsEngineMutex);
 
 	int error = GE_Init(renderer);
@@ -379,32 +482,31 @@ int main(int argc, char* argv[])
 
 	initInventory(renderer);
 
-	//Let the renderer know approx what tick it is
-	int rendererThreadsafeTicknum = 0;
+	//initialize styling
+	fstyle = {{0x00,0x00,0x00,0xff},titleSans};
+	windowTitleStyle = {fstyle,0,{GE_Color{0xff,0x00,0x00,0xff},GE_Color{0x66,0x66,0x66,0xff},{0xff,0xff,0xff,0xff},fstyle.color,{15,7},tinySans},2,GE_Color{0x66,0xff,0x33,0xff},25,true};
+	windowStyle = {windowTitleStyle, GE_Color{0x12,0x1f,0x1d,255},1,GE_Color{0x66,0xff,0x33,0xff}};
+	style = GE_UI_Style{fstyle,{GE_Color{0x00,0x33,0x00,0xff},tinySans},windowStyle};
+
+	//let the renderer know approx what tick it is
+	rendererThreadsafeTicknum=0;
 	GE_GlueTarget* ticknumGlue = GE_addGlueSubject(&rendererThreadsafeTicknum,&ticknum, GE_PULL_ON_PHYSICS_TICK,sizeof(int));
 	
 	//initialize the player
 	player = new Player(renderer);
-	//link camera to the player
 	GE_LinkVectorToPhysicsObjectPosition(player,&camera.pos);
-	//link player bounding box to a variable we use to center the camera
 	Vector2 playerGrid = {0,0};
-	GE_LinkGlueToPhysicsObject(player,GE_addGlueSubject(&playerGrid,&player->grid,GE_PULL_ON_PHYSICS_TICK,sizeof(playerGrid)));
+	GE_LinkGlueToPhysicsObject(player,GE_addGlueSubject(&playerGrid,&player->grid,GE_PULL_ON_PHYSICS_TICK,sizeof(playerGrid))); //because we need the bounding box to center
 
 	GE_UI_Text* GameOver = new GE_UI_Text(renderer,{static_cast<double>(camera.screenWidth/2),static_cast<double>(camera.screenHeight/2)},{0,0},"GAME OVER!",{0xFF,0x00,0x00,0xFF},bigSans);
 	GameOver->center();
 	GameOver->expandToTextSize();
 
-	//spawn some enemys why not
 	Enemie*  lastenemy;
 	for (int i=0;i<20;i++)
 	{	
 		double randomx = rand() % 5000 + 1;
 		double randomy = rand() % 5000 + 1;
-		
-		//randomx = -50;
-		//randomy = -50;
-
 
 		lastenemy = new Enemie(renderer, {randomx-1500,randomy-1500,0},1);
 	}
@@ -425,13 +527,16 @@ int main(int argc, char* argv[])
 
 	GE_UI_Window* window = new GE_UI_Window(renderer,"INVENTORY",{250,250},{618,320},style);
 	UI_GameView* myGameView = new UI_GameView(renderer,{0,0},{static_cast<double>(camera.screenWidth),static_cast<double>(camera.screenHeight)},&camera);
+	auto mm = new UI_MainMenu(renderer,{0,0},{static_cast<double>(camera.screenWidth),static_cast<double>(camera.screenHeight)});
+//	GE_UI_SetBackgroundElement(mm);
 	GE_UI_SetBackgroundElement(myGameView);
 	GE_UI_InsertTopLevelElement(window);
 
+	printf("Done with initial setup. Unlocking physics engine.\n");
 	pthread_mutex_unlock(&PhysicsEngineMutex);
 
 
-	auto inv_ = new Inventory(2500,lastenemy);
+	auto inv_ = new Inventory(2500,lastenemy); //temporary testing code 
 	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,64});
 	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,63});
 	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,21});
@@ -458,7 +563,7 @@ int main(int argc, char* argv[])
 	UI_InventoryView* inv = new UI_InventoryView(renderer, {0,0},{309,250},inv_,fstyle,{8,8},GE_Color{0xff,0xff,0xff,0x33},GE_Color{0x00,0x33,0x00,255},GE_Color{0xff,0x00,0x00,0xff});
 	window->surface->addElement(inv);
 
-	//Initialize our omni event handler
+	//initialize our omni event handler
 	MyOmniEventReciever* myOmniEventReciever = new MyOmniEventReciever();
 	GE_UI_InsertOmniEventReciever(myOmniEventReciever);
 
@@ -483,7 +588,7 @@ int main(int argc, char* argv[])
 		camera.pos.r = 0;
 #endif
 
-		if (GE_UI_PullEvents()) //Returns true if wants to quit
+		if (GE_UI_PullEvents()) //returns true if wants to quit
 		{
 			break; 
 		}
@@ -491,7 +596,7 @@ int main(int argc, char* argv[])
 
 		GE_UI_Render();
 
-		if ((!player->GetIsOnline()) && static_cast<int>(floor(rendererThreadsafeTicknum / 5.0)) % 3) //Flash "Game over!" if the player is dead. Basically, this is (%number)/(dividedNumber), numerator being how often it's ON, denominator being how often it's OFF... except when it's not. I'll level with you: I figured out how to make timers based soley off of the tick number a long time ago. I no longer have a clue how this works. I adjusted it until I got the result I wanted. 
+		if ((!player->GetIsOnline()) && static_cast<int>(floor(rendererThreadsafeTicknum / 5.0)) % 3) //flash "Game over!" if the player is dead. basically, this is (%number)/(dividedNumber), numerator being how often it's ON, denominator being how often it's OFF... except when it's not. I'll level with you: I figured out how to make timers based soley off of the tick number a long time ago. I no longer have a clue how this works. I adjusted it until I got the result I wanted. 
 		{
 			GameOver->render({0,0});
 		}
@@ -510,7 +615,7 @@ int main(int argc, char* argv[])
 		#endif
 
 
-		SDL_RenderPresent(renderer); //Seems to be the VSyncer (expect ~16ms wait upon call)
+		SDL_RenderPresent(renderer); //seems to be the VSyncer (expect ~16ms wait upon call)
 	}
 	
 

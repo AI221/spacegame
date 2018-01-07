@@ -92,7 +92,7 @@ class GE_UI_TopLevelElement : public GE_UI_Element
 		virtual bool checkIfFocused(int mousex, int mousey) = 0;
 		virtual ~GE_UI_TopLevelElement();
 
-		bool wantsEvents;
+		//bool wantsEvents;
 };
 
 

@@ -52,29 +52,25 @@ GE_Stars::~GE_Stars()
 
 void GE_Stars::render(Vector2 parrentPosition) // TODO:parrentPosition
 {
-	Camera* scaledcamera;
+	Camera scaledcamera = Camera{Vector2r{camera->pos.x*allStarsScale,camera->pos.y*allStarsScale,camera->pos.r},camera->screenHeight,camera->screenWidth};
 	Vector2r position;
 	position.r = 0; //the rotation is always 0
 	for (GE_SingleStar* subjectStar: stars)
 	{
-		scaledcamera = new Camera{Vector2r{camera->pos.x*allStarsScale,camera->pos.y*allStarsScale,camera->pos.r},camera->screenHeight,camera->screenWidth};
-
-
-		position.x = (subjectStar->position.x-scaledcamera->pos.x*allStarsScale);
-		position.y = (subjectStar->position.y-scaledcamera->pos.y*allStarsScale);
+		position.x = (subjectStar->position.x-scaledcamera.pos.x*allStarsScale);
+		position.y = (subjectStar->position.y-scaledcamera.pos.y*allStarsScale);
 
 		position= {wraparround_clamp(position.x,allStarsSize.x),wraparround_clamp(position.y,allStarsSize.y)};
  	
 		position.x = position.x-(allStarsSize.x/2);
 		position.y = position.y-(allStarsSize.y/2);
 
-		GE_Vector2Rotation(&position,scaledcamera->pos.r);
-		delete scaledcamera; //free the memory used by the new scaled camera
+		GE_Vector2Rotation(&position,scaledcamera.pos.r);
 
-		position.x = (position.x+(scaledcamera->screenWidth/2));//-(allStarsSize.x/2);
-		position.y = (position.y+(scaledcamera->screenHeight/2));//-(allStarsSize.y/2);
+		position.x = (position.x+(scaledcamera.screenWidth/2));//-(allStarsSize.x/2);
+		position.y = (position.y+(scaledcamera.screenHeight/2));//-(allStarsSize.y/2);
 
-		if ( ( position.x+subjectStar->size >= 0) && (position.x-subjectStar->size <= scaledcamera->screenWidth) && (position.y+subjectStar->size >= 0) && (position.y-subjectStar->size <= scaledcamera->screenHeight))
+		if ( ( position.x+subjectStar->size >= 0) && (position.x-subjectStar->size <= scaledcamera.screenWidth) && (position.y+subjectStar->size >= 0) && (position.y-subjectStar->size <= scaledcamera.screenHeight))
 		{
 			starRectangles[subjectStar->color]->render(position,{static_cast<double>(subjectStar->size),static_cast<double>(subjectStar->size)});
 		}

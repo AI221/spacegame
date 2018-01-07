@@ -261,6 +261,19 @@ void GE_FreePhysicsObject_InternalFullDelete(GE_PhysicsObject* physicsObject) //
 	printf("num glues %d",physicsObject->numGlueTargets);
 
 	AllPhysicsObjects.remove(physicsObject);
+	
+	//remove the object from the areas it's in
+	physics_object_area_list_t::iterator it;
+	while (true)
+	{
+		it = physicsObject->areas.begin();
+		if (it == physicsObject->areas.end())
+		{
+			break;
+		}
+		(*it)->remove(physicsObject);
+		physicsObject->areas.erase(it);
+	}
 
 	for (int i=0;i<=physicsObject->numGlueTargets;i++)
 	{
@@ -535,10 +548,10 @@ InternalResult GE_TickPhysics_ForObject_Internal(GE_PhysicsObject* cObj, Vector2
 		{
 			temp3++;
 			GE_PhysicsObject* victimObj = *it;
-			if(victimObj != cObj && checkNotDead(victimObj))
+			if((victimObj != cObj) && checkNotDead(victimObj))
 			{
-				double maxSize = fmax(cObj->grid.x, cObj->grid.x); //fmax tested to be about 2x faster than std::max in this situation
-				double theirMaxSize = fmax(victimObj->grid.x, victimObj->grid.x);
+				double maxSize = cObj->diameter;//fmax(cObj->grid.x, cObj->grid.x); //fmax tested to be about 2x faster than std::max in this situation
+				double theirMaxSize = victimObj->diameter;//fmax(victimObj->grid.x, victimObj->grid.x);
 				if ( ( cObj->position.x+maxSize >= victimObj->position.x-theirMaxSize) && (cObj->position.x-maxSize <= victimObj->position.x+theirMaxSize) && (cObj->position.y+maxSize >= victimObj->position.y-theirMaxSize) && (cObj->position.y-maxSize <=victimObj->position.y+theirMaxSize)) //tested to help a lot as compared to just running a full check.
 				{
 					InternalResult result = GE_CollisionFullCheck(cObj,victimObj);
