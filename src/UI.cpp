@@ -319,12 +319,11 @@ void GE_UI_Button::render(Vector2 parrentPosition)
 	SDL_Rect translatedRect = positionAndSize;
 	translatedRect.x += parrentPosition.x;
 	translatedRect.y += parrentPosition.y;
-	translatedRect.w = myText->Message_rect.w+paddingSize.x; //add the size of the text plus our padding. good ol' violation of OO rules (direct access to data)
+	translatedRect.w = myText->Message_rect.w+paddingSize.x; //add the size of the text plus our padding. 
 	translatedRect.h = myText->Message_rect.h+paddingSize.y;
 
 	if (pressed)
 	{
-		//hey, yknow what would be funny? Let's give our API users a color struct... and then make them convert it back to uint8'S! 
 		SDL_SetRenderDrawColor( renderer, pressedColor.r,pressedColor.g,pressedColor.b,pressedColor.a );
 	}
 	else
@@ -382,6 +381,150 @@ Vector2 GE_UI_Button::getSize()
 	return {myText->Message_rect.w+paddingSize.x,myText->Message_rect.y+paddingSize.y};
 }
 
+
+
+GE_UI_PositioningRectangle::GE_UI_PositioningRectangle(Vector2 position, Vector2 size)
+{
+	this->originPosition = position;
+	this->originSize = size;
+}
+
+Vector2 GE_UI_PositioningRectangle::getPosition()
+{
+	Vector2 returnPosition = originPosition;
+	if (getModifierValue(GE_UI_PositioningRectangleModifiers::centerX))
+	{
+		returnPosition.x -= originSize.x/2;
+	}
+	if (getModifierValue(GE_UI_PositioningRectangleModifiers::centerY))
+	{
+		returnPosition.y -= originSize.y/2;
+	}
+
+
+	return returnPosition;
+}
+Vector2 GE_UI_PositioningRectangle::getSize()
+{
+	Vector2 returnSize = originSize;
+
+	return returnSize;
+}
+
+void GE_UI_PositioningRectangle::setPosition(Vector2 position)
+{
+	originPosition = position;
+}
+void GE_UI_PositioningRectangle::setSize(Vector2 size)
+{
+	if (getModifierValue(GE_UI_PositioningRectangleModifiers::expandSizeToFit))
+	{
+		printf("[Warning] 0002 - GE_UI_PositioningRectangle::setSize cannot be called when GE_UI_PositioningRectangleModifiers::expandSizeToFit is true\n");
+		return;
+	}
+	originSize = size;
+
+}
+
+void GE_UI_PositioningRectangle::setModifier(GE_UI_PositioningRectangleModifiers modifier, bool value)
+{
+	modifiers[static_cast<int>(modifier)] = value;
+}
+bool GE_UI_PositioningRectangle::getModifierValue(GE_UI_PositioningRectangleModifiers modifier)
+{
+	return modifiers[static_cast<int>(modifier)];
+}
+Vector2 GE_UI_PositioningRectangle::getOriginPosition()
+{
+	return originPosition;
+}
+Vector2 GE_UI_PositioningRectangle::getOriginSize()
+{
+	return originSize;
+}
+
+GE_Experimental_UI_Button::GE_Experimental_UI_Button(SDL_Renderer* renderer, Vector2 position, Vector2 paddingSize, GE_Color color, GE_Color pressedColor, GE_UI_Text* text)
+{
+	this->text = text;
+	this->renderer = renderer;
+	this->position = position;
+	this->paddingSize = paddingSize;
+	this->color = color;
+	this->pressedColor = pressedColor;
+
+	normalRectangle = new GE_RectangleShape(renderer,color);
+	pressedRectangle = new GE_RectangleShape(renderer,pressedColor);
+	this->pressed = false;
+	this->triggered = false;
+	this->wantsEvents = true;
+}
+GE_Experimental_UI_Button::~GE_Experimental_UI_Button()
+{
+	delete text;
+	delete normalRectangle;
+	delete pressedRectangle;
+
+}
+void GE_Experimental_UI_Button::render(Vector2 parrentPosition)
+{
+	if (pressed)
+	{
+		pressedRectangle->render(parrentPosition+position,Vector2{static_cast<double>(text->Message_rect.w),static_cast<double>(text->Message_rect.h)}+paddingSize);
+	}
+	else
+	{
+		normalRectangle->render(parrentPosition+position,Vector2{static_cast<double>(text->Message_rect.w),static_cast<double>(text->Message_rect.h)}+paddingSize);
+	}
+	text->render(parrentPosition);
+}
+void GE_Experimental_UI_Button::render()
+{
+	render({0,0});
+}
+void GE_Experimental_UI_Button::giveEvent(Vector2 parrentPosition, SDL_Event event)
+{
+	Vector2 actualPosition = position;
+	actualPosition.x += parrentPosition.x;
+	actualPosition.y += parrentPosition.y;
+	if (event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_MOUSEBUTTONUP)
+	{
+		if (event.button.button == SDL_BUTTON_LEFT)
+		{
+			int x,y;
+			SDL_GetMouseState(&x,&y);
+			if (actualPosition.x <= x && actualPosition.y <= y && actualPosition.x+text->Message_rect.w+paddingSize.x >= x && actualPosition.y+text->Message_rect.h+paddingSize.y >= y)
+			{
+				std::cout << "BINGO" << std::endl;
+				if (event.type == SDL_MOUSEBUTTONDOWN)
+				{
+					pressed = true;
+				}
+				else if (pressed && event.type == SDL_MOUSEBUTTONUP)
+				{
+					triggered = true;
+					pressed = false;
+				}
+				
+			}
+			else if (event.type == SDL_MOUSEBUTTONUP) //release the button but do not trigger it if they release the mouse outside the button box
+			{
+				pressed = false;
+			}
+		}
+	}		
+}
+Vector2 GE_Experimental_UI_Button::getSize()
+{
+	return {text->Message_rect.w+paddingSize.x,text->Message_rect.y+paddingSize.y};
+}
+bool GE_Experimental_UI_Button::getIsTriggered()
+{
+	return triggered;
+}
+void GE_Experimental_UI_Button::setIsTriggered(bool triggered)
+{
+	this->triggered = triggered;
+}
 
 
 GE_UI_ProgressBar::GE_UI_ProgressBar(SDL_Renderer* renderer, Vector2 position, Vector2 size, GE_Color color, GE_Color background, bool showProgressNumber)

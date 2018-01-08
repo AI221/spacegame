@@ -378,32 +378,51 @@ class UI_MainMenu : public GE_UI_TopLevelElement
 
 			lastTick = rendererThreadsafeTicknum;
 
+
+			GE_UI_Text* titleText = new GE_UI_Text(renderer,{size.x/2,(size.y/2)-(300)},{0,0},"S P A C E G A M E",GE_Color{0xff,0xff,0xff,0x00},titleSans);
+
+			titleText->expandToTextSize();
+			titleText->centerX();
+
+			mySurface->addElement(titleText);
+
+
+			GE_UI_Text* buttonText = new GE_UI_Text(renderer,{size.x/2,size.y/2},{0,0},"Start Game",GE_Color{0xff,0xff,0xff,0x00},tinySans);
+			buttonText->expandToTextSize();
+			buttonText->centerX();
+			GE_Experimental_UI_Button* startGame = new GE_Experimental_UI_Button(renderer, {size.x/2,size.y/2},{10,50},GE_Color{0xff,0x00,0xff,0xff},GE_Color{0x00,0x00,0xff,0xff},buttonText);
+
+			mySurface->addElement(startGame);
+
+
+
 		}
 		void render(Vector2 parrentPosition)
 		{
 			int dt = rendererThreadsafeTicknum-lastTick;
-#define mode_length 60
+#define mode_length 600
 #define mode_num 4
-			int currentState = static_cast<int>(wraparround_clamp(rendererThreadsafeTicknum,mode_length*mode_num));
+			int currentState = static_cast<int>(wraparround_clamp(rendererThreadsafeTicknum,(mode_length*mode_num)));
 
 			printf("current state %d\n",currentState);
 
 			if (currentState < mode_length)
 			{
-				camera.pos.x += 10;//*dt;
+				camera.pos.x = 10*sin((rendererThreadsafeTicknum*2*M_PI)/(mode_length));
 			}
 			else if (currentState < mode_length*2)
 			{
 				camera.pos.x -= 10;//*dt;
 			}
 
-			//camera.pos = {static_cast<double>(rendererThreadsafeTicknum)*3,static_cast<double>(rendererThreadsafeTicknum)*3,0};
+			camera.pos = {static_cast<double>(rendererThreadsafeTicknum)*3,0,0};//static_cast<double>(rendererThreadsafeTicknum)*3,0};
 
 			mySurface->render(parrentPosition);
+			GE_DEBUG_TextAt(std::to_string(currentState),Vector2{0,0});
 		}
 		void giveEvent(Vector2 parrentPosition, SDL_Event event)
 		{
-
+			mySurface->giveEvent(parrentPosition,event);
 		}
 		bool checkIfFocused(int mousex, int mousey)
 		{
@@ -528,9 +547,9 @@ int main(int argc, char* argv[])
 	GE_UI_Window* window = new GE_UI_Window(renderer,"INVENTORY",{250,250},{618,320},style);
 	UI_GameView* myGameView = new UI_GameView(renderer,{0,0},{static_cast<double>(camera.screenWidth),static_cast<double>(camera.screenHeight)},&camera);
 	auto mm = new UI_MainMenu(renderer,{0,0},{static_cast<double>(camera.screenWidth),static_cast<double>(camera.screenHeight)});
-//	GE_UI_SetBackgroundElement(mm);
+	GE_UI_SetBackgroundElement(mm);
 	GE_UI_SetBackgroundElement(myGameView);
-	GE_UI_InsertTopLevelElement(window);
+//	GE_UI_InsertTopLevelElement(window);
 
 	printf("Done with initial setup. Unlocking physics engine.\n");
 	pthread_mutex_unlock(&PhysicsEngineMutex);

@@ -145,6 +145,7 @@ class GE_UI_Text : public GE_UI_Element
 	//	bool wantsEvents;
 		SDL_Rect Message_rect;
 
+
 	private:
 		TTF_Font* font;//Sans = TTF_OpenFont("/usr/share/fonts/truetype/freefont/FreeSans.ttf", 15);
 		Vector2 position;
@@ -208,6 +209,64 @@ class GE_UI_Button : public GE_UI_Element
 		Vector2 paddingSize;
 		GE_Color color;
 		GE_Color pressedColor;
+};
+enum class GE_UI_PositioningRectangleModifiers 
+{
+	NONE,
+	centerX,
+	centerY,
+	expandSizeToFit,
+	SIZE,
+};
+class GE_UI_PositioningRectangle
+{
+	public:
+		GE_UI_PositioningRectangle(Vector2 position, Vector2 size);
+		
+		Vector2 getPosition();
+		Vector2 getSize();
+
+		void setPosition(Vector2 position);
+		void setSize(Vector2 size);
+
+		void setModifier(GE_UI_PositioningRectangleModifiers modifier, bool value);
+		bool getModifierValue(GE_UI_PositioningRectangleModifiers modifier);
+
+		Vector2 getOriginPosition();
+		Vector2 getOriginSize();
+
+	private:
+		Vector2 originPosition;
+		Vector2 originSize;
+
+		bool modifiers[static_cast<int>(GE_UI_PositioningRectangleModifiers::SIZE)];
+
+};
+class GE_Experimental_UI_Button : public GE_UI_Element
+{
+	public:
+		GE_Experimental_UI_Button(SDL_Renderer* renderer, Vector2 position, Vector2 paddingSize, GE_Color color, GE_Color pressedColor, GE_UI_Text* text);
+		~GE_Experimental_UI_Button();
+		void render(Vector2 parrentPosition);
+		void render();
+		void giveEvent(Vector2 parrentPosition, SDL_Event event);
+		Vector2 getSize();
+		bool getIsTriggered();
+		void setIsTriggered(bool triggered);
+
+		GE_UI_PositioningRectangle* positioningRectangle;
+	private:
+		SDL_Renderer* renderer;
+		Vector2 position;
+		Vector2 paddingSize;
+		GE_Color color;
+		GE_Color pressedColor;
+		GE_UI_Text* text;
+		
+		bool pressed;
+		bool triggered;
+		GE_RectangleShape* normalRectangle;
+		GE_RectangleShape* pressedRectangle;
 };
 
 class GE_UI_ProgressBar : public GE_UI_Element
