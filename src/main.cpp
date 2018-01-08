@@ -116,6 +116,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 Player* player;
 
+
 SDL_Renderer* renderer;
 Camera camera;
 GE_Rectangle camerasGrid;
@@ -133,42 +134,10 @@ GE_UI_WindowStyle windowStyle;
 GE_UI_Style style;
 GE_Color gameBackgroundColor = {0x00,0x00,0x00,255};
 
+class UI_MainMenu;
 
+UI_MainMenu* myMainMenu;
 
-
-class MyOmniEventReciever : public GE_UI_OmniEventReciever
-{
-	public:
-		MyOmniEventReciever(){}
-		~MyOmniEventReciever(){}
-		void giveEvent(SDL_Event event)
-		{
-			if (event.type == SDL_KEYUP)
-			{
-				if (event.key.keysym.sym == SDLK_t)
-				{
-					GE_UI_FontStyle fstyle = {{0x00,0x00,0x00,0xff},titleSans};
-					GE_UI_WindowTitleStyle windowTitleStyle = {fstyle,0,{GE_Color{0xff,0x00,0x00,0xff},GE_Color{0x66,0x66,0x66,0xff},{0xff,0xff,0xff,0xff},fstyle.color,{15,7},titleSans},2,GE_Color{0x66,0xff,0x33,0xff},25,true};
-					GE_UI_WindowStyle windowStyle = {windowTitleStyle, GE_Color{0x00,0x00,0xff,0xff},2,GE_Color{0x66,0xff,0x33,0xff}};
-					GE_UI_Style style = GE_UI_Style{fstyle,{GE_Color{0x00,0x33,0x00,0xff},titleSans},windowStyle};
-
-
-					GE_UI_Window* window = new GE_UI_Window(renderer,"INVENTORY",{250,250},{618,320},style);
-
-
-					UI_InventoryView* inv = new UI_InventoryView(renderer, {0,0},{309,250},player->inventory,fstyle,{8,8},GE_Color{0xff,0xff,0xff,0x33},GE_Color{0x00,0x33,0x00,255},GE_Color{0xff,0x00,0x00,0xff});
-					window->surface->addElement(inv);
-
-					GE_UI_InsertTopLevelElement(window);
-
-				}
-			}
-
-
-
-		}
-	
-};
 
 
 #define SHAKE_TICKS 15
@@ -350,6 +319,10 @@ class UI_GameView : public GE_UI_TopLevelElement //Includes a UI_WorldView and H
 		Vector2 position;
 		Vector2 size;
 };
+
+
+UI_GameView* myGameView;
+
 class UI_MainMenu : public GE_UI_TopLevelElement
 {
 	public:
@@ -389,10 +362,24 @@ class UI_MainMenu : public GE_UI_TopLevelElement
 
 			GE_UI_Text* buttonText = new GE_UI_Text(renderer,{size.x/2,size.y/2},{0,0},"Start Game",GE_Color{0xff,0xff,0xff,0x00},tinySans);
 			buttonText->expandToTextSize();
-			buttonText->centerX();
-			GE_Experimental_UI_Button* startGame = new GE_Experimental_UI_Button(renderer, {size.x/2,size.y/2},{10,50},GE_Color{0xff,0x00,0xff,0xff},GE_Color{0x00,0x00,0xff,0xff},buttonText);
+			buttonText->center();
+			startGame = new GE_Experimental_UI_Button(renderer, {size.x/2,size.y/2},{200,75},{0x00,0x33,0x00,255},GE_Color{0x55,0xee,0x22,0xff},buttonText);
+			startGame->positioningRectangle->setModifier(GE_UI_PositioningRectangleModifiers::centerX,true);
+			startGame->positioningRectangle->setModifier(GE_UI_PositioningRectangleModifiers::centerY,true);
+			startGame->render({0,0});
 
+			printf("%s", (GE_DEBUG_VectorToString(startGame->positioningRectangle->getPosition())+"\n").c_str());
+			//SDL_Delay(6000);
 			mySurface->addElement(startGame);
+
+			buttonText = new GE_UI_Text(renderer,{size.x/2,size.y/2+100},{0,0},"Quit",GE_Color{0xff,0xff,0xff,0x00},tinySans);
+			buttonText->expandToTextSize();
+			buttonText->center();
+			quitGame = new GE_Experimental_UI_Button(renderer, {size.x/2,size.y/2+100},{200,75},{0x00,0x33,0x00,255},GE_Color{0x55,0xee,0x22,0xff},buttonText);
+			quitGame->positioningRectangle->setModifier(GE_UI_PositioningRectangleModifiers::centerX,true);
+			quitGame->positioningRectangle->setModifier(GE_UI_PositioningRectangleModifiers::centerY,true);
+//			quitGame->positioningRectangle->setModifier(GE_UI_PositioningRectangleModifiers::expandSizeToFit,true);
+			mySurface->addElement(quitGame);
 
 
 
@@ -423,6 +410,24 @@ class UI_MainMenu : public GE_UI_TopLevelElement
 		void giveEvent(Vector2 parrentPosition, SDL_Event event)
 		{
 			mySurface->giveEvent(parrentPosition,event);
+
+			if (startGame->getIsTriggered())
+			{
+				startGame->setIsTriggered(false);
+
+				//simply set the game view to the new background
+				GE_UI_SetBackgroundElement(myGameView);
+			}
+
+			if (quitGame->getIsTriggered())
+			{
+				quitGame->setIsTriggered(false); //not particularly necissary but whatever
+
+				//push a quit event
+				SDL_Event quitEvent;
+				quitEvent.type = SDL_QUIT;
+				SDL_PushEvent(&quitEvent);
+			}
 		}
 		bool checkIfFocused(int mousex, int mousey)
 		{
@@ -437,10 +442,53 @@ class UI_MainMenu : public GE_UI_TopLevelElement
 		Camera starsCamera;
 
 
+		GE_Experimental_UI_Button* startGame;
 		int lastTick;
+
+		GE_Experimental_UI_Button* quitGame;
 
 
 };
+
+class MyOmniEventReciever : public GE_UI_OmniEventReciever
+{
+	public:
+		MyOmniEventReciever(){}
+		~MyOmniEventReciever(){}
+		void giveEvent(SDL_Event event)
+		{
+			if (event.type == SDL_KEYUP)
+			{
+				if (event.key.keysym.sym == SDLK_t)
+				{
+					GE_UI_FontStyle fstyle = {{0x00,0x00,0x00,0xff},titleSans};
+					GE_UI_WindowTitleStyle windowTitleStyle = {fstyle,0,{GE_Color{0xff,0x00,0x00,0xff},GE_Color{0x66,0x66,0x66,0xff},{0xff,0xff,0xff,0xff},fstyle.color,{15,7},titleSans},2,GE_Color{0x66,0xff,0x33,0xff},25,true};
+					GE_UI_WindowStyle windowStyle = {windowTitleStyle, GE_Color{0x00,0x00,0xff,0xff},2,GE_Color{0x66,0xff,0x33,0xff}};
+					GE_UI_Style style = GE_UI_Style{fstyle,{GE_Color{0x00,0x33,0x00,0xff},titleSans},windowStyle};
+
+
+					GE_UI_Window* window = new GE_UI_Window(renderer,"INVENTORY",{250,250},{618,320},style);
+
+
+					UI_InventoryView* inv = new UI_InventoryView(renderer, {0,0},{309,250},player->inventory,fstyle,{8,8},GE_Color{0xff,0xff,0xff,0x33},GE_Color{0x00,0x33,0x00,255},GE_Color{0xff,0x00,0x00,0xff});
+					window->surface->addElement(inv);
+
+					GE_UI_InsertTopLevelElement(window);
+
+				}
+				else if (event.key.keysym.sym == SDLK_ESCAPE)
+				{
+					GE_UI_SetBackgroundElement(myMainMenu);
+				}
+			}
+		
+
+
+
+		}
+	
+};
+
 
 int main(int argc, char* argv[])
 {
@@ -545,10 +593,10 @@ int main(int argc, char* argv[])
 #endif
 
 	GE_UI_Window* window = new GE_UI_Window(renderer,"INVENTORY",{250,250},{618,320},style);
-	UI_GameView* myGameView = new UI_GameView(renderer,{0,0},{static_cast<double>(camera.screenWidth),static_cast<double>(camera.screenHeight)},&camera);
-	auto mm = new UI_MainMenu(renderer,{0,0},{static_cast<double>(camera.screenWidth),static_cast<double>(camera.screenHeight)});
-	GE_UI_SetBackgroundElement(mm);
-	GE_UI_SetBackgroundElement(myGameView);
+	myGameView = new UI_GameView(renderer,{0,0},{static_cast<double>(camera.screenWidth),static_cast<double>(camera.screenHeight)},&camera);
+	myMainMenu = new UI_MainMenu(renderer,{0,0},{static_cast<double>(camera.screenWidth),static_cast<double>(camera.screenHeight)});
+	GE_UI_SetBackgroundElement(myMainMenu);
+	//GE_UI_SetBackgroundElement(myGameView);
 //	GE_UI_InsertTopLevelElement(window);
 
 	printf("Done with initial setup. Unlocking physics engine.\n");

@@ -377,7 +377,7 @@ bool Player::C_Update()
 		if (keysHeld[SDLK_ESCAPE])
 		{
 			//TODO GOD WHY
-			iterableSubsystems[1]->health = 0;
+			//iterableSubsystems[1]->health = 0;
 		}
 
 #ifdef unrealisticMove

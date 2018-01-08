@@ -417,11 +417,11 @@ void GE_UI_PositioningRectangle::setPosition(Vector2 position)
 }
 void GE_UI_PositioningRectangle::setSize(Vector2 size)
 {
-	if (getModifierValue(GE_UI_PositioningRectangleModifiers::expandSizeToFit))
+	/*if (getModifierValue(GE_UI_PositioningRectangleModifiers::expandSizeToFit))
 	{
 		printf("[Warning] 0002 - GE_UI_PositioningRectangle::setSize cannot be called when GE_UI_PositioningRectangleModifiers::expandSizeToFit is true\n");
 		return;
-	}
+	}*/ //TODO: Implement a way for the owner object to change the size that the public cannot touch
 	originSize = size;
 
 }
@@ -447,11 +447,12 @@ GE_Experimental_UI_Button::GE_Experimental_UI_Button(SDL_Renderer* renderer, Vec
 {
 	this->text = text;
 	this->renderer = renderer;
-	this->position = position;
 	this->paddingSize = paddingSize;
 	this->color = color;
 	this->pressedColor = pressedColor;
 
+	positioningRectangle = new GE_UI_PositioningRectangle(position,paddingSize);
+	//positioningRectangle->setModifier(GE_UI_PositioningRectangleModifiers::expandSizeToFit,true);
 	normalRectangle = new GE_RectangleShape(renderer,color);
 	pressedRectangle = new GE_RectangleShape(renderer,pressedColor);
 	this->pressed = false;
@@ -461,19 +462,27 @@ GE_Experimental_UI_Button::GE_Experimental_UI_Button(SDL_Renderer* renderer, Vec
 GE_Experimental_UI_Button::~GE_Experimental_UI_Button()
 {
 	delete text;
+
+	delete positioningRectangle;
 	delete normalRectangle;
 	delete pressedRectangle;
+	
 
 }
 void GE_Experimental_UI_Button::render(Vector2 parrentPosition)
 {
+	if (positioningRectangle->getModifierValue(GE_UI_PositioningRectangleModifiers::expandSizeToFit))
+	{
+		//adjust our size in case the text size changed
+		positioningRectangle->setSize({text->Message_rect.w+paddingSize.x,text->Message_rect.h+paddingSize.y});
+	}
 	if (pressed)
 	{
-		pressedRectangle->render(parrentPosition+position,Vector2{static_cast<double>(text->Message_rect.w),static_cast<double>(text->Message_rect.h)}+paddingSize);
+		pressedRectangle->render(parrentPosition+positioningRectangle->getPosition(),positioningRectangle->getSize());
 	}
 	else
 	{
-		normalRectangle->render(parrentPosition+position,Vector2{static_cast<double>(text->Message_rect.w),static_cast<double>(text->Message_rect.h)}+paddingSize);
+		normalRectangle->render(parrentPosition+positioningRectangle->getPosition(),positioningRectangle->getSize());
 	}
 	text->render(parrentPosition);
 }
@@ -483,7 +492,7 @@ void GE_Experimental_UI_Button::render()
 }
 void GE_Experimental_UI_Button::giveEvent(Vector2 parrentPosition, SDL_Event event)
 {
-	Vector2 actualPosition = position;
+	Vector2 actualPosition = positioningRectangle->getPosition();
 	actualPosition.x += parrentPosition.x;
 	actualPosition.y += parrentPosition.y;
 	if (event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_MOUSEBUTTONUP)
@@ -492,7 +501,7 @@ void GE_Experimental_UI_Button::giveEvent(Vector2 parrentPosition, SDL_Event eve
 		{
 			int x,y;
 			SDL_GetMouseState(&x,&y);
-			if (actualPosition.x <= x && actualPosition.y <= y && actualPosition.x+text->Message_rect.w+paddingSize.x >= x && actualPosition.y+text->Message_rect.h+paddingSize.y >= y)
+			if (actualPosition.x <= x && actualPosition.y <= y && positioningRectangle->getSize().x+positioningRectangle->getPosition().x >= x && positioningRectangle->getSize().y +positioningRectangle->getPosition().y>= y)
 			{
 				std::cout << "BINGO" << std::endl;
 				if (event.type == SDL_MOUSEBUTTONDOWN)
@@ -512,10 +521,6 @@ void GE_Experimental_UI_Button::giveEvent(Vector2 parrentPosition, SDL_Event eve
 			}
 		}
 	}		
-}
-Vector2 GE_Experimental_UI_Button::getSize()
-{
-	return {text->Message_rect.w+paddingSize.x,text->Message_rect.y+paddingSize.y};
 }
 bool GE_Experimental_UI_Button::getIsTriggered()
 {
