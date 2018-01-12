@@ -31,6 +31,11 @@ int GE_Init(SDL_Renderer* renderer)
 	{
 		return error+400;
 	}
+	error = GE_Font_Init();
+	if (error != 0)
+	{
+		return error+500;
+	}
 	
 	
 	srand(time(NULL)); //set random seed to time
@@ -53,6 +58,10 @@ void GE_Shutdown()
 	GE_ShutdownUI();
 	printf("RenderedObject\n");
 	GE_ShutdownRenderedObject();
+	printf("Font\n");
+	GE_Font_Shutdown();
+	printf("Json\n");
+	GE_JsonShutdown();
 
 
 }

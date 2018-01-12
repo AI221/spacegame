@@ -12,5 +12,6 @@ int GE_JsonInit();
 
 int GE_ReadJson(std::string jsonStr, Json::Value* array);
 
+void GE_JsonShutdown();
 
 #endif // __JSON_INCLUDED

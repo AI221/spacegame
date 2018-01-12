@@ -85,7 +85,7 @@ void GE_UI_Minimap::render(Vector2 parrentPosition)
 
 	//remove anything scheduled for removal
 	
-	deleteTargetsScheduledForRemoval();
+	deleteTargetsScheduledForRemoval(); //TODO: This will cause games that do not use the minimap to have tons of removal shedules to just pile up
 
 	for (auto i : minimapTargets)
 	{

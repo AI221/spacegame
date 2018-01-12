@@ -5,7 +5,7 @@
  * A simple object-oriented UI system. This is intended to remain as minimal as possible, while providing necasary features for game HUDs and UIs. 
  * Many objects do not support rotation; some do (usually if used in HUDs). This helps to keep this system minimal.
  *
- * Copying any UI element results in undefined behavior. Relying on a GE_UI_Window without checking if it's been deleting results in undefined behavior. 
+ * Copying any UI element results in undefined behavior. Relying on a GE_UI_Window without checking if it's been deleting results in undefined behavior. Top level elements might not be rendered every frame--optimization is allowed to be performed.
  */
 
 
@@ -76,6 +76,9 @@ struct GE_UI_Style
 	GE_UI_WindowStyle windowStyle;
 };
 
+/*!
+ * An element which is intended to be added to a GE_UI_TopLevelElement
+ */
 class GE_UI_Element
 {
 	public:
@@ -84,6 +87,10 @@ class GE_UI_Element
 		virtual ~GE_UI_Element();
 		bool wantsEvents;
 };
+
+/*!
+ * An element which is intended to hold various GE_UI_Elements. This type of element must be able to check if it should steal focus. Similar to a window in an operating system.
+ */
 class GE_UI_TopLevelElement : public GE_UI_Element
 {
 	public:
@@ -242,6 +249,10 @@ class GE_UI_PositioningRectangle
 		bool modifiers[static_cast<int>(GE_UI_PositioningRectangleModifiers::SIZE)];
 
 };
+
+/*!
+ * An experimental UI implementation which makes use of a positioning rectangle, which effectively creates a standard method of positioning, centering, and sizing.
+ */
 class GE_Experimental_UI_Button : public GE_UI_Element
 {
 	public:
@@ -329,6 +340,9 @@ class GE_UI_Titlebar
 	
 
 
+/*!
+ * Easy container which holds other elements. The first element added to this will be in the background, while the last will be in the foreground.
+ */
 class GE_UI_Surface : public GE_UI_Element
 {
 	public:
@@ -392,16 +406,59 @@ class GE_UI_OmniEventReciever
 
 
 
-
+/*!
+ * Inserts a top level element but does not focus it
+ */
 void GE_UI_InsertTopLevelElement(GE_UI_TopLevelElement* element);
+
+/*!
+ * Removes a top level element and does not free any memory
+ */
 void GE_UI_RemoveTopLevelElement(GE_UI_TopLevelElement* element);
+
+/*
+ * Inserts another omni event reciever
+ */
 void GE_UI_InsertOmniEventReciever(GE_UI_OmniEventReciever* element);
+
+/*!
+ * Removes an omni event reciever
+ */
 void GE_UI_RemoveOmniEventReciever(GE_UI_OmniEventReciever* element);
+
+/*
+ * Set the top(focused) top level element (so, one GE_UI_TopLevelElement becomes focused)
+ */
 void GE_UI_SetTopElement(GE_UI_TopLevelElement* element);
+
+/*!
+ * Sets THE ONLY background element
+ */
 void GE_UI_SetBackgroundElement(GE_UI_TopLevelElement* element);
+
+/*!
+ * Returns the background element
+ */
+GE_UI_TopLevelElement* GE_UI_GetBackgroundElement();
+
+/*!
+ * Removes the background element and does not free any memory
+ */
+void GE_UI_RemoveBackgroundElement();
+
+/*!
+ * Sets THE ONE cursor follower
+ */
 void GE_UI_SetCursorFollower(GE_UI_TopLevelElement* element);
 
+/*!
+ * Gives events to the focused top level UI element, and may shift focus 
+ */
 bool GE_UI_PullEvents();
+
+/*!
+ * Renders all top level UI elements. Don't assume your element will be rendered every time, optimization is allowed to be performed to not render hidden elements
+ */
 void GE_UI_Render();
 
 

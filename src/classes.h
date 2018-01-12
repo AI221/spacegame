@@ -90,7 +90,7 @@ class Player : public GE_PhysicsObject
 		bool C_Collision(GE_PhysicsObject* victim, int collisionRectangleID);
 		bool GetIsOnline();
 		Subsystem* iterableSubsystems[MAX_SUBSYSTEMS];
-		int numIterableSubsystems;
+		const static int numIterableSubsystems = 8;
 
 
 		GE_ThreadedEventStack threadedEventStack;

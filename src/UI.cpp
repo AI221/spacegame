@@ -848,6 +848,10 @@ void GE_UI_RemoveTopLevelElement(GE_UI_TopLevelElement* element)
 	{
 		backgroundFocused = true;
 	}
+	if (GE_UI_GetBackgroundElement() == element)
+	{
+		GE_UI_RemoveBackgroundElement();
+	}
 }
 void GE_UI_InsertOmniEventReciever(GE_UI_OmniEventReciever* element)
 {
@@ -865,6 +869,10 @@ void GE_UI_SetTopElement(GE_UI_TopLevelElement* element)
 void GE_UI_SetBackgroundElement(GE_UI_TopLevelElement* element)
 {
 	backgroundElement = element;
+}
+GE_UI_TopLevelElement* GE_UI_GetBackgroundElement()
+{
+	return backgroundElement;
 }
 void GE_UI_RemoveBackgroundElement()
 {

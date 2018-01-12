@@ -580,6 +580,8 @@ bool GE_TickPhysics_ForObject(GE_PhysicsObject* cObj)
 	//printf("MINITICKRATE: %d\n,",miniTickrate);
 
 
+
+
 	for (int i = 0; i <= miniTickrate; i++)
 	{//TODO: Because of this mini-tick system, objects that collide with a i/miniTickrate value of <1 will have non-up-to-date velocities being added. 
 		InternalResult result = GE_TickPhysics_ForObject_Internal(cObj,velocity); 
@@ -595,6 +597,16 @@ bool GE_TickPhysics_ForObject(GE_PhysicsObject* cObj)
 			velocity = new Vector2r{cObj->velocity.x/miniTickrate, cObj->velocity.y/miniTickrate, cObj->velocity.r/miniTickrate}; //TODO: Velocity could theoreticaly increase by 1,000 times then clip through something. recalculate mini-tickrate
 		}
 	}
+
+#ifdef PHYSICS_DEBUG_SLOWRENDERS
+	DEBUG_isCObj = true;
+	for (int a=0;a<=cObj->numCollisionRectangles;a++)
+	{
+		Vector2 myPoints[4] = {};
+		GE_RectangleToPoints(cObj->collisionRectangles[a],cObj->grid,myPoints,cObj->position);
+	}
+#endif
+
 	delete velocity;
 	return false;
 
@@ -702,12 +714,18 @@ void GE_InelasticCollision(GE_PhysicsObject* subject, Vector2 collisionPoint, Ve
 	printf("new velocity real %f, %f, %f\n",subject->velocity.x,subject->velocity.y,subject->velocity.r);
 }
 
-void GE_ShutdownPhysicsEngine()
+void GE_ResetPhysicsEngine()
 {
 	pthread_mutex_lock(&PhysicsEngineMutex);
 	for (GE_PhysicsObject* object : AllPhysicsObjects)
 	{
 		GE_FreePhysicsObject(object);
 	}
+	ticknum = 0;
 	pthread_mutex_unlock(&PhysicsEngineMutex);
+}
+
+void GE_ShutdownPhysicsEngine()
+{
+	GE_ResetPhysicsEngine();
 }

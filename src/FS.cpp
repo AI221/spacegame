@@ -95,44 +95,127 @@ DirList GE_ListInDir(std::string directory)
 }
 #endif //outdatedOS
 
-
-char* GE_GetFileExtension(char* fullfilename)
+unsigned int GE_GetFileExtensionPosition(std::string fullfilename)
 {
-	int size, index;
-	size = index = 0;
-
-	while(fullfilename[size] != '\0') 
+	int position = -1;
+	for (int i=0;i<=fullfilename.size();i++)
 	{
-		if(fullfilename[size] == '.') 
+		if (fullfilename[i] == '.')
 		{
-			index = size;
+			position= i;
 		}
-		size ++; 
 	}
+	return position;
+}
+unsigned int GE_GetFileExtensionPosition(const char* fullfilename)
+{
+	return GE_GetFileExtensionPosition(std::string(fullfilename));
+}
 
-	if(size && index) 
+
+unsigned int GE_GetParrentDirectoryPosition(std::string fullfilename)
+{
+	int position = -1;
+	for (int i=0;i<=fullfilename.size();i++)
 	{
-		return fullfilename + index;
+		if (fullfilename[i] == '/')
+		{
+			position= i;
+		}
 	}
-	return NULL;
+	return position;
+}
+unsigned int GE_GetParrentDirectoryPosition(const char* fullfilename)
+{
+	return GE_GetParrentDirectoryPosition(std::string(fullfilename));
+}
+
+
+std::string GE_GetFileExtension(std::string fullfilename)
+{
+	int position = GE_GetFileExtensionPosition(fullfilename);
+	return (position==-1)? fullfilename : fullfilename.substr(position+1,fullfilename.size());
+}std::string GE_GetFileExtension(const char* fullfilename)
+{
+	return GE_GetFileExtension(std::string(fullfilename));
+}
+
+
+std::string GE_GetFileNoExtension(std::string fullfilename)
+{
+	int position = GE_GetFileExtensionPosition(fullfilename);
+	return (position==-1)?fullfilename : fullfilename.substr(0,position);
+}
+std::string GE_GetFileNoExtension(const char* fullfilename)
+{
+	return GE_GetFileNoExtension(std::string(fullfilename));
+}
+
+
+std::string GE_GetParrentDirectory(std::string fullfilename)
+{
+	int position = GE_GetParrentDirectoryPosition(fullfilename);
+	return position==-1? fullfilename : fullfilename.substr(0,position);
+}
+std::string GE_GetParrentDirectory(const char* fullfilename)
+{
+	return GE_GetParrentDirectory(std::string(fullfilename));
+}
+
+std::string GE_GetBaseName(std::string fullfilename)
+{
+	int position = GE_GetParrentDirectoryPosition(fullfilename);
+	return position==-1? fullfilename : fullfilename.substr(position+1,fullfilename.size());
+}
+std::string GE_GetBaseName(const char* fullfilename)
+{
+	return GE_GetBaseName(std::string(fullfilename));
 }
 
 
 std::string GE_ReadAllFromFile(const char* fullfilename)
 {
-	char buffer[1024*16] = "";
+	char buffer[256] = "";
+	std::string fullBuffer = "";
 	SDL_RWops *file = SDL_RWFromFile(fullfilename, "r");
 
 	if (file != NULL) 
 	{
-
-		if (file->read(file, buffer, sizeof (buffer), 1) > 0) {
-			printf("Hello, %s!\n", buffer);
+		int objsRead;
+		while (true)
+		{	
+			objsRead = file->read(file, buffer, sizeof (buffer), 1);//read as much as our buffer will store
+			fullBuffer = fullBuffer+std::string(buffer); //append the C++ string with the C-style buffer - not the most effecient but FS access is slow in general and doesn't need to be fast for games
+			if (objsRead == 0) 
+			{
+				break; //we're done, break the loop
+			}
 		}
 		file->close(file);
 	}
+	return fullBuffer;
+}
+std::string GE_ReadAllFromFile(std::string fullfilename)
+{
+	return GE_ReadAllFromFile(fullfilename.c_str());
+}
 
-	return std::string(buffer);
 
 
+
+
+bool GE_TEST_FS() //mostly tests string manipulation
+{
+	bool passedAll = true;
+	GE_TEST_STD(GE_StringifyString,std::string,"my.file",GE_GetFileNoExtension,"my.file.ext");
+	GE_TEST_STD(GE_StringifyString,std::string,"ext",GE_GetFileExtension,"my.file.ext");
+	GE_TEST_STD(GE_StringifyString,std::string,"folder",GE_GetParrentDirectory,"folder/file");
+	GE_TEST_STD(GE_StringifyString,std::string,"file",GE_GetBaseName,"folder/file");
+
+	GE_TEST_STD(GE_StringifyString,std::string,"file",GE_GetFileNoExtension,"file");
+	GE_TEST_STD(GE_StringifyString,std::string,"file",GE_GetFileExtension,"file");
+	GE_TEST_STD(GE_StringifyString,std::string,"folder",GE_GetParrentDirectory,"folder");
+	GE_TEST_STD(GE_StringifyString,std::string,"file",GE_GetBaseName,"file");
+
+	return passedAll;
 }

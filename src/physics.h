@@ -262,8 +262,13 @@ Vector2 GE_GetRectangleCenterRealPosition(GE_Rectangle rectangle, Vector2r realP
 
 void GE_InelasticCollision(GE_PhysicsObject* subject, Vector2 collisionPoint, Vector2r momentum, bool CCW);
 /*!
- * Frees all physics objects in memory. Call on shutdown.
+ * Frees all physics objects in memory. Call only on shutdown.
  */
 void GE_ShutdownPhysicsEngine();
+
+/*!
+ * Frees all physics objects in memory.
+ */
+void GE_ResetPhysicsEngine();
 
 #endif //PHYSICS_INCLUDED

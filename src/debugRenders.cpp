@@ -5,7 +5,7 @@
 
 #define FONT_DIR BASE_DIR"fonts/"
 
-#define FREESANS_LOC FONT_DIR"FreeSans.ttf"
+#define FREESANS_LOC FONT_DIR"gnuFreeFonts/FreeSans.ttf"
 
 SDL_Renderer* GE_DEBUG_Renderer;//memory leak - wontfix
 Camera* GE_DEBUG_Camera; //memory leak - wontfix

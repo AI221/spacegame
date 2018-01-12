@@ -1,0 +1,1 @@
+Each font is grouped. There will be a text document in each group with the license of the font named "LICENSE"

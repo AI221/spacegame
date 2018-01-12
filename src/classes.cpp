@@ -107,11 +107,11 @@ Subsystem::~Subsystem()
 
 
 
-#define bump() numIterableSubsystems++;
+#define bump() i++;
 #define sizePlusDoubleSize(x,y)  {x*2,y*2}, {0,0,x,y}
 #define positionDouble(x,y) {x*2,y*2,0}
 //the above inserts TWO PARAMETERS
-Player::Player(SDL_Renderer* renderer) : GE_PhysicsObject({100,0,0},{0,0,0},25)
+Player::Player(SDL_Renderer* renderer) : GE_PhysicsObject({0,0,0},{0,0,0},25)
 {
 
 
@@ -144,26 +144,26 @@ Player::Player(SDL_Renderer* renderer) : GE_PhysicsObject({100,0,0},{0,0,0},25)
 
 	callCallbackAfterCollisionFunction = true;
 
+	int i=0;
 
-	numIterableSubsystems = 0;
 
-	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerThruster",sizePlusDoubleSize(5,51),positionDouble(9,0),0,"Left Thruster",&grid);
+	iterableSubsystems[i] = new Subsystem(renderer,"playerThruster",sizePlusDoubleSize(5,51),positionDouble(9,0),0,"Left Thruster",&grid);
 	bump();
-	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerCoreReactor",sizePlusDoubleSize(21,26),positionDouble(14,13),1,"Core Reactor",&grid);
+	iterableSubsystems[i] = new Subsystem(renderer,"playerCoreReactor",sizePlusDoubleSize(21,26),positionDouble(14,13),1,"Core Reactor",&grid);
 	bump();
-	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerLShield",sizePlusDoubleSize(9,19),positionDouble(0,15),2,"Left Shield",&grid);
+	iterableSubsystems[i] = new Subsystem(renderer,"playerLShield",sizePlusDoubleSize(9,19),positionDouble(0,15),2,"Left Shield",&grid);
 	bump();
-	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerRShield",sizePlusDoubleSize(9,19),positionDouble(39,15),3,"Right Shield",&grid);
+	iterableSubsystems[i] = new Subsystem(renderer,"playerRShield",sizePlusDoubleSize(9,19),positionDouble(39,15),3,"Right Shield",&grid);
 	bump();
-	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerThruster",sizePlusDoubleSize(5,51),positionDouble(35,0),4,"Right Thruster",&grid);
+	iterableSubsystems[i] = new Subsystem(renderer,"playerThruster",sizePlusDoubleSize(5,51),positionDouble(35,0),4,"Right Thruster",&grid);
 	bump();
-	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerLifeSupport",sizePlusDoubleSize(21,14),positionDouble(14,35),5,"Life Support",&grid);
+	iterableSubsystems[i] = new Subsystem(renderer,"playerLifeSupport",sizePlusDoubleSize(21,14),positionDouble(14,35),5,"Life Support",&grid);
 	bump();
-	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerShipHead",sizePlusDoubleSize(21,11),positionDouble(14,2),6,"Bridge",&grid);  //~~
+	iterableSubsystems[i] = new Subsystem(renderer,"playerShipHead",sizePlusDoubleSize(21,11),positionDouble(14,2),6,"Bridge",&grid);  //~~
 	bump();
-	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerLSmallTurret",sizePlusDoubleSize(4,9),positionDouble(5,21),7,"Left Turret",&grid); 
+	iterableSubsystems[i] = new Subsystem(renderer,"playerLSmallTurret",sizePlusDoubleSize(4,9),positionDouble(5,21),7,"Left Turret",&grid); 
 	bump();
-	iterableSubsystems[numIterableSubsystems] = new Subsystem(renderer,"playerRSmallTurret",sizePlusDoubleSize(4,9),positionDouble(40,21),8,"Right Turret",&grid);
+	iterableSubsystems[i] = new Subsystem(renderer,"playerRSmallTurret",sizePlusDoubleSize(4,9),positionDouble(40,21),8,"Right Turret",&grid);
 	bump();
 
 
@@ -191,9 +191,9 @@ Player::Player(SDL_Renderer* renderer) : GE_PhysicsObject({100,0,0},{0,0,0},25)
 Player::~Player()
 {
 	printf("Deleting the player!!!\n");
-	for (int i=0;i<numIterableSubsystems;i++)
+	for (int i=0;i<=numIterableSubsystems;i++)
 	{
-		delete iterableSubsystems[numIterableSubsystems];
+		delete iterableSubsystems[i];
 	}
 
 
@@ -227,9 +227,10 @@ void ShootBullet(SDL_Renderer* renderer, GE_PhysicsObject* host, Vector2r addToV
 //double fwdMove;
 bool Player::C_Update()
 {
+	printf("my grid %f,%f\n",grid.x,grid.y);
 	//Update subsystem positions
 		
-	for (int i=0;i<numIterableSubsystems;i++)
+	for (int i=0;i<=numIterableSubsystems;i++)
 	{
 		iterableSubsystems[i]->Update(position);
 		if (!iterableSubsystems[i]->GetIsOnline())
@@ -403,7 +404,7 @@ bool Player::C_Collision(GE_PhysicsObject* victim, int collisionRectangleID)
 	if (victim->type == TYPE_DESTROYSUB)
 	{	
 		//What subsytem did it hit?
-		for (int i = 0;i<numIterableSubsystems;i++)
+		for (int i = 0;i<=numIterableSubsystems;i++)
 		{
 			iterableSubsystems[i]->CheckCollision(collisionRectangleID);
 		}

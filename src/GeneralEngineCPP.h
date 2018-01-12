@@ -67,11 +67,52 @@
  */
 #define random_range_double(low,high) (static_cast<double>(  ((rand() % (std::abs(low)+high+1)))-low  ))
 
+
+
 /*!
  * "Wraps arround", think the Asteroids ship at the edge of the screen. 
  * Examples:
  * wraparround_clamp(10,25)->25 wraparroundclamp(26,25) ->1 wraparroundclamp(50,25)->0
  */
 #define wraparround_clamp(number,maxval) (  (number)-(std::floor((number)/(maxval))*(maxval))  )
+
+
+
+/*!
+ * Log something to the unit/integration test logs with printf syntax
+ */
+#define GE_TEST_Log(...) printf(__VA_ARGS__)
+
+/*!
+ * Standard, simple unit testing. Does not test for std's.
+ * Make sure to define the variable "passedAll" as bool and initialize to true.
+ */
+#define GE_TEST_STD(stringify,outtype,out,function,...) \
+{\
+	outtype expectout = out;\
+\
+	outtype testout = function(__VA_ARGS__);\
+\
+	bool pass = testout == expectout;\
+	passedAll = std::min(pass,passedAll);\
+\
+	GE_TEST_Log("[%s] %s(%s), wanted: %s, result: %s\n",pass? "PASS" : "FAIL", #function, #__VA_ARGS__,stringify(expectout), stringify(testout));\
+}
+
+/*!
+ * Converts a bool to a string
+ */
+#define GE_StringifyBool(in) (in? "true" : "false")
+
+/*!
+ * Converts an std::string to char
+ */
+#define GE_StringifyString(in) (in.c_str())
+
+#define GE_StringifyNumber(in) (std::to_string(in).c_str())
+
+#define GE_ReturnInput(in) (in)
+
+
 
 #endif // __GENERALENGINECPP_INCLUDED

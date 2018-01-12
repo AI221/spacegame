@@ -63,7 +63,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define FONT_DIR BASE_DIR"fonts/"
 #define SPRITE_DIR BASE_DIR"sprites/"
 
-#define FREESANS_LOC FONT_DIR"FreeSans.ttf"
+#define FREESANS_LOC FONT_DIR"gnuFreeFonts/FreeSans.ttf"
 
 
 #ifdef PHYSICS_DEBUG_SLOWRENDERS
@@ -115,6 +115,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 Player* player;
+Vector2 playerGrid = {0,0};
 
 
 SDL_Renderer* renderer;
@@ -132,11 +133,32 @@ GE_UI_FontStyle fstyle;
 GE_UI_WindowTitleStyle windowTitleStyle;
 GE_UI_WindowStyle windowStyle;
 GE_UI_Style style;
-GE_Color gameBackgroundColor = {0x00,0x00,0x00,255};
+GE_Color gameBackgroundColor = GE_Color{0x00,0x00,0x00,255};
 
 class UI_MainMenu;
 
 UI_MainMenu* myMainMenu;
+
+void startTheGame()
+{
+	GE_ResetPhysicsEngine();
+	pthread_mutex_lock(&PhysicsEngineMutex);
+	//initialize the player
+	player = new Player(renderer);
+	GE_LinkVectorToPhysicsObjectPosition(player,&camera.pos);
+	GE_LinkGlueToPhysicsObject(player,GE_addGlueSubject(&playerGrid,&player->grid,GE_PULL_ON_PHYSICS_TICK,sizeof(playerGrid))); //because we need the bounding box to center
+	
+	Enemie*  lastenemy;
+	for (int i=0;i<20;i++)
+	{	
+		double randomx = rand() % 5000 + 1;
+		double randomy = rand() % 5000 + 1;
+
+		lastenemy = new Enemie(renderer, {randomx-1500,randomy-1500,0},1);
+	}
+
+	pthread_mutex_unlock(&PhysicsEngineMutex);
+}
 
 
 
@@ -150,14 +172,14 @@ class UI_HealthView : public GE_UI_Element
 		UI_HealthView(SDL_Renderer* renderer,Vector2 position, Vector2 size, Camera* camera)
 		{
 			this->size = size;
-			mySurface = new GE_UI_Surface(renderer,position,size,{0x00,0x33,0x00,255});
+			mySurface = new GE_UI_Surface(renderer,position,size,GE_Color{0x00,0x33,0x00,255});
 
 			numHealthTexts = 0;
 
 
-			for (int i=0;i<player->numIterableSubsystems;i++)
+			for (int i=0;i<Player::numIterableSubsystems;i++)
 			{
-				GE_UI_Text* newText = new GE_UI_Text(renderer,{size.x/2,15*static_cast<double>(i)},{0,0},"This message should've been updated.", {0x66,0xFF,0x00,0xFF},tinySans);
+				GE_UI_Text* newText = new GE_UI_Text(renderer,{size.x/2,15*static_cast<double>(i)},{0,0},"This message should've been updated.", GE_Color{0x66,0xFF,0x00,0xFF},tinySans);
 				newText->centerX();
 				newText->expandToTextSize();
 				printf("add element %d\n",mySurface->addElement(newText));
@@ -168,7 +190,8 @@ class UI_HealthView : public GE_UI_Element
 				shakeHealthTillTick[numHealthTexts] = -1;
 				numHealthTexts++;
 			}
-			speedText = new GE_UI_Text(renderer,{size.x/2,15*static_cast<double>(numHealthTexts+1)},{0,0},"This message should've been updated.", {0x66,0xFF,0x00,0xFF},tinySans);
+			printf("doneIterable\n");
+			speedText = new GE_UI_Text(renderer,{size.x/2,15*static_cast<double>(numHealthTexts+1)},{0,0},"This message should've been updated.", GE_Color{0x66,0xFF,0x00,0xFF},tinySans);
 
 			speedText->centerX();
 			speedText->expandToTextSize();
@@ -286,7 +309,7 @@ class UI_GameView : public GE_UI_TopLevelElement //Includes a UI_WorldView and H
 				this->position = position;
 				this->size = size;
 
-				mySurface = new GE_UI_Surface(renderer,position,size,{0x00,0x00,0x00,0x00}); //background color doesn't actually matter; the WorldView fills the surface
+				mySurface = new GE_UI_Surface(renderer,position,size,GE_Color{0x00,0x00,0x00,0x00}); //background color doesn't actually matter; the WorldView fills the surface
 				//add the WorldView first to put it in the background
 				worldView = new UI_WorldView(renderer,position,size,camera);
 				mySurface->addElement(worldView);
@@ -328,6 +351,7 @@ class UI_MainMenu : public GE_UI_TopLevelElement
 	public:
 		UI_MainMenu(SDL_Renderer* renderer, Vector2 position, Vector2 size)
 		{
+			this->renderer = renderer;
 			this->position = position;
 			this->size = size;
 
@@ -352,8 +376,10 @@ class UI_MainMenu : public GE_UI_TopLevelElement
 			lastTick = rendererThreadsafeTicknum;
 
 
-			GE_UI_Text* titleText = new GE_UI_Text(renderer,{size.x/2,(size.y/2)-(300)},{0,0},"S P A C E G A M E",GE_Color{0xff,0xff,0xff,0x00},titleSans);
 
+			GE_Font titleFont = GE_Font_GetFont("FreeMono",50);
+			TTF_SetFontStyle(titleFont,TTF_STYLE_ITALIC);
+			titleText = new GE_UI_Text(renderer,{size.x/2,(size.y/2)-(300)},{0,0},"S P A C E G A M E",GE_Color{0xff,0xff,0xff,0x00},titleFont);
 			titleText->expandToTextSize();
 			titleText->centerX();
 
@@ -382,6 +408,14 @@ class UI_MainMenu : public GE_UI_TopLevelElement
 			mySurface->addElement(quitGame);
 
 
+			GE_Font copyrightFont = GE_Font_GetFont("FreeMono",18);
+			GE_UI_Text* copyright = new GE_UI_Text(renderer,{size.x,size.y-18},{0,0},"Copyright 2018 Jackson Reed McNeill. Licensed under GNU GPL v3",GE_Color{0xff,0xff,0xff,0xff},copyrightFont);
+			copyright->alignLeft();
+			copyright->expandToTextSize();
+			
+			mySurface->addElement(copyright);
+
+
 
 		}
 		void render(Vector2 parrentPosition)
@@ -404,6 +438,10 @@ class UI_MainMenu : public GE_UI_TopLevelElement
 
 			camera.pos = {static_cast<double>(rendererThreadsafeTicknum)*3,0,0};//static_cast<double>(rendererThreadsafeTicknum)*3,0};
 
+			printf("sin: %f\n",(std::sin(rendererThreadsafeTicknum*60)*20));
+			printf("Render safe ticknum %d\n",rendererThreadsafeTicknum);
+			titleText->setPosition({size.x/2,((size.y/2)-(250))+(std::sin((static_cast<double>(rendererThreadsafeTicknum)/60)))*20});
+
 			mySurface->render(parrentPosition);
 			GE_DEBUG_TextAt(std::to_string(currentState),Vector2{0,0});
 		}
@@ -414,6 +452,11 @@ class UI_MainMenu : public GE_UI_TopLevelElement
 			if (startGame->getIsTriggered())
 			{
 				startGame->setIsTriggered(false);
+
+				startTheGame();
+	
+				
+				myGameView = new UI_GameView(renderer,{0,0},{static_cast<double>(camera.screenWidth),static_cast<double>(camera.screenHeight)},&camera);
 
 				//simply set the game view to the new background
 				GE_UI_SetBackgroundElement(myGameView);
@@ -447,6 +490,7 @@ class UI_MainMenu : public GE_UI_TopLevelElement
 
 		GE_Experimental_UI_Button* quitGame;
 
+		GE_UI_Text* titleText;
 
 };
 
@@ -461,7 +505,7 @@ class MyOmniEventReciever : public GE_UI_OmniEventReciever
 			{
 				if (event.key.keysym.sym == SDLK_t)
 				{
-					GE_UI_FontStyle fstyle = {{0x00,0x00,0x00,0xff},titleSans};
+					GE_UI_FontStyle fstyle = {GE_Color{0x00,0x00,0x00,0xff},titleSans};
 					GE_UI_WindowTitleStyle windowTitleStyle = {fstyle,0,{GE_Color{0xff,0x00,0x00,0xff},GE_Color{0x66,0x66,0x66,0xff},{0xff,0xff,0xff,0xff},fstyle.color,{15,7},titleSans},2,GE_Color{0x66,0xff,0x33,0xff},25,true};
 					GE_UI_WindowStyle windowStyle = {windowTitleStyle, GE_Color{0x00,0x00,0xff,0xff},2,GE_Color{0x66,0xff,0x33,0xff}};
 					GE_UI_Style style = GE_UI_Style{fstyle,{GE_Color{0x00,0x33,0x00,0xff},titleSans},windowStyle};
@@ -479,6 +523,7 @@ class MyOmniEventReciever : public GE_UI_OmniEventReciever
 				else if (event.key.keysym.sym == SDLK_ESCAPE)
 				{
 					GE_UI_SetBackgroundElement(myMainMenu);
+					GE_ResetPhysicsEngine();
 				}
 			}
 		
@@ -490,6 +535,7 @@ class MyOmniEventReciever : public GE_UI_OmniEventReciever
 };
 
 
+
 int main(int argc, char* argv[])
 {
 	camera.pos = {0,0,0};
@@ -497,32 +543,8 @@ int main(int argc, char* argv[])
 	camera.screenHeight = 720;
 
 	printf("I'm alive maybe?\n");
-	int ttferror = TTF_Init();
-	if (ttferror < 0) 
-	{
-		//TODO: Handle error...
-		printf("TTF_Init error %d\n",ttferror);
-		return ttferror;
-	}
-	atexit(TTF_Quit); 
-	//initialize some fonts we use
-	tinySans = TTF_OpenFont(FREESANS_LOC, 15);
-	if(!tinySans) {
-		printf("TTF_OpenFont: %s\n", TTF_GetError());
-		return 1;
-	}
-	bigSans =  TTF_OpenFont(FREESANS_LOC, 72);
-	if(!bigSans) {
-		printf("TTF_OpenFont: %s\n", TTF_GetError());
-		return 1;
-	}
-	TTF_SetFontStyle(bigSans,TTF_STYLE_ITALIC);
-	titleSans =  TTF_OpenFont(FREESANS_LOC, 18);
-	if(!titleSans) {
-		printf("TTF_OpenFont: %s\n", TTF_GetError());
-		return 1;
-	}
-	TTF_SetFontStyle(titleSans,TTF_STYLE_NORMAL | TTF_STYLE_BOLD);
+
+	
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
 	{
 		printf("Unable to initialize SDL: %s", SDL_GetError());
@@ -545,7 +567,19 @@ int main(int argc, char* argv[])
 		printf("Game engine initialization error: %d\n",error);
 		return error;
 	}
-	GE_LoadSpritesFromDir(renderer, SPRITE_DIR);
+	GE_LoadSpritesFromDir(renderer, "../sprites/list.json");
+
+
+	//initialize some fonts we use
+	GE_Font_LoadFromList("../fonts/list.json");
+	tinySans = GE_Font_GetFont("FreeSans",15);
+	bigSans = GE_Font_GetFont("FreeSans",72);
+	titleSans = GE_Font_GetFont("FreeSans",18);
+	TTF_SetFontStyle(bigSans,TTF_STYLE_ITALIC);
+	TTF_SetFontStyle(titleSans,TTF_STYLE_NORMAL | TTF_STYLE_BOLD);
+
+
+
 
 	initInventory(renderer);
 
@@ -559,24 +593,11 @@ int main(int argc, char* argv[])
 	rendererThreadsafeTicknum=0;
 	GE_GlueTarget* ticknumGlue = GE_addGlueSubject(&rendererThreadsafeTicknum,&ticknum, GE_PULL_ON_PHYSICS_TICK,sizeof(int));
 	
-	//initialize the player
-	player = new Player(renderer);
-	GE_LinkVectorToPhysicsObjectPosition(player,&camera.pos);
-	Vector2 playerGrid = {0,0};
-	GE_LinkGlueToPhysicsObject(player,GE_addGlueSubject(&playerGrid,&player->grid,GE_PULL_ON_PHYSICS_TICK,sizeof(playerGrid))); //because we need the bounding box to center
-
+	
 	GE_UI_Text* GameOver = new GE_UI_Text(renderer,{static_cast<double>(camera.screenWidth/2),static_cast<double>(camera.screenHeight/2)},{0,0},"GAME OVER!",{0xFF,0x00,0x00,0xFF},bigSans);
 	GameOver->center();
 	GameOver->expandToTextSize();
 
-	Enemie*  lastenemy;
-	for (int i=0;i<20;i++)
-	{	
-		double randomx = rand() % 5000 + 1;
-		double randomy = rand() % 5000 + 1;
-
-		lastenemy = new Enemie(renderer, {randomx-1500,randomy-1500,0},1);
-	}
 
 //#define tonsofbulletstest
 #ifdef tonsofbulletstest
@@ -593,7 +614,7 @@ int main(int argc, char* argv[])
 #endif
 
 	GE_UI_Window* window = new GE_UI_Window(renderer,"INVENTORY",{250,250},{618,320},style);
-	myGameView = new UI_GameView(renderer,{0,0},{static_cast<double>(camera.screenWidth),static_cast<double>(camera.screenHeight)},&camera);
+	//myGameView = new UI_GameView(renderer,{0,0},{static_cast<double>(camera.screenWidth),static_cast<double>(camera.screenHeight)},&camera);
 	myMainMenu = new UI_MainMenu(renderer,{0,0},{static_cast<double>(camera.screenWidth),static_cast<double>(camera.screenHeight)});
 	GE_UI_SetBackgroundElement(myMainMenu);
 	//GE_UI_SetBackgroundElement(myGameView);
@@ -603,6 +624,7 @@ int main(int argc, char* argv[])
 	pthread_mutex_unlock(&PhysicsEngineMutex);
 
 
+	/*
 	auto inv_ = new Inventory(2500,lastenemy); //temporary testing code 
 	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,64});
 	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,63});
@@ -629,6 +651,7 @@ int main(int argc, char* argv[])
 	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,272});
 	UI_InventoryView* inv = new UI_InventoryView(renderer, {0,0},{309,250},inv_,fstyle,{8,8},GE_Color{0xff,0xff,0xff,0x33},GE_Color{0x00,0x33,0x00,255},GE_Color{0xff,0x00,0x00,0xff});
 	window->surface->addElement(inv);
+	*/
 
 	//initialize our omni event handler
 	MyOmniEventReciever* myOmniEventReciever = new MyOmniEventReciever();
@@ -663,10 +686,10 @@ int main(int argc, char* argv[])
 
 		GE_UI_Render();
 
-		if ((!player->GetIsOnline()) && static_cast<int>(floor(rendererThreadsafeTicknum / 5.0)) % 3) //flash "Game over!" if the player is dead. basically, this is (%number)/(dividedNumber), numerator being how often it's ON, denominator being how often it's OFF... except when it's not. I'll level with you: I figured out how to make timers based soley off of the tick number a long time ago. I no longer have a clue how this works. I adjusted it until I got the result I wanted. 
+		/*if ((!player->GetIsOnline()) && static_cast<int>(floor(rendererThreadsafeTicknum / 5.0)) % 3) //flash "Game over!" if the player is dead. basically, this is (%number)/(dividedNumber), numerator being how often it's ON, denominator being how often it's OFF... except when it's not. I'll level with you: I figured out how to make timers based soley off of the tick number a long time ago. I no longer have a clue how this works. I adjusted it until I got the result I wanted. 
 		{
 			GameOver->render({0,0});
-		}
+		}*/
 
 
 		#ifdef PHYSICS_DEBUG_SLOWRENDERS
@@ -696,8 +719,6 @@ int main(int argc, char* argv[])
 
 	delete ticknumGlue;
 
-	printf("plr\n");
-	GE_FreePhysicsObject(player);
 	printf("hud\n");
 
 	delete myGameView;
