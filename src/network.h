@@ -4,29 +4,20 @@
  *
  * A small network abstraction layer, using Unix sockets. No windows equivilent available. 
  */
+#pragma once 
+
 #include <stdio.h> 
-#include <string.h>   
-#include "GeneralEngineCPP.h"
 
 //net includes
 #ifdef outdatedOS
 
 #else
 
-#include <unistd.h>  
-#include <netinet/in.h> 
-#include <stdlib.h> 
-#include <netdb.h>
-#include <sys/socket.h>
-#include <sys/types.h>
 
 #endif //outdatedOS
 
-#include <string>
 
 
-#ifndef __NETWORK_INCLUDED
-#define __NETWORK_INCLUDED 
 
 #ifdef outdatedOS
 
@@ -37,12 +28,7 @@
 /*!
  * A TCP socket abstraction
  */
-struct GE_NetworkSocket
-{
-	//shouldn't be touched except by network.cpp
-	int socketfd;
-	struct sockaddr_in addr;
-};
+struct GE_NetworkSocket;
 
 
 /*!
@@ -107,5 +93,3 @@ int GE_Write(GE_NetworkSocket* cSocket, char* buffer, size_t buffersize);
 void GE_FreeNetworkSocket(GE_NetworkSocket* socket);
 
 #endif //outdatedOS
-
-#endif // __NETWORK_INCLUDED

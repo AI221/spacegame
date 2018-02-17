@@ -4,23 +4,20 @@
  *
  * A simple object designed to be linked to a networkObject or physicsObject.
  */
+#pragma once
 
+#include <SDL2/SDL.h>
 #include <pthread.h>
-#include <stack>
 #include <list>
 
 #include "vector2.h"
-#include "sprite.h"
-#include "camera.h"
-#include "gluePhysicsObject.h"
 
 
-#include "GeneralEngineCPP.h"
+class Camera;
 
 
 
-#ifndef __RENDEREDPHYSICSOBJECT_INCLUDED
-#define __RENDEREDPHYSICSOBJECT_INCLUDED
+
 
 #ifdef GE_DEBUG
 #include "debugRenders.h"
@@ -95,4 +92,3 @@ void GE_DeleteRenderedObjectsMarkedForDeletion();
 
 void GE_ShutdownRenderedObject();
 
-#endif //__RENDEREDPHYSICSOBJECT_INCLUDED

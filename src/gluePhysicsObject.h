@@ -4,17 +4,10 @@
  *
  * 'Glues' one value to another, memcpy'ing it during the specified event (physics tick, render frame, etc.). Watch for undefined behaviors with this one.
  */
-#include <stdio.h>
+#pragma once
+
 #include <stdlib.h>
-#include <string.h>
-#include <pthread.h>
-#include <list>
 
-#include "vector2.h"
-#include "GeneralEngineCPP.h"
-
-#ifndef __GLUE_PHYSICS_OBJECT_INCLUDED
-#define __GLUE_PHYSICS_OBJECT_INCLUDED
 
 
 enum GE_PULL_ON
@@ -24,15 +17,7 @@ enum GE_PULL_ON
 };
 	
 
-struct GE_GlueTarget
-{
-	void* updateData;
-	void* pullData;
-	GE_PULL_ON pullOn;
-	size_t sizeOfPullData;
-
-	void* buffer;
-};
+struct GE_GlueTarget;
 
 
 extern pthread_mutex_t GlueMutex;
@@ -74,4 +59,3 @@ void GE_FreeGlueObject(GE_GlueTarget* subject);
 
 
 
-#endif //__GLUE_PHYSICS_OBJECT_INCLUDED

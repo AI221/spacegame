@@ -4,29 +4,21 @@
  *
  * A system that allows for repeating stars to be created, which aids the player in telling how fast they're moving in an outer space environment
  */
+#pragma once
 
+#include "vector2.h"
+#include "UI.h"
 #include <unordered_set>
 #include <vector>
-#include <math.h>
-//Local includes
-#include "vector2.h"
-#include "shapes.h"
-#include "camera.h"
-#include "UI.h"
+
+class Camera;
+
+class SDL_Renderer;
 
 
 
 
-#ifndef __STARS_INCLUDED
-#define __STARS_INCLUDED
-
-struct GE_SingleStar
-{
-	Vector2 position;
-	int size;
-	unsigned int color; //color from the colorIDs in the starfield
-
-};
+struct GE_SingleStar;
 
 class GE_Stars : public GE_UI_Element
 {
@@ -46,4 +38,4 @@ class GE_Stars : public GE_UI_Element
 	Camera* camera;
 };
 
-#endif // __STARS_INCLUDED
+

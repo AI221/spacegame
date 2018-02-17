@@ -6,30 +6,18 @@
  *
  * This preliminatory check works by setting elements in the 2D sGrid array to their physicsID. When overlap in this is detected, a full collision check happens. TODO: better explanation 
  */
+#pragma once
 
 
 #include <pthread.h>
-#include <math.h>
-#include <pthread.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <sys/time.h>
-#include <chrono>
-#include <thread>
-#include <iostream>
-#include <functional>
-#include <map>
-#include <vector>
-#include <unordered_map>
-#include <list>
 #include <forward_list>
-
-//Local includes
+#include <list>
+#include <unordered_map>
+#include <functional>
+#include <vector>
 
 #include "vector2.h"
-#include "GeneralEngineCPP.h"
 #include "gluePhysicsObject.h"
-#include "isOn.h"
 
 //#define PHYSICS_DEBUG_SLOWRENDERS 
 
@@ -41,8 +29,6 @@
 #endif
 
 
-#ifndef __PHYSICS_INCLUDED
-#define __PHYSICS_INCLUDED
 	
 	
 extern bool DEBUG_allowPhysicsTick;
@@ -271,4 +257,3 @@ void GE_ShutdownPhysicsEngine();
  */
 void GE_ResetPhysicsEngine();
 
-#endif //PHYSICS_INCLUDED

@@ -1,4 +1,13 @@
 #include "inventory.h"
+#include <cmath>
+#include <unordered_set>
+
+#include "UI.h"
+#include "sprite.h"
+#include "GeneralEngineCPP.h"
+#include "physics.h"
+#include "debugRenders.h"
+
 
 
 Inventory* globalHeldItemInventory;

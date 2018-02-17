@@ -1,5 +1,18 @@
 #include "UI.h"
 
+#include <math.h>
+#include <iostream>
+#include <string>
+#include <functional>
+#include <cstring>
+#include <cmath>
+#include <list>
+
+
+//Local includes
+
+#include "vector2.h"
+#include "shapes.h"
 
 
 void GE_UI_Element::giveEvent(Vector2 parrentPosition, SDL_Event event) {} //defined so that not all derivatives must define it

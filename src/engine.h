@@ -4,22 +4,14 @@
  *
  * General engine things that don't really belong anywhere else
  */
-#include <SDL2/SDL.h>
-
-#include "gluePhysicsObject.h"
-#include "gluePhysicsObjectInit.h"
-#include "physics.h"
-#include "sprite.h"
-#include "renderedObject.h"
-#include "isOn.h"
-#include "json.h"
-#include "UI.h"
-#include "font.h"
+#pragma once
 
 
 
-#ifndef __ENGINE_INLCUDED
-#define __ENGINE_INLCUDED
+class SDL_Renderer;
+
+
+
 
 /*!
  * Initialize the following engine components:
@@ -34,5 +26,3 @@ int GE_Init(SDL_Renderer* renderer);
  */
 void GE_Shutdown();
 
-
-#endif //__ENGINE_INLCUDED

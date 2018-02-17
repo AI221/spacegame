@@ -6,7 +6,6 @@
  */
 //TODO: Name-change due to scope of this file change.
 
-#include <math.h>
 #include <cmath>
 
 //Local includes
@@ -404,5 +403,24 @@ void GE_PhysicsVectorToRenderVector(Vector2r* subject);
  * Converts from radians to degrees
  */
 void GE_PhysicsRotationToRenderRotation(double* rotation);
+
+template<class XY>
+XY GE_ClosestVector(XY origin,XY point1,XY point2)
+{
+	if (GE_Distance(origin,point1) < GE_Distance(origin,point2))
+	{
+		return point1;
+	}
+	return point2;
+}
+template<class XY>
+XY GE_FurthestVector(XY origin,XY point1,XY point2)
+{
+	if (GE_Distance(origin,point1) > GE_Distance(origin,point2))
+	{
+		return point1;
+	}
+	return point2;
+}
 
 #endif //__VECTOR2_INCLUDED0.14285714285714285

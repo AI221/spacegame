@@ -1,5 +1,19 @@
 #include "stars.h"
 
+#include <math.h>
+//Local includes
+#include "shapes.h"
+#include "camera.h"
+
+
+struct GE_SingleStar
+{
+	Vector2 position;
+	int size;
+	unsigned int color; //color from the colorIDs in the starfield
+
+};
+
 
 //TODO: ideas-
 /*Apply the same "repeat star field" thing but to a whole pre-rendered plate of stars

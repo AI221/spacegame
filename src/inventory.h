@@ -1,21 +1,28 @@
-#include <pthread.h>
+/*!
+ * @file
+ * @author Jackson McNeill
+ *
+ * An inventory system
+ */
+#pragma once
+
 #include <vector>
-#include <cmath>
 #include <stack>
-#include <unordered_set>
-
+#include <pthread.h>
+#include <string>
 #include "UI.h"
-#include "sprite.h"
-#include "GeneralEngineCPP.h"
-#include "physics.h"
 
-#ifndef __INVENTORY_ELEMENTS_INCLUDED
-#define __INVENTORY_ELEMENTS_INCLUDED
+#include "vector2.h"
+
+class GE_PhysicsObject;
+class GE_RectangleShape;
+
+class SDL_Renderer;
+union SDL_Event;
 
 
 #define INV_SQUARE_SIZE 35
 
-#include "debugRenders.h"
 
 
 
@@ -125,4 +132,3 @@ class UI_InventoryView : public GE_UI_Element
 
 
 
-#endif // __INVENTORY_ELEMENTS_INCLUDED

@@ -5,6 +5,7 @@
  *
  * A UI element which renders all renderedObjects
  */
+#pragma once
 
 #include "vector2.h"
 #include "camera.h"
@@ -16,8 +17,6 @@
 
 
 
-#ifndef __GAME_RENDER_INCLUDED
-#define __GAME_RENDER_INCLUDED
 
 class GE_UI_GameRender: public GE_UI_TopLevelElement
 {
@@ -36,4 +35,3 @@ class GE_UI_GameRender: public GE_UI_TopLevelElement
 		Camera* camera;
 
 };
-#endif //__GAME_RENDER_INCLUDED

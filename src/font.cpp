@@ -1,5 +1,11 @@
 #include "font.h"
 
+#include <map>
+
+//Local includes
+#include "json.h"
+#include "FS.h"
+
 typedef std::string fontName_t;
 typedef std::string fontPath_t;
 

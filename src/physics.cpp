@@ -16,6 +16,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "physics.h"
 
+#include <math.h>
+#include <pthread.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <sys/time.h>
+#include <chrono>
+#include <thread>
+#include <iostream>
+#include <map>
+
+//Local includes
+
+#include "GeneralEngineCPP.h"
+#include "isOn.h"
+
+
 #include <unordered_set>
 
 

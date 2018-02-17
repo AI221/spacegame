@@ -1,5 +1,16 @@
 #include "engine.h"
 
+#include <SDL2/SDL.h>
+
+#include "gluePhysicsObject.h"
+#include "gluePhysicsObjectInit.h"
+#include "physics.h"
+#include "sprite.h"
+#include "renderedObject.h"
+#include "isOn.h"
+#include "json.h"
+#include "UI.h"
+#include "font.h"
 int GE_Init(SDL_Renderer* renderer)
 {
 	GE_IsOn = true;

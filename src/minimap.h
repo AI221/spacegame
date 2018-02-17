@@ -3,12 +3,10 @@
  * @author Jackson McNeill
  * A minimap that you can register RenderedObject's positions to, and assign a color. 
  */
+#pragma once
 
-#include <SDL2/SDL.h>
-#include <pthread.h>
-#include <unordered_map>
-#include <stack>
 
+class SDL_Renderer;
 
 //Local includes
 #include "UI.h"
@@ -16,8 +14,6 @@
 #include "renderedObject.h"
 
 
-#ifndef __MINIMAP_INCLUDED
-#define __MINIMAP_INCLUDED
 
 /*!
  * Make an object show up on the minimap
@@ -50,4 +46,3 @@ class GE_UI_Minimap : public GE_UI_Element
 		Camera* camera;
 };
 
-#endif // __MINIMAP_INCLUDED

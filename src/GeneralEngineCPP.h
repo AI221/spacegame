@@ -4,6 +4,7 @@
  *
  * Generic macros and preprocessor definitions (Such as what OS is being compiled for) 
  */
+#pragma once
 
 
 
@@ -11,8 +12,6 @@
 #define GE_DEBUG
 
 
-#ifndef __GENERALENGINECPP_INCLUDED
-#define  __GENERALENGINECPP_INCLUDED
 
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
@@ -113,6 +112,20 @@
 
 #define GE_ReturnInput(in) (in)
 
+template<class number>
+bool GE_IsInRange(number value, number range1, number range2)
+{
+	if (value >= range1 && value <= range2)
+	{
+		return true;
+	}
+	if (value <= range1 && value >= range2)
+	{
+		return true;
+	}
+	return false;
+
+}
 
 
-#endif // __GENERALENGINECPP_INCLUDED
+

@@ -1,5 +1,6 @@
 #include "shapes.h"
 
+#include <cmath>
 
 void GE_Shape::render(Vector2r position, Vector2 size) {}
 

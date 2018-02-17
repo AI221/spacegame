@@ -4,6 +4,7 @@
  * Game-specific classes (not part of the core engine)
  * Also holds other things specific to this game.
  */
+#pragma once
 
 #include <SDL2/SDL.h>
 #include <stdlib.h>     /* srand, rand */
@@ -33,8 +34,6 @@
 #define MAX_SUBSYSTEMS 40
 
 #include "UI.h" //TODO TEMP
-#ifndef __CLASSES_INCLUDED
-#define __CLASSES_INCLUDED
 
 enum TYPES
 {
@@ -152,5 +151,3 @@ class StdBullet : public BulletType //Hah
 		GE_RenderedObject* renderObject;
 };
 
-
-#endif //__CLASSES_INCLUDED

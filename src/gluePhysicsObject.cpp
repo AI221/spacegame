@@ -17,6 +17,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "gluePhysicsObject.h"
 
+#include <stdio.h>
+#include <string.h>
+#include <pthread.h>
+#include <list>
+
+#include "vector2.h"
+#include "GeneralEngineCPP.h"
+
+struct GE_GlueTarget
+{
+	void* updateData;
+	void* pullData;
+	GE_PULL_ON pullOn;
+	size_t sizeOfPullData;
+
+	void* buffer;
+};
+
 
 std::list<GE_GlueTarget*> targets;
 

@@ -21,26 +21,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *	A sprite system
  *
  */
+#pragma once
 
 
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-#include <libgen.h>
-#include <string>
-#include <vector>
-#include <iostream>
-
-
-#include "jsoncpp/json/json.h"
-
 
 #include "vector2.h"
-#include "FS.h"
-#include "GeneralEngineCPP.h"
-#include "json.h"
+#include <string>
 
-#ifndef __SPRITE_INCLUDED
-#define __SPRITE_INCLUDED
 
 //LIMITS
 
@@ -61,11 +49,7 @@ enum GE_Flip
 /*!
  * Holds data for a sprite
  */
-struct GE_Sprite
-{
-	SDL_Renderer* renderer;
-	SDL_Texture* texture;
-};
+struct GE_Sprite;
 
 /*!
  * List of loaded sprites
@@ -140,4 +124,3 @@ void GE_FreeSprite(GE_Sprite* sprite);
 void GE_FreeAllSprites();
 
 
-#endif // __SPRITE_INCLUDED

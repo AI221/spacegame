@@ -1,12 +1,19 @@
-#include <SDL2/SDL.h>
+/*!
+ * @file
+ * 
+ * @author Jackson McNeill
+ *
+ * Provides a thread-safe event transferer
+ */
+#pragma once
+
+union SDL_Event;
+
 #include <pthread.h>
 #include <stack>
 
-#include "GeneralEngineCPP.h" //TODO TEMPORARY DISABLE PTHREAD
 
 
-#ifndef __THREADED_EVENT_STACK_INCLUDED
-#define __THREADED_EVENT_STACK_INCLUDED
 
 class GE_ThreadedEventStack
 {
@@ -31,4 +38,3 @@ class GE_ThreadedEventStack
 
 };
 
-#endif //__THREADED_EVENT_STACK_INCLUDED

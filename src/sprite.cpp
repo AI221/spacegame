@@ -15,11 +15,34 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "sprite.h"
+
+
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include <libgen.h>
+#include <vector>
+#include <iostream>
+
+
+#include "jsoncpp/json/json.h"
+
+
+#include "FS.h"
+#include "GeneralEngineCPP.h"
+#include "json.h"
+
+
+
 GE_Sprite* Sprites[MAX_SPRITES_LOADED];
 std::string Sprite_Names[MAX_SPRITES_LOADED];
 int countSprites = -1;
 
 
+struct GE_Sprite
+{
+	SDL_Renderer* renderer;
+	SDL_Texture* texture;
+};
 
 
 

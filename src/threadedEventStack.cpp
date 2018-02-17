@@ -1,5 +1,7 @@
 #include "threadedEventStack.h"
 
+#include <SDL2/SDL.h>
+#include "GeneralEngineCPP.h" //TODO TEMPORARY DISABLE PTHREAD
 
 GE_ThreadedEventStack::GE_ThreadedEventStack()
 {

@@ -16,6 +16,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "renderedObject.h"
 
+#include <stack>
+
+#include "sprite.h"
+#include "camera.h"
+#include "gluePhysicsObject.h"
+
+
+#include "GeneralEngineCPP.h"
+
+
+
 #ifdef GE_DEBUG
 //#define debug_renderedobject
 #endif

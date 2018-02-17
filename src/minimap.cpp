@@ -1,5 +1,11 @@
 #include "minimap.h"
 
+#include <SDL2/SDL.h>
+#include <pthread.h>
+#include <unordered_map>
+#include <stack>
+#include "camera.h"
+
 struct GE_MinimapTarget //exists to allow for future expansion
 {
 	SDL_Color color;

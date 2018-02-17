@@ -45,6 +45,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "stars.h"
 #include "shapes.h"
 #include "gameRender.h"
+#include "raycast.h"
+#include "line.h"
+#include "font.h"
 
 #ifdef GE_DEBUG
 #include "debugRenders.h"
@@ -703,6 +706,64 @@ int main(int argc, char* argv[])
 			C_PhysicsTickDoneCallbacks[i]();
 		}
 		#endif
+		#ifdef false
+		double rectx =200;
+double recty =200;
+double rectw = 40;
+double recth = 40;
+double rayx = 600;
+double rayy = 600;
+double angle = 0;
+double prs = 10;
+		SDL_SetRenderDrawColor(renderer,0x00,0x00,0x00,SDL_ALPHA_OPAQUE);
+		SDL_RenderClear(renderer);
+		auto t = SDL_Rect{0,0,1920,1080};
+		SDL_RenderDrawRect(renderer,&t);
+
+
+
+		Vector2 rayStart = {300,300};
+		Vector2 rayEnd = {rayx,rayy};
+
+		GE_ShapeLines myRect;
+
+		/*myRect.insert(myRect.end(),Vector2{rectx,recty});
+		myRect.insert(myRect.end(),Vector2{rectx,recty+recth});
+		myRect.insert(myRect.end(),Vector2{rectx+rectw,recty+recth});
+		myRect.insert(myRect.end(),Vector2{rectx+rectw,recty});*/
+
+		Vector2 rect[4];
+
+		GE_RectangleToPoints({rectx,recty,rectw,recth},{rectw,recth},rect,{rectx+rectw*.5,recty+recth*.5,angle/RAD_TO_DEG});
+
+		myRect.insert(myRect.end(),rect[0]);
+		myRect.insert(myRect.end(),rect[1]);
+		myRect.insert(myRect.end(),rect[3]);
+		myRect.insert(myRect.end(),rect[2]);
+		myRect.insert(myRect.end(),rect[0]);
+
+		GE_ShapeLinesVector obstacles;
+
+		obstacles.insert(obstacles.end(),myRect);
+
+		auto pos = GE_Raycast(rayStart,rayEnd,obstacles);
+
+		printf("%s\n",GE_DEBUG_VectorToString(pos).c_str());
+
+		GE_DEBUG_DrawLine(rayStart,rayEnd);
+		//GE_DEBUG_DrawRect({rectx,recty,rectw,recth});
+		GE_DEBUG_DrawShape(myRect);
+
+		GE_DEBUG_DrawRect({pos.x-2,pos.y-2,4,4},{0xff,0x66,0x00,0xff});
+
+#endif
+		
+
+		
+
+
+
+
 
 
 		SDL_RenderPresent(renderer); //seems to be the VSyncer (expect ~16ms wait upon call)

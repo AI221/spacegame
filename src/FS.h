@@ -4,6 +4,8 @@
  *
  * A small FS abstraction to fill the gaps SDL leaves with its own FS abstraction.
  */
+#pragma once
+
 #include "GeneralEngineCPP.h"
 #ifdef outdatedOS
 
@@ -16,15 +18,9 @@
 
 #endif
 
-#include <SDL2/SDL.h>
-#include <stdio.h>
+
 #include <vector>
 #include <string>
-#include <regex>
-
-#ifndef __DIRLIST_INCLUDED
-#define __DIRLIST_INCLUDED
-
 /*! 
  * A directory listing. Is not recursive, does not indicate weather any file is a file or folder.
  * If error isn't 0, accessing list is undefined behaviour
@@ -103,5 +99,3 @@ std::string GE_GetBaseName(const char* fullfilename);
 
 
 bool GE_TEST_FS();
-#endif //__DIRLIST_INCLUDED
-

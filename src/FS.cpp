@@ -16,6 +16,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "FS.h"
 #include <iostream>
+#include <SDL2/SDL.h>
+#include <stdio.h>
+#include <regex>
 
 std::string GE_ReverseSlashes(std::string victim) 
 {

@@ -7,26 +7,22 @@
  *
  * Copying any UI element results in undefined behavior. Relying on a GE_UI_Window without checking if it's been deleting results in undefined behavior. Top level elements might not be rendered every frame--optimization is allowed to be performed.
  */
+#pragma once
 
 
-#include <SDL2/SDL.h>
+
 #include <SDL2/SDL_ttf.h>
-#include <math.h>
-#include <iostream>
 #include <string>
 #include <functional>
-#include <cstring>
-#include <cmath>
-#include <list>
 
-
-//Local includes
-
-#include "vector2.h"
 #include "shapes.h"
 
-#ifndef __UI_INCLUDED
-#define __UI_INCLUDED
+class Vector2;
+class IntVector2;
+
+
+union SDL_Event;
+
 
 //limits:
 #define MAX_SURFACE_UI_ELEMENTS 256
@@ -468,5 +464,3 @@ IntVector2 GE_UI_GetMousePosition();
 
 void GE_ShutdownUI();
 
-
-#endif //__UI_INCLUDED

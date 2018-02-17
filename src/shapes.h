@@ -4,16 +4,14 @@
  *
  * Rendering shapes that are abstracted over SDL's, offering additional features
  */
+#pragma once
+
 
 #include <SDL2/SDL.h>
-#include <cmath>
 
 //Local incluides
 #include "vector2.h"
 
-
-#ifndef __SHAPES_INCLUDED
-#define __SHAPES_INCLUDED
 
 
 struct GE_Color
@@ -48,4 +46,3 @@ class GE_RectangleShape : public GE_Shape
 
 };
 
-#endif //__SHAPES_INCLUDED

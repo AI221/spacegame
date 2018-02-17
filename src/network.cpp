@@ -5,6 +5,24 @@
 
 #else
 
+#include <string.h>   
+#include <string>
+#include <unistd.h>  
+#include <netinet/in.h> 
+#include <stdlib.h> 
+#include <netdb.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+
+#include "GeneralEngineCPP.h"
+
+
+struct GE_NetworkSocket
+{
+	int socketfd;
+	struct sockaddr_in addr;
+};
+
 GE_NetworkSocket* GE_CreateNetworkSocket()
 {
 	return new GE_NetworkSocket{};

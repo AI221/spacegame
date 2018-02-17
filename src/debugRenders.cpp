@@ -1,5 +1,16 @@
 #include "debugRenders.h"
 
+#include<SDL2/SDL.h>
+#include<SDL2/SDL_ttf.h>
+#include <stdio.h>
+#include <string>
+#include <iostream>
+#include <math.h>
+#include <vector>
+
+#include "camera.h"
+#include "UI.h"
+
 #define BASE_DIR "../"
 
 
@@ -74,3 +85,43 @@ std::string GE_DEBUG_VectorToString(Vector2r subject)
 {
 	return "X: "+std::to_string(subject.x) + " Y: "+std::to_string(subject.x) + " R: "+std::to_string(subject.r);
 }
+
+
+
+void GE_DEBUG_DrawLine(Vector2 start, Vector2 end)
+{
+	SDL_SetRenderDrawColor(GE_DEBUG_Renderer,0xff,0xff,0x99,SDL_ALPHA_OPAQUE);
+	SDL_RenderDrawLine(GE_DEBUG_Renderer,start.x,start.y,end.x,end.y);
+}
+void GE_DEBUG_DrawLine(GE_Line shapeLine)
+{
+	if (shapeLine.mIsInf)
+	{
+		GE_DEBUG_DrawLine({shapeLine.b,0},{shapeLine.b,1000});
+	}
+	else 
+	{
+		GE_DEBUG_DrawLine({0,shapeLine.b},{1000,(shapeLine.m*1000)+shapeLine.b});
+	}
+}
+
+void GE_DEBUG_DrawRect(GE_Rectangle rect,GE_Color clr)
+{
+	SDL_SetRenderDrawColor(GE_DEBUG_Renderer,clr.r,clr.g,clr.b,clr.a);
+	auto sdlr = SDL_Rect{static_cast<int>(rect.x),static_cast<int>(rect.y),static_cast<int>(rect.w),static_cast<int>(rect.h)};
+	SDL_RenderDrawRect(GE_DEBUG_Renderer,&sdlr);
+}
+void GE_DEBUG_DrawRect(GE_Rectangle rect)
+{
+	GE_DEBUG_DrawRect(rect,{0xff,0xff,0x99,SDL_ALPHA_OPAQUE});
+}
+void GE_DEBUG_DrawShape(GE_ShapeLines shape)
+{
+	auto lastSpot = shape.begin();
+	for (auto spot = shape.begin()+1;spot!= shape.end();spot++)
+	{
+		GE_DEBUG_DrawLine(*lastSpot,*spot);
+		lastSpot = spot;
+	}
+}
+

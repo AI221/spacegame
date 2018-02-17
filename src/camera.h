@@ -4,14 +4,14 @@
  *
  * A small Camera stucture and a function to apply offset based upon it 
  */
+#pragma once
+
 #include <math.h>
 
 
 #include "vector2.h"
 
 
-#ifndef __CAMERA_INCLUDED
-#define __CAMERA_INCLUDED
 
 
 /*!
@@ -34,4 +34,3 @@ Vector2r GE_ApplyCameraOffset(Camera* camera, Vector2r subject, Vector2 size);
 	
 
 
-#endif //__CAMERA_INCLUDED
