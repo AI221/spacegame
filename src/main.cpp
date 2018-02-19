@@ -48,6 +48,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "raycast.h"
 #include "line.h"
 #include "font.h"
+#include "FS.h"
+#include "serializeObject.h"
 
 #ifdef GE_DEBUG
 #include "debugRenders.h"
@@ -80,6 +82,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "inventory.h"
 
+
+
+
+#define UNIT_TEST
 
 //#define debug //wheather debug draws, menus, etc. is included. 
 
@@ -629,6 +635,16 @@ int main(int argc, char* argv[])
 
 	while (true)
 	{
+
+
+#ifdef UNIT_TEST
+		printf("-------------BEGIN UNIT TESTS-------------\n");
+		GE_RUN_UNIT_TEST(GE_TEST_FS);
+		GE_RUN_UNIT_TEST(GE_TEST_SerializeBasic);
+		printf("-------------END UNIT TESTS-------------\n");
+		break;
+#endif
+
 //#define tickperftest
 #ifdef tickperftest
 		if (rendererThreadsafeTicknum >= 30)

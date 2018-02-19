@@ -90,15 +90,20 @@
 #define GE_TEST_STD(stringify,outtype,out,function,...) \
 {\
 	outtype expectout = out;\
-\
 	outtype testout = function(__VA_ARGS__);\
-\
 	bool pass = testout == expectout;\
 	passedAll = std::min(pass,passedAll);\
 \
 	GE_TEST_Log("[%s] %s(%s), wanted: %s, result: %s\n",pass? "PASS" : "FAIL", #function, #__VA_ARGS__,stringify(expectout), stringify(testout));\
 }
 
+#define GE_TEST_ASSERT(stringify, variable, equals, op)\
+{\
+	bool pass = variable op equals;\
+	GE_TEST_Log("[%s][ASSERTION] %s(=%s) %s %s(=%s)\n",pass? "PASS" : "FAIL", #variable,stringify(variable), pass? #op : "!"#op, #equals, stringify(equals));\
+}
+
+#define GE_RUN_UNIT_TEST(function) GE_TEST_Log("-------- %s %s --------\n",(function())? "PASS" : "FAIL", #function);
 /*!
  * Converts a bool to a string
  */
