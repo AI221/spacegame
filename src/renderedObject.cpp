@@ -99,6 +99,8 @@ void GE_BlitRenderedObject(GE_RenderedObject* subject, Camera* camera, double sc
 	{
 		GE_BlitSprite(Sprites[subject->spriteID],position,{subject->size.x*scale, subject->size.y*scale},subject->animation,GE_FLIP_NONE); //TODO
 	}
+
+
 #ifdef debug_renderedobject
 	else GE_DEBUG_TextAt("norender!~~~~~~~~~~~~~~~~~~~~~~~~`~~~~~norender!",Vector2{position.x-100,position.y-100});
 	

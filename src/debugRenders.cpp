@@ -18,6 +18,10 @@
 
 #define FREESANS_LOC FONT_DIR"gnuFreeFonts/FreeSans.ttf"
 
+const double scale = 1;//0.75;
+
+#define physicsPositionToScreen(position) (position-(Vector2{GE_DEBUG_Camera->pos.x-(GE_DEBUG_Camera->screenWidth/2),GE_DEBUG_Camera->pos.y-(GE_DEBUG_Camera->screenHeight/2)}*scale)  )
+
 SDL_Renderer* GE_DEBUG_Renderer;//memory leak - wontfix
 Camera* GE_DEBUG_Camera; //memory leak - wontfix
 TTF_Font* debugSans; //memory leak - wontfix
@@ -53,7 +57,7 @@ void GE_DEBUG_TextAt(std::string text, Vector2r position)
 
 void GE_DEBUG_TextAt_PhysicsPosition(std::string text, Vector2 position)
 {
-	GE_DEBUG_TextAt(text,(position-Vector2{GE_DEBUG_Camera->pos.x-(GE_DEBUG_Camera->screenWidth/2),GE_DEBUG_Camera->pos.y-(GE_DEBUG_Camera->screenHeight/2)}));
+	GE_DEBUG_TextAt(text,physicsPositionToScreen(position));
 }
 
 void GE_DEBUG_Cursor_TextAtCursor()
@@ -78,20 +82,22 @@ Vector2r GE_DEBUG_QuickAddY(Vector2r positon, double addx)
 
 std::string GE_DEBUG_VectorToString(Vector2 subject)
 {
-	return "X: "+std::to_string(subject.x) + " Y: "+std::to_string(subject.x);
+	return "X: "+std::to_string(subject.x) + " Y: "+std::to_string(subject.y);
 }
 
 std::string GE_DEBUG_VectorToString(Vector2r subject)
 {
-	return "X: "+std::to_string(subject.x) + " Y: "+std::to_string(subject.x) + " R: "+std::to_string(subject.r);
+	return "X: "+std::to_string(subject.x) + " Y: "+std::to_string(subject.y) + " R: "+std::to_string(subject.r);
 }
 
-
-
+void GE_DEBUG_DrawLine(Vector2 start, Vector2 end,GE_Color color)
+{
+	SDL_SetRenderDrawColor(GE_DEBUG_Renderer,color.r,color.g,color.b,color.a);
+	SDL_RenderDrawLine(GE_DEBUG_Renderer,start.x,start.y,end.x,end.y);
+}
 void GE_DEBUG_DrawLine(Vector2 start, Vector2 end)
 {
-	SDL_SetRenderDrawColor(GE_DEBUG_Renderer,0xff,0xff,0x99,SDL_ALPHA_OPAQUE);
-	SDL_RenderDrawLine(GE_DEBUG_Renderer,start.x,start.y,end.x,end.y);
+	GE_DEBUG_DrawLine(start,end,GE_Color{0xff,0xff,0x99,SDL_ALPHA_OPAQUE});
 }
 void GE_DEBUG_DrawLine(GE_Line shapeLine)
 {
@@ -104,6 +110,16 @@ void GE_DEBUG_DrawLine(GE_Line shapeLine)
 		GE_DEBUG_DrawLine({0,shapeLine.b},{1000,(shapeLine.m*1000)+shapeLine.b});
 	}
 }
+
+void GE_DEBUG_DrawLine_PhysicsPosition(Vector2 start, Vector2 end,GE_Color color)
+{
+	GE_DEBUG_DrawLine(physicsPositionToScreen(start),physicsPositionToScreen(end),color);
+}
+void GE_DEBUG_DrawLine_PhysicsPosition(Vector2 start, Vector2 end)
+{
+	GE_DEBUG_DrawLine_PhysicsPosition(start,end);
+}
+	
 
 void GE_DEBUG_DrawRect(GE_Rectangle rect,GE_Color clr)
 {
@@ -125,3 +141,18 @@ void GE_DEBUG_DrawShape(GE_ShapeLines shape)
 	}
 }
 
+
+void GE_DEBUG_DrawRect_PhysicsPosition(GE_Rectangle rect, GE_Color clr)
+{
+	//shift position to screen - efficency doesn't matter
+	Vector2 tmppos = {rect.x,rect.y};
+	tmppos = physicsPositionToScreen(tmppos);
+	rect.x = tmppos.x;
+	rect.y = tmppos.y;
+
+	GE_DEBUG_DrawRect(rect,clr);
+}
+void GE_DEBUG_DrawRect_PhysicsPosition(GE_Rectangle rect)
+{
+	GE_DEBUG_DrawRect_PhysicsPosition(rect,{0xff,0xff,0x99,SDL_ALPHA_OPAQUE});
+}

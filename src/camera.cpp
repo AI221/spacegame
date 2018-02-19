@@ -28,14 +28,14 @@ Vector2r GE_ApplyCameraOffset(Camera* camera, Vector2r subject, Vector2 size)
 	newPosition.y = ((subject->x-camera->pos.x))*sin_angle + ((subject->y-camera->pos.y))*cos_angle;*/
 
 
-	subject.x = (subject.x-camera->pos.x)+(size.x/2);
-	subject.y = (subject.y-camera->pos.y)+(size.y/2);
+	subject.x = (subject.x-camera->pos.x);//+(size.x/2);
+	subject.y = (subject.y-camera->pos.y);//+(size.y/2);
 
 
 	GE_Vector2Rotation(&subject,camera->pos.r);
 
-	subject.x = (subject.x+(camera->screenWidth/2))-(size.x/2);
-	subject.y = (subject.y+(camera->screenHeight/2))-(size.y/2);
+	subject.x = (subject.x+(camera->screenWidth/2));//-(size.x/2);
+	subject.y = (subject.y+(camera->screenHeight/2));//-(size.y/2);
 
 	subject.r = (camera->pos.r)-subject.r; //last newPosition.r might not be correct //TODO ensure correct
 

@@ -6,26 +6,12 @@
  */
 #pragma once
 
-#include <SDL2/SDL.h>
-#include <stdlib.h>     /* srand, rand */
-#include <string>
-#include <cmath>
-#include <stack>
 
-//Local includes
-#include "vector2.h"
-#include "physics.h"
 #include "renderedObject.h"
-#include "gluePhysicsObject.h"
-#include "minimap.h"
+#include "physics.h"
 #include "threadedEventStack.h"
-#include "inventory.h"
 
-#include "GeneralEngineCPP.h"
-
-//Debug includes
-#include "debugRenders.h"
-
+class Inventory;
 
 
 //LIMITS:
@@ -41,7 +27,18 @@ enum TYPES
 	TYPE_PLAYER,
 	TYPE_ENEMY,
 	TYPE_DESTROYSUB, //bullets, etc.
+	TYPE_SHIPWALL,
+	TYPE_COUNT // ammount of types that exist - do not use as a type
 };
+
+enum GROUPS
+{
+	GROUP_REGULAROBJECT,	
+	GROUP_INTELIGENT, 
+	GROUP_COUNT
+};
+
+extern bool typeInGroup[TYPE_COUNT][GROUP_COUNT];
 
 
 
@@ -102,6 +99,7 @@ class Player : public GE_PhysicsObject
 		bool keysHeld[323] = {false}; 
 		SDL_Renderer* renderer;
 		int nextTickCanShoot;
+		bool dampeners;
 
 
 		
@@ -122,6 +120,7 @@ class Enemie : public GE_PhysicsObject
 		GE_RenderedObject* renderObject;
 		SDL_Renderer* renderer;
 		int level;
+		Vector2 lastFoundPlayer;
 		bool foundPlayer;
 		int lastTimeShotTick;
 
@@ -151,3 +150,13 @@ class StdBullet : public BulletType //Hah
 		GE_RenderedObject* renderObject;
 };
 
+
+class Wall : public GE_PhysicsObject
+{
+	public:
+		Wall(SDL_Renderer* renderer, Vector2r position, GE_Rectangle shape, double mass);
+		~Wall();
+	private:
+		GE_RenderedObject* renderObject;
+		GE_Rectangle shape;
+};

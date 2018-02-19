@@ -151,6 +151,7 @@ void startTheGame()
 	GE_LinkVectorToPhysicsObjectPosition(player,&camera.pos);
 	GE_LinkGlueToPhysicsObject(player,GE_addGlueSubject(&playerGrid,&player->grid,GE_PULL_ON_PHYSICS_TICK,sizeof(playerGrid))); //because we need the bounding box to center
 	
+	/*
 	Enemie*  lastenemy;
 	for (int i=0;i<20;i++)
 	{	
@@ -159,6 +160,11 @@ void startTheGame()
 
 		lastenemy = new Enemie(renderer, {randomx-1500,randomy-1500,0},1);
 	}
+	*/
+	//create temporary level
+	new Wall(renderer,{00,-90},{0,0,200,10},999);
+	new Wall(renderer,{300,-90},{0,0,200,10},999);
+	new Enemie(renderer,{0,-250,0},1);
 
 	pthread_mutex_unlock(&PhysicsEngineMutex);
 }
@@ -359,11 +365,13 @@ class UI_MainMenu : public GE_UI_TopLevelElement
 			this->size = size;
 
 
+			//put everything on a surface. this handles rendering order, and deletes stuff put on it when deleted.
 			mySurface = new GE_UI_Surface(renderer,position,size,gameBackgroundColor);
 
 
 			starsCamera = {Vector2r{0,0,0},static_cast<int>(size.x),static_cast<int>(size.y)};
 
+			//create some stars, and times the location the camera is at differently to give the illusion of depth
 #define additionalStars 3
 			double maxScreenSize = std::max(camera.screenWidth,camera.screenHeight)*additionalStars;
 			std::vector<GE_Color> starColors = {{0xff,0xff,0xff,0xff},{0xfb,0xf3,0xf9,0xff},{0xba,0xd8,0xfc,0xff}};
@@ -423,7 +431,7 @@ class UI_MainMenu : public GE_UI_TopLevelElement
 		}
 		void render(Vector2 parrentPosition)
 		{
-			int dt = rendererThreadsafeTicknum-lastTick;
+			int dt = rendererThreadsafeTicknum-lastTick; //get ticks since last call
 #define mode_length 600
 #define mode_num 4
 			int currentState = static_cast<int>(wraparround_clamp(rendererThreadsafeTicknum,(mode_length*mode_num)));
@@ -461,7 +469,7 @@ class UI_MainMenu : public GE_UI_TopLevelElement
 				
 				myGameView = new UI_GameView(renderer,{0,0},{static_cast<double>(camera.screenWidth),static_cast<double>(camera.screenHeight)},&camera);
 
-				//simply set the game view to the new background
+				//simply set the game view to the new background. only one background may exist
 				GE_UI_SetBackgroundElement(myGameView);
 			}
 
@@ -473,6 +481,7 @@ class UI_MainMenu : public GE_UI_TopLevelElement
 				SDL_Event quitEvent;
 				quitEvent.type = SDL_QUIT;
 				SDL_PushEvent(&quitEvent);
+				delete this; //Now that's a rarity
 			}
 		}
 		bool checkIfFocused(int mousex, int mousey)
@@ -601,64 +610,22 @@ int main(int argc, char* argv[])
 	GameOver->center();
 	GameOver->expandToTextSize();
 
-
-//#define tonsofbulletstest
-#ifdef tonsofbulletstest
-	for (int i =0;i<5000;i++)
-	{
-#define range 10000000
-		new StdBullet(renderer,{random_range_double(range*-1,range),random_range_double(range*-1,range),2}, "stdBulletPlayer");
-	}
-
-#endif
 	
 #ifdef GE_DEBUG
 		GE_DEBUG_PassRenderer(renderer,&camera);
 #endif
 
 	GE_UI_Window* window = new GE_UI_Window(renderer,"INVENTORY",{250,250},{618,320},style);
-	//myGameView = new UI_GameView(renderer,{0,0},{static_cast<double>(camera.screenWidth),static_cast<double>(camera.screenHeight)},&camera);
 	myMainMenu = new UI_MainMenu(renderer,{0,0},{static_cast<double>(camera.screenWidth),static_cast<double>(camera.screenHeight)});
 	GE_UI_SetBackgroundElement(myMainMenu);
-	//GE_UI_SetBackgroundElement(myGameView);
-//	GE_UI_InsertTopLevelElement(window);
 
 	printf("Done with initial setup. Unlocking physics engine.\n");
 	pthread_mutex_unlock(&PhysicsEngineMutex);
 
-
-	/*
-	auto inv_ = new Inventory(2500,lastenemy); //temporary testing code 
-	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,64});
-	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,63});
-	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,21});
-	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,272});
-	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,64});
-	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,63});
-	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,21});
-	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,272});
-	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,63});
-	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,21});
-	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,272});
-	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,63});
-	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,21});
-	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,272});
-	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,63});
-	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,21});
-	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,272});
-	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,63});
-	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,21});
-	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,272});
-	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,63});
-	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,21});
-	inv_->storage.push_back(ItemStack{ITEM_NAMES::IRON,272});
-	UI_InventoryView* inv = new UI_InventoryView(renderer, {0,0},{309,250},inv_,fstyle,{8,8},GE_Color{0xff,0xff,0xff,0x33},GE_Color{0x00,0x33,0x00,255},GE_Color{0xff,0x00,0x00,0xff});
-	window->surface->addElement(inv);
-	*/
-
 	//initialize our omni event handler
 	MyOmniEventReciever* myOmniEventReciever = new MyOmniEventReciever();
 	GE_UI_InsertOmniEventReciever(myOmniEventReciever);
+
 
 	while (true)
 	{
@@ -674,8 +641,6 @@ int main(int argc, char* argv[])
 
 		GE_GlueRenderCallback(); //update all positions from the buffer
 
-		//now that we updated the positions, center the camera by subtracting half the player bounding box
-		camera.pos = camera.pos+(playerGrid/2);
 
 #ifdef NO_CAMERA_ROTATE
 		camera.pos.r = 0;
@@ -706,93 +671,15 @@ int main(int argc, char* argv[])
 			C_PhysicsTickDoneCallbacks[i]();
 		}
 		#endif
-		#ifdef false
-		double rectx =200;
-double recty =200;
-double rectw = 40;
-double recth = 40;
-double rayx = 600;
-double rayy = 600;
-double angle = 0;
-double prs = 10;
-		SDL_SetRenderDrawColor(renderer,0x00,0x00,0x00,SDL_ALPHA_OPAQUE);
-		SDL_RenderClear(renderer);
-		auto t = SDL_Rect{0,0,1920,1080};
-		SDL_RenderDrawRect(renderer,&t);
-
-
-
-		Vector2 rayStart = {300,300};
-		Vector2 rayEnd = {rayx,rayy};
-
-		GE_ShapeLines myRect;
-
-		/*myRect.insert(myRect.end(),Vector2{rectx,recty});
-		myRect.insert(myRect.end(),Vector2{rectx,recty+recth});
-		myRect.insert(myRect.end(),Vector2{rectx+rectw,recty+recth});
-		myRect.insert(myRect.end(),Vector2{rectx+rectw,recty});*/
-
-		Vector2 rect[4];
-
-		GE_RectangleToPoints({rectx,recty,rectw,recth},{rectw,recth},rect,{rectx+rectw*.5,recty+recth*.5,angle/RAD_TO_DEG});
-
-		myRect.insert(myRect.end(),rect[0]);
-		myRect.insert(myRect.end(),rect[1]);
-		myRect.insert(myRect.end(),rect[3]);
-		myRect.insert(myRect.end(),rect[2]);
-		myRect.insert(myRect.end(),rect[0]);
-
-		GE_ShapeLinesVector obstacles;
-
-		obstacles.insert(obstacles.end(),myRect);
-
-		auto pos = GE_Raycast(rayStart,rayEnd,obstacles);
-
-		printf("%s\n",GE_DEBUG_VectorToString(pos).c_str());
-
-		GE_DEBUG_DrawLine(rayStart,rayEnd);
-		//GE_DEBUG_DrawRect({rectx,recty,rectw,recth});
-		GE_DEBUG_DrawShape(myRect);
-
-		GE_DEBUG_DrawRect({pos.x-2,pos.y-2,4,4},{0xff,0x66,0x00,0xff});
-
-#endif
-		
-
-		
-
-
-
-
-
-
-		SDL_RenderPresent(renderer); //seems to be the VSyncer (expect ~16ms wait upon call)
+		SDL_RenderPresent(renderer); 
 	}
-	
-
 	printf("--BEGIN SHUTDOWN--\n");
-	pthread_mutex_lock(&PhysicsEngineMutex);
-
-	TTF_CloseFont(tinySans);
-	TTF_CloseFont(bigSans);
-	TTF_CloseFont(titleSans);
-	printf("destroy sdl stuff\n");
-
-	delete ticknumGlue;
-
-	printf("hud\n");
-
-	delete myGameView;
+	GE_FreeGlueObject(ticknumGlue);
 	delete GameOver;
 	delete myOmniEventReciever;
-
-	printf("--Engine shutdown--\n");
-	pthread_mutex_unlock(&PhysicsEngineMutex);
 	GE_Shutdown();
-	
 	SDL_DestroyWindow(myWindow);
 	SDL_DestroyRenderer(renderer);
-
 	printf("Bye.\n");
 	return 0;
 }

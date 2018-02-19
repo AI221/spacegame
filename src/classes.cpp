@@ -1,6 +1,32 @@
 #include "classes.h"
 
-Player* targetPlayer;
+#include <SDL2/SDL.h>
+#include <stdlib.h>     /* srand, rand */
+#include <string>
+#include <cmath>
+#include <stack>
+
+//Local includes
+#include "vector2.h"
+#include "gluePhysicsObject.h"
+#include "minimap.h"
+#include "inventory.h"
+#include "raycast.h"
+
+#include "GeneralEngineCPP.h"
+
+//Debug includes
+#include "debugRenders.h"
+
+bool typeInGroup[TYPE_COUNT][GROUP_COUNT];
+
+
+void Init_Classes()
+{
+	typeInGroup[TYPE_PLAYER][GROUP_INTELIGENT] = true;//some players shouldn't be in this, but we'll overlook that
+	typeInGroup[TYPE_REGULAR][GROUP_REGULAROBJECT] = true;
+}
+
 
 Subsystem::Subsystem(SDL_Renderer* renderer, std::string sprite, Vector2 size, GE_Rectangle animation, Vector2r relativePosition, int collisionRectangle, std::string name, Vector2* parrentGrid)
 {
@@ -62,19 +88,9 @@ void Subsystem::Update(Vector2r parrentPosition)
 		//printf("x %f\n",(halfrectw));
 		Vector2r rotationMatrix = relativePosition;
 
-		rotationMatrix.x = (rotationMatrix.x-(halfrectw))+(renderObject->size.x/2);
-		rotationMatrix.y = (rotationMatrix.y-(halfrecth))+(renderObject->size.y/2);
-
-
+		rotationMatrix.x = (rotationMatrix.x)+(renderObject->size.x/2)-halfrectw;
+		rotationMatrix.y = (rotationMatrix.y)+(renderObject->size.y/2)-halfrecth;
 		GE_Vector2RotationCCW(&rotationMatrix,parrentPosition.r);
-
-		rotationMatrix.x = (rotationMatrix.x+(halfrectw))-(renderObject->size.x/2);
-		rotationMatrix.y = (rotationMatrix.y+(halfrecth))-(renderObject->size.y/2);
-
-		//rotationMatrix.x = rotationMatrix.x+(halfrectw);
-		//rotationMatrix.y = rotationMatrix.y+(halfrecth);
-
-		
 		position = {rotationMatrix.x+parrentPosition.x,rotationMatrix.y+parrentPosition.y,parrentPosition.r}; //set our value because it will be updated at the proper time by the glue we added on initialization
 	}
 	else
@@ -113,6 +129,9 @@ Subsystem::~Subsystem()
 //the above inserts TWO PARAMETERS
 Player::Player(SDL_Renderer* renderer) : GE_PhysicsObject({0,0,0},{0,0,0},25)
 {
+
+	//TODO: MOVE SOMEWHERE ELSE!
+	Init_Classes();
 
 
 
@@ -171,7 +190,6 @@ Player::Player(SDL_Renderer* renderer) : GE_PhysicsObject({0,0,0},{0,0,0},25)
 
 
 
-	targetPlayer = this;
 
 	iterableSubsystems[0]->SetLevel(4);
 
@@ -186,6 +204,10 @@ Player::Player(SDL_Renderer* renderer) : GE_PhysicsObject({0,0,0},{0,0,0},25)
 	this->inventory->storage.push_back(ItemStack{ITEM_NAMES::IRON,63});
 	this->inventory->storage.push_back(ItemStack{ITEM_NAMES::DUCT_TAPE,63});
 	this->inventory->storage.push_back(ItemStack{ITEM_NAMES::IRON,63});
+
+	type = TYPE_PLAYER;
+
+	dampeners = false;
 
 }
 Player::~Player()
@@ -205,14 +227,14 @@ Player::~Player()
 
 void ShootBullet(SDL_Renderer* renderer, GE_PhysicsObject* host, Vector2r addToVelocity, Vector2r addToPosition, bool isPlayer)
 {
-	addToPosition.x = addToPosition.x - host->grid.x/2;
-	addToPosition.y = addToPosition.y - host->grid.x/2;
+	addToPosition.x = addToPosition.x;// - host->grid.x/2;
+	addToPosition.y = addToPosition.y;// - host->grid.x/2;
 
 	GE_Vector2RotationCCW(&addToPosition,host->position.r);
 	GE_Vector2RotationCCW(&addToVelocity,host->position.r);
 
-	addToPosition.x = addToPosition.x + host->grid.x/2;
-	addToPosition.y = addToPosition.y + host->grid.x/2;
+	addToPosition.x = addToPosition.x;// + host->grid.x/2;
+	addToPosition.y = addToPosition.y;// + host->grid.x/2;
 
 	StdBullet* mybullet = new StdBullet(renderer,host->position+addToPosition,(isPlayer) ? ("stdBulletPlayer") : ("stdBulletEnemy"));
 
@@ -223,8 +245,10 @@ void ShootBullet(SDL_Renderer* renderer, GE_PhysicsObject* host, Vector2r addToV
 }
 
 
-//#define unrealisticMove
-//double fwdMove;
+
+const double turnSpeed= 0.0008726646;
+const double moveSpeed = 0.25;
+const double strafeSpeed = 0.05;
 bool Player::C_Update()
 {
 	printf("my grid %f,%f\n",grid.x,grid.y);
@@ -245,6 +269,13 @@ bool Player::C_Update()
 	if (GetIsOnline())
 	{
 
+		bool moveForward = false;
+		bool moveBackward = false;
+		bool moveLeft = false;
+		bool moveRight = false;
+		bool turnLeft = false;
+		bool turnRight = false;
+
 
 		//handle events
 		SDL_Event event;
@@ -261,8 +292,9 @@ bool Player::C_Update()
 				}
 				if(event.key.keysym.sym == SDLK_SPACE)// && ticknum >= nextTickCanShoot )
 				{
-					if (iterableSubsystems[7]->GetIsOnline()) ShootBullet(renderer,this,{0,-10,0},{12,-60,0},true);
-					if (iterableSubsystems[8]->GetIsOnline()) ShootBullet(renderer,this,{0,-10,0},{86,-60,0},true); //(49*2)-12=86 , because the other turret is at the opposite side of the ship
+					//TODO at some point this should be based on a value made in an editor of some sort.
+					if (iterableSubsystems[7]->GetIsOnline()) ShootBullet(renderer,this,{0,-10,0},{12-(grid.x/2),-60,0},true);
+					if (iterableSubsystems[8]->GetIsOnline()) ShootBullet(renderer,this,{0,-10,0},{86-(grid.x/2),-60,0},true); //(49*2)-12=86 , because the other turret is at the opposite side of the ship
 					nextTickCanShoot = ticknum +(30-(pow(iterableSubsystems[0]->GetLevel(),2)));
 				}
 
@@ -285,6 +317,19 @@ bool Player::C_Update()
 
 					GE_LinkVectorToPhysicsObjectPosition(me,&(ro->position));
 
+				}
+				if (event.key.keysym.sym == SDLK_k)
+				{
+					//force push everything arround me
+					for (auto obj : GE_GetObjectsInRadius({position.x,position.y},1000))
+					{
+						obj->velocity.x += 0.5;
+					}
+				}
+				else if (event.key.keysym.sym == SDLK_f)
+				{
+					dampeners = !dampeners;
+					velocity = {0,0,0}; //TODO temp - fix once thruster placement is variable as well.
 				}
 			}
 			if (event.key.keysym.sym == SDLK_j)
@@ -310,48 +355,30 @@ bool Player::C_Update()
 		}
 		if(keysHeld[SDLK_w])
 		{
-			//GE_AddRelativeVelocity(cObj,{0,-0.5,0});
-#ifdef unrealisticMove
-			fwdMove = fwdMove-0.5;
-#else
-			//account for damaged thrusters -- if one is offline, we're going to spin when we move.
-			if (iterableSubsystems[0]->GetIsOnline()) GE_AddRelativeVelocity(this,{0,-0.25,0.0008726646});
-			if (iterableSubsystems[4]->GetIsOnline()) GE_AddRelativeVelocity(this,{0,-0.25,-0.0008726646});
-#endif
-		
+			moveForward = true;
 		}
 		if(keysHeld[SDLK_s])
 		{
-#ifdef unrealisticMove
-			fwdMove = fwdMove+0.5;
-#else
-			if (iterableSubsystems[0]->GetIsOnline()) GE_AddRelativeVelocity(this,{0,0.25,-0.0008726646});
-			if (iterableSubsystems[4]->GetIsOnline()) GE_AddRelativeVelocity(this,{0,0.25,0.0008726646});
-#endif
-
+			moveBackward = true;
 		}
 		if(keysHeld[SDLK_d])
 		{
-			GE_AddRelativeVelocity(this,{0.05,0,0});
+			moveRight = true;
 		}
 		if(keysHeld[SDLK_a])
 		{
-			GE_AddRelativeVelocity(this,{-0.05,0,0});
+			moveLeft = true;
 		}
 		if(keysHeld[SDLK_q])
 		{
-			GE_AddRelativeVelocity(this,{0,0,-0.0008726646});
+			turnLeft = true;
 		}
 		if(keysHeld[SDLK_e])
 		{
-			GE_AddRelativeVelocity(this,{0,0,0.0008726646});
+			turnRight = true;
 		}
 
 
-		if (keysHeld[SDLK_t])
-		{
-		}
-	
 		if(keysHeld[SDLK_x])
 		{
 			printf("posx %f\n",position.x);
@@ -362,29 +389,47 @@ bool Player::C_Update()
 		{
 			iterableSubsystems[0]->health -= 5.25;
 		}
-		//temp
-		if(keysHeld[SDLK_f])
-		{
-			velocity = {0,0,0};
-#ifdef unrealisticMove
-			fwdMove = 0;
-#endif
-		} 
 		if (keysHeld[SDLK_n])
 		{
 			velocity = {-1,0,0};
 		}
-		
-		if (keysHeld[SDLK_ESCAPE])
+
+
+
+		if (dampeners)
 		{
-			//TODO GOD WHY
-			//iterableSubsystems[1]->health = 0;
+				
 		}
 
-#ifdef unrealisticMove
-		velocity = {0,0,velocity.r};
-		GE_AddRelativeVelocity(this,{0,fwdMove,0});
-#endif
+
+		if(moveForward)
+		{
+			//account for damaged thrusters -- if one is offline, we're going to spin when we move.
+			if (iterableSubsystems[0]->GetIsOnline()) GE_AddRelativeVelocity(this,{0,-moveSpeed,turnSpeed});
+			if (iterableSubsystems[4]->GetIsOnline()) GE_AddRelativeVelocity(this,{0,-moveSpeed,-turnSpeed});
+		}
+		if (moveBackward)
+		{
+			if (iterableSubsystems[0]->GetIsOnline()) GE_AddRelativeVelocity(this,{0,moveSpeed,-turnSpeed});
+			if (iterableSubsystems[4]->GetIsOnline()) GE_AddRelativeVelocity(this,{0,moveSpeed,turnSpeed});
+		}
+		if (moveLeft)
+		{
+			GE_AddRelativeVelocity(this,{-strafeSpeed,0,0});
+		}
+		if (moveRight)
+		{
+			GE_AddRelativeVelocity(this,{strafeSpeed,0,0});
+		}
+		if (turnLeft)
+		{
+			GE_AddRelativeVelocity(this,{0,0,-turnSpeed});
+		}
+		if (turnRight)
+		{
+			GE_AddRelativeVelocity(this,{0,0,turnSpeed});
+		}
+
 
 
 
@@ -444,6 +489,8 @@ Enemie::Enemie(SDL_Renderer* renderer, Vector2r position, int level) : GE_Physic
 	callCallbackUpdate = true;
 	lastTimeShotTick = ticknum;
 
+	foundPlayer = false;
+
 }
 Enemie::~Enemie()
 {
@@ -460,74 +507,108 @@ bool canStop(double velocity, double distance, double acceleration)
 
 bool Enemie::C_Update()
 {
-	//based on: https://gamedev.stackexchange.com/a/124803
-	//printf("enemy up\n");
-	//check if we're in the radius of our target player
-	double rotaryDistance = GE_GetRotationalDistance(this->position,targetPlayer->position)-M_PI;
-	double distanceToPlayer = GE_Distance(this->position.x, this->position.y, targetPlayer->position.x, targetPlayer->position.y);
-	//printf("rdist %f\n",rotaryDistance);
 
-	//printf("t %d l %d \n",ticknum,lastTimeShotTick);
-
-
-	if (distanceToPlayer < 1000)
+	Player* targetPlayer;
+	bool foundTarget = false;
+	std::vector<GE_PhysicsObject*> potentialBlock;
+	
+	//find stuff in our radius
+	for (GE_PhysicsObject* obj : GE_GetObjectsInRadius({position.x,position.y},1000))
 	{
-		foundPlayer=true;
-		GE_LinkMinimapToRenderedObject(renderObject,{0xA0,0x00,0x00,0xFF});
-		if (ticknum-lastTimeShotTick >= 60)
-		{	
-			//printf("cs\n");
-			if (rotaryDistance < 0.3 && rotaryDistance > -0.3)
+		if (obj != this)
+		{
+			if (obj->type == TYPE_PLAYER)
 			{
-				lastTimeShotTick = ticknum;
-				ShootBullet(renderer,this,{0,-7,0},{19,-9,0},false);
+				targetPlayer = static_cast<Player*>(obj);
+				foundTarget = true;
+			}
+			potentialBlock.insert(potentialBlock.end(), obj);
+		}
+	}
+	if (foundTarget)
+	{
+		bool playerInSight = false;
+		//we're only worried about our sight to the player.
+		Vector2 endCast = {targetPlayer->position.x,targetPlayer->position.y}; 
+		auto ret = GE_Raycast(Vector2{position.x,position.y},endCast,potentialBlock);
+
+#ifdef PHYSICS_DEBUG_SLOWRENDERS
+		GE_DEBUG_DrawLine_PhysicsPosition(Vector2{position.x,position.y},endCast,GE_Color{0xff,0x00,0x00,0x00});
+		GE_DEBUG_DrawRect_PhysicsPosition({ret.position.x,ret.position.y,2,2},{0x00,0xff,0x00,0x00});
+#endif
+
+		//ret.victim->velocity.x += 0.1;
+		if (ret.victim == targetPlayer)
+		{
+			lastFoundPlayer = ret.position;
+			foundPlayer = true;
+			playerInSight = true;
+		}
+
+
+		//based on: https://gamedev.stackexchange.com/a/124803
+		double rotaryDistance = GE_GetRotationalDistance(this->position,lastFoundPlayer)-M_PI;
+		double distanceToPlayer = GE_Distance(this->position.x, this->position.y, lastFoundPlayer.x, lastFoundPlayer.y);
+
+		
+		if (playerInSight)
+		{
+			GE_LinkMinimapToRenderedObject(renderObject,{0xA0,0x00,0x00,0xFF});
+			if (ticknum-lastTimeShotTick >= 60)
+			{	
+				//printf("cs\n");
+				if (rotaryDistance < 0.3 && rotaryDistance > -0.3)
+				{
+					lastTimeShotTick = ticknum;
+					ShootBullet(renderer,this,{0,-7,0},{0,-grid.y/2,0},false);
+				}
 			}
 		}
-	}
-	else if (distanceToPlayer > 3000)
-	{
-		foundPlayer = false;
-		GE_ScheduleFreeMinimapTarget(renderObject);
-	}
-	if (foundPlayer)
-	{
-		
-		double acceleration_r;
-		if (rotaryDistance < 0 || (rotaryDistance > M_PI && rotaryDistance < TWO_PI ))
+		else if (distanceToPlayer > 3000)
 		{
-			acceleration_r = 0.002;
+			//foundPlayer = false;
+			GE_ScheduleFreeMinimapTarget(renderObject);
 		}
-		else
+		if (foundPlayer)
 		{
-			acceleration_r = -0.02;
-		}
-		//double timeToDestination = (M_PI-rotaryDistance)/acceleration_r;
-
-
-		//printf("time stop %f\n",timeToStop);
-		if(!canStop(velocity.r,rotaryDistance,acceleration_r))
-		{
-			if (velocity.r > 0)
+			
+			double acceleration_r;
+			if (rotaryDistance < 0 || (rotaryDistance > M_PI && rotaryDistance < TWO_PI ))
 			{
-				velocity.r -= std::abs(acceleration_r);
+				acceleration_r = 0.002;
 			}
 			else
 			{
-				velocity.r += std::abs(acceleration_r);
+				acceleration_r = -0.02;
 			}
-		}
-		else
-		{
-			velocity.r += acceleration_r;
-		}
+			//double timeToDestination = (M_PI-rotaryDistance)/acceleration_r;
 
-		//accelerate towards the player
 
-		if (rotaryDistance < 0.3 && rotaryDistance > -0.3 )
-		{
-			//GE_AddRelativeVelocity(this,{0,-0.1,0});
+			//printf("time stop %f\n",timeToStop);
+			if(!canStop(velocity.r,rotaryDistance,acceleration_r))
+			{
+				if (velocity.r > 0)
+				{
+					velocity.r -= std::abs(acceleration_r);
+				}
+				else
+				{
+					velocity.r += std::abs(acceleration_r);
+				}
+			}
+			else
+			{
+				velocity.r += acceleration_r;
+			}
+
+			//accelerate towards the player
+
+			if (rotaryDistance < 0.3 && rotaryDistance > -0.3 )
+			{
+				//GE_AddRelativeVelocity(this,{0,-0.1,0});
+			}
+
 		}
-
 	}
 	
 
@@ -589,3 +670,20 @@ StdBullet::~StdBullet()
 
 }
 
+Wall::Wall(SDL_Renderer* renderer, Vector2r position, GE_Rectangle shape, double mass) : GE_PhysicsObject(position,{0,0,0},mass)
+{
+	this->addCollisionRectangle(shape);
+	renderObject = GE_CreateRenderedObject(renderer,"gray");
+	renderObject->size = {shape.w,shape.h};
+	renderObject->animation={0,0,1,1};
+
+	GE_LinkVectorToPhysicsObjectPosition(this,&(renderObject->position)); 
+	
+	type = TYPE_SHIPWALL;
+
+}
+
+
+Wall::~Wall()
+{
+}

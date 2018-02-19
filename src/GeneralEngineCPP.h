@@ -3,6 +3,7 @@
  * @author Jackson McNeill
  *
  * Generic macros and preprocessor definitions (Such as what OS is being compiled for) 
+ * Expanded to contain a couple utility functions and a macro-based unit testing system
  */
 #pragma once
 
@@ -126,6 +127,23 @@ bool GE_IsInRange(number value, number range1, number range2)
 	return false;
 
 }
+
+/*!
+ * Returns UNIX time in seconds.miliseconds
+ */
+double GE_GetUNIXTime();
+
+
+/*!
+ * Starts a performance benchmark. Note: Uses the variable 'startPerformanceTime'
+ * Do not use in mainline code, for test purposes only
+ */
+#define GE_TEST_StartBenchmark() double startPerformanceTime = GE_GetUNIXTime();
+/*!
+ * Returns the resulting time from the benchmark.
+ * Note, there is some degree of inacuracy, because it takes time to get the time
+ */
+#define GE_TEST_BenchmarkResult() (GE_GetUNIXTime()-startPerformanceTime)
 
 
 

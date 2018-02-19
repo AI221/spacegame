@@ -203,6 +203,9 @@ void GE_BlitSprite(GE_Sprite* sprite, Vector2r position,Vector2 size, GE_Rectang
 	renderPosition.w = size.x+.5;
 	renderPosition.h = size.y+.5;
 
+	renderPosition.x -= renderPosition.w/2;
+	renderPosition.y -= renderPosition.h/2;
+
 	/*renderAnimation.x = animation.x;
 	renderAnimation.y = animation.y;
 	renderAnimation.w = size.x;

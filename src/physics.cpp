@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <thread>
 #include <iostream>
 #include <map>
+//#include <copy>
 
 //Local includes
 
@@ -75,6 +76,25 @@ int numPhysicsTickDoneCallbacks = -1;
 std::function< void ()> C_PhysicsTickPreCallbacks[MAX_PHYSICS_ENGINE_PRE_CALLBACKS];
 int numPhysicsTickPreCallbacks = -1;
 
+
+
+#ifdef PHYSICS_DEBUG_SLOWRENDERS
+void localdebug_worldsectors()
+{
+
+#define limit 5
+	for (physics_area_single_coord_t x=-limit;x<limit;x++)
+	{
+		for (physics_area_single_coord_t y = -limit; y<limit;y++)
+		{
+			Vector2 vec = {static_cast<double>(x*PHYSICS_AREA_SIZE),static_cast<double>(y*PHYSICS_AREA_SIZE)};
+			GE_DEBUG_TextAt_PhysicsPosition(GE_DEBUG_VectorToString(vec),vec);
+			GE_DEBUG_DrawRect_PhysicsPosition(GE_Rectangle{vec.x,vec.y,PHYSICS_AREA_SIZE,PHYSICS_AREA_SIZE});
+		}
+	}
+
+}
+#endif 
 
 GE_PhysicsObject::GE_PhysicsObject(Vector2r position, Vector2r velocity, double mass)
 {
@@ -137,6 +157,7 @@ void GE_PhysicsObject::addCollisionRectangle(GE_Rectangle newRectangle)
 		}
 	}
 	diameter = fmax(grid.x,grid.y);
+	radius = diameter/2;
 }
 GE_PhysicsObject::~GE_PhysicsObject()
 {
@@ -204,15 +225,6 @@ void GE_AddRelativeVelocity(GE_PhysicsObject* physicsObject, Vector2r moreVeloci
 	physicsObject->velocity.addRelativeVelocity({moreVelocity.x,moreVelocity.y,physicsObject->position.r}); //TODO: De-OOify
 }
 
-double GE_GetUNIXTime()
-{
-	struct timeval tv;
-	gettimeofday(&tv,NULL);
-	
-	return static_cast<double>(tv.tv_sec)+(static_cast<double>(tv.tv_usec)/(static_cast<double>(10e6))); //Add the microseconds divded by 10e6 to end up with seconds.microseconds
-	//Static casting intensifies
-}
-
 
  
 void* GE_physicsThreadMain(void *)
@@ -259,7 +271,7 @@ void* GE_physicsThreadMain(void *)
 
 #ifdef PHYSICS_DEBUG_SLOWRENDERS
 		}
-		SDL_Delay(1); //prevent from taking up a whole core, sdl is available to physics engine in debug mode
+		//SDL_Delay(1); //prevent from taking up a whole core, sdl is available to physics engine in debug mode
 #endif
 
 		
@@ -325,6 +337,9 @@ temp2 = 0;
 		}
 		//printf("x %d y %d\n",AllPhysicsObjects[i]->position.x,AllPhysicsObjects[i]->position.y);
 	}
+#ifdef PHYSICS_DEBUG_SLOWRENDERS	
+	localdebug_worldsectors();
+#endif
 
 	std::unordered_set<GE_PhysicsObject*>::iterator it;
 	while(true) //erase stuff like a queue, cause we're constantly removing things and shifting the iterators arround, this works best
@@ -525,8 +540,8 @@ InternalResult GE_TickPhysics_ForObject_Internal(GE_PhysicsObject* cObj, Vector2
 	physics_area_single_coord_t xMin = (cObj->position.x/PHYSICS_AREA_SIZE);
 	physics_area_single_coord_t yMin = (cObj->position.y/PHYSICS_AREA_SIZE);
 
-	physics_area_single_coord_t xMax = ((cObj->position.x+cObj->grid.x)/PHYSICS_AREA_SIZE);
-	physics_area_single_coord_t yMax = ((cObj->position.y+cObj->grid.x)/PHYSICS_AREA_SIZE);
+	physics_area_single_coord_t xMax = std::ceil<int>((cObj->position.x+cObj->grid.x)/PHYSICS_AREA_SIZE);
+	physics_area_single_coord_t yMax = std::ceil<int>((cObj->position.y+cObj->grid.x)/PHYSICS_AREA_SIZE);
 
 
 	for(physics_area_single_coord_t x=xMin;x<=xMax;x++)
@@ -534,7 +549,7 @@ InternalResult GE_TickPhysics_ForObject_Internal(GE_PhysicsObject* cObj, Vector2
 		for (physics_area_single_coord_t y=yMin;y<=yMax;y++)
 		{
 #ifdef PHYSICS_DEBUG_SLOWRENDERS
-			GE_DEBUG_TextAt_PhysicsPosition(std::to_string(x)+", y "+std::to_string(y),cObj->position);
+			GE_DEBUG_TextAt_PhysicsPosition(std::to_string(x)+", y "+std::to_string(y)+"( x "+std::to_string(cObj->position.x)+" y "+std::to_string(cObj->position.y)+")",cObj->position);
 #endif
 			physics_area_coord_t coord = physics_area_coord_t(x,y);
 			auto area_it = world.find(coord);
@@ -566,8 +581,8 @@ InternalResult GE_TickPhysics_ForObject_Internal(GE_PhysicsObject* cObj, Vector2
 			GE_PhysicsObject* victimObj = *it;
 			if((victimObj != cObj) && checkNotDead(victimObj))
 			{
-				double maxSize = cObj->diameter;//fmax(cObj->grid.x, cObj->grid.x); //fmax tested to be about 2x faster than std::max in this situation
-				double theirMaxSize = victimObj->diameter;//fmax(victimObj->grid.x, victimObj->grid.x);
+				double maxSize = cObj->radius;//fmax(cObj->grid.x, cObj->grid.x); //fmax tested to be about 2x faster than std::max in this situation
+				double theirMaxSize = victimObj->radius;//fmax(victimObj->grid.x, victimObj->grid.x);
 				if ( ( cObj->position.x+maxSize >= victimObj->position.x-theirMaxSize) && (cObj->position.x-maxSize <= victimObj->position.x+theirMaxSize) && (cObj->position.y+maxSize >= victimObj->position.y-theirMaxSize) && (cObj->position.y-maxSize <=victimObj->position.y+theirMaxSize)) //tested to help a lot as compared to just running a full check.
 				{
 					InternalResult result = GE_CollisionFullCheck(cObj,victimObj);
@@ -647,20 +662,17 @@ void GE_RectangleToPoints(GE_Rectangle rect, Vector2 grid, Vector2* points, Vect
 	points[2] = {rect.x , rect.y+rect.h}; //bottom left
 	points[3] = {rect.x+rect.w , rect.y+rect.h}; //bottom right
 
-	double halfrectw = grid.x/2;//rect.w/2; //TODO I think this needs to be the size of the full object?
-	double halfrecth = grid.x/2;//rect.h/2;
 	for (int i =0; i < 4; i++)
 	{
-		points[i].x -= halfrectw;
-		points[i].y -= halfrecth;
+		points[i].x -= grid.x/2;
+		points[i].y -= grid.y/2;
 		GE_Vector2RotationCCW(&points[i],hostPosition.r);
-		points[i].x += halfrectw+hostPosition.x;
-		points[i].y += halfrecth+hostPosition.y;
+		points[i].x += /*halfrectw+*/hostPosition.x;
+		points[i].y += /*halfrecth+*/hostPosition.y;
 
 
 		#ifdef PHYSICS_DEBUG_SLOWRENDERS
 
-			pthread_mutex_lock(&RenderEngineMutex);
 			//note that the physics debugRender does NOT include rotation of the screen, and probably never will. it is good enough for its purpose.
 			SDL_SetRenderDrawColor( GE_DEBUG_Renderer, 0xFF, 0x00, 0x00, 0xFF ); 
 			if (DEBUG_isCObj)
@@ -683,10 +695,10 @@ void GE_RectangleToPoints(GE_Rectangle rect, Vector2 grid, Vector2* points, Vect
 			debugRect.y -= (GE_DEBUG_Camera->pos.y-GE_DEBUG_Camera->screenHeight/2);
 
 			SDL_RenderFillRect( GE_DEBUG_Renderer, &debugRect ); 
-			pthread_mutex_unlock(&RenderEngineMutex);
 		#endif
 
 	}
+
 }
 
 Vector2r GE_InelasticCollisionVelocityExchange(Vector2r velocity1, Vector2r velocity2, double mass1, double mass2) 
@@ -729,6 +741,31 @@ void GE_InelasticCollision(GE_PhysicsObject* subject, Vector2 collisionPoint, Ve
 	
 	printf("new velocity real %f, %f, %f\n",subject->velocity.x,subject->velocity.y,subject->velocity.r);
 }
+std::set<GE_PhysicsObject*> GE_GetObjectsInRadius(Vector2 position, double radius)
+{
+	std::set<GE_PhysicsObject*> objects;
+	for (physics_area_single_coord_t x = std::floor<physics_area_single_coord_t >((position.x-radius)/PHYSICS_AREA_SIZE); x<= std::ceil<physics_area_single_coord_t >((position.x+radius)/PHYSICS_AREA_SIZE);x++)
+	{
+		for (physics_area_single_coord_t y = std::floor<physics_area_single_coord_t >((position.y-radius)/PHYSICS_AREA_SIZE); y<= std::ceil<physics_area_single_coord_t >((position.y+radius)/PHYSICS_AREA_SIZE);y++)
+		{
+			physics_area_coord_t coord = physics_area_coord_t(x,y);
+			auto area_it = world.find(coord);
+			if (area_it != world.end())
+			{
+				physics_area_t* area = area_it->second;
+				for (GE_PhysicsObject* obj : *area)
+				{
+					if (GE_Distance(position,obj->position) <= radius)
+					{
+						objects.insert(obj);
+					}
+				}
+			}
+		}
+	}
+	return objects;
+}
+
 
 void GE_ResetPhysicsEngine()
 {

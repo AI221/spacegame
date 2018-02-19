@@ -49,9 +49,15 @@ void GE_DEBUG_Cursor_TextAtCursor();
 Vector2 GE_DEBUG_QuickAddY(Vector2 positon, double addx);
 Vector2r GE_DEBUG_QuickAddY(Vector2r positon, double addx);
 
+void GE_DEBUG_DrawLine(Vector2 start, Vector2 end,GE_Color color);
+
 void GE_DEBUG_DrawLine(Vector2 start, Vector2 end);
 
 void GE_DEBUG_DrawLine(GE_Line shapeLine);
+
+void GE_DEBUG_DrawLine_PhysicsPosition(Vector2 start, Vector2 end,GE_Color color);
+
+void GE_DEBUG_DrawLine_PhysicsPosition(Vector2 start, Vector2 end);
 
 void GE_DEBUG_DrawRect(GE_Rectangle rect,GE_Color clr);
 
@@ -59,3 +65,6 @@ void GE_DEBUG_DrawRect(GE_Rectangle rect);
 
 void GE_DEBUG_DrawShape(GE_ShapeLines shape);
 
+void GE_DEBUG_DrawRect_PhysicsPosition(GE_Rectangle rect, GE_Color clr);
+
+void GE_DEBUG_DrawRect_PhysicsPosition(GE_Rectangle rect);

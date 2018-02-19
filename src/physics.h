@@ -12,6 +12,7 @@
 #include <pthread.h>
 #include <forward_list>
 #include <list>
+#include <set>
 #include <unordered_map>
 #include <functional>
 #include <vector>
@@ -121,6 +122,7 @@ class GE_PhysicsObject
 		 */
 		physics_object_area_list_t areas;
 		double diameter; //the maximum space the object can take up; used for collision checking optimizations
+		double radius; //diameter/2 , for optimization & convienience
 
 		
 		
@@ -247,6 +249,34 @@ Vector2r GE_InelasticCollisionVelocityExchange(Vector2r velocity1, Vector2r velo
 Vector2 GE_GetRectangleCenterRealPosition(GE_Rectangle rectangle, Vector2r realPosition);
 
 void GE_InelasticCollision(GE_PhysicsObject* subject, Vector2 collisionPoint, Vector2r momentum, bool CCW);
+
+std::set<GE_PhysicsObject*> GE_GetObjectsInRadius(Vector2 position, double radius);
+
+/*!
+ * Takes a container of physics objects and sorts them into a vector, where the first element is the closest and last is the furthest away.
+ * NOTE: This isn't perfectly accurate, as it does NOT take into account collision rectangles. If you're, for example, raycasting, you want to keep checking elements beyond when you find a collision until you get to one that is definitely farther away(i.e. accounting for its rectangles and position)
+ */
+template <class container>
+std::vector<GE_PhysicsObject*> GE_SortPhysicsObjectByClosest_Inaccurate(Vector2 position, container oldSet)
+{
+	//allocate & copy into sorted vector
+	container newVector; 
+	for (GE_PhysicsObject* obj : oldSet) //go through every object in the old list
+	{
+		double distance = GE_Distance(position,obj->position);
+		distance -= obj->radius;
+		for (auto it = newVector.begin(); true; it++)
+		{
+			if ( it == newVector.end() || (distance <= (GE_Distance(position,(*it)->position)-(*it)->radius)  ))
+			{
+				newVector.insert(it,obj);
+				break;
+			}
+		}
+	}
+	return newVector;
+}
+
 /*!
  * Frees all physics objects in memory. Call only on shutdown.
  */

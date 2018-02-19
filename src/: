@@ -44,7 +44,15 @@ Vector2 GE_Raycast(Vector2 start, Vector2 end, GE_ShapeLinesVector obstacles)
 
 }
 
+struct ObjectRaycastReturn
+{
+	GE_PhysicsObject* victim;
+	Vector2 position;
+};
 
+/*!
+ * Takes a vector of physics objects that MUST be sorted closest-furthest, and finds the interected physics object or NULL if none.
+ */
 ObjectRaycastReturn GE_Raycast(Vector2 start, Vector2 end, std::vector<GE_PhysicsObject*> objects)
 {
 	objects = GE_SortPhysicsObjectByClosest_Inaccurate(start,objects);		
@@ -56,28 +64,20 @@ ObjectRaycastReturn GE_Raycast(Vector2 start, Vector2 end, std::vector<GE_Physic
 		for (int i=0;i<obj->numCollisionRectangles;i++)
 		{
 			Vector2 points[4];
-			GE_RectangleToPoints(obj->collisionRectangles[i],obj->grid,points,obj->position); //populate points
+			GE_RectangleToPoints(obj->collisionRectangles[i],obj->grid,points,obj->position);
 			GE_ShapeLines shapeLines;
-			//connect every point on the rectangle with lines
 			shapeLines.insert(shapeLines.end(),points[0]);
 			shapeLines.insert(shapeLines.end(),points[1]);
 			shapeLines.insert(shapeLines.end(),points[3]);
 			shapeLines.insert(shapeLines.end(),points[2]);
-			shapeLines.insert(shapeLines.end(),points[0]); 
+			shapeLines.insert(shapeLines.end(),points[0]);
 			shapes.insert(shapes.end(),shapeLines);
 		}
 		Vector2 result = GE_Raycast(start,end,shapes);
-#ifdef PHYSICS_DEBUG_SLOWRENDERS
-		GE_DEBUG_TextAt_PhysicsPosition(std::to_string(GE_Distance(start,result)),result);
-#endif
-		if (GE_Distance(start,result) <= GE_Distance(start,currentShortest))
+		if (result <= currentShortest)
 		{
 			currentShortest = result;
 			currentShortestObj = obj;
-		}
-		else if(currentShortestObj != NULL)
-		{
-			break;
 		}
 
 	}

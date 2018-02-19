@@ -148,8 +148,6 @@ GE_UI_Text::GE_UI_Text(SDL_Renderer* renderer, Vector2 position, Vector2 size, s
 }
 GE_UI_Text::~GE_UI_Text()
 {
-	
-	//TTF_CloseFont(Sans); //this segfaults but shouldn't. perhaps the Sans is global to all GE_UI_Texts ?
 	SDL_DestroyTexture(Message);
 
 }

@@ -3,6 +3,8 @@
 #define NO_myCamera_ROTATE
 #endif
 
+const double scale = 0.75;
+
 GE_UI_GameRender::GE_UI_GameRender(SDL_Renderer* renderer, Vector2 position, Vector2 size, Camera* camera)
 {
 	this->renderer = renderer;
@@ -37,7 +39,7 @@ void GE_UI_GameRender::render(Vector2 parrentPosition)
 	#endif
 	for (GE_RenderedObject* object : renderedObjects)
 	{
-		GE_BlitRenderedObject(object,camera,0.75);
+		GE_BlitRenderedObject(object,camera,scale);
 	}
 	pthread_mutex_unlock(&RenderEngineMutex);
 
