@@ -1,6 +1,7 @@
 #include "engine.h"
 
 #include <SDL2/SDL.h>
+#include <time.h>
 
 #include "gluePhysicsObject.h"
 #include "gluePhysicsObjectInit.h"

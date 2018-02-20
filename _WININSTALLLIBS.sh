@@ -16,7 +16,7 @@ cd x86_64-w64-mingw32/
 
 sudo cp ./* /usr/x86_64-w64-mingw32/ -rf --verbose
 
-cd tmp
+cd /tmp
 
 mkdir IMGTMP
 

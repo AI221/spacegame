@@ -1,11 +1,12 @@
 #pragma once
 
+#include <type_traits>
 #include <stdlib.h>
 #include <list>
 #include <map>
 
-extern const size_t bufferInitialSize;
 
+const size_t GE_SerializeStringInitialSize = 2048;
 
 class GE_Serializable
 {
@@ -25,30 +26,61 @@ class GE_Serializable
 
 
 
+/*!
+ * Internal functions, don't touch
+ */
+template<typename basicDataType>
+void internal_serialize_basic(basicDataType serializeMe, char** buffer, size_t* bufferUsed, size_t* bufferSize);
+template<typename basicDataType>
+basicDataType internal_unserialize_basic(char* serialized,size_t* bufferUnserialized);
+
+template<typename array_t>
+void internal_serialize_container_array(array_t array, size_t size,char** buffer, size_t* bufferUsed, size_t* bufferSize); 
+template<typename array_t>
+array_t internal_unserialize_container_array(char* serialized, size_t* bufferUnserialized);
+
+template<typename sequence_container>
+void internal_serialize_container_sequence(sequence_container container,char** buffer, size_t* bufferUsed, size_t* bufferSize);
+template<typename sequence_container>
+sequence_container internal_unserialize_container_sequence(char* serialized, size_t* bufferUnserialized);
 
 
+/*
+template <class data>
+typename std::enable_if<std::is_member_function_pointer<typename data::insert>::value,void>::type GE_Serialize(data serializeMe, char** buffer, size_t* bufferUsed, size_t* bufferSize)
+{
+	internal_unserialize_container_sequence(serializeMe,buffer,bufferUsed,bufferSize);
+}
+*/
+template <class data>
+typename std::enable_if<std::is_function<typename data::serialize>::value,void>::type GE_Serialize(data serializeMe, char** buffer, size_t* bufferUsed, size_t* bufferSize)
+{
+		serializeMe->serialize(buffer,bufferUsed,bufferSize);
 
-void GE_Serialize(GE_Serializable* serializeMe, char** buffer,size_t* bufferUsed, size_t* bufferSize);//,class std::enable_if< std::is_base_of<Serializable,serializeable>::value>::type>)
+}
 
-void GE_Serialize(int serializeMe, char** buffer,size_t* bufferUsed, size_t* bufferSize);
 
-void GE_Serialize(short int serializeMe, char** buffer,size_t* bufferUsed, size_t* bufferSize);
+//if all else fails, it must be a basic data type (or unsupported, in which case this will fail. hopefully.)
+template<class data>
+void GE_Serialize(data serializeMe, char** buffer, size_t* bufferUsed, size_t* bufferSize)
+{
+	return internal_serialize_basic(serializeMe,buffer,bufferUsed,bufferSize);
+}
 
-void GE_Serialize(long int serializeMe, char** buffer,size_t* bufferUsed, size_t* bufferSize);
 
-void GE_Serialize(long long int serializeMe, char** buffer,size_t* bufferUsed, size_t* bufferSize);
+template<class data>
+typename std::enable_if<std::is_class<data>::value,data*>::type GE_Unserialize(char* serialized, size_t* bufferUnserialized)
+{
+	return data::unserialize(serialized,bufferUnserialized);	
+}
 
-void GE_Serialize(unsigned int serializeMe, char** buffer,size_t* bufferUsed, size_t* bufferSize);
 
-void GE_Serialize(unsigned long int serializeMe, char** buffer,size_t* bufferUsed, size_t* bufferSize);
+template<class data>
+data GE_Unserialize(char* serialized, size_t* bufferUnserialized)
+{
+	return internal_unserialize_basic<data>(serialized,bufferUnserialized);	
+}
 
-void GE_Serialize(unsigned long long int serializeMe, char** buffer,size_t* bufferUsed, size_t* bufferSize);
-
-void GE_Serialize(unsigned short int serializeMe, char** buffer,size_t* bufferUsed, size_t* bufferSize);
-
-void GE_Serialize(char serializeMe, char** buffer,size_t* bufferUsed, size_t* bufferSize);
-
-void GE_Serialize(unsigned char serializeMe, char** buffer,size_t* bufferUsed, size_t* bufferSize);
 
 char* GE_AllocateSerializeString();
 

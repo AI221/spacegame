@@ -1,20 +1,31 @@
 #include "network.h"
 
 
+#include "GeneralEngineCPP.h"
 #ifdef outdatedOS
+
+#define WIN32_LEAN_AND_MEAN 
+#include <winsock2.h>
+#include <windows.h>
+
+#define read(a,b,c) ReadFile(a,b,c)
+
+#define close(socket) closesocket(socket)
 
 #else
 
-#include <string.h>   
-#include <string>
 #include <unistd.h>  
 #include <netinet/in.h> 
-#include <stdlib.h> 
 #include <netdb.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 
-#include "GeneralEngineCPP.h"
+
+#endif
+
+#include <stdlib.h> 
+#include <cstring>   
+#include <string>
 
 
 struct GE_NetworkSocket
@@ -104,8 +115,6 @@ void GE_FreeNetworkSocket(GE_NetworkSocket* socket)
 	close(socket->socketfd);
 	delete socket;
 }
-
-#endif //outdatedOS
 
 
 

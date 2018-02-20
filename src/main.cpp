@@ -1,5 +1,5 @@
 /*
-Copyright 2017 Jackson Reed McNeill
+Copyright 2017 Jackson Reed McNeil
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -85,7 +85,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
-//#define UNIT_TEST
+#define UNIT_TEST
 
 //#define debug //wheather debug draws, menus, etc. is included. 
 

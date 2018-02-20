@@ -49,7 +49,7 @@ else ()
 	#set (TARGET_ENVIRONMENT /usr/i686-w64-mingw32)
 	set (CMAKE_FIND_ROOT_PATH ${TARGET_ENVIRONMENT})
 
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -lmingw32 -mwindows -static-libgcc -static-libstdc++ -fpermissive ")#-g3")-export-dynamic")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -lmingw32 -mwindows -static-libgcc -static-libstdc++ -fpermissive -lws2_32 ")#-g3")-export-dynamic")
 
 
 
