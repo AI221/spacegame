@@ -100,6 +100,8 @@
 #define GE_TEST_ASSERT(stringify, variable, equals, op)\
 {\
 	bool pass = variable op equals;\
+	passedAll = std::min(pass,passedAll);\
+	\
 	GE_TEST_Log("[%s][ASSERTION] %s(=%s) %s %s(=%s)\n",pass? "PASS" : "FAIL", #variable,stringify(variable), pass? #op : "!"#op, #equals, stringify(equals));\
 }
 

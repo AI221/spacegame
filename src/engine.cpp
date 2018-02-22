@@ -12,6 +12,9 @@
 #include "json.h"
 #include "UI.h"
 #include "font.h"
+#include "serializeObject.h"
+
+
 int GE_Init(SDL_Renderer* renderer)
 {
 	GE_IsOn = true;
@@ -48,6 +51,11 @@ int GE_Init(SDL_Renderer* renderer)
 	{
 		return error+500;
 	}
+	error  = GE_Init_SerializeObject();
+	if (error != 0)
+	{
+		return error+600;
+	}
 	
 	
 	srand(time(NULL)); //set random seed to time
@@ -59,9 +67,13 @@ void GE_Shutdown()
 {
 	printf("----FULL ENGINE SHUTDOWN----\n");
 	GE_IsOn = false;
-	while (!PhysicsEngineThreadShutdown) //dont want to free physics engine things before it's finished a tick.
+	while (!PhysicsEngineThreadShutdown) //dont want to free physics engine things before it's finished a tick. 
 	{
 		SDL_Delay(16);
+#ifdef PHYSICS_DEBUG_SLOWRENDERS 
+		//no physics thread, break to avoid hault
+		break;
+#endif
 	} 
 	GE_ShutdownPhysicsEngine();
 	printf("sprites\n");

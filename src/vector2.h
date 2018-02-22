@@ -10,6 +10,7 @@
 
 //Local includes
 #include "GeneralEngineCPP.h"
+#include "serialize.h"
 
 #ifndef __VECTOR2_INCLUDED
 #define __VECTOR2_INCLUDED
@@ -35,10 +36,28 @@ struct IntVector2;
 /*!
  * A point in 2D space with no rotation. 
  */
-struct Vector2 
+struct Vector2 : public GE_Serializable
 {
+	Vector2(double x, double y)
+	{
+		this->x=x;
+		this->y=y;
+	}
+	Vector2() {} //allow creation of empty vector
 	double x;
 	double y;
+
+	void serialize(char** buffer, size_t* bufferUsed, size_t* bufferSize)
+	{
+		GE_Serialize(x,buffer,bufferUsed,bufferSize);
+		GE_Serialize(y,buffer,bufferUsed,bufferSize);
+	}
+	static Vector2* unserialize(char* buffer, size_t* bufferUnserialized,int version)
+	{
+		double _x = GE_Unserialize<double>(buffer,bufferUnserialized,version);
+		double _y = GE_Unserialize<double>(buffer,bufferUnserialized,version);
+		return new Vector2{_x,_y};
+	}
 
 	GE_FORCE_INLINE Vector2 operator+(double other)
 	{
@@ -103,6 +122,14 @@ struct Vector2
 	{
 		return ( (x <= other.x) && (y <= other.y) );
 	}
+	template <class XY>
+	GE_FORCE_INLINE Vector2 operator=(XY other)
+	{
+		x = other.x;
+		y = other.y;
+		return *this;
+
+	}
 
 	//Vector2 operator=(const IntVector2& subject);
 };
@@ -111,11 +138,32 @@ struct Vector2
 /*!
  * A point in 2D space with rotation
  */
-struct Vector2r
+struct Vector2r : public GE_Serializable
 {
 	double x;
 	double y;
 	double r;
+
+	Vector2r(double x, double y,double r)
+	{
+		this->x=x;
+		this->y=y;
+		this->r=r;
+	}
+	Vector2r() {} //allow creation of empty vector
+	void serialize(char** buffer, size_t* bufferUsed, size_t* bufferSize)
+	{
+		GE_Serialize(x,buffer,bufferUsed,bufferSize);
+		GE_Serialize(y,buffer,bufferUsed,bufferSize);
+		GE_Serialize(r,buffer,bufferUsed,bufferSize);
+	}
+	static Vector2r* unserialize(char* buffer, size_t* bufferUnserialized,int version)
+	{
+		double _x = GE_Unserialize<double>(buffer,bufferUnserialized,version);
+		double _y = GE_Unserialize<double>(buffer,bufferUnserialized,version);
+		double _r = GE_Unserialize<double>(buffer,bufferUnserialized,version);
+		return new Vector2r{_x,_y,_r};
+	}
 
 	void addRelativeVelocity(Vector2r adder);
 	GE_FORCE_INLINE Vector2r operator+(Vector2r other)
@@ -191,6 +239,15 @@ struct Vector2r
 	{	
 		Vector2r newVector = {this->x*other.x,this->y*other.y,this->r};
 		return newVector;
+	}
+	template <class XY>
+	GE_FORCE_INLINE Vector2r operator=(XY other)
+	{
+		x = other.x;
+		y = other.y;
+		r = other.r;
+		return *this;
+
 	}
 		
 };

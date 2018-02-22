@@ -1,3 +1,9 @@
+/*!
+ * @file
+ * @author Jackson McNeill
+ * Creates y=mx+b lines, and finds their intersection points.
+ */
+
 #pragma once
 
 #include <vector>

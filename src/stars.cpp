@@ -74,7 +74,7 @@ void GE_Stars::render(Vector2 parrentPosition) // TODO:parrentPosition
 		position.x = (subjectStar->position.x-scaledcamera.pos.x*allStarsScale);
 		position.y = (subjectStar->position.y-scaledcamera.pos.y*allStarsScale);
 
-		position= {wraparround_clamp(position.x,allStarsSize.x),wraparround_clamp(position.y,allStarsSize.y)};
+		position = Vector2r{wraparround_clamp(position.x,allStarsSize.x),wraparround_clamp(position.y,allStarsSize.y),0};
  	
 		position.x = position.x-(allStarsSize.x/2);
 		position.y = position.y-(allStarsSize.y/2);

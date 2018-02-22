@@ -28,6 +28,7 @@ enum TYPES
 	TYPE_ENEMY,
 	TYPE_DESTROYSUB, //bullets, etc.
 	TYPE_SHIPWALL,
+	TYPE_RESERVED,
 	TYPE_COUNT // ammount of types that exist - do not use as a type
 };
 
@@ -41,6 +42,7 @@ enum GROUPS
 extern bool typeInGroup[TYPE_COUNT][GROUP_COUNT];
 
 
+void InitClasses();
 
 //config
 

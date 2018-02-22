@@ -19,6 +19,7 @@
 
 #include "vector2.h"
 #include "gluePhysicsObject.h"
+#include "serialize.h"
 
 //#define PHYSICS_DEBUG_SLOWRENDERS 
 
@@ -68,12 +69,18 @@ typedef std::vector<physics_area_t*> physics_object_area_list_t;
 
 /*!
  * The basic Physics object structure. It's recommended that your game objects inhereit from this, though you can do non-OO design alternatively using glueObject's buffering.
+ *
+ * Physics object must have a controller which implements the GE_Serializable interface in order to be serialized.
  */
-class GE_PhysicsObject
+class GE_PhysicsObject : public GE_Serializable 
 {
 	public:
 		GE_PhysicsObject(Vector2r position, Vector2r velocity, double mass);
 		virtual ~GE_PhysicsObject();
+
+		virtual void serialize(char** buffer, size_t* bufferUsed, size_t* bufferSize) {};
+
+		
 
 
 

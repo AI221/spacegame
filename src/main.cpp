@@ -49,7 +49,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "line.h"
 #include "font.h"
 #include "FS.h"
-#include "serializeObject.h"
+#include "serialize.h"
 
 #ifdef GE_DEBUG
 #include "debugRenders.h"
@@ -85,7 +85,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
-#define UNIT_TEST
+//#define UNIT_TEST
 
 //#define debug //wheather debug draws, menus, etc. is included. 
 
@@ -168,8 +168,8 @@ void startTheGame()
 	}
 	*/
 	//create temporary level
-	new Wall(renderer,{00,-90},{0,0,200,10},999);
-	new Wall(renderer,{300,-90},{0,0,200,10},999);
+	new Wall(renderer,Vector2r{00,-90,0},GE_Rectangle{0,0,200,10},999);
+	new Wall(renderer,Vector2r{300,-90,0},GE_Rectangle{0,0,200,10},999);
 	new Enemie(renderer,{0,-250,0},1);
 
 	pthread_mutex_unlock(&PhysicsEngineMutex);
@@ -631,6 +631,10 @@ int main(int argc, char* argv[])
 	//initialize our omni event handler
 	MyOmniEventReciever* myOmniEventReciever = new MyOmniEventReciever();
 	GE_UI_InsertOmniEventReciever(myOmniEventReciever);
+
+
+	//initialize our game-specific classes
+	InitClasses();
 
 
 	while (true)

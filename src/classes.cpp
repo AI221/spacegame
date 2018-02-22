@@ -12,6 +12,8 @@
 #include "minimap.h"
 #include "inventory.h"
 #include "raycast.h"
+#include "serialize.h"
+#include "serializeObject.h"
 
 #include "GeneralEngineCPP.h"
 
@@ -20,12 +22,6 @@
 
 bool typeInGroup[TYPE_COUNT][GROUP_COUNT];
 
-
-void Init_Classes()
-{
-	typeInGroup[TYPE_PLAYER][GROUP_INTELIGENT] = true;//some players shouldn't be in this, but we'll overlook that
-	typeInGroup[TYPE_REGULAR][GROUP_REGULAROBJECT] = true;
-}
 
 
 Subsystem::Subsystem(SDL_Renderer* renderer, std::string sprite, Vector2 size, GE_Rectangle animation, Vector2r relativePosition, int collisionRectangle, std::string name, Vector2* parrentGrid)
@@ -129,9 +125,6 @@ Subsystem::~Subsystem()
 //the above inserts TWO PARAMETERS
 Player::Player(SDL_Renderer* renderer) : GE_PhysicsObject({0,0,0},{0,0,0},25)
 {
-
-	//TODO: MOVE SOMEWHERE ELSE!
-	Init_Classes();
 
 
 
@@ -245,10 +238,58 @@ void ShootBullet(SDL_Renderer* renderer, GE_PhysicsObject* host, Vector2r addToV
 }
 
 
+class tester : public GE_PhysicsObject
+{
+	public:
+		tester(SDL_Renderer* renderer,Vector2r position) : GE_PhysicsObject(position,{0,0,0},25)
+		{
+			renderObject = GE_CreateRenderedObject(renderer,"simple"); 
+			renderObject->size = {8*2,9*2};
+			renderObject->animation = {0,0,8,9};
+			printf("fin ro\n");
+			addCollisionRectangle(GE_Rectangle{0,0,8*2,9*2});
+
+			GE_LinkVectorToPhysicsObjectPosition(this,&(renderObject->position)); 
+
+			this->type = TYPE_RESERVED;
+
+			tracker = GE_AddTrackedObject(type,this);
+
+
+			velocity.x = 1;
+
+		}
+		~tester()
+		{
+			GE_RemoveTrackedObject(tracker);
+			GE_FreeRenderedObject(renderObject);
+		}
+		void serialize(char** buffer, size_t* bufferUsed, size_t* bufferSize)
+		{
+			GE_Serialize(&(this->position),buffer,bufferUsed,bufferSize);
+		}
+		static tester* unserialize(char* buffer, size_t* bufferUnserialized,int version)
+		{
+			Vector2r* _pos = GE_Unserialize<Vector2r*>(buffer,bufferUnserialized, version);	
+			auto newclass = new tester(GE_DEBUG_Renderer,*_pos);
+			delete _pos;
+			return newclass;
+		}
+
+	private:
+		GE_RenderedObject* renderObject;
+		GE_TrackedObject* tracker;
+
+
+};
 
 const double turnSpeed= 0.0008726646;
 const double moveSpeed = 0.25;
 const double strafeSpeed = 0.05;
+
+
+
+char* TEMP;
 bool Player::C_Update()
 {
 	printf("my grid %f,%f\n",grid.x,grid.y);
@@ -311,12 +352,16 @@ bool Player::C_Update()
 					ro->animation = {0,0,8,9};
 					
 
-					GE_PhysicsObject* me = new GE_PhysicsObject({this->position.x+50,this->position.y+150,0},{25,25},25);
+					GE_PhysicsObject* me = new GE_PhysicsObject(Vector2r{this->position.x+50,this->position.y+150,0},Vector2r{25,25,0},25);
 					me->addCollisionRectangle(GE_Rectangle{0,0,25,25});
 					me->callCallbackBeforeCollisionFunction = true;
 
 					GE_LinkVectorToPhysicsObjectPosition(me,&(ro->position));
 
+				}
+				if (event.key.keysym.sym == SDLK_i)
+				{
+					new tester(renderer,position+Vector2r{50,150,0});
 				}
 				if (event.key.keysym.sym == SDLK_k)
 				{
@@ -326,7 +371,16 @@ bool Player::C_Update()
 						obj->velocity.x += 0.5;
 					}
 				}
-				else if (event.key.keysym.sym == SDLK_f)
+				if (event.key.keysym.sym == SDLK_n) //tmp save
+				{
+					TEMP = GE_SerializedTrackedObjects();
+				}
+				if (event.key.keysym.sym == SDLK_m) //tmp load
+				{
+					GE_UnserializeTrackedObjects(TEMP);
+					GE_FreeSerializeString(TEMP);
+				}
+				if (event.key.keysym.sym == SDLK_f)
 				{
 					dampeners = !dampeners;
 					velocity = {0,0,0}; //TODO temp - fix once thruster placement is variable as well.
@@ -670,7 +724,7 @@ StdBullet::~StdBullet()
 
 }
 
-Wall::Wall(SDL_Renderer* renderer, Vector2r position, GE_Rectangle shape, double mass) : GE_PhysicsObject(position,{0,0,0},mass)
+Wall::Wall(SDL_Renderer* renderer, Vector2r position, GE_Rectangle shape, double mass) : GE_PhysicsObject(position,Vector2r{0,0,0},mass)
 {
 	this->addCollisionRectangle(shape);
 	renderObject = GE_CreateRenderedObject(renderer,"gray");
@@ -687,3 +741,15 @@ Wall::Wall(SDL_Renderer* renderer, Vector2r position, GE_Rectangle shape, double
 Wall::~Wall()
 {
 }
+
+
+
+
+void InitClasses()
+{
+	typeInGroup[TYPE_PLAYER][GROUP_INTELIGENT] = true;//some players shouldn't be in this, but we'll overlook that
+	typeInGroup[TYPE_REGULAR][GROUP_REGULAROBJECT] = true;
+
+	GE_RegisterUnserializationFunction(TYPE_RESERVED,tester::unserialize);
+}
+
