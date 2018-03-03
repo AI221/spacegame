@@ -44,6 +44,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #endif
 
+bool GE_PhysicsEngine_CollisionsEnabled = true;
+bool GE_PhysicsEngine_TickingObjectsEnabled = true;
 
 //Config defaults 
 
@@ -57,13 +59,14 @@ pthread_t PhysicsEngineThread;
 pthread_mutex_t PhysicsEngineMutex = PTHREAD_MUTEX_INITIALIZER;
 
 
-std::list<GE_PhysicsObject*> AllPhysicsObjects;
-int numPhysicsObjects = -1; 
+std::list<GE_PhysicsObject*> allPhysicsObjects;
+int numPhysicsObjects = 0; 
+
 
 std::map<physics_area_coord_t,physics_area_t*> world;  //TODO: Re-implemt the sGrid idea but with each area having its own sGrid?
 
 
-#define checkNotDead(object) deadPhysicsObjects.find(object) == deadPhysicsObjects.end()
+#define checkNotDead(object) (deadPhysicsObjects.find(object) == deadPhysicsObjects.end())
 
 
 std::unordered_set<GE_PhysicsObject*> deadPhysicsObjects;
@@ -98,7 +101,6 @@ void localdebug_worldsectors()
 
 GE_PhysicsObject::GE_PhysicsObject(Vector2r position, Vector2r velocity, double mass)
 {
-	numPhysicsObjects++;
 
 	this->position = position;
 	this->velocity = velocity;
@@ -120,10 +122,16 @@ GE_PhysicsObject::GE_PhysicsObject(Vector2r position, Vector2r velocity, double 
 
 	//end temp
 	
-	AllPhysicsObjects.insert(AllPhysicsObjects.end(),this);
+	allPhysicsObjects.insert(allPhysicsObjects.end(),this);
 
 	callCallbackUpdate = false;
 	type = 0;
+
+	centerOfMass = {0,0}; //set to geometric center
+
+	this->ID = numPhysicsObjects;
+
+	numPhysicsObjects++;
 }
 bool GE_PhysicsObject::C_Update()
 {
@@ -161,7 +169,6 @@ void GE_PhysicsObject::addCollisionRectangle(GE_Rectangle newRectangle)
 }
 GE_PhysicsObject::~GE_PhysicsObject()
 {
-	printf("NORMAL REMOVAL FUNCTION\n");
 }
 
 
@@ -285,10 +292,8 @@ void* GE_physicsThreadMain(void *)
 //really deletes the object instead of queing for deletion
 void GE_FreePhysicsObject_InternalFullDelete(GE_PhysicsObject* physicsObject) //MUST be allocated with new
 {
-	printf("I AM DELETING ID #%d\n",physicsObject->ID);
-	printf("num glues %d",physicsObject->numGlueTargets);
 
-	AllPhysicsObjects.remove(physicsObject);
+	allPhysicsObjects.remove(physicsObject);
 	
 	//remove the object from the areas it's in
 	physics_object_area_list_t::iterator it;
@@ -305,37 +310,30 @@ void GE_FreePhysicsObject_InternalFullDelete(GE_PhysicsObject* physicsObject) //
 
 	for (int i=0;i<=physicsObject->numGlueTargets;i++)
 	{
-		printf("le %d\n",i);
 		GE_FreeGlueObject(physicsObject->glueTargets[i]);
 		physicsObject->glueTargets[i] = NULL;
 	}
-	printf("Deleting physics object itself...\n");
 	delete physicsObject;
-	printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1test\n");
 }
 
-int temp2 = 0;
 
-int numCollisionsTemp = 0;
 void GE_TickPhysics()
 {
-temp2 = 0;
 	ticknum++;
-	printf("Physics tick #%d\n",ticknum);
 	
-	for (GE_PhysicsObject* object : AllPhysicsObjects)
+	for (GE_PhysicsObject* object : allPhysicsObjects)
 	{
 		if (checkNotDead(object))
 		{
 			if (!GE_TickPhysics_ForObject(object))
 			{
-				if(object->callCallbackUpdate)
+				if(object->callCallbackUpdate && GE_PhysicsEngine_TickingObjectsEnabled)
 				{
 					object->C_Update();
 				}
 			}
 		}
-		//printf("x %d y %d\n",AllPhysicsObjects[i]->position.x,AllPhysicsObjects[i]->position.y);
+		//printf("x %d y %d\n",allPhysicsObjects[i]->position.x,allPhysicsObjects[i]->position.y);
 	}
 #ifdef PHYSICS_DEBUG_SLOWRENDERS	
 	localdebug_worldsectors();
@@ -353,7 +351,6 @@ temp2 = 0;
 		GE_FreePhysicsObject_InternalFullDelete(*it);
 		deadPhysicsObjects.erase(it);
 	}
-	printf("this tick had %d collision full checks\n",temp2);
 }
 
 struct InternalResult
@@ -361,11 +358,8 @@ struct InternalResult
 	bool deleteMe;
 	bool didCollide;
 };
-unsigned int temp;
 InternalResult GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* victimObj)
 {
-	temp++;
-	temp2++;
 	//printf("Collision full check #%d (this tick: %d)\n",temp,temp2);
 
 	Vector2 theirPoints[4] = {};
@@ -412,8 +406,11 @@ InternalResult GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* v
 
 				double AMAB = GE_Dot(AM,AB);
 				double AMAD = GE_Dot(AM,AD);
+				double ABAB = GE_Dot(AB,AB);
+				double ADAD = GE_Dot(AD,AD);
 
-				check = ( ( 0.0 <= AMAB ) && ( AMAB <= GE_Dot(AB,AB) ) && ( 0.0 <= AMAD ) && ( AMAD <= GE_Dot(AD,AD) ) ) ;
+				//TODO: This doesn't work because the points might not intersect but the lines could.
+				check = ( ( 0.0 <= AMAB ) && ( AMAB <= ABAB ) && ( 0.0 <= AMAD ) && ( AMAD <= ADAD ) ) ;
 
 
 				
@@ -451,9 +448,6 @@ InternalResult GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* v
 						return {false,false};
 					} 
 				
-					numCollisionsTemp++;
-					std::cout << "FULL COLLISION DETECTED #" << numCollisionsTemp << std::endl;
-
 					cObj->position = cObj->lastGoodPosition;
 
 					victimObj->position = victimObj->lastGoodPosition;
@@ -464,16 +458,16 @@ InternalResult GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* v
 
 					Vector2r cObjVelocity = cObj->velocity;
 					
-					Vector2r momentum = ((cObj->velocity*cObj->mass)+(victimObj->velocity*victimObj->mass))/2;
+					Vector2r momentum = ((cObj->velocity*cObj->mass)-(victimObj->velocity*victimObj->mass));
 					
 					printf("momentum %f,%f\n",momentum.x,momentum.y);
 
-					GE_InelasticCollision(cObj,myPoints[me],momentum,true);
+					GE_InelasticCollision(cObj,myPoints[me],momentum,false);
 					
 					//newVelocity = cObjVelocity*cObj->mass;//GE_InelasticCollisionVelocityExchange(cObj->velocity,victimObj->velocity,cObj->mass,victimObj->mass);
 					momentum = ((cObjVelocity*cObj->mass)/victimObj->mass);
 					
-					GE_InelasticCollision(victimObj,myPoints[me],momentum,false);
+					GE_InelasticCollision(victimObj,myPoints[me],momentum,true);
 
 
 
@@ -558,7 +552,7 @@ InternalResult GE_TickPhysics_ForObject_Internal(GE_PhysicsObject* cObj, Vector2
 			{
 				world[coord]  = new physics_area_t();
 				area = world[coord];
-				printf("New map spot!\n");
+				//printf("New map spot!\n");
 			}
 			
 
@@ -571,24 +565,25 @@ InternalResult GE_TickPhysics_ForObject_Internal(GE_PhysicsObject* cObj, Vector2
 
 	
 
-	int temp3 = 0;
-	for (physics_area_t* area : cObj->areas)
+	if (GE_PhysicsEngine_CollisionsEnabled)
 	{
-
-		for (auto it = area->begin(); it != area->end();it++)
+		for (physics_area_t* area : cObj->areas)
 		{
-			temp3++;
-			GE_PhysicsObject* victimObj = *it;
-			if((victimObj != cObj) && checkNotDead(victimObj))
+
+			for (auto it = area->begin(); it != area->end();it++)
 			{
-				double maxSize = cObj->radius;//fmax(cObj->grid.x, cObj->grid.x); //fmax tested to be about 2x faster than std::max in this situation
-				double theirMaxSize = victimObj->radius;//fmax(victimObj->grid.x, victimObj->grid.x);
-				if ( ( cObj->position.x+maxSize >= victimObj->position.x-theirMaxSize) && (cObj->position.x-maxSize <= victimObj->position.x+theirMaxSize) && (cObj->position.y+maxSize >= victimObj->position.y-theirMaxSize) && (cObj->position.y-maxSize <=victimObj->position.y+theirMaxSize)) //tested to help a lot as compared to just running a full check.
+				GE_PhysicsObject* victimObj = *it;
+				if((victimObj != cObj) && checkNotDead(victimObj))
 				{
-					InternalResult result = GE_CollisionFullCheck(cObj,victimObj);
-					if (result.deleteMe || result.didCollide)
+					double maxSize = cObj->radius;//fmax(cObj->grid.x, cObj->grid.x); //fmax tested to be about 2x faster than std::max in this situation
+					double theirMaxSize = victimObj->radius;//fmax(victimObj->grid.x, victimObj->grid.x);
+					if ( ( cObj->position.x+maxSize >= victimObj->position.x-theirMaxSize) && (cObj->position.x-maxSize <= victimObj->position.x+theirMaxSize) && (cObj->position.y+maxSize >= victimObj->position.y-theirMaxSize) && (cObj->position.y-maxSize <=victimObj->position.y+theirMaxSize)) //tested to help a lot as compared to just running a full check.
 					{
-						return result;
+						InternalResult result = GE_CollisionFullCheck(cObj,victimObj);
+						if (result.deleteMe || result.didCollide)
+						{
+							return result;
+						}
 					}
 				}
 			}
@@ -618,12 +613,10 @@ bool GE_TickPhysics_ForObject(GE_PhysicsObject* cObj)
 		InternalResult result = GE_TickPhysics_ForObject_Internal(cObj,velocity); 
 		if (result.deleteMe)
 		{
-			printf("deleteme\n");
 			return true;
 		}
 		else if (result.didCollide)
 		{
-			printf("BREAK but not\n");
 			//break;
 			velocity = new Vector2r{cObj->velocity.x/miniTickrate, cObj->velocity.y/miniTickrate, cObj->velocity.r/miniTickrate}; //TODO: Velocity could theoreticaly increase by 1,000 times then clip through something. recalculate mini-tickrate
 		}
@@ -700,18 +693,35 @@ void GE_RectangleToPoints(GE_Rectangle rect, Vector2 grid, Vector2* points, Vect
 	}
 
 }
-
-Vector2r GE_InelasticCollisionVelocityExchange(Vector2r velocity1, Vector2r velocity2, double mass1, double mass2) 
+bool GE_IsPointInPhysicsObject(Vector2 point, GE_PhysicsObject* obj)
 {
-	return Vector2r{(mass1*velocity1.x+mass2*velocity2.x)/(mass1+mass2),(mass1*velocity1.y+mass2*velocity2.y)/(mass1+mass2),0};
+	Vector2 rectPoints[4];
+	for (int i=0;i!=obj->numCollisionRectangles;i++)
+	{
+		GE_RectangleToPoints(obj->collisionRectangles[i],obj->grid,rectPoints,obj->position);
+
+		Vector2 AM = point-rectPoints[0]; //M-A
+		Vector2 AB = rectPoints[1]-rectPoints[0];
+		Vector2 AD = rectPoints[2]-rectPoints[0]; //bottom-left minus top left
+
+		double AMAB = GE_Dot(AM,AB);
+		double AMAD = GE_Dot(AM,AD);
+		double ABAB = GE_Dot(AB,AB);
+		double ADAD = GE_Dot(AD,AD);
+
+		if( ( ( 0.0 <= AMAB ) && ( AMAB <= ABAB ) && ( 0.0 <= AMAD ) && ( AMAD <= ADAD ) ) )
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
-Vector2 GE_GetRectangleCenterRealPosition(GE_Rectangle rectangle, Vector2r realPosition)
-{
-	return Vector2{rectangle.x+realPosition.x+(rectangle.w/2),rectangle.y+realPosition.y+(rectangle.h/2)};
-}
 
-void GE_InelasticCollision(GE_PhysicsObject* subject, Vector2 collisionPoint, Vector2r momentum, bool CCW) //TODO deg rad fixes
+
+
+
+void GE_InelasticCollision(GE_PhysicsObject* subject, Vector2 collisionPoint, Vector2r momentum, bool CCW) 
 {
 	//newVelocity = newVelocity - subject->velocity;
 
@@ -724,11 +734,12 @@ void GE_InelasticCollision(GE_PhysicsObject* subject, Vector2 collisionPoint, Ve
 
 	//find the angle to apply the velocity at
 	
-	Vector2 centerPoint = (subject->grid/2)+subject->position; //NOTE: Changed
+	//Vector2 centerOfMass = (subject->grid/2)+subject->position; //NOTE: Changed
+	
 
-	printf("centerPoint %f,%f\n",centerPoint.x,centerPoint.y);
+	Vector2 centerOfMass = {subject->position.x+subject->centerOfMass.x,subject->position.y+subject->centerOfMass.y}; //TODO temporarily put the com at the centroid
 
-	double adjacent = std::cos(collisionPoint.x-centerPoint.x)/(GE_Distance(collisionPoint,centerPoint));
+	double adjacent = std::cos(collisionPoint.x-centerOfMass.x)/(GE_Distance(collisionPoint,centerOfMass));
 
 
 	//adjacent *= RAD_TO_DEG;
@@ -741,9 +752,12 @@ void GE_InelasticCollision(GE_PhysicsObject* subject, Vector2 collisionPoint, Ve
 	
 	printf("new velocity real %f, %f, %f\n",subject->velocity.x,subject->velocity.y,subject->velocity.r);
 }
+
+
 std::set<GE_PhysicsObject*> GE_GetObjectsInRadius(Vector2 position, double radius)
 {
 	std::set<GE_PhysicsObject*> objects;
+	//search the map, searching through each sector that could possibly contain an object with a distance less than "radius" to "position"
 	for (physics_area_single_coord_t x = std::floor<physics_area_single_coord_t >((position.x-radius)/PHYSICS_AREA_SIZE); x<= std::ceil<physics_area_single_coord_t >((position.x+radius)/PHYSICS_AREA_SIZE);x++)
 	{
 		for (physics_area_single_coord_t y = std::floor<physics_area_single_coord_t >((position.y-radius)/PHYSICS_AREA_SIZE); y<= std::ceil<physics_area_single_coord_t >((position.y+radius)/PHYSICS_AREA_SIZE);y++)
@@ -770,7 +784,7 @@ std::set<GE_PhysicsObject*> GE_GetObjectsInRadius(Vector2 position, double radiu
 void GE_ResetPhysicsEngine()
 {
 	pthread_mutex_lock(&PhysicsEngineMutex);
-	for (GE_PhysicsObject* object : AllPhysicsObjects)
+	for (GE_PhysicsObject* object : allPhysicsObjects)
 	{
 		GE_FreePhysicsObject(object);
 	}

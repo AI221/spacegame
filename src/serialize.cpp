@@ -76,6 +76,7 @@ class serialization_test : public GE_Serializable
 		std::vector<int> myintvector;
 };
 
+#include "vector2.h"
 bool GE_TEST_SerializeBasic()
 {
 
@@ -308,7 +309,27 @@ bool GE_TEST_SerializeBasic()
 	}
 	delete settest;
 
-	/////////////////////////////////////////////////////////////////10 - ?
+	/////////////////////////////////////////////////////////////////10 - serializing a rectangle
+	
+	buffer = GE_AllocateSerializeString(&used,&size,0);
+	
+	GE_Rectangle rect = GE_Rectangle{1,2,3,4};
+	
+	GE_Serialize(&rect,&buffer,&used,&size);
+
+	v = GE_GetSerializedVersion(buffer,&unserialized);
+
+	auto unser_rect = GE_Unserialize<GE_Rectangle*>(buffer,&unserialized,v);
+
+	GE_TEST_Log("Ensure GE_Rectangle serialization worked\n");
+	GE_TEST_ASSERT(GE_StringifyNumber,unser_rect->x,rect.x,==);
+	GE_TEST_ASSERT(GE_StringifyNumber,unser_rect->y,rect.y,==);
+	GE_TEST_ASSERT(GE_StringifyNumber,unser_rect->w,rect.w,==);
+	GE_TEST_ASSERT(GE_StringifyNumber,unser_rect->h,rect.h,==);
+
+	delete unser_rect;
+	GE_FreeSerializeString(buffer);
+
 
 
 	return passedAll;

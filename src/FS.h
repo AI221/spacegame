@@ -21,6 +21,15 @@
 
 #include <vector>
 #include <string>
+#include <exception>
+
+typedef std::vector<char> GE_FileString; 
+
+
+
+
+
+
 /*! 
  * A directory listing. Is not recursive, does not indicate weather any file is a file or folder.
  * If error isn't 0, accessing list is undefined behaviour
@@ -83,11 +92,19 @@ std::string GE_GetParrentDirectory(std::string fullfilename);
 std::string GE_GetParrentDirectory(const char* fullfilename);
 
 /*!
- * Returns a std::string which has the contents of a file
+ * Returns a GE_FileString which has the contents of a file
  */
-std::string GE_ReadAllFromFile(const char* fullfilename);
-std::string GE_ReadAllFromFile(std::string fullfilename);
+GE_FileString GE_ReadAllFromFile(std::string fullfilename);
+GE_FileString GE_ReadAllFromFile(const char* fullfilename);
 
+/*!
+ * Writes to a file and closes it.
+ *
+ * Will create the file if it doesn't exist, or overwrite it if it does.
+ */
+void GE_WriteToFile(const char* fullfilename, char* contents, size_t size);
+void GE_WriteToFile(const char* fullfilename, GE_FileString contents);
+void GE_WriteToFile(std::string fullfilename, GE_FileString contents);
 /*!
  * Returns the base file name
  *
@@ -96,6 +113,18 @@ std::string GE_ReadAllFromFile(std::string fullfilename);
 std::string GE_GetBaseName(std::string fullfilename);
 std::string GE_GetBaseName(const char* fullfilename);
 
+/*!
+ * Returns a std::string representing the given GE_FileString.
+ *
+ * Note, this will loose the ability to hold the \0 character.
+ */
+std::string GE_GetStringFromFileString(GE_FileString filestring);
 
+/*!
+ * Returns a char array representing the given GE_FileString
+ *
+ * Allocates using operator new -- delete it with delete[] 
+ */
+char* GE_GetCharArrayFromFileString(GE_FileString filestring);
 
 bool GE_TEST_FS();

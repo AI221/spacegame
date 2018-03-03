@@ -14,6 +14,12 @@
 #include "font.h"
 #include "serializeObject.h"
 
+//Static asserts
+#include  <limits>
+
+
+//we need this for portability in serialization
+static_assert(std::numeric_limits<double>::is_iec559,"Doubles must be implemented as IEEE 754!\n");
 
 int GE_Init(SDL_Renderer* renderer)
 {

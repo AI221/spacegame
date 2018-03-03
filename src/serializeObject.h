@@ -48,5 +48,5 @@ void GE_SetGameSerializationVersion(int version);
 
 void GE_RegisterUnserializationFunction(unsigned int type, unserializationFunctionDef_t function);
 
-char* GE_SerializedTrackedObjects();
+char* GE_SerializedTrackedObjects(size_t* bufferUsed, size_t* bufferSize);
 void GE_UnserializeTrackedObjects(char* buffer);

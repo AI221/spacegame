@@ -91,11 +91,12 @@ GE_RenderedObject* GE_CreateRenderedObject(SDL_Renderer* renderer, std::string s
 }
 void GE_BlitRenderedObject(GE_RenderedObject* subject, Camera* camera, double scale)
 {
-	Camera* scaledcamera = new Camera{Vector2r{camera->pos.x*scale,camera->pos.y*scale,camera->pos.r},camera->screenHeight,camera->screenWidth};
-	Vector2r position = GE_ApplyCameraOffset(scaledcamera,{subject->position.x*scale,subject->position.y*scale,subject->position.r},{subject->size.x*scale, subject->size.y*scale});
-	delete scaledcamera;
+	Camera scaledcamera = Camera{Vector2r{camera->pos.x*scale,camera->pos.y*scale,camera->pos.r},camera->screenWidth,camera->screenHeight};
+	Vector2r position = GE_ApplyCameraOffset(&scaledcamera,{subject->position.x*scale,subject->position.y*scale,subject->position.r},{subject->size.x*scale, subject->size.y*scale});
 	double maxSize = std::max(subject->size.x,subject->size.y);
-	if ( ( position.x+maxSize >= 0) && (position.x-maxSize <= scaledcamera->screenWidth) && (position.y+maxSize >= 0) && (position.y-maxSize <= scaledcamera->screenHeight))
+
+	//TODO: Re-work the sprites to be positioned by the center
+	if ( ( position.x+maxSize >= -scaledcamera.screenWidth) && (position.x-maxSize <= scaledcamera.screenWidth) && (position.y+maxSize >= -scaledcamera.screenHeight) && (position.y-maxSize <= scaledcamera.screenHeight))
 	{
 		GE_BlitSprite(Sprites[subject->spriteID],position,{subject->size.x*scale, subject->size.y*scale},subject->animation,GE_FLIP_NONE); //TODO
 	}
@@ -129,19 +130,15 @@ void GE_ScheduleFreeRenderedObject(GE_RenderedObject* subject)
 }
 void GE_DeleteRenderedObjectsMarkedForDeletion()
 {
-	printf("entr\n");
 
 	pthread_mutex_lock(&deleteObjectStackMutex);
 	while (!scheduleToDelete.empty())
 	{
 		GE_RenderedObject* i = scheduleToDelete.top();
 		scheduleToDelete.pop();
-
-		printf("freeing %d\n",i);
 		GE_FreeRenderedObject(i);
 	}
 	pthread_mutex_unlock(&deleteObjectStackMutex);
-	printf("exit\n");
 }
 
 

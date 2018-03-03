@@ -41,7 +41,6 @@ GE_Stars::GE_Stars(SDL_Renderer* renderer, unsigned int number, unsigned int wid
 		starRectangles.insert(starRectangles.end(),new GE_RectangleShape(renderer, *i)); 
 	}
 	int numColors = starRectangles.size();
-	printf("numColors %d\n",numColors);
 	int numSizes = sizes.size();
 	for (int i =0;i<=number;i++)
 	{
@@ -66,7 +65,7 @@ GE_Stars::~GE_Stars()
 
 void GE_Stars::render(Vector2 parrentPosition) // TODO:parrentPosition
 {
-	Camera scaledcamera = Camera{Vector2r{camera->pos.x*allStarsScale,camera->pos.y*allStarsScale,camera->pos.r},camera->screenHeight,camera->screenWidth};
+	Camera scaledcamera = Camera{Vector2r{camera->pos.x*allStarsScale,camera->pos.y*allStarsScale,camera->pos.r},camera->screenWidth,camera->screenHeight};
 	Vector2r position;
 	position.r = 0; //the rotation is always 0
 	for (GE_SingleStar* subjectStar: stars)
@@ -90,4 +89,8 @@ void GE_Stars::render(Vector2 parrentPosition) // TODO:parrentPosition
 		}
 	}
 
+}
+void GE_Stars::setScale(double scale)
+{
+	allStarsScale = scale;
 }

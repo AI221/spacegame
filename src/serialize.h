@@ -23,9 +23,16 @@
 
 
 
+
+
+/*!
+ * Portable size_t
+ * You MUST use this when serializing a size_t
+ */
+typedef unsigned long long size_tp;
+
+
 const size_t GE_SerializeStringInitialSize = 2048;
-
-
 
 /*!
  * Forward declare all internal serialization functions
@@ -65,6 +72,7 @@ map_container internal_unserialize_container_map(char* serialized, size_t* buffe
 class GE_Serializable
 {
 	public:
+		/*
 		GE_Serializable(){};
 		virtual ~GE_Serializable(){};
 		virtual void serialize(char** buffer,size_t* bufferUsed, size_t* bufferSize) {}
@@ -79,6 +87,7 @@ class GE_Serializable
 		{
 
 		}
+		*/
 };
 
 
@@ -351,8 +360,8 @@ template<typename sequence_container>
 void internal_serialize_container_sequence(sequence_container container,char** buffer, size_t* bufferUsed, size_t* bufferSize)
 {
 	//serialize the length (else we would not know when to stop, during unserialization)
-	GE_Serialize(container->size(),buffer,bufferUsed,bufferSize);
-	for (auto &element : *container)
+	GE_Serialize(static_cast<size_tp>(container->size()),buffer,bufferUsed,bufferSize);
+	for (auto element : *container)
 	{
 		GE_Serialize(element,buffer,bufferUsed,bufferSize);
 	}
@@ -365,7 +374,7 @@ template<typename sequence_container>
 sequence_container internal_unserialize_container_sequence(char* serialized, size_t* bufferUnserialized, int serializedVersion)
 {
 	//get length
-	size_t length = GE_Unserialize<size_t>(serialized,bufferUnserialized,serializedVersion);
+	size_tp length = GE_Unserialize<size_tp>(serialized,bufferUnserialized,serializedVersion);
 	sequence_container container = new (typename std::remove_pointer<sequence_container>::type)();
 	if constexpr (!(is_list<typename std::remove_pointer<sequence_container>::type>::value || is_set<typename std::remove_pointer<sequence_container>::type>::value))
 	{
@@ -387,7 +396,7 @@ template<typename map_container>
 void internal_serialize_container_map(map_container container,char** buffer, size_t* bufferUsed, size_t* bufferSize)
 {
 	//serialize the length (else we would not know when to stop, during unserialization)
-	GE_Serialize(container->size(),buffer,bufferUsed,bufferSize);
+	GE_Serialize(static_cast<size_tp>(container->size()),buffer,bufferUsed,bufferSize);
 	for (const auto &element : (*container))
 	{
 		GE_Serialize(element.first,buffer,bufferUsed,bufferSize);
@@ -397,7 +406,7 @@ void internal_serialize_container_map(map_container container,char** buffer, siz
 template<typename map_container>
 map_container internal_unserialize_container_map(char* serialized, size_t* bufferUnserialized, int serializedVersion)
 {
-	size_t length = GE_Unserialize<size_t>(serialized,bufferUnserialized,serializedVersion);
+	size_tp length = GE_Unserialize<size_tp>(serialized,bufferUnserialized,serializedVersion);
 	map_container container = new (typename std::remove_pointer<map_container>::type)();
 	for (size_t i=0;i!=length;i++)
 	{

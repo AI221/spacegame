@@ -113,7 +113,7 @@ int GE_LoadSpritesFromDir(SDL_Renderer* renderer, std::string directory)
 
 
 
-	std::string buffer = GE_ReadAllFromFile(directory.c_str());
+	std::string buffer = GE_GetStringFromFileString(GE_ReadAllFromFile(directory));
 
 
 	Json::Value root;
@@ -151,7 +151,6 @@ int GE_LoadSpritesFromDir(SDL_Renderer* renderer, std::string directory)
 int GE_LoadSpriteFromPath(SDL_Renderer* renderer, std::string path)
 {
 	GE_NoGreaterThan(countSprites,MAX_SPRITES_LOADED);
-	printf("entr lsfp\n");
 #ifdef outdatedOS
 	Sprites[countSprites+1] = GE_CreateSprite(renderer, GE_ReverseSlashes(path)); 
 #else
@@ -165,7 +164,7 @@ int GE_LoadSpriteFromPath(SDL_Renderer* renderer, std::string path)
 
 	
 
-	path = std::string(basename(( char*) (path.c_str()) )); //kind of ugly
+	path = GE_GetBaseName(path);
 
 	int dotspot = path.find(".");
 	if (dotspot != 0)
@@ -177,7 +176,6 @@ int GE_LoadSpriteFromPath(SDL_Renderer* renderer, std::string path)
 
 
 	Sprite_Names[countSprites] = path; 
-	printf("add %s\n",path.c_str());
 
 	return 0;
 }

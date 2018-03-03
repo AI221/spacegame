@@ -60,6 +60,9 @@ extern rendered_objects_list_t renderedObjects;
  */
 int GE_RenderedObjectInit();
 
+/*!
+ * Changes the sprite for a rendered object
+ */
 void GE_ChangeRenderedObjectSprite(GE_RenderedObject* subject, std::string spriteName);
 
 /*!
@@ -84,11 +87,18 @@ void GE_BlitRenderedObject(GE_RenderedObject* subject, Camera* camera, double sc
  */
 void GE_FreeRenderedObject(GE_RenderedObject* subject); 
 
+/*!
+ * Schedules the deletion of a rendered object
+ */
 void GE_ScheduleFreeRenderedObject(GE_RenderedObject* subject);
+
 void GE_DeleteRenderedObjectsMarkedForDeletion();
 
 
 
 
+/*!
+ * Shuts down the rendered object system -- called by GE_Shutdown
+ */
 void GE_ShutdownRenderedObject();
 

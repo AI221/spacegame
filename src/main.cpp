@@ -50,6 +50,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "font.h"
 #include "FS.h"
 #include "serialize.h"
+#include "levelEditor.h"
 
 #ifdef GE_DEBUG
 #include "debugRenders.h"
@@ -87,7 +88,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //#define UNIT_TEST
 
-//#define debug //wheather debug draws, menus, etc. is included. 
+#define debug //wheather debug draws, menus, etc. is included. 
 
 
 
@@ -168,9 +169,9 @@ void startTheGame()
 	}
 	*/
 	//create temporary level
-	new Wall(renderer,Vector2r{00,-90,0},GE_Rectangle{0,0,200,10},999);
-	new Wall(renderer,Vector2r{300,-90,0},GE_Rectangle{0,0,200,10},999);
-	new Enemie(renderer,{0,-250,0},1);
+	//new Wall(renderer,Vector2r{00,-90,0},GE_Rectangle{0,0,200,10},25);
+	//new Wall(renderer,Vector2r{300,-90,0},GE_Rectangle{0,0,200,10},999);
+	//new Enemie(renderer,{0,-250,0},1);
 
 	pthread_mutex_unlock(&PhysicsEngineMutex);
 }
@@ -238,7 +239,7 @@ class UI_HealthView : public GE_UI_Element
 					int ticksElasped = (rendererThreadsafeTicknum+SHAKE_TICKS)-shakeHealthTillTick[i];
 					const double oneRevolution = 2*M_PI;
 
-					healthTexts[i]->setPosition({(size.x/2)+sin( (ticksElasped*oneRevolution*NUM_SHAKES)/SHAKE_TICKS )*SHAKE_DISTANCE  ,15*static_cast<double>(i)});	
+					healthTexts[i]->setPosition({(size.x/2)+sin( (ticksElasped*oneRevolution*NUM_SHAKES)/SHAKE_TICKS )*SHAKE_DISTANCE  ,  15*static_cast<double>(i)});	
 				}
 				
 				lastHealth[i] = healthAmmount[i];
@@ -290,12 +291,11 @@ class UI_WorldView : public GE_UI_Element //Includes stars and rendered objects 
 			mySurface->addElement( new GE_Stars(renderer, 300*additionalStars, maxScreenSize,maxScreenSize,starSizes,0.833333333/5, starColors,camera) );
 			mySurface->addElement( new GE_Stars(renderer, 100*additionalStars, maxScreenSize,maxScreenSize,starSizes,0.833333333/3,starColors,camera) ); 
 			mySurface->addElement( new GE_Stars(renderer, 50*additionalStars, maxScreenSize,maxScreenSize,starSizes,0.833333333/2,starColors,camera) ); 
-			mySurface->addElement( new GE_Stars(renderer, 20*additionalStars, maxScreenSize,maxScreenSize,starSizes,1.8, starColors,camera ) );
 
 
 			//now add the game object renderer
 			
-			mySurface->addElement(new GE_UI_GameRender(renderer, position,size,camera));
+			mySurface->addElement(new GE_UI_GameRender(renderer, position,size,camera,0.75));
 		
 
 			this->wantsEvents = true;
@@ -375,8 +375,6 @@ class UI_MainMenu : public GE_UI_TopLevelElement
 			mySurface = new GE_UI_Surface(renderer,position,size,gameBackgroundColor);
 
 
-			starsCamera = {Vector2r{0,0,0},static_cast<int>(size.x),static_cast<int>(size.y)};
-
 			//create some stars, and times the location the camera is at differently to give the illusion of depth
 #define additionalStars 3
 			double maxScreenSize = std::max(camera.screenWidth,camera.screenHeight)*additionalStars;
@@ -424,6 +422,13 @@ class UI_MainMenu : public GE_UI_TopLevelElement
 //			quitGame->positioningRectangle->setModifier(GE_UI_PositioningRectangleModifiers::expandSizeToFit,true);
 			mySurface->addElement(quitGame);
 
+			buttonText = new GE_UI_Text(renderer,{size.x/2,size.y/2+200},{0,0},"Level Editor",GE_Color{0xff,0xff,0xff,0x00},tinySans);
+			buttonText->expandToTextSize();
+			buttonText->center();
+			levelEditorButton = new GE_Experimental_UI_Button(renderer, {size.x/2,size.y/2+200},{200,75},{0x00,0x33,0x00,255},GE_Color{0x55,0xee,0x22,0xff},buttonText);
+			levelEditorButton->positioningRectangle->setModifier(GE_UI_PositioningRectangleModifiers::centerX,true);
+			levelEditorButton->positioningRectangle->setModifier(GE_UI_PositioningRectangleModifiers::centerY,true);
+			mySurface->addElement(levelEditorButton);
 
 			GE_Font copyrightFont = GE_Font_GetFont("FreeMono",18);
 			GE_UI_Text* copyright = new GE_UI_Text(renderer,{size.x,size.y-18},{0,0},"Copyright 2018 Jackson Reed McNeill. Licensed under GNU GPL v3",GE_Color{0xff,0xff,0xff,0xff},copyrightFont);
@@ -438,34 +443,16 @@ class UI_MainMenu : public GE_UI_TopLevelElement
 		void render(Vector2 parrentPosition)
 		{
 			int dt = rendererThreadsafeTicknum-lastTick; //get ticks since last call
-#define mode_length 600
-#define mode_num 4
-			int currentState = static_cast<int>(wraparround_clamp(rendererThreadsafeTicknum,(mode_length*mode_num)));
-
-			printf("current state %d\n",currentState);
-
-			if (currentState < mode_length)
-			{
-				camera.pos.x = 10*sin((rendererThreadsafeTicknum*2*M_PI)/(mode_length));
-			}
-			else if (currentState < mode_length*2)
-			{
-				camera.pos.x -= 10;//*dt;
-			}
-
-			camera.pos = {static_cast<double>(rendererThreadsafeTicknum)*3,0,0};//static_cast<double>(rendererThreadsafeTicknum)*3,0};
-
-			printf("sin: %f\n",(std::sin(rendererThreadsafeTicknum*60)*20));
-			printf("Render safe ticknum %d\n",rendererThreadsafeTicknum);
+			camera.pos = {static_cast<double>(rendererThreadsafeTicknum)*3,0,0};
 			titleText->setPosition({size.x/2,((size.y/2)-(250))+(std::sin((static_cast<double>(rendererThreadsafeTicknum)/60)))*20});
-
 			mySurface->render(parrentPosition);
-			GE_DEBUG_TextAt(std::to_string(currentState),Vector2{0,0});
 		}
 		void giveEvent(Vector2 parrentPosition, SDL_Event event)
 		{
+			//give events to the buttons, etc.
 			mySurface->giveEvent(parrentPosition,event);
 
+			//check if a button got pushed
 			if (startGame->getIsTriggered())
 			{
 				startGame->setIsTriggered(false);
@@ -489,6 +476,21 @@ class UI_MainMenu : public GE_UI_TopLevelElement
 				SDL_PushEvent(&quitEvent);
 				delete this; //Now that's a rarity
 			}
+			if (levelEditorButton->getIsTriggered())
+			{
+				levelEditorButton->setIsTriggered(false);
+
+
+				GE_Font rclickfont = GE_Font_GetFont("FreeSans",15);
+				GE_UI_TextListStyle rclickstyle = {{GE_Color{0xff,0xff,0xff,0x00},rclickfont},18,5,GE_Color{0x00,0x33,0x00,255},GE_Color{0xff,0x00,0x00,255},{{0x00,0x22,0x00,0xff},3,15,0},3};
+
+				GE_UI_LevelEditor2DStyle newstyle = 
+				{
+					style,
+					rclickstyle
+				};
+				GE_UI_SetBackgroundElement(new GE_UI_LevelEditor2D(renderer,position,size,newstyle));
+			}
 		}
 		bool checkIfFocused(int mousex, int mousey)
 		{
@@ -500,13 +502,13 @@ class UI_MainMenu : public GE_UI_TopLevelElement
 		Vector2 position;
 		Vector2 size;
 		GE_UI_Surface* mySurface;
-		Camera starsCamera;
-
 
 		GE_Experimental_UI_Button* startGame;
 		int lastTick;
 
 		GE_Experimental_UI_Button* quitGame;
+
+		GE_Experimental_UI_Button* levelEditorButton;
 
 		GE_UI_Text* titleText;
 
@@ -622,7 +624,7 @@ int main(int argc, char* argv[])
 #endif
 
 	GE_UI_Window* window = new GE_UI_Window(renderer,"INVENTORY",{250,250},{618,320},style);
-	myMainMenu = new UI_MainMenu(renderer,{0,0},{static_cast<double>(camera.screenWidth),static_cast<double>(camera.screenHeight)});
+	myMainMenu = new UI_MainMenu(renderer,Vector2{0.f,0.f},Vector2{static_cast<double>(camera.screenWidth),static_cast<double>(camera.screenHeight)});
 	GE_UI_SetBackgroundElement(myMainMenu);
 
 	printf("Done with initial setup. Unlocking physics engine.\n");
@@ -657,7 +659,6 @@ int main(int argc, char* argv[])
 		}
 
 #endif
-		printf("render tick\n");
 
 		GE_GlueRenderCallback(); //update all positions from the buffer
 
@@ -666,13 +667,14 @@ int main(int argc, char* argv[])
 		camera.pos.r = 0;
 #endif
 
+		GE_UI_Render();
+
 		if (GE_UI_PullEvents()) //returns true if wants to quit
 		{
 			break; 
 		}
 
 
-		GE_UI_Render();
 
 		/*if ((!player->GetIsOnline()) && static_cast<int>(floor(rendererThreadsafeTicknum / 5.0)) % 3) //flash "Game over!" if the player is dead. basically, this is (%number)/(dividedNumber), numerator being how often it's ON, denominator being how often it's OFF... except when it's not. I'll level with you: I figured out how to make timers based soley off of the tick number a long time ago. I no longer have a clue how this works. I adjusted it until I got the result I wanted. 
 		{

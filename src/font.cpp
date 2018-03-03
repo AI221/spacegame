@@ -32,7 +32,7 @@ int GE_Font_Init()
 void GE_Font_LoadFromList(std::string list)
 {
 	std::string parrentPath = GE_GetParrentDirectory(list);
-	std::string buffer = GE_ReadAllFromFile(list);
+	std::string buffer = GE_GetStringFromFileString(GE_ReadAllFromFile(list));
 	Json::Value root;
 	GE_ReadJson(buffer,&root);
 	Json::Value spritelist = root["fontlist"];

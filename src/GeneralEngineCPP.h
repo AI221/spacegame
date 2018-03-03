@@ -118,6 +118,8 @@
 
 #define GE_StringifyNumber(in) (std::to_string(in).c_str())
 
+#define GE_StringifyChar(in) GE_StringifyNumber(in)
+
 #define GE_ReturnInput(in) (in)
 
 template<class number>

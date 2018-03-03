@@ -7,6 +7,7 @@
 //TODO: Name-change due to scope of this file change.
 
 #include <cmath>
+#include <type_traits>
 
 //Local includes
 #include "GeneralEngineCPP.h"
@@ -125,8 +126,8 @@ struct Vector2 : public GE_Serializable
 	template <class XY>
 	GE_FORCE_INLINE Vector2 operator=(XY other)
 	{
-		x = other.x;
-		y = other.y;
+		std::swap(x,other.x);
+		std::swap(y,other.y);
 		return *this;
 
 	}
@@ -243,9 +244,19 @@ struct Vector2r : public GE_Serializable
 	template <class XY>
 	GE_FORCE_INLINE Vector2r operator=(XY other)
 	{
-		x = other.x;
-		y = other.y;
-		r = other.r;
+		/*if constexpr(std::is_pointer<XY>::value) //TODO: this doesn't work?
+		{
+			x = other->x;
+			y = other->y;
+			r = other->r;
+		}
+		else
+		{
+		*/
+		
+		std::swap(x,other.x);
+		std::swap(y,other.y);
+		std::swap(r,other.r);
 		return *this;
 
 	}
@@ -341,12 +352,46 @@ struct IntVector2
 /*! 
  *	A 2D Rectangle. No additional operators provided.
  */
-struct GE_Rectangle //TODO allow rectangles themselves to be rotated relative to their owners
+struct GE_Rectangle : GE_Serializable //TODO allow rectangles themselves to be rotated relative to their owners
 {
+	GE_Rectangle(double x, double y, double w, double h)
+	{
+		this->x = x;
+		this->y = y;
+		this->w = w;
+		this->h = h;
+	};
+	GE_Rectangle(){};
+
+	void serialize(char** buffer, size_t* bufferUsed, size_t* bufferSize)
+	{
+		GE_Serialize(x,buffer,bufferUsed,bufferSize);
+		GE_Serialize(y,buffer,bufferUsed,bufferSize);
+		GE_Serialize(w,buffer,bufferUsed,bufferSize);
+		GE_Serialize(h,buffer,bufferUsed,bufferSize);
+	};
+	static GE_Rectangle* unserialize(char* buffer, size_t* bufferUnserialized,int version)
+	{
+		double _x = GE_Unserialize<double>(buffer,bufferUnserialized,version);
+		double _y = GE_Unserialize<double>(buffer,bufferUnserialized,version);
+		double _w = GE_Unserialize<double>(buffer,bufferUnserialized,version);
+		double _h = GE_Unserialize<double>(buffer,bufferUnserialized,version);
+		return new GE_Rectangle{_x,_y,_w,_h};
+	};
+
 	double x;
 	double y;
 	double w;
 	double h;
+
+	GE_Rectangle operator=(GE_Rectangle other)
+	{
+		x = other.x;
+		y = other.y;
+		w = other.w;
+		h = other.h;
+		return *this;
+	}
 };
 
 /*!
@@ -459,6 +504,9 @@ GE_FORCE_INLINE double GE_Dot(XY subject, XY subject2)
 	return (subject.x*subject2.x)+(subject.y*subject2.y);
 }
 
+/*!
+ * Gives you the angle between a point with rotation, and a point
+ */
 template<class XYR, class XY>
 GE_FORCE_INLINE double GE_GetRotationalDistance(XYR subject, XY victim)
 {

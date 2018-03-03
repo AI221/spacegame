@@ -9,11 +9,15 @@
 
 #include <SDL2/SDL.h>
 
-//Local incluides
+
+//Local includes
 #include "vector2.h"
 
 
 
+/*!
+ * Basically the same as an SDL_Color
+ */
 struct GE_Color
 {
 	Uint8 r;
@@ -25,6 +29,10 @@ struct GE_Color
 		return SDL_Color{r,g,b,a};
 	}
 };
+
+/*!
+ * Base class for rendered shapes
+ */
 class GE_Shape
 {
 	public:
@@ -33,6 +41,9 @@ class GE_Shape
 
 
 
+/*!
+ * A renderable rectangle, which may have transparency.
+ */
 class GE_RectangleShape : public GE_Shape
 {
 	public:
@@ -46,3 +57,15 @@ class GE_RectangleShape : public GE_Shape
 
 };
 
+class GE_HollowRectangleShape : public GE_Shape
+{
+	public:
+		GE_HollowRectangleShape(SDL_Renderer* renderer, GE_Color color,double thickness);
+		~GE_HollowRectangleShape();
+		void render(Vector2r position, Vector2 size);
+		void render(Vector2 position, Vector2 size);
+	private:
+		SDL_Renderer* renderer;
+		SDL_Texture* colorTexture;
+		double thickness;
+};

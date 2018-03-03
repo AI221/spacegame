@@ -10,10 +10,8 @@
 #include "vector2.h"
 #include "camera.h"
 #include "UI.h"
-#include "renderedObject.h"
 
 
-#include <pthread.h>
 
 
 
@@ -21,11 +19,12 @@
 class GE_UI_GameRender: public GE_UI_TopLevelElement
 {
 	public:
-		GE_UI_GameRender(SDL_Renderer* renderer, Vector2 position, Vector2 size, Camera* camera);
+		GE_UI_GameRender(SDL_Renderer* renderer, Vector2 position, Vector2 size, Camera* camera, double scale);
 		~GE_UI_GameRender();
 		void giveEvent(Vector2 parrentPosition, SDL_Event event);
 		void render(Vector2 parrentPosition);
 		bool checkIfFocused(int mousex, int mousey);
+		void setScale(double scale);
 
 		bool wantsEvents;
 	private:
@@ -33,5 +32,6 @@ class GE_UI_GameRender: public GE_UI_TopLevelElement
 		Vector2 position;
 		Vector2 size;
 		Camera* camera;
+		double scale;
 
 };

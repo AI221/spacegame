@@ -72,6 +72,34 @@ struct GE_UI_Style
 	GE_UI_WindowStyle windowStyle;
 };
 
+struct GE_UI_SpacerStyle
+{
+	GE_Color color;
+	double verticalSize;
+	double spaceLeftAtEachEdge;
+	double extraSpaceBetween;
+};
+struct GE_UI_TextListStyle
+{
+	GE_UI_FontStyle font;
+	unsigned int verticalSizeOfText;
+	double textSpaceLeftAtEachEdge;
+	GE_Color background;
+	GE_Color highlight;
+	GE_UI_SpacerStyle spacer;
+	unsigned int spaceBetweenElements;
+};
+struct GE_UI_StringOrDivider
+{
+	std::string string;
+	bool isDivider;
+};
+
+struct GE_UI_ClickedObject
+{
+	std::vector<unsigned int> trail;
+	bool happened;
+};
 /*!
  * An element which is intended to be added to a GE_UI_TopLevelElement
  */
@@ -386,7 +414,64 @@ class GE_UI_Window: public GE_UI_TopLevelElement
 
 };
 
+/*!
+ * like RectangleShape, but with a static position
+ */
+class GE_UI_Rectangle : public GE_UI_Element
+{
+	public:
+		GE_UI_Rectangle(SDL_Renderer* renderer, Vector2 position, Vector2 size, GE_Color color);
+		~GE_UI_Rectangle();
+		void render(Vector2 parrentPosition);
+	private:
+		GE_RectangleShape* rectangleShape;
+		Vector2 position;
+		Vector2 size;
 
+
+};
+
+struct internal_return;
+class GE_UI_TextList : public GE_UI_TopLevelElement
+{
+	public:
+		GE_UI_TextList(SDL_Renderer* renderer, Vector2 position, Vector2 size, std::vector<GE_UI_StringOrDivider> elements, GE_UI_TextListStyle style);
+		GE_UI_TextList(SDL_Renderer* renderer, Vector2 position, Vector2 size, std::vector<GE_UI_StringOrDivider> elements, std::vector<GE_UI_TextList*> dropRightMenus, std::vector<unsigned int> elementsWhichHostDropRightMenus, GE_UI_TextListStyle style);
+		~GE_UI_TextList();
+		void giveEvent(Vector2 parrentPosition, SDL_Event event);
+		void render(Vector2 parrentPosition);
+		bool checkIfFocused(int mousex, int mousey);
+		GE_UI_ClickedObject getClicked();
+		void setClicked(bool happened);
+		double getPositionOfElement(unsigned int ID);
+
+		void setPosition(Vector2 position);
+		Vector2 getSize();
+	private:
+		SDL_Renderer* renderer;
+		Vector2 position;
+		Vector2 size;
+		GE_UI_TextListStyle style;
+		GE_UI_Rectangle* background;
+		std::vector<GE_UI_Text*> textObjects;
+		std::vector<double> textObjectsPosition;
+		std::vector<GE_UI_Rectangle*> dividers;
+
+		GE_RectangleShape* highlight;
+		unsigned int highlightedTextObject;
+		bool hasHighlightedTextObject;
+		
+		bool hasDropRightMenus;
+		std::vector<GE_UI_TextList*> dropRightMenus;
+		std::vector<unsigned int> elementsWhichHostDropRightMenus;
+
+		unsigned int dropRightMenuOpen;
+		bool hasDropRightMenuOpen;
+
+		GE_UI_ClickedObject currentClicked;
+		void _construct_step_1(SDL_Renderer* renderer, Vector2 position, Vector2 size, std::vector<GE_UI_StringOrDivider> elements, GE_UI_TextListStyle style);
+		internal_return checkIfCursorOnText(Vector2 parrentPosition, int x, int y);
+};
 /*!
  * This recieves all events all the time
  *

@@ -24,10 +24,10 @@
 		"enemie1/stdBulletEnemy.png",
 		"enemie1/enemy.png",
 
-		"enginedefault/simple.bmp",
-		"enginedefault/simple-animation.bmp",
-		"enginedefault/player.png",
-		"enginedefault/gray.png",
+                "enginedefault/simple.bmp",
+                "enginedefault/simple-animation.bmp",
+                "enginedefault/player.png",
+                "enginedefault/gray.png",
 
 		"inventory/inv_iron.png",
 		"inventory/inv_duct-tape.png",

@@ -10,6 +10,8 @@
 #include "renderedObject.h"
 #include "physics.h"
 #include "threadedEventStack.h"
+#include "serialize.h"
+#include "serializeObject.h"
 
 class Inventory;
 
@@ -95,6 +97,8 @@ class Player : public GE_PhysicsObject
 
 		Inventory* inventory;
 
+		void serialize(char** buffer, size_t* bufferUsed,size_t* bufferSize);
+		static Player* unserialize(char* buffer, size_t* bufferUnserialized, int version);
 	
 	private:
 		GE_RenderedObject* renderObject;
@@ -103,7 +107,7 @@ class Player : public GE_PhysicsObject
 		int nextTickCanShoot;
 		bool dampeners;
 
-
+		GE_TrackedObject* tracker;
 		
 
 
@@ -118,6 +122,9 @@ class Enemie : public GE_PhysicsObject
 		~Enemie();
 		bool C_Update();
 		bool C_Collision(GE_PhysicsObject* victim, int collisionRectangleID);
+
+		void serialize(char** buffer, size_t* bufferUsed,size_t* bufferSize);
+		static Enemie* unserialize(char* buffer, size_t* bufferUnserialized, int version);
 	private:
 		GE_RenderedObject* renderObject;
 		SDL_Renderer* renderer;
@@ -125,6 +132,8 @@ class Enemie : public GE_PhysicsObject
 		Vector2 lastFoundPlayer;
 		bool foundPlayer;
 		int lastTimeShotTick;
+
+		GE_TrackedObject* tracker;
 
 };
 
@@ -158,7 +167,12 @@ class Wall : public GE_PhysicsObject
 	public:
 		Wall(SDL_Renderer* renderer, Vector2r position, GE_Rectangle shape, double mass);
 		~Wall();
+
+		void serialize(char** buffer, size_t* bufferUsed,size_t* bufferSize);
+		static Wall* unserialize(char* buffer, size_t* bufferUnserialized, int version);
 	private:
 		GE_RenderedObject* renderObject;
 		GE_Rectangle shape;
+
+		GE_TrackedObject* tracker;
 };

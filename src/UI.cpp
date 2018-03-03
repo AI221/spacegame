@@ -649,7 +649,6 @@ void GE_UI_DraggableProgressBar::giveEvent(Vector2 parrentPosition, SDL_Event ev
 		SDL_GetMouseState(&x,&y);
 		if (x >= actualPosition.x && y>= actualPosition.y && x<= size.x+actualPosition.x && y <= size.y+actualPosition.y)
 		{
-			printf("pullmouse2\n");
 			pollMouse = true;
 		}
 	}
@@ -841,6 +840,338 @@ bool GE_UI_Window::checkIfFocused(int mousex, int mousey)
 
 
 
+GE_UI_Rectangle::GE_UI_Rectangle(SDL_Renderer* renderer, Vector2 position, Vector2 size, GE_Color color)
+{
+	this->rectangleShape = new GE_RectangleShape(renderer,color);
+
+	this->position = position;
+
+	this->size = size;
+
+	this->wantsEvents = false;
+}
+GE_UI_Rectangle::~GE_UI_Rectangle()
+{
+	delete rectangleShape;
+}
+void GE_UI_Rectangle::render(Vector2 parrentPosition)
+{
+	rectangleShape->render(position+parrentPosition,size);
+}
+
+
+void GE_UI_TextList::_construct_step_1(SDL_Renderer* renderer, Vector2 position, Vector2 size, std::vector<GE_UI_StringOrDivider> elements, GE_UI_TextListStyle style)
+{
+	this->renderer = renderer;
+	this->size = size;
+
+	double verticalPositition = 0;
+	for (auto element : elements)
+	{
+		verticalPositition += style.spaceBetweenElements;
+		if (element.isDivider)
+		{
+			dividers.push_back(new GE_UI_Rectangle(
+						renderer,
+						{style.spacer.spaceLeftAtEachEdge,verticalPositition+style.spacer.spaceLeftAtEachEdge/2},
+						{size.x-(style.spacer.spaceLeftAtEachEdge*2),style.spacer.verticalSize},
+						style.spacer.color)
+					);
+
+			verticalPositition += style.spacer.verticalSize+style.spacer.spaceLeftAtEachEdge;
+		}
+		else
+		{
+			textObjects.push_back(new GE_UI_Text(
+						renderer,
+						{style.textSpaceLeftAtEachEdge,verticalPositition},
+						{size.x,static_cast<double>(style.verticalSizeOfText)},
+						element.string,style.font)
+					);
+			textObjectsPosition.push_back(verticalPositition);
+
+			verticalPositition += style.verticalSizeOfText;
+		}
+	}
+	this->style = style;
+	this->background = new GE_UI_Rectangle(renderer,{0,0},size,style.background);
+
+	this->highlight = new GE_RectangleShape(renderer,style.highlight);
+
+
+	this->wantsEvents = true;
+
+	this->currentClicked.happened = false;
+
+
+	//potentially may set position of sub-menus
+	this->setPosition(position);
+}
+GE_UI_TextList::GE_UI_TextList(SDL_Renderer* renderer, Vector2 position, Vector2 size, std::vector<GE_UI_StringOrDivider> elements, GE_UI_TextListStyle style)
+{
+	_construct_step_1(renderer,position,size,elements,style);
+	this->hasDropRightMenus = false;
+	this->hasDropRightMenuOpen = false;
+}
+
+
+GE_UI_TextList::GE_UI_TextList(SDL_Renderer* renderer, Vector2 position, Vector2 size, std::vector<GE_UI_StringOrDivider> elements, std::vector<GE_UI_TextList*> dropRightMenus, std::vector<unsigned int> elementsWhichHostDropRightMenus, GE_UI_TextListStyle style)
+{
+	this->dropRightMenus = dropRightMenus;
+	this->elementsWhichHostDropRightMenus = elementsWhichHostDropRightMenus;
+	this->hasDropRightMenus = true;
+	this->hasDropRightMenuOpen = false;
+	_construct_step_1(renderer,position,size,elements,style);
+}
+
+
+
+
+GE_UI_TextList::~GE_UI_TextList()
+{
+	for (auto element : dividers)
+	{
+		delete element;
+	}
+	for (auto element : textObjects)
+	{
+		delete element;
+	}
+	delete background;
+	delete highlight;
+	if (hasDropRightMenus)
+	{
+		for (auto list : dropRightMenus)
+		{
+			delete list;
+		}
+	}
+}
+void internal_hack_alert_parrent(GE_UI_TopLevelElement* you)
+{
+	GE_UI_RemoveTopLevelElement(you);
+	SDL_Event hack;
+	hack.type = SDL_USEREVENT;
+	SDL_PushEvent(&hack);
+}
+struct internal_return
+{
+	unsigned int ID;
+	bool happened;
+};
+void GE_UI_TextList::giveEvent(Vector2 parrentPosition, SDL_Event event)
+{
+	int x,y;
+	SDL_GetMouseState(&x,&y);
+	auto spotStruct = checkIfCursorOnText(parrentPosition,x,y);
+	if (event.type == SDL_MOUSEBUTTONUP && !hasDropRightMenuOpen)
+	{
+		if (!(hasDropRightMenuOpen))
+		{
+			if (spotStruct.happened)
+			{
+				//remove old trails(incase the user didn't)
+				if(currentClicked.happened)
+				{
+					setClicked(false);
+				}
+				currentClicked.trail.push_back(spotStruct.ID);
+				currentClicked.happened = true;
+				//check if element is a sub-menu host, which are not actually clickable.
+				int o = 0;
+				for (int elementID : elementsWhichHostDropRightMenus)
+				{
+					if (elementID == spotStruct.ID)
+					{
+						//we 'absorb' the click
+						setClicked(false);
+						break;
+					}
+					o++;
+				}
+				if(currentClicked.happened)
+				{
+					//TODO TEMPORARY UGLY UGLY UGLY HACK
+					internal_hack_alert_parrent(this);	
+				}
+			}
+		}
+	}
+	else if (event.type == SDL_MOUSEMOTION)
+	{
+		bool subMenuIsGettingFocusSoDontCheckThisMenu = false;
+		if (hasDropRightMenuOpen)
+		{
+			if (dropRightMenus[dropRightMenuOpen]->checkIfFocused(x,y))
+			{
+				subMenuIsGettingFocusSoDontCheckThisMenu = true;
+			}
+		}
+		if(!subMenuIsGettingFocusSoDontCheckThisMenu)
+		{
+			//if we don't find the cursor under something, it's moved off of something and it should no longer be highlighted.
+			hasHighlightedTextObject = false;
+			if (spotStruct.happened)
+			{
+				highlightedTextObject = spotStruct.ID;	
+				hasHighlightedTextObject = true;
+
+				//if it has a drop down menu, then open it (and add the element to the click trail)
+				int o = 0;
+				for (int elementID : elementsWhichHostDropRightMenus)
+				{
+					if (elementID == spotStruct.ID)
+					{
+						if(currentClicked.happened)
+						{
+							setClicked(false);
+						}
+						currentClicked.trail.push_back(spotStruct.ID);
+						currentClicked.happened = true;
+
+
+						hasDropRightMenuOpen = true;
+						dropRightMenuOpen = o;
+						break;
+					}
+					o++;
+				}
+
+			}
+			else if (hasDropRightMenus && hasDropRightMenuOpen)
+			{
+				hasDropRightMenuOpen = false;
+			}
+			
+		}
+	}
+	//if we have a submenu open, hand it the event reguardless of event.type
+	if (hasDropRightMenus  && hasDropRightMenuOpen  )
+	{
+		dropRightMenus[dropRightMenuOpen]->giveEvent(parrentPosition,event);
+		auto theirCurrentClicked = dropRightMenus[dropRightMenuOpen]->getClicked();
+		if (theirCurrentClicked.happened)
+		{
+			dropRightMenus[dropRightMenuOpen]->setClicked(false);
+			//add their click trail to ours	
+			for (int menuElementClicked : theirCurrentClicked.trail)
+			{
+				currentClicked.trail.push_back(menuElementClicked);
+			}
+			//they're done being open cause they've reported a click
+			hasDropRightMenuOpen = false;
+			//report our click
+			currentClicked.happened = true;
+			//TODO TEMPORARY UGLY UGLY UGLY HACK
+			internal_hack_alert_parrent(this);	
+
+		}
+
+
+	}
+}
+internal_return GE_UI_TextList::checkIfCursorOnText(Vector2 parrentPosition, int x, int y)
+{
+	unsigned int i = 0;
+	for (auto textPosition : textObjectsPosition)
+	{
+		if (checkIfFocused_ForBox(x,y,Vector2{position.x,position.y+textPosition}+parrentPosition,{size.x,static_cast<double>(style.verticalSizeOfText)+style.spaceBetweenElements}))
+		{
+			return {i,true};
+		}
+		i++;
+	}
+	return {0,false};
+}
+void GE_UI_TextList::render(Vector2 parrentPosition)
+{
+	background->render(parrentPosition+position);
+	for (auto element : dividers)
+	{
+		element->render(parrentPosition+position);
+	}
+	unsigned int i =0;
+	for (auto element : textObjects)
+	{
+		if (hasHighlightedTextObject &&  highlightedTextObject == i)
+		{
+			highlight->render(Vector2{position.x,getPositionOfElement(i)+position.y}+parrentPosition,{size.x,static_cast<double>(style.verticalSizeOfText)});
+		}
+		element->render(parrentPosition+position);
+		i++;
+	}
+	if (hasDropRightMenus && hasDropRightMenuOpen)
+	{
+		dropRightMenus[dropRightMenuOpen]->render(parrentPosition);
+	}
+}
+bool GE_UI_TextList::checkIfFocused(int mousex, int mousey)
+{
+	bool isFocused = checkIfFocused_ForBox(mousex,mousey,position,size);
+
+	if (hasDropRightMenus && hasDropRightMenuOpen)
+	{
+		hasDropRightMenuOpen = dropRightMenus[dropRightMenuOpen]->checkIfFocused(mousex,mousey); //re-rest if it should be open or has been clicked away from
+		isFocused = isFocused || hasDropRightMenuOpen; //if either menus focused, we're good.
+		if (!hasDropRightMenuOpen)
+		{
+			setClicked(false);
+		}
+
+	}
+	if (!isFocused)
+	{
+		setClicked(false);
+		SDL_Event hack;
+		hack.type = SDL_USEREVENT;
+		SDL_PushEvent(&hack);
+	}
+	return isFocused;
+}
+	
+GE_UI_ClickedObject GE_UI_TextList::getClicked()
+{
+	return currentClicked;
+}
+void GE_UI_TextList::setClicked(bool happened)
+{
+	currentClicked.happened = happened;
+	currentClicked.trail.clear();
+	if (!happened)
+	{
+		//collapse the menu
+		hasDropRightMenuOpen = false;
+		//and collapse its menus
+		for (auto list : dropRightMenus)
+		{
+			list->setClicked(false);
+		}
+	}
+}
+double GE_UI_TextList::getPositionOfElement(unsigned int ID)
+{
+	return textObjectsPosition[ID];
+}
+void GE_UI_TextList::setPosition(Vector2 position)
+{
+	this->position = position;
+	int i=0;
+	//re-set-position of the drop right menus
+	for (auto elementID : elementsWhichHostDropRightMenus)
+	{
+		dropRightMenus[i]->setPosition({position.x+size.x,position.y+getPositionOfElement(elementID)});
+		i++;
+	}
+}
+Vector2 GE_UI_TextList::getSize()
+{
+	return size;
+}
+
+
+
+
+
 std::list<GE_UI_TopLevelElement*> renderOrder;
 std::list<GE_UI_OmniEventReciever*> omniEventRecievers;
 GE_UI_TopLevelElement* backgroundElement= NULL;
@@ -874,8 +1205,17 @@ void GE_UI_RemoveOmniEventReciever(GE_UI_OmniEventReciever* element)
 }
 void GE_UI_SetTopElement(GE_UI_TopLevelElement* element)
 {
-	GE_UI_RemoveTopLevelElement(element);
+	if(element==backgroundElement)
+	{
+		backgroundFocused = true;
+		return;
+	}
+	GE_UI_RemoveTopLevelElement(element); //will change the background focus to true if there are no elements
 	renderOrder.insert(renderOrder.begin(), element); //gonna keep it like this rather than call own function; it might be changed later on not to bring to top focus.
+
+
+
+	backgroundFocused = false; //do this last to avoid interference from other functions which would change it back.
 }
 void GE_UI_SetBackgroundElement(GE_UI_TopLevelElement* element)
 {
@@ -914,16 +1254,14 @@ bool GE_UI_PullEvents()
 			bool focusShift = false;
 			for (auto i = renderOrder.begin();i != renderOrder.end();i++)
 			{
-				printf("t\n");
 				if ((*i)->checkIfFocused(x,y))
 				{
-					printf("Focus shift!\n");
 					GE_UI_SetTopElement(*i);
 					focusShift = true;
-					backgroundFocused = false;
 					break;
 				}
 			}
+			//if they didn't click on any windows, then they clicked off and the background should come into focus
 			if (!focusShift)
 			{
 				backgroundFocused = true;
@@ -934,6 +1272,9 @@ bool GE_UI_PullEvents()
 		{
 			return true;
 		}
+
+
+
 		if (backgroundFocused && backgroundElement != NULL)
 		{
 			backgroundElement->giveEvent({0,0},event);

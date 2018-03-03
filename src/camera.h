@@ -19,9 +19,16 @@
  */
 struct Camera
 {
+	Camera(Vector2r pos, int screenWidth,int screenHeight)
+	{
+		this->pos = pos;
+		this->screenWidth = screenWidth;
+		this->screenHeight = screenHeight;
+	}	
+	Camera(){}
 	Vector2r pos; 
-	int screenHeight;
 	int screenWidth;
+	int screenHeight;
 };
 
 /*!

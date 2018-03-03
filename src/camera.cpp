@@ -20,24 +20,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 Vector2r GE_ApplyCameraOffset(Camera* camera, Vector2r subject, Vector2 size)
 {
-	
-	/*double sin_angle = sin((camera->pos.r/DEG_TO_RAD));
-	double cos_angle = cos((camera->pos.r/DEG_TO_RAD));
+	//move their position to be at the camera
+	subject.x = (subject.x-camera->pos.x);
+	subject.y = (subject.y-camera->pos.y);
 
-	newPosition.x = ((subject->x-camera->pos.x))*cos_angle - ((subject->y-camera->pos.y))*sin_angle;
-	newPosition.y = ((subject->x-camera->pos.x))*sin_angle + ((subject->y-camera->pos.y))*cos_angle;*/
-
-
-	subject.x = (subject.x-camera->pos.x);//+(size.x/2);
-	subject.y = (subject.y-camera->pos.y);//+(size.y/2);
-
-
+	//perform matrix transformation, rotating them arround what-is-currently 0,0
 	GE_Vector2Rotation(&subject,camera->pos.r);
 
-	subject.x = (subject.x+(camera->screenWidth/2));//-(size.x/2);
-	subject.y = (subject.y+(camera->screenHeight/2));//-(size.y/2);
+	//adjust their position to be at the center of the screen
+	subject.x = (subject.x+(camera->screenWidth/2));
+	subject.y = (subject.y+(camera->screenHeight/2));
 
-	subject.r = (camera->pos.r)-subject.r; //last newPosition.r might not be correct //TODO ensure correct
+	//their position is rotated, now rotate the sprite itself.
+	subject.r = (camera->pos.r)-subject.r; 
 
 
 	return subject;

@@ -55,6 +55,8 @@ extern double PhysicsDelaySeconds;
 
 extern bool PhysicsEngineThreadShutdown;
 
+extern bool GE_PhysicsEngine_CollisionsEnabled;
+extern bool GE_PhysicsEngine_TickingObjectsEnabled;
 
 
 
@@ -88,6 +90,11 @@ class GE_PhysicsObject : public GE_Serializable
 		Vector2r position;
 		Vector2r velocity;
 		double mass;
+		/*!
+		 * How offset the center-of-mass is from the geometric center.
+		 * Default value is 0,0
+		 */
+		Vector2 centerOfMass; 
 		Vector2 warpedShape;
 		int ID;
 		GE_Rectangle collisionRectangles[MAX_COLLISION_RECTANGLES_PER_OBJECT];
@@ -250,13 +257,20 @@ void GE_FreePhysicsObject(GE_PhysicsObject* physicsObject); //MUST be allocated 
  */
 void GE_RectangleToPoints(GE_Rectangle rect, Vector2 grid, Vector2* points, Vector2r hostPosition);
 
-Vector2r GE_InelasticCollisionVelocityExchange(Vector2r velocity1, Vector2r velocity2, double mass1, double mass2);
-
-
-Vector2 GE_GetRectangleCenterRealPosition(GE_Rectangle rectangle, Vector2r realPosition);
-
+/*!
+ * Finds wheather a point is inside a physics object's collision boxes.
+ */
+bool GE_IsPointInPhysicsObject(Vector2 point, GE_PhysicsObject* obj);
+/*!
+ * Runs an inelastic collision for a given momentum exchange.
+ */
 void GE_InelasticCollision(GE_PhysicsObject* subject, Vector2 collisionPoint, Vector2r momentum, bool CCW);
 
+/*!
+ * Returns physics objects in a given radius.
+ *
+ * Due to the world being broken into sectors behind-the-scenes, this function is generally very fast.
+ */
 std::set<GE_PhysicsObject*> GE_GetObjectsInRadius(Vector2 position, double radius);
 
 /*!

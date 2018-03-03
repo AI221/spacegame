@@ -98,7 +98,6 @@ void GE_UI_Minimap::render(Vector2 parrentPosition)
 		//camera gets scaled way down to fit a minimap
 		Camera scaledcamera = Camera{Vector2r{camera->pos.x*scale,camera->pos.y*scale,camera->pos.r},static_cast<int>(size.y),static_cast<int>(size.x)};
 
-		printf("RenderATarget\n");
 		GE_MinimapTarget* subject_minimap = i.second;
 		if (subject_minimap != NULL)
 		{

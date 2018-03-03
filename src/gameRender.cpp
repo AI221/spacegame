@@ -1,11 +1,13 @@
 #include "gameRender.h"
-#ifdef PHYSICS_DEBUG_SLOWRENDERS
-#define NO_myCamera_ROTATE
-#endif
+#include "physics.h"
 
-const double scale = 0.75;
+#include <pthread.h>
 
-GE_UI_GameRender::GE_UI_GameRender(SDL_Renderer* renderer, Vector2 position, Vector2 size, Camera* camera)
+//Local includes
+#include "renderedObject.h"
+
+
+GE_UI_GameRender::GE_UI_GameRender(SDL_Renderer* renderer, Vector2 position, Vector2 size, Camera* camera, double scale)
 {
 	this->renderer = renderer;
 	this->position = position;
@@ -18,7 +20,7 @@ GE_UI_GameRender::GE_UI_GameRender(SDL_Renderer* renderer, Vector2 position, Vec
 
 	this->wantsEvents = true;
 
-
+	this->setScale(scale);
 	//playerEventStack = &focusObject->threadedEventStack;
 }
 GE_UI_GameRender::~GE_UI_GameRender()
@@ -34,15 +36,19 @@ void GE_UI_GameRender::render(Vector2 parrentPosition)
 	GE_DeleteRenderedObjectsMarkedForDeletion();
 	pthread_mutex_lock(&RenderEngineMutex);
 
-	#ifdef NO_myCamera_ROTATE
-		myCamera.pos.r = 0;
-	#endif
 	for (GE_RenderedObject* object : renderedObjects)
 	{
-		GE_BlitRenderedObject(object,camera,scale);
+		GE_BlitRenderedObject(object,camera,0.75);
 	}
 	pthread_mutex_unlock(&RenderEngineMutex);
 
+}
+void GE_UI_GameRender::setScale(double scale)
+{
+	this->scale = scale;
+#ifdef PHYSICS_DEBUG_SLOWRENDERS
+	this->scale = 1;
+#endif
 }
 
 bool GE_UI_GameRender::checkIfFocused(int mousex, int mousey)

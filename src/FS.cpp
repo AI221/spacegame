@@ -19,6 +19,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <SDL2/SDL.h>
 #include <stdio.h>
 #include <regex>
+#include <algorithm>
+#include <new>
+
+
+
+
+
 
 std::string GE_ReverseSlashes(std::string victim) 
 {
@@ -176,32 +183,95 @@ std::string GE_GetBaseName(const char* fullfilename)
 }
 
 
-std::string GE_ReadAllFromFile(const char* fullfilename)
+struct GE_FileNotFound : std::exception
 {
-	char buffer[256] = "";
-	std::string fullBuffer = "";
-	SDL_RWops *file = SDL_RWFromFile(fullfilename, "r");
+	const char* what() const noexcept { return "File not found"; }
+};
 
-	if (file != NULL) 
+const size_t bufferSize = 256;
+GE_FileString GE_ReadAllFromFile(const char* fullfilename)
+{
+	char buffer[bufferSize] = "";
+	GE_FileString fullBuffer;
+	SDL_RWops *file = SDL_RWFromFile(fullfilename, "rb");
+	size_t objsRead;
+
+	if (file == NULL) 
 	{
-		int objsRead;
+		throw new GE_FileNotFound{};
+	}
+	else
+	{
+		size_t fileSize = SDL_RWsize(file);
+		size_t remainingBytes = fileSize;
+
+		fullBuffer.reserve(fileSize);  //avoid expensive reallocs
 		while (true)
 		{	
-			objsRead = file->read(file, buffer, sizeof (buffer), 1);//read as much as our buffer will store
-			fullBuffer = fullBuffer+std::string(buffer); //append the C++ string with the C-style buffer - not the most effecient but FS access is slow in general and doesn't need to be fast for games
-			if (objsRead == 0) 
+			objsRead = SDL_RWread(file, buffer, sizeof (buffer), 1);//read as much as our buffer will store
+
+			size_t charsToRead = std::min(remainingBytes,bufferSize); //if there are less bytes remaining to read than what the buffer can store, then only read that many (e.g. 121 instead of 256)
+
+			for (size_t i=0;i!=charsToRead;i++)
 			{
-				break; //we're done, break the loop
+				fullBuffer.push_back(buffer[i]);	
 			}
+			
+			if (objsRead == 0)  //last object wasn't full -- next would be empty
+			{
+				break; 
+			}
+			
+			remainingBytes -= bufferSize; //we've read a full buffer
 		}
-		file->close(file);
+		SDL_RWclose(file);
 	}
 	return fullBuffer;
 }
-std::string GE_ReadAllFromFile(std::string fullfilename)
+GE_FileString GE_ReadAllFromFile(std::string fullfilename)
 {
 	return GE_ReadAllFromFile(fullfilename.c_str());
 }
+void GE_WriteToFile(const char* fullfilename, char* contents, size_t size)
+{
+	SDL_RWops *file = SDL_RWFromFile(fullfilename, "w");
+	SDL_RWwrite(file, contents,size,1);
+	SDL_RWclose(file);
+}
+void GE_WriteToFile(const char* fullfilename, GE_FileString contents)
+{
+	char* buffer = GE_GetCharArrayFromFileString(contents);
+	GE_WriteToFile(fullfilename,buffer,static_cast<size_t>(contents.size()));
+	delete[] buffer;
+}
+void GE_WriteToFile(std::string fullfilename, GE_FileString contents)
+{
+	GE_WriteToFile(fullfilename.c_str(),contents);
+}
+
+std::string GE_GetStringFromFileString(GE_FileString filestring)
+{
+	std::string buffer;
+	for (char character : filestring)
+	{
+		buffer += character;
+	}
+	return buffer;
+}
+
+char* GE_GetCharArrayFromFileString(GE_FileString filestring)
+{	
+	char* buffer = new char[filestring.size()];
+	size_t i = 0;
+	for (char character : filestring)
+	{
+		buffer[i] = character;
+		i++;
+	}
+	return buffer;
+}
+
+
 
 
 
@@ -219,6 +289,23 @@ bool GE_TEST_FS() //mostly tests string manipulation
 	GE_TEST_STD(GE_StringifyString,std::string,"file",GE_GetFileExtension,"file");
 	GE_TEST_STD(GE_StringifyString,std::string,"folder",GE_GetParrentDirectory,"folder");
 	GE_TEST_STD(GE_StringifyString,std::string,"file",GE_GetBaseName,"file");
+	
+
+	char teststr[] = "this IS a test write. Null(\0";
+
+	GE_WriteToFile("/tmp/test-file",teststr,sizeof(teststr));
+
+	GE_FileString returnStr = GE_ReadAllFromFile("/tmp/test-file");
+
+	char* returnStrCharStr = GE_GetCharArrayFromFileString(returnStr);
+
+	GE_TEST_Log("Ensure file IO works\n");
+	GE_TEST_ASSERT(GE_StringifyChar,returnStrCharStr[11],teststr[11],==);
+	GE_TEST_Log("Ensure null character works\n");
+	GE_TEST_ASSERT(GE_StringifyChar,returnStrCharStr[27],'\0',==);
+
+	delete[] returnStrCharStr;
+
 
 	return passedAll;
 }

@@ -245,10 +245,8 @@ UI_FloatingInventoryElement::UI_FloatingInventoryElement(SDL_Renderer* renderer)
 }
 void UI_FloatingInventoryElement::render(Vector2 parrentPosition)
 {
-	printf("RENDER \n");
 	if (globalItemHeld)
 	{
-		printf("REAL!!! \n");
 		renderInventoryBox(&globalHeldItemInventory->held, parrentPosition,globalCountText);
 	}
 }
@@ -431,7 +429,6 @@ void UI_InventoryView::giveEvent(Vector2 parrentPosition, SDL_Event event)
 
 				int item = (mousePos.y*static_cast<int>(ammountItemsPerRow) )+mousePos.x; 
 
-				printf("item %d\n",item);
 
 				if ( inventory->pickup(item) == 0)
 				{
