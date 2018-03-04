@@ -36,7 +36,7 @@ struct Camera
  *
  * The applying of rotation may be unexpected due to many 2D games not doing this; simply set the r in camera->pos to 0 to stop this behaviour.
  */
-Vector2r GE_ApplyCameraOffset(Camera* camera, Vector2r subject, Vector2 size);
+Vector2r GE_ApplyCameraOffset(Camera* camera, Vector2r subject);
 
 	
 

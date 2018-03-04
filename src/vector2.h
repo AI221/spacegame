@@ -5,6 +5,7 @@
  * The vector2 and vector2r structures, as well as math functions to go along with them. One of the building blocks of the engine.
  */
 //TODO: Name-change due to scope of this file change.
+#pragma once
 
 #include <cmath>
 #include <type_traits>
@@ -13,8 +14,6 @@
 #include "GeneralEngineCPP.h"
 #include "serialize.h"
 
-#ifndef __VECTOR2_INCLUDED
-#define __VECTOR2_INCLUDED
 #define RAD_TO_DEG 57.2957795130823231109784554604402728728018701076507568359375
 #define TWO_PI 6.283185307179586
 
@@ -130,6 +129,11 @@ struct Vector2 : public GE_Serializable
 		std::swap(y,other.y);
 		return *this;
 
+	}
+	template<class XY>
+	GE_FORCE_INLINE bool operator==(XY other)
+	{
+		return ( (x == other.x) && (y == other.y) );
 	}
 
 	//Vector2 operator=(const IntVector2& subject);
@@ -259,6 +263,11 @@ struct Vector2r : public GE_Serializable
 		std::swap(r,other.r);
 		return *this;
 
+	}
+	template<class XYR>
+	GE_FORCE_INLINE bool operator==(XYR other)
+	{
+		return ( (x == other.x) && (y == other.y) && (r == other.r) );
 	}
 		
 };
@@ -544,4 +553,4 @@ XY GE_FurthestVector(XY origin,XY point1,XY point2)
 	return point2;
 }
 
-#endif //__VECTOR2_INCLUDED0.14285714285714285
+bool GE_TEST_Vector2();

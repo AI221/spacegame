@@ -849,13 +849,13 @@ Wall* Wall::unserialize(char* buffer, size_t* bufferUnserialized,int version)
 	return newObj;
 }
 
-GE_PhysicsObject* LevelEditor_NewWall(Vector2 position)
+GE_PhysicsObject* LevelEditor_NewWall(Vector2r position)
 {
-	return static_cast<GE_PhysicsObject*>(new Wall(GE_DEBUG_Renderer,Vector2r{position.x,position.y,0},GE_Rectangle{0,0,100,10},100)); 
+	return static_cast<GE_PhysicsObject*>(new Wall(GE_DEBUG_Renderer,position,GE_Rectangle{0,0,100,10},100)); 
 }
-GE_PhysicsObject* LevelEditor_NewEnemie(Vector2 position)
+GE_PhysicsObject* LevelEditor_NewEnemie(Vector2r position)
 {
-	return static_cast<GE_PhysicsObject*>(new Enemie(GE_DEBUG_Renderer,Vector2r{position.x,position.y,0},0)); 
+	return static_cast<GE_PhysicsObject*>(new Enemie(GE_DEBUG_Renderer,position,0)); 
 }
 void InitClasses()
 {

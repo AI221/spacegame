@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "camera.h"
 
 
-Vector2r GE_ApplyCameraOffset(Camera* camera, Vector2r subject, Vector2 size)
+Vector2r GE_ApplyCameraOffset(Camera* camera, Vector2r subject)
 {
 	//move their position to be at the camera
 	subject.x = (subject.x-camera->pos.x);

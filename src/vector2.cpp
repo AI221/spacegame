@@ -39,3 +39,39 @@ Vector2 Vector2::operator=(const IntVector2& subject)
 	y = static_cast<double>(subject.y);
 	return *this;
 }*/
+
+#define internal_stringify_vector2(v) ((std::to_string(v.x)+std::string(", ")+std::to_string(v.y)).c_str())
+#define internal_stringify_vector2r(v)( (std::to_string(v.x)+std::string(", ")+std::to_string(v.y)+std::string(", ")+std::to_string(v.r)).c_str())
+
+bool GE_TEST_Vector2()
+{
+	bool passedAll = true; //unit testing will automatically set this
+
+
+	{
+		Vector2 firstVector,secondVector,resultantVector;
+		firstVector = {1.5,2};
+		secondVector = {3,4};
+		resultantVector = firstVector+secondVector;
+
+		GE_TEST_Log("Ensure Vector2 adding works\n");
+		GE_TEST_ASSERT(internal_stringify_vector2,resultantVector,(Vector2{4.5,6}),==);
+
+		firstVector = {2,3};
+		secondVector = {0.5,4};
+		resultantVector = firstVector*secondVector;
+
+		GE_TEST_Log("Ensure Vector2 multiplication works\n");
+		GE_TEST_ASSERT(internal_stringify_vector2,resultantVector,(Vector2{1,12}),==);
+
+
+		resultantVector = (Vector2{4,8})/2.0;
+
+		GE_TEST_Log("Ensure Vector2 division against single double works\n");
+		GE_TEST_ASSERT(internal_stringify_vector2,resultantVector,(Vector2{2,4}),==);
+
+	}
+	
+
+	return passedAll;
+}

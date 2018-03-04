@@ -18,7 +18,7 @@
 /*!
  * return a new physics object when given the position under the cursor
  */
-typedef std::function<GE_PhysicsObject*(Vector2)> GE_NewObject_t;
+typedef std::function<GE_PhysicsObject*(Vector2r)> GE_NewObject_t;
 
 
 class GE_Stars;

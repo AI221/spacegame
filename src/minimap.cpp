@@ -105,7 +105,7 @@ void GE_UI_Minimap::render(Vector2 parrentPosition)
 			SDL_Color color = subject_minimap->color;
 
 			//apply camera offset
-			Vector2r position = GE_ApplyCameraOffset(&scaledcamera,{subject->position.x*scale,subject->position.y*scale,subject->position.r},{subject->size.x*scale, subject->size.y*scale});
+			Vector2r position = GE_ApplyCameraOffset(&scaledcamera,{subject->position.x*scale,subject->position.y*scale,subject->position.r});
 			if ((position.x>=effectivePosition.x)&&(position.y>=effectivePosition.y)&&(position.x<=size.x)&&(position.y<=size.y)) //check if the object is within the bounds of the minimap
 			{
 				//render the object

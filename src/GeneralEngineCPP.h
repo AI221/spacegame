@@ -105,7 +105,7 @@
 	GE_TEST_Log("[%s][ASSERTION] %s(=%s) %s %s(=%s)\n",pass? "PASS" : "FAIL", #variable,stringify(variable), pass? #op : "!"#op, #equals, stringify(equals));\
 }
 
-#define GE_RUN_UNIT_TEST(function) GE_TEST_Log("-------- %s %s --------\n",(function())? "PASS" : "FAIL", #function);
+#define GE_RUN_UNIT_TEST(function) GE_TEST_Log("-------- BEGIN TEST %s --------\n",#function); GE_TEST_Log("-------- %s %s --------\n",(function())? "PASS" : "FAIL", #function);
 /*!
  * Converts a bool to a string
  */

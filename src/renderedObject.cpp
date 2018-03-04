@@ -92,7 +92,7 @@ GE_RenderedObject* GE_CreateRenderedObject(SDL_Renderer* renderer, std::string s
 void GE_BlitRenderedObject(GE_RenderedObject* subject, Camera* camera, double scale)
 {
 	Camera scaledcamera = Camera{Vector2r{camera->pos.x*scale,camera->pos.y*scale,camera->pos.r},camera->screenWidth,camera->screenHeight};
-	Vector2r position = GE_ApplyCameraOffset(&scaledcamera,{subject->position.x*scale,subject->position.y*scale,subject->position.r},{subject->size.x*scale, subject->size.y*scale});
+	Vector2r position = GE_ApplyCameraOffset(&scaledcamera,{subject->position.x*scale,subject->position.y*scale,subject->position.r});
 	double maxSize = std::max(subject->size.x,subject->size.y);
 
 	//TODO: Re-work the sprites to be positioned by the center

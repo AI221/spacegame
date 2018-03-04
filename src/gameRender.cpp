@@ -38,7 +38,7 @@ void GE_UI_GameRender::render(Vector2 parrentPosition)
 
 	for (GE_RenderedObject* object : renderedObjects)
 	{
-		GE_BlitRenderedObject(object,camera,0.75);
+		GE_BlitRenderedObject(object,camera,scale);
 	}
 	pthread_mutex_unlock(&RenderEngineMutex);
 

@@ -647,6 +647,7 @@ int main(int argc, char* argv[])
 		printf("-------------BEGIN UNIT TESTS-------------\n");
 		GE_RUN_UNIT_TEST(GE_TEST_FS);
 		GE_RUN_UNIT_TEST(GE_TEST_SerializeBasic);
+		GE_RUN_UNIT_TEST(GE_TEST_Vector2);
 		printf("-------------END UNIT TESTS-------------\n");
 		break;
 #endif

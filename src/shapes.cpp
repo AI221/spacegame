@@ -70,7 +70,7 @@ void GE_HollowRectangleShape::render(Vector2r position, Vector2 size)
 	size.y -=thickness;
 	SDL_Rect renderPosition;
 	Vector2 points[4];
-	GE_RectangleToPoints(GE_Rectangle{0,0,size.x,size.y},Vector2{0,0},points,position);
+	GE_RectangleToPoints(GE_Rectangle{0,0,size.x,size.y},Vector2{size.x,size.y},points,position+Vector2{size.x,size.y});
 	GE_PhysicsRotationToRenderRotation(&position.r);
 
 	renderPosition = {static_cast<int>(points[0].x+.5),static_cast<int>(points[0].y+.5),static_cast<int>(size.x+.5+thickness),static_cast<int>(thickness+.5)};

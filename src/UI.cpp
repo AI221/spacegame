@@ -7,6 +7,7 @@
 #include <cstring>
 #include <cmath>
 #include <list>
+#include <algorithm>
 
 
 //Local includes
