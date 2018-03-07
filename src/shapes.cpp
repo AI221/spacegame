@@ -70,18 +70,32 @@ void GE_HollowRectangleShape::render(Vector2r position, Vector2 size)
 	size.y -=thickness;
 	SDL_Rect renderPosition;
 	Vector2 points[4];
-	GE_RectangleToPoints(GE_Rectangle{0,0,size.x,size.y},Vector2{size.x,size.y},points,position+Vector2{size.x,size.y});
+	Vector2 pointSizes[4];
+	points[0] = {0,0}; //middle top
+	pointSizes[0] = {size.x,thickness};
+	points[1] = {size.x,0}; //middle right
+	pointSizes[1] = {thickness,size.y};
+	points[2] = {0,size.y}; //middle bottom
+	pointSizes[2] = {size.x,thickness};
+	points[3] = {0,size.y}; //middle left
+	pointSizes[1] = {thickness,size.y};
+
+	for(int i=0;i!=4;i++)
+	{
+		points[i] = points[i]+position;
+		points[i].x -= size.x/2;
+		points[i].y -= size.y/2;
+		points[i] = points[i]-(pointSizes[i]/2);
+		GE_Vector2RotationCCW(&points[i],position.r);
+		//points[i] = points[i]+(pointSizes[i]/2);
+		points[i].x += size.x/2;
+		points[i].y += size.y/2;
+	}
+
 	GE_PhysicsRotationToRenderRotation(&position.r);
-
-	renderPosition = {static_cast<int>(points[0].x+.5),static_cast<int>(points[0].y+.5),static_cast<int>(size.x+.5+thickness),static_cast<int>(thickness+.5)};
-	SDL_RenderCopyEx(this->renderer, this->colorTexture, &renderAnimation, &renderPosition,90-(position.r),&center,SDL_FLIP_NONE); 
-	renderPosition = {static_cast<int>(points[1].x+.5),static_cast<int>(points[1].y+.5),static_cast<int>(thickness+.5),static_cast<int>(size.y+.5)};
-	SDL_RenderCopyEx(this->renderer, this->colorTexture, &renderAnimation, &renderPosition,90-(position.r),&center,SDL_FLIP_NONE); 
-
-
-	renderPosition = {static_cast<int>(points[2].x+.5),static_cast<int>(points[2].y+.5),static_cast<int>(size.x+.5+thickness),static_cast<int>(thickness+.5)};
-	SDL_RenderCopyEx(this->renderer, this->colorTexture, &renderAnimation, &renderPosition,(90-(position.r))-90,&center,SDL_FLIP_NONE); 
-	renderPosition = {static_cast<int>(points[3].x+.5),static_cast<int>(points[3].y+.5),static_cast<int>(size.x+.5),static_cast<int>(thickness+.5)};
-	SDL_RenderCopyEx(this->renderer, this->colorTexture, &renderAnimation, &renderPosition,(90-(position.r))-180,&center,SDL_FLIP_NONE); 
-
+	for(int i=0;i!=4;i++)
+	{
+		renderPosition = {static_cast<int>(points[i].x+.5),static_cast<int>(points[i].y+.5),static_cast<int>(pointSizes[i].x),static_cast<int>(pointSizes[i].y)};
+		SDL_RenderCopyEx(this->renderer, this->colorTexture, &renderAnimation, &renderPosition,(position.r),&center,SDL_FLIP_NONE); 
+	}
 }

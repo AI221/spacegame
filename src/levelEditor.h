@@ -39,7 +39,9 @@ class GE_UI_LevelEditor2D : public GE_UI_TopLevelElement
 		void giveEvent(Vector2 parrentPosition, SDL_Event event);
 		bool checkIfFocused(int mousex, int mousey);
 
+		void getRealWorldCursorPosition(double* x, double* y);
 
+		double levelScale;
 	private:
 		SDL_Renderer* renderer;
 		GE_UI_Surface* mySurface;
@@ -47,7 +49,6 @@ class GE_UI_LevelEditor2D : public GE_UI_TopLevelElement
 		Vector2 size;
 		GE_UI_LevelEditor2DStyle style;
 		GE_UI_GameRender* levelRenderer;
-		double levelScale;
 		Camera* camera;
 
 
@@ -65,7 +66,6 @@ class GE_UI_LevelEditor2D : public GE_UI_TopLevelElement
 		GE_Stars* stars[5];
 		void setStarsScale(double scale);
 
-		void getRealWorldCursorPosition(double* x, double* y);
 		void updateMovingObjectPosition();
 	
 
