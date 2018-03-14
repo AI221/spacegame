@@ -466,7 +466,7 @@ class UI_MainMenu : public GE_UI_TopLevelElement
 				GE_UI_SetBackgroundElement(myGameView);
 			}
 
-			if (quitGame->getIsTriggered())
+			if (quitGame->getIsTriggered() || (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) )
 			{
 				quitGame->setIsTriggered(false); //not particularly necissary but whatever
 

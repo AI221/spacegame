@@ -65,7 +65,9 @@ class GE_HollowRectangleShape : public GE_Shape
 		void render(Vector2r position, Vector2 size);
 		void render(Vector2 position, Vector2 size);
 	private:
-		SDL_Renderer* renderer;
-		SDL_Texture* colorTexture;
+		/*SDL_Renderer* renderer;
+		SDL_Texture* colorTexture;*/
+		GE_RectangleShape* color;
 		double thickness;
+
 };

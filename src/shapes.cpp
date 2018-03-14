@@ -41,7 +41,7 @@ void GE_RectangleShape::render(Vector2 position, Vector2 size)
 
 GE_HollowRectangleShape::GE_HollowRectangleShape(SDL_Renderer* renderer, GE_Color color,double thickness)
 {
-	this->renderer = renderer;
+	/*this->renderer = renderer;
 	SDL_Surface* LoadingSurface;
 
 	LoadingSurface = SDL_CreateRGBSurface(0, 1, 1, 32, 0, 0, 0, 0);
@@ -54,12 +54,13 @@ GE_HollowRectangleShape::GE_HollowRectangleShape(SDL_Renderer* renderer, GE_Colo
 	SDL_SetTextureAlphaMod(colorTexture, color.a);
 
 	SDL_FreeSurface(LoadingSurface);
-
+*/
 	this->thickness = thickness;
+	this->color = new GE_RectangleShape(renderer,color);
 }
 GE_HollowRectangleShape::~GE_HollowRectangleShape()
 {
-	SDL_DestroyTexture(colorTexture);
+	delete color;
 }
 SDL_Point center = {0,0};
 void GE_HollowRectangleShape::render(Vector2r position, Vector2 size)
@@ -96,6 +97,10 @@ void GE_HollowRectangleShape::render(Vector2r position, Vector2 size)
 	for(int i=0;i!=4;i++)
 	{
 		renderPosition = {static_cast<int>(points[i].x+.5),static_cast<int>(points[i].y+.5),static_cast<int>(pointSizes[i].x),static_cast<int>(pointSizes[i].y)};
-		SDL_RenderCopyEx(this->renderer, this->colorTexture, &renderAnimation, &renderPosition,(position.r),&center,SDL_FLIP_NONE); 
+		//SDL_RenderCopyEx(this->renderer, this->colorTexture, &renderAnimation, &renderPosition,(position.r),&center,SDL_FLIP_NONE); 
 	}
+
+	renderPosition = {100,100,100,10};
+	SDL_RenderCopyEx(renderer,colorTexture,&renderAnimation,&renderPosition,45,&center,SDL_FLIP_NONE);
+	GE_DEBUG_DrawRect({100,100,10,10});
 }
