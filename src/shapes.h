@@ -49,8 +49,10 @@ class GE_RectangleShape : public GE_Shape
 	public:
 		GE_RectangleShape(SDL_Renderer* renderer, GE_Color color);
 		~GE_RectangleShape();
+	void render(Vector2r position, Vector2 size,Vector2 axis);
 		void render(Vector2r position, Vector2 size);
 		void render(Vector2 position, Vector2 size);
+		void render(Vector2 start, Vector2 end, double thickness);
 	private:
 		SDL_Renderer* renderer;
 		SDL_Texture* colorTexture;

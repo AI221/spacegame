@@ -144,15 +144,18 @@ Vector2r GE_UI_HighlightBox::getDraggableBoxPosition(Vector2r topleftParrentPosi
 			break;
 	}
 	point = point*(levelEditor->levelScale);
-	Vector2 scaledsize = size*levelEditor->levelScale;
 
+	/*
 	point.r = position.r;
 		
-	point = point-(Vector2{scaledsize.x,scaledsize.y}/2);
+	point = point-(Vector2{size.x,size.y}/2);
 	GE_Vector2RotationCCW(&point);
-	point = point+(Vector2{scaledsize.x,scaledsize.y}/2)+Vector2{topleftParrentPosition.x,topleftParrentPosition.y}-(Vector2{style.draggableBoxDiameter,style.draggableBoxDiameter}/2);
+	point = point+(Vector2{size.x,size.y}/2)+Vector2{topleftParrentPosition.x,topleftParrentPosition.y}-(Vector2{style.draggableBoxDiameter,style.draggableBoxDiameter}/2);
+	*/
 
+	point = point+Vector2{topleftParrentPosition.x,topleftParrentPosition.y};
 	point = point-(scaledsize/2);
+	point = point-Vector2{style.draggableBoxDiameter,style.draggableBoxDiameter};
 	point = GE_ApplyCameraOffset(&scaledcamera,point);
 	point = point+Vector2{style.draggableBoxDiameter,style.draggableBoxDiameter};
 	printf("pt %s\n",GE_DEBUG_VectorToString(point).c_str());
@@ -160,8 +163,7 @@ Vector2r GE_UI_HighlightBox::getDraggableBoxPosition(Vector2r topleftParrentPosi
 }
 Vector2r GE_UI_HighlightBox::getTopLeftPosition(Vector2 parrentPosition)
 {
-	Vector2r pos = Vector2r{parrentPosition.x,parrentPosition.y,0};
-	pos+= position;
+	Vector2r pos = position+parrentPosition;
 
 	Vector2r topleftPos = pos;
 	topleftPos.x -= scaledsize.x/2;
@@ -175,22 +177,19 @@ void GE_UI_HighlightBox::render(Vector2 parrentPosition)
 	scaledcamera.pos.y *= levelEditor->levelScale;
 	scaledsize = size*levelEditor->levelScale;
 
-	position.r += 0.01;
-
-
+	position.r += 0.1;
+	//
 	Vector2r topleftPos = getTopLeftPosition(parrentPosition);
 	
 	Vector2r boxpos = getDraggableBoxPosition(topleftPos,hollowBox);
 
-	//boxpos.r -= scaledcamera.pos.r;
-	boxpos.r *= -1;
 	printf("bpos %s",GE_DEBUG_VectorToString(boxpos).c_str());
 
 	box->render(boxpos,size*levelEditor->levelScale);
 
 
 	//render draggable boxes at all 4 corners
-	for (int i=0;i!=9;i++)
+	for (int i=0;i!=8;i++)
 	{
 		draggableBoxes->render(getDraggableBoxPosition(topleftPos,static_cast<internal_draggablebox_position>(i)),{style.draggableBoxDiameter,style.draggableBoxDiameter});
 	}	
@@ -540,6 +539,9 @@ void GE_UI_LevelEditor2D::giveEvent(Vector2 parrentPosition, SDL_Event event)
 	}
 	
 	highlightBox->giveEvent(parrentPosition,event);
+	
+	
+
 }
 
 bool GE_UI_LevelEditor2D::checkIfFocused(int mousex, int mousey)
