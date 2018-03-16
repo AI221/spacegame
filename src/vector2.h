@@ -44,6 +44,21 @@ struct Vector2 : public GE_Serializable
 		this->y=y;
 	}
 	Vector2() {} //allow creation of empty vector
+
+	template<class XY>
+	Vector2(XY vector)
+	{
+		if constexpr(std::is_pointer<XY>::value)
+		{
+			this->x = vector->x;
+			this->y = vector->y;
+		}
+		else
+		{
+			this->x = vector.x;
+			this->y = vector.y;
+		}
+	}
 	double x;
 	double y;
 
@@ -554,3 +569,7 @@ XY GE_FurthestVector(XY origin,XY point1,XY point2)
 }
 
 bool GE_TEST_Vector2();
+
+
+
+Vector2 GE_PointsToRectangle(Vector2 start, Vector2 end,double rotation);

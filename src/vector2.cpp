@@ -75,3 +75,21 @@ bool GE_TEST_Vector2()
 
 	return passedAll;
 }
+
+
+Vector2 GE_PointsToRectangle(Vector2 start, Vector2 end,double rotation)
+{
+	end = end-start;
+	start = {0,0};
+
+	Vector2 centerPoint = (start+end)/2;
+
+	start = start-(centerPoint/2);
+	end = end-(centerPoint/2);
+	GE_Vector2Rotation(&start,rotation);
+	GE_Vector2Rotation(&end,rotation);
+	start = start+(centerPoint/2);
+	end = end+(centerPoint/2);
+
+	return {end.x-start.x,end.y-start.y};
+}

@@ -73,3 +73,6 @@ class GE_HollowRectangleShape : public GE_Shape
 		double thickness;
 
 };
+
+
+

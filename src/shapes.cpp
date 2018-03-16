@@ -47,18 +47,21 @@ void GE_RectangleShape::render(Vector2 start, Vector2 end, double thickness)
 {
 	Vector2r finalposition;
 	Vector2 finalsize;
+	//the line is as big as the distance and as thick as thickness
 	finalsize.x = GE_Distance(start,end);
 	finalsize.y = thickness;
+	//the final starting position
 	finalposition.x = start.x;//-(finalsize.y/2);
 	finalposition.y = start.y-(finalsize.y/2);
 
+	//find the angle between start and end 
 	finalposition.r = asin((end.y-start.y)/finalsize.x);
 	if (end.x < start.x) //correct for sin 
 	{
 		finalposition.r += M_PI;
 		finalposition.r *= -1;
 	}
-	printf("%d : %f\n",(end.x >= start.x),finalposition.r);
+	//render the line. axis of rotation is at the far left in the center of the thickness. 
 	render(finalposition,finalsize,{0,finalsize.y/2});
 }
 
@@ -80,13 +83,11 @@ void GE_HollowRectangleShape::render(Vector2r position, Vector2 size)
 
 	Vector2 points[4];
 	GE_RectangleToPoints({0,0,size.x,size.y},size,points,position);
-	printf("0 ");
+	//render the connection betwen all the points in the rectangle
 	color->render(points[0]-Vector2{thickness/2,0},points[1]+Vector2{thickness/2,0},thickness);
-	printf("1 ");
 	color->render(points[1],points[3],thickness);
-	printf("2! ");
 	color->render(points[2]-Vector2{thickness/2,0},points[3]+Vector2{thickness/2,0},thickness);
-	printf("3 ");
 	color->render(points[2],points[0],thickness);
 
 }
+

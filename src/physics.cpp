@@ -247,7 +247,7 @@ void* GE_physicsThreadMain(void *)
 		
 		startTime = GE_GetUNIXTime();
 		
-		//printf("Try lock physics engine\n");
+		printf("Try lock physics engine\n");
 		pthread_mutex_lock(&PhysicsEngineMutex);	
 		for (int i=0;i<numPhysicsTickPreCallbacks+1;i++)
 		{

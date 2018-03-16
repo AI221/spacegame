@@ -4,6 +4,8 @@
  *
  * Debug-grade renderers for debugging. 
  * DO NOT USE WHILE PERFORMANCE TESTING! Debug renders have a tendancy to cause bad and inconsistant performance.
+ *
+ * _PhysicsPosition functions do not account for rotation - they assume you will lock rotation during debugging.
  */
 #pragma once
 
