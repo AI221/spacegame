@@ -103,7 +103,7 @@ int Inventory::pickup(int itemID)
 	isHoldingItem = true;
 	remove(itemID);
 	return 0;
-};
+}
 int Inventory::transferFromPeer(Inventory* peer, int itemID)
 {
 	int err = add((*(peer->storage.begin()+itemID)));

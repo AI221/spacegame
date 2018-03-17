@@ -217,7 +217,6 @@ void GE_UI_HighlightBox::render(Vector2 parrentPosition)
 	scaledsize = size*levelEditor->levelScale;
 
 	//position.r += 0.01;
-	position.r = 1;
 	
 
 	
@@ -248,9 +247,6 @@ void GE_UI_HighlightBox::render(Vector2 parrentPosition)
 Vector2 resizeAnchoringAPoint(Vector2r anchor,Vector2 center,Vector2 initialSize, Vector2 newSize)
 {
 	Vector2 deltaSize = newSize-initialSize;
-	double distance = GE_Distance(anchor,center);
-
-	double angle = atan( (center.y - anchor.y ) / (center.x - anchor.x));
 
 	Vector2 result = deltaSize/2;
 
@@ -308,41 +304,6 @@ void GE_UI_HighlightBox::giveEvent(Vector2 parrentPosition, SDL_Event event)
 			Vector2 sizeAfterResizingBasedOnCursor= GE_PointsToRectangle(start,end,position.r);
 			sizeAfterResizingBasedOnCursor.x = std::abs(sizeAfterResizingBasedOnCursor.x);
 			sizeAfterResizingBasedOnCursor.y = std::abs(sizeAfterResizingBasedOnCursor.y);
-			/*
-			switch (boxDragged)
-			{
-				case middleLeft:
-					sizeAfterResizingBasedOnCursor.x = size.x;
-					[[fallthrough]];
-				case topLeft:
-					if (!resizeRectangleByCenter)
-					{
-						position = getTopLeftPosition(parrentPosition)+size;
-						position = position-(sizeAfterResizingBasedOnCursor/2);
-					}
-					break;
-				case topRight:
-					//sizeAfterResizingBasedOnCursor.y += size.y;
-					if (!resizeRectangleByCenter)
-					{
-						position = getTopLeftPosition(parrentPosition);
-						//position.y += size.y;
-
-						position.x += sizeAfterResizingBasedOnCursor.x/2;
-						position.y += sizeAfterResizingBasedOnCursor.y/2;
-					}
-				case middleRight:
-					sizeAfterResizingBasedOnCursor.y = size.y;
-					[[fallthrough]];
-				default:
-					if (!resizeRectangleByCenter)
-					{
-						position = getTopLeftPosition(parrentPosition);
-						position = position+(sizeAfterResizingBasedOnCursor/2);
-					}
-					break;
-			}
-			*/
 			if (!resizeRectangleByCenter)
 			{
 				Vector2 movement = (resizeAnchoringAPoint(start_rot,position,size,sizeAfterResizingBasedOnCursor));
@@ -358,9 +319,11 @@ void GE_UI_HighlightBox::giveEvent(Vector2 parrentPosition, SDL_Event event)
 					case topRight:
 						position.x += movement.x;
 						position.y -= movement.y;
+						break;
 					case bottomLeft:
 						position.x -= movement.x;
 						position.y += movement.y;
+						break;
 					default:
 						break;
 				}

@@ -76,7 +76,7 @@ enum GE_LevelEditorObjectProperty_Resizability
 {
 	NONE,
 	WHOLE_OBJECT,
-	ALL_COLLISION_RECTANGLES,
+	USER_DEFINED_SIZE_RECTANGLESALL_COLLISION_RECTANGLES,
 };
 struct GE_LevelEditorObjectProperties
 {

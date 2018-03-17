@@ -24,7 +24,7 @@ if (NOT WINDOWS)
 	set (CMAKE_C_COMPILER "/usr/bin/gcc")
 	set (CMAKE_CXX_COMPILER "/usr/bin/g++")
 
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++17 -march=haswell -g3") 
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++17 -march=haswell -g3 -Wall -Wno-long-long -pedantic -Wswitch -Wimplicit-fallthrough") 
 else ()
 	#win
 	set (CMAKE_SYSTEM_NAME "Windows")

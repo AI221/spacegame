@@ -266,7 +266,7 @@ typename std::enable_if<is_container<typename std::remove_pointer<data>::type>::
 
 
 char* GE_AllocateSerializeString(size_t* bufferUsed, size_t* bufferSize,int serialization_version);
-void GE_FinalizeSerializeString(char** buffer, size_t* bufferUsed, size_t* bufferSize);;
+void GE_FinalizeSerializeString(char** buffer, size_t* bufferUsed, size_t* bufferSize);
 void GE_FreeSerializeString(char* string);
 int GE_GetSerializedVersion(char* string, size_t* bufferUnserialized);
 

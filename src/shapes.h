@@ -37,6 +37,8 @@ class GE_Shape
 {
 	public:
 		virtual void render(Vector2r position, Vector2 size);
+		GE_Shape(){}
+		virtual ~GE_Shape(){}
 };
 
 
