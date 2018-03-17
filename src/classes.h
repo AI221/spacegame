@@ -12,6 +12,7 @@
 #include "threadedEventStack.h"
 #include "serialize.h"
 #include "serializeObject.h"
+#include "levelEditor.h"
 
 class Inventory;
 
@@ -81,7 +82,7 @@ class Subsystem
 
 
 
-class Player : public GE_PhysicsObject
+class Player : public GE_PhysicsObject, public GE_LevelEditorInterface
 {
 	public:
 		Player(SDL_Renderer* renderer);
@@ -99,6 +100,7 @@ class Player : public GE_PhysicsObject
 
 		void serialize(char** buffer, size_t* bufferUsed,size_t* bufferSize);
 		static Player* unserialize(char* buffer, size_t* bufferUnserialized, int version);
+		static GE_PhysicsObject* spawnFromLevelEditor(SDL_Renderer* renderer, Vector2r position);
 	
 	private:
 		GE_RenderedObject* renderObject;
@@ -115,7 +117,7 @@ class Player : public GE_PhysicsObject
 
 };
 
-class Enemie : public GE_PhysicsObject
+class Enemie : public GE_PhysicsObject, public GE_LevelEditorInterface
 {
 	public:
 		Enemie(SDL_Renderer* renderer, Vector2r position, int level);
@@ -125,6 +127,10 @@ class Enemie : public GE_PhysicsObject
 
 		void serialize(char** buffer, size_t* bufferUsed,size_t* bufferSize);
 		static Enemie* unserialize(char* buffer, size_t* bufferUnserialized, int version);
+		static GE_PhysicsObject* spawnFromLevelEditor(SDL_Renderer* renderer, Vector2r position);
+
+		const static std::string name;
+		constexpr const static GE_LevelEditorObjectProperties properties = {NONE};
 	private:
 		GE_RenderedObject* renderObject;
 		SDL_Renderer* renderer;
@@ -138,7 +144,7 @@ class Enemie : public GE_PhysicsObject
 };
 
 
-class BulletType : public GE_PhysicsObject
+class BulletType : public GE_PhysicsObject, public GE_LevelEditorInterface
 {
 	public:
 		BulletType(Vector2r position, Vector2r velocity,double mass);
@@ -162,7 +168,7 @@ class StdBullet : public BulletType //Hah
 };
 
 
-class Wall : public GE_PhysicsObject
+class Wall : public GE_PhysicsObject, GE_LevelEditorInterface
 {
 	public:
 		Wall(SDL_Renderer* renderer, Vector2r position, GE_Rectangle shape, double mass);
@@ -170,6 +176,10 @@ class Wall : public GE_PhysicsObject
 
 		void serialize(char** buffer, size_t* bufferUsed,size_t* bufferSize);
 		static Wall* unserialize(char* buffer, size_t* bufferUnserialized, int version);
+		static GE_PhysicsObject* spawnFromLevelEditor(SDL_Renderer* renderer, Vector2r position);
+
+		const static std::string name;
+		constexpr const static GE_LevelEditorObjectProperties properties = {ALL_COLLISION_RECTANGLES};
 	private:
 		GE_RenderedObject* renderObject;
 		GE_Rectangle shape;

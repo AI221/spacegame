@@ -19,9 +19,8 @@
 
 typedef unsigned long long class_id_t;
 
-std::vector<std::string> classNames;
-std::vector<GE_NewObject_t> classCreationFunctions;
-std::vector<GE_LevelEditorObjectProperties> classProperties;
+std::vector <std::string> classNames;
+std::vector <GE_NewObject_t> classCreationFunctions;
 //map our internal number to the real one
 std::map<class_id_t,class_id_t> classRealTypeIDToLevelTypeID;
 
@@ -195,7 +194,7 @@ Vector2r GE_UI_HighlightBox::getDraggableBoxPosition(Vector2r topleftParrentPosi
 	if (addCamera)
 	{
 		point = GE_ApplyCameraOffset(&scaledcamera,point);
-		//printf("pt %s\n",GE_DEBUG_VectorToString(point).c_str());
+		printf("pt %s\n",GE_DEBUG_VectorToString(point).c_str());
 	}
 	return point;
 }
@@ -217,7 +216,6 @@ void GE_UI_HighlightBox::render(Vector2 parrentPosition)
 	scaledsize = size*levelEditor->levelScale;
 
 	//position.r += 0.01;
-	position.r = 1;
 	
 
 	
@@ -229,7 +227,7 @@ void GE_UI_HighlightBox::render(Vector2 parrentPosition)
 
 	//boxpos.r -= scaledcamera.pos.r;
 	boxpos.r *= -1;
-	//printf("bpos %s",GE_DEBUG_VectorToString(boxpos).c_str());
+	printf("bpos %s",GE_DEBUG_VectorToString(boxpos).c_str());
 
 	box->render(boxpos,size*levelEditor->levelScale);
 
@@ -252,9 +250,10 @@ Vector2 resizeAnchoringAPoint(Vector2r anchor,Vector2 center,Vector2 initialSize
 
 	double angle = atan( (center.y - anchor.y ) / (center.x - anchor.x));
 
-	Vector2 result = deltaSize/2;
+	Vector2 result = deltaSize;//{distance/2,0};
+	return result;
 
-	GE_Vector2RotationCCW(&result,anchor.r);
+	GE_Vector2RotationCCW(&result,angle);
 
 	return result;
 }
@@ -345,26 +344,9 @@ void GE_UI_HighlightBox::giveEvent(Vector2 parrentPosition, SDL_Event event)
 			*/
 			if (!resizeRectangleByCenter)
 			{
-				Vector2 movement = (resizeAnchoringAPoint(start_rot,position,size,sizeAfterResizingBasedOnCursor));
-				switch(boxDragged)
-				{
-					case topLeft:
-					
-						position = position-movement;
-						break;
-					case bottomRight:
-						position = position+movement;
-						break;
-					case topRight:
-						position.x += movement.x;
-						position.y -= movement.y;
-					case bottomLeft:
-						position.x -= movement.x;
-						position.y += movement.y;
-					default:
-						break;
-				}
-
+				Vector2 _position = position-(resizeAnchoringAPoint(start_rot,position,size,sizeAfterResizingBasedOnCursor));
+				GE_DEBUG_DrawRect_PhysicsPosition({_position.x,_position.y,2,2},{0x0f,0xff,0x33,0xff});
+				position = _position
 			}
 
 
@@ -561,7 +543,7 @@ void GE_UI_LevelEditor2D::giveEvent(Vector2 parrentPosition, SDL_Event event)
 			{
 				case 0:
 					pthread_mutex_lock(&PhysicsEngineMutex);
-					classCreationFunctions[clicked.trail[1]](renderer,Vector2r{tempvector.x,tempvector.y,camera->pos.r});
+					classCreationFunctions[clicked.trail[1]](Vector2r{tempvector.x,tempvector.y,camera->pos.r});
 					pthread_mutex_unlock(&PhysicsEngineMutex);
 					break;
 				case 1:
@@ -716,10 +698,9 @@ void GE_UI_LevelEditor2D::getRealWorldCursorPosition(double* x, double* y)
 
 }
 
-void internal_RegisterClassWithLevelEditor(std::string name, GE_NewObject_t allocationFunction, unsigned long long classID,GE_LevelEditorObjectProperties properties)
+void GE_RegisterClassWithLevelEditor(std::string name, GE_NewObject_t allocationFunction, unsigned long long classID)
 {
 	classNames.push_back(name);
 	classCreationFunctions.push_back(allocationFunction);
 	classRealTypeIDToLevelTypeID.insert(std::make_pair(classID,classNames.size()));	
-	classProperties.push_back(properties);
 }

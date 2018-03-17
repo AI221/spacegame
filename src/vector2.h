@@ -228,6 +228,8 @@ struct Vector2r : public GE_Serializable
 
 		return newVector;
 	}
+	//TODO: Broken
+	/*
 	GE_FORCE_INLINE Vector2r operator+=(Vector2r other)
 	{
 		return operator+(other);
@@ -236,6 +238,7 @@ struct Vector2r : public GE_Serializable
 	{
 		return operator-(other);
 	}
+	*/
 	GE_FORCE_INLINE void abs()
 	{
 		x = std::abs(x);

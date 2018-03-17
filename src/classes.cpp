@@ -12,7 +12,6 @@
 #include "minimap.h"
 #include "inventory.h"
 #include "raycast.h"
-#include "levelEditor.h"
 
 #include "GeneralEngineCPP.h"
 
@@ -201,6 +200,7 @@ Player::Player(SDL_Renderer* renderer) : GE_PhysicsObject({0,0,0},{0,0,0},25)
 	dampeners = false;
 
 	//tracker = GE_AddTrackedObject(type,this);
+	
 }
 Player::~Player()
 {
@@ -233,6 +233,10 @@ Player* Player::unserialize(char* buffer, size_t* bufferUnserialized,int version
 	delete _position;
 	delete _velocity;
 	return newObj;
+}
+GE_PhysicsObject* Player::spawnFromLevelEditor(SDL_Renderer* renderer, Vector2r position)
+{
+//TODO	
 }
 
 
@@ -745,6 +749,13 @@ bool Enemie::C_Update()
 
 	return false;
 }
+
+
+
+
+
+
+const std::string Enemie::name = "Enemy";
 bool Enemie::C_Collision(GE_PhysicsObject* victim, int collisionRectangleID)
 {
 	printf("enemy coll\n");
@@ -761,7 +772,10 @@ bool Enemie::C_Collision(GE_PhysicsObject* victim, int collisionRectangleID)
 
 	return false;
 }
-
+GE_PhysicsObject* Enemie::spawnFromLevelEditor(SDL_Renderer* renderer, Vector2r position)
+{
+	return static_cast<GE_PhysicsObject*>(new Enemie(GE_DEBUG_Renderer,position,0));
+}
 
 
 BulletType::BulletType(Vector2r position, Vector2r velocity, double mass) : GE_PhysicsObject(position,velocity, mass)
@@ -798,6 +812,8 @@ StdBullet::~StdBullet()
 
 }
 
+
+const std::string Wall::name = std::string("Wall");
 Wall::Wall(SDL_Renderer* renderer, Vector2r position, GE_Rectangle shape, double mass) : GE_PhysicsObject(position,Vector2r{0,0,0},mass)
 {
 	this->shape = shape;
@@ -849,13 +865,9 @@ Wall* Wall::unserialize(char* buffer, size_t* bufferUnserialized,int version)
 	return newObj;
 }
 
-GE_PhysicsObject* LevelEditor_NewWall(Vector2r position)
+GE_PhysicsObject* Wall::spawnFromLevelEditor(SDL_Renderer* renderer, Vector2r position)
 {
 	return static_cast<GE_PhysicsObject*>(new Wall(GE_DEBUG_Renderer,position,GE_Rectangle{0,0,100,10},100)); 
-}
-GE_PhysicsObject* LevelEditor_NewEnemie(Vector2r position)
-{
-	return static_cast<GE_PhysicsObject*>(new Enemie(GE_DEBUG_Renderer,position,0)); 
 }
 void InitClasses()
 {
@@ -867,7 +879,7 @@ void InitClasses()
 	GE_RegisterUnserializationFunction(TYPE_ENEMY,Enemie::unserialize);
 	GE_RegisterUnserializationFunction(TYPE_SHIPWALL,Wall::unserialize);
 
-	GE_RegisterClassWithLevelEditor("Wall",LevelEditor_NewWall,TYPE_SHIPWALL);
-	GE_RegisterClassWithLevelEditor("Enemy",LevelEditor_NewEnemie,TYPE_ENEMY);
+	GE_RegisterClassWithLevelEditor<Wall>(TYPE_SHIPWALL);
+	GE_RegisterClassWithLevelEditor<Enemie>(TYPE_ENEMY);
 }
 

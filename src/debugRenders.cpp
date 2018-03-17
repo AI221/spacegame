@@ -22,9 +22,9 @@ const double scale = 1;//0.75;
 
 #define physicsPositionToScreen(position) (position-(Vector2{GE_DEBUG_Camera->pos.x-(GE_DEBUG_Camera->screenWidth/2),GE_DEBUG_Camera->pos.y-(GE_DEBUG_Camera->screenHeight/2)}*scale)  )
 
-SDL_Renderer* GE_DEBUG_Renderer;//memory leak - wontfix
-Camera* GE_DEBUG_Camera; //memory leak - wontfix
-TTF_Font* debugSans; //memory leak - wontfix
+SDL_Renderer* GE_DEBUG_Renderer;
+Camera* GE_DEBUG_Camera; 
+TTF_Font* debugSans; 
 bool isInit = false;
 void init()
 {
