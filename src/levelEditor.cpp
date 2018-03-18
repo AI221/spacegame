@@ -60,13 +60,16 @@ class GE_UI_HighlightBox : GE_UI_Element
 		void render(Vector2 parrentPosition);
 		void giveEvent(Vector2 parrentPosition, SDL_Event event);
 		GE_UI_PositioningRectangle* positioningRectangle;
+
+
+
+		Vector2 size;
 	private:
 		GE_RectangleShape* draggableBoxes;
 		GE_RectangleShape* rotatableBoxes;
 		GE_HollowRectangleShape* box;
 
 		Vector2r position;
-		Vector2 size;
 		Camera* camera;
 		Camera scaledcamera;
 		Vector2 scaledsize;
@@ -175,12 +178,11 @@ Vector2r GE_UI_HighlightBox::getDraggableBoxPosition(Vector2r topleftParrentPosi
 			point = {size.x/2,size.y/2,0};
 			break;
 	}
-	point = point*(levelEditor->levelScale);
-	Vector2 scaledsize = size*levelEditor->levelScale;
+	Vector2 scaledsize = size;//*levelEditor->levelScale;
 
 	point.r = position.r;
 		
-	point = point-(Vector2{scaledsize.x,scaledsize.y}/2);
+	//point = point-(Vector2{scaledsize.x,scaledsize.y}/2);
 	if(box != hollowBox)
 	{
 		point = point-Vector2{style.draggableBoxDiameter/2,style.draggableBoxDiameter/2};
@@ -194,7 +196,9 @@ Vector2r GE_UI_HighlightBox::getDraggableBoxPosition(Vector2r topleftParrentPosi
 
 	if (addCamera)
 	{
+		point = point*(levelEditor->levelScale);
 		point = GE_ApplyCameraOffset(&scaledcamera,point);
+
 		//printf("pt %s\n",GE_DEBUG_VectorToString(point).c_str());
 	}
 	return point;
@@ -597,6 +601,19 @@ void GE_UI_LevelEditor2D::giveEvent(Vector2 parrentPosition, SDL_Event event)
 						updateMovingObjectPosition();
 
 						focusedObjectChangeGlue = GE_addGlueSubject(&(focusedObject->position),&tempvector,GE_PULL_ON_RENDER,sizeof(Vector2r));
+
+						auto objLevelEditorInterface = dynamic_cast<GE_LevelEditorInterface*>(obj);
+						auto rect = objLevelEditorInterface->getRelativeRectangle(0);
+						printf("!! w %f\n",rect.w);
+						rect.x += obj->position.x;
+						rect.y += obj->position.y;
+
+						highlightBox->size.x = rect.w;
+						highlightBox->size.y = rect.h;
+
+
+						
+
 						break;
 					}
 				}

@@ -869,6 +869,14 @@ GE_PhysicsObject* Wall::spawnFromLevelEditor(SDL_Renderer* renderer, Vector2r po
 {
 	return static_cast<GE_PhysicsObject*>(new Wall(GE_DEBUG_Renderer,position,GE_Rectangle{0,0,100,10},100)); 
 }
+GE_Rectangle Wall::getRelativeRectangle(unsigned int rect)
+{
+	return collisionRectangles[0];
+}
+void Wall::setRelativeRectangle(unsigned int rect, GE_Rectangle value)
+{
+	collisionRectangles[0] = value;
+}
 void InitClasses()
 {
 	typeInGroup[TYPE_PLAYER][GROUP_INTELIGENT] = true;//some players shouldn't be in this, but we'll overlook that

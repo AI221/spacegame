@@ -130,7 +130,8 @@ class Enemie : public GE_PhysicsObject, public GE_LevelEditorInterface
 		static GE_PhysicsObject* spawnFromLevelEditor(SDL_Renderer* renderer, Vector2r position);
 
 		const static std::string name;
-		constexpr const static GE_LevelEditorObjectProperties properties = {NONE};
+		constexpr const static GE_LevelEditorObjectProperties properties = {0};
+		
 	private:
 		GE_RenderedObject* renderObject;
 		SDL_Renderer* renderer;
@@ -168,18 +169,22 @@ class StdBullet : public BulletType //Hah
 };
 
 
-class Wall : public GE_PhysicsObject, GE_LevelEditorInterface
+class Wall : public GE_PhysicsObject, public GE_LevelEditorInterface
 {
 	public:
 		Wall(SDL_Renderer* renderer, Vector2r position, GE_Rectangle shape, double mass);
 		~Wall();
 
-		void serialize(char** buffer, size_t* bufferUsed,size_t* bufferSize);
+		void serialize(char** buffer, size_t* bufferUsed,size_t* bufferSize) override;
 		static Wall* unserialize(char* buffer, size_t* bufferUnserialized, int version);
 		static GE_PhysicsObject* spawnFromLevelEditor(SDL_Renderer* renderer, Vector2r position);
 
 		const static std::string name;
-		constexpr const static GE_LevelEditorObjectProperties properties = {ALL_COLLISION_RECTANGLES};
+		constexpr const static GE_LevelEditorObjectProperties properties = {1};
+
+		GE_Rectangle getRelativeRectangle(unsigned int id) override;
+		void setRelativeRectangle(unsigned int id, GE_Rectangle rectangle) override;
+		
 	private:
 		GE_RenderedObject* renderObject;
 		GE_Rectangle shape;

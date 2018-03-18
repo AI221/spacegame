@@ -7,6 +7,8 @@
 #pragma once
 
 #include <functional>
+#include <type_traits>
+#include <cassert>
 
 #include "UI.h"
 
@@ -72,29 +74,47 @@ class GE_UI_LevelEditor2D : public GE_UI_TopLevelElement
 
 };
 
-enum GE_LevelEditorObjectProperty_Resizability
-{
-	NONE,
-	WHOLE_OBJECT,
-	USER_DEFINED_SIZE_RECTANGLESALL_COLLISION_RECTANGLES,
-};
 struct GE_LevelEditorObjectProperties
 {
-	GE_LevelEditorObjectProperty_Resizability resizability;
+	unsigned int numResizableRectangles;
 };
 
 
 /*!
  * Classes which register with the editor must inherit from this interface.
+ *
+ * All static values must be implemented. Their presence in this interface is for human readability purposes only (as they are used by the class registration template)
  */
 class GE_LevelEditorInterface
 {
 	public:
-		GE_LevelEditorObjectProperties properties;
 		/*!
-		 * Required for objects which have WHOLE_OBJECT as their resizability property.
+		 * Returns one of the resizable rectangles.
 		 */
-		virtual void setWholeObjectSize(Vector2 size) {}; 
+		virtual GE_Rectangle getRelativeRectangle(unsigned int id) 
+		{
+			assert(false);
+		};
+
+		/*!
+		 * Sets one of the relative rectangles. Runs with the physics thread locked.
+		 */
+		virtual void setRelativeRectangle(unsigned int id, GE_Rectangle rectangle)
+		{
+			assert(false);
+		};
+
+		/*!
+		 * Simply holds the human-readable name of this class
+		 */
+		const static std::string name;
+
+		/*!
+		 * The non-user-defined properties of this object
+		 */
+		constexpr const static GE_LevelEditorObjectProperties properties = {1};
+		
+		virtual ~GE_LevelEditorInterface(){};
 };
 void internal_RegisterClassWithLevelEditor(std::string name, GE_NewObject_t allocationFunction, unsigned long long classID,GE_LevelEditorObjectProperties properties);
 
@@ -102,6 +122,7 @@ void internal_RegisterClassWithLevelEditor(std::string name, GE_NewObject_t allo
 template <class type>
 void GE_RegisterClassWithLevelEditor(unsigned long long classID)
 {
+	static_assert(std::is_base_of<GE_LevelEditorInterface,type>::value,"GE_RegisterClassWithLevelEditor - Class must inherit from GE_LevelEditorInterface");
 	internal_RegisterClassWithLevelEditor(type::name, type::spawnFromLevelEditor,classID,type::properties);	
 
 }
