@@ -156,3 +156,13 @@ double GE_GetUNIXTime();
 
 
 
+
+//https://stackoverflow.com/a/3418029/8342477
+#ifdef UNUSED
+#elif defined(__GNUC__)
+# define UNUSED(x) UNUSED_ ## x __attribute__((unused))
+#elif defined(__LCLINT__)
+# define UNUSED(x) /*@unused@*/ x
+#else
+# define UNUSED(x) x
+#endif 

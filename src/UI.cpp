@@ -14,9 +14,10 @@
 
 #include "vector2.h"
 #include "shapes.h"
+#include "GeneralEngineCPP.h"
 
 
-void GE_UI_Element::giveEvent(Vector2 parrentPosition, SDL_Event event) {} //defined so that not all derivatives must define it
+void GE_UI_Element::giveEvent(Vector2 UNUSED(parrentPosition), SDL_Event UNUSED(event)) {} //defined so that not all derivatives must define it
 GE_UI_Element::~GE_UI_Element() {}
 
 GE_UI_TopLevelElement::~GE_UI_TopLevelElement() 
@@ -129,7 +130,6 @@ void GE_UI_Text::_init(SDL_Renderer* renderer, Vector2 position, Vector2 size, s
 	Message = NULL; //Initialized Message to NULL so that setText knows it shouldn't be freed ( because it doesn't yet exist)
 	currentText[0] = '\0'; //initialize currentText to be blank
 	setText(text); //Fills Message variable belonging to this class
-	this->wantsEvents = false;
 
 	this->doCenterX = false;
 	this->doCenterY = false;
@@ -137,6 +137,9 @@ void GE_UI_Text::_init(SDL_Renderer* renderer, Vector2 position, Vector2 size, s
 
 	//this->scrollPosition;
 	//this->cursorPosition;
+	
+	
+	this->wantsEvents = false;
 }
 
 GE_UI_Text::GE_UI_Text(SDL_Renderer* renderer, Vector2 position, Vector2 size, std::string text, GE_Color color, TTF_Font* font)
@@ -197,6 +200,8 @@ GE_UI_TextInput::GE_UI_TextInput(SDL_Renderer* renderer, Vector2 position, Vecto
 	this->myText = new GE_UI_Text(renderer,position,size,"",textColor,font);
 	this->text = "";
 	this->isFocused = false; //First catch by cppcheck!
+
+	this->wantsEvents = true;
 }
 GE_UI_TextInput::~GE_UI_TextInput()
 {
@@ -309,9 +314,6 @@ GE_UI_Button::GE_UI_Button(SDL_Renderer* renderer, Vector2 position, Vector2 pad
 {
 	myText = new GE_UI_Text(renderer,position+paddingSize/2,{0,0},text,textColor,font);
 	myText->expandToTextSize();
-	/*myText->setSize({myText->Message_rect.x+(paddingSize.x/2),myText->Message_rect.y+(paddingSize.y/2)});
-	//myText->setPosition({position.x+paddingSize.x/2+myText->Message_rect.x/2,position.y+paddingSize.y/2+myText->Message_rect.y/2});
-	myText->centerX();*/
 	this->renderer = renderer;
 	this->position = position;
 	positionAndSize.x = position.x;
@@ -319,6 +321,7 @@ GE_UI_Button::GE_UI_Button(SDL_Renderer* renderer, Vector2 position, Vector2 pad
 	this->paddingSize = paddingSize;
 	this->color = color;
 	this->pressedColor = pressedColor;
+
 	this->wantsEvents = true;
 }
 GE_UI_Button::~GE_UI_Button()
@@ -347,7 +350,6 @@ void GE_UI_Button::render(Vector2 parrentPosition)
 }
 void GE_UI_Button::render()
 {
-	render({0,0});
 }
 void GE_UI_Button::giveEvent(Vector2 parrentPosition, SDL_Event event)
 {
@@ -469,6 +471,7 @@ GE_Experimental_UI_Button::GE_Experimental_UI_Button(SDL_Renderer* renderer, Vec
 	pressedRectangle = new GE_RectangleShape(renderer,pressedColor);
 	this->pressed = false;
 	this->triggered = false;
+
 	this->wantsEvents = true;
 }
 GE_Experimental_UI_Button::~GE_Experimental_UI_Button()
@@ -633,6 +636,7 @@ GE_UI_DraggableProgressBar::GE_UI_DraggableProgressBar(SDL_Renderer* renderer, V
 	this->size = size;
 
 	this->pollMouse = false;
+
 	this->wantsEvents = true; //Re-set this to true (after been set to false by ProgressBar's constructor
 } 
 GE_UI_DraggableProgressBar::~GE_UI_DraggableProgressBar()
@@ -745,6 +749,8 @@ GE_UI_Surface::GE_UI_Surface(SDL_Renderer* renderer,Vector2 position, Vector2 si
 	this->size = size;
 
 	this->backgroundRect = new GE_RectangleShape(renderer,backgroundColor);
+
+	this->wantsEvents = true;
 }
 GE_UI_Surface::~GE_UI_Surface() 
 {
@@ -900,13 +906,15 @@ void GE_UI_TextList::_construct_step_1(SDL_Renderer* renderer, Vector2 position,
 	this->highlight = new GE_RectangleShape(renderer,style.highlight);
 
 
-	this->wantsEvents = true;
 
 	this->currentClicked.happened = false;
 
 
 	//potentially may set position of sub-menus
 	this->setPosition(position);
+
+
+	this->wantsEvents = true;
 }
 GE_UI_TextList::GE_UI_TextList(SDL_Renderer* renderer, Vector2 position, Vector2 size, std::vector<GE_UI_StringOrDivider> elements, GE_UI_TextListStyle style)
 {
@@ -980,7 +988,7 @@ void GE_UI_TextList::giveEvent(Vector2 parrentPosition, SDL_Event event)
 				currentClicked.happened = true;
 				//check if element is a sub-menu host, which are not actually clickable.
 				int o = 0;
-				for (int elementID : elementsWhichHostDropRightMenus)
+				for (unsigned int elementID : elementsWhichHostDropRightMenus)
 				{
 					if (elementID == spotStruct.ID)
 					{
@@ -1019,7 +1027,7 @@ void GE_UI_TextList::giveEvent(Vector2 parrentPosition, SDL_Event event)
 
 				//if it has a drop down menu, then open it (and add the element to the click trail)
 				int o = 0;
-				for (int elementID : elementsWhichHostDropRightMenus)
+				for (unsigned int elementID : elementsWhichHostDropRightMenus)
 				{
 					if (elementID == spotStruct.ID)
 					{
@@ -1203,6 +1211,7 @@ void GE_UI_InsertOmniEventReciever(GE_UI_OmniEventReciever* element)
 void GE_UI_RemoveOmniEventReciever(GE_UI_OmniEventReciever* element)
 {
 	omniEventRecievers.remove(element);
+	delete element;
 }
 void GE_UI_SetTopElement(GE_UI_TopLevelElement* element)
 {
@@ -1328,19 +1337,18 @@ IntVector2 GE_UI_GetMousePosition()
 
 void GE_ShutdownUI()
 {
-	/*
-	for (GE_UI_TopLevelElement* i : renderOrder) //prblem is that delete removes the obj from this list which fucks it up
-	{
-		printf("Freed a window\n");
-		delete i;
-	}
-	*/
-
+	printf("Called ShutdownUI\n");
 	while (!renderOrder.empty()) //top level elements should remove themselves from the render order list. as a result this part is a little strange.
 	{
 		printf("Freed a window\n");
-		delete *renderOrder.begin();
+		delete *(renderOrder.begin());
+		renderOrder.erase(renderOrder.begin());
 
+	}
+	while(!omniEventRecievers.empty())
+	{
+		delete *(omniEventRecievers.begin());
+		omniEventRecievers.erase(omniEventRecievers.begin());
 	}
 
 }

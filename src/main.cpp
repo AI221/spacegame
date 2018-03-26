@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <pthread.h>
 #include <math.h>
 
+#include <memory>
 #include <vector>
 #include <functional>
 #include <string>
@@ -51,6 +52,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "FS.h"
 #include "serialize.h"
 #include "levelEditor.h"
+#include "threadeddelete.h"
 
 #ifdef GE_DEBUG
 #include "debugRenders.h"
@@ -91,6 +93,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define debug //wheather debug draws, menus, etc. is included. 
 
 
+//#define tickperftest
 
 
 /*LONG-TERM TODO
@@ -172,8 +175,35 @@ void startTheGame()
 	//new Wall(renderer,Vector2r{00,-90,0},GE_Rectangle{0,0,200,10},25);
 	//new Wall(renderer,Vector2r{300,-90,0},GE_Rectangle{0,0,200,10},999);
 	//new Enemie(renderer,{0,-250,0},1);
+	int numobjs = 5000;//10000;
+	int iter = sqrt(numobjs);
 
+	for (int y=-(iter/2);y<=iter/2;y++)
+	{
+		for (int x=-(iter/2);x<=iter/2;x++)
+		{
+			double px = static_cast<double>(x*100);
+			double py = static_cast<double>((y*200));
+			if (!(GE_Distance(0,0,px,py) <= 200))
+			{
+				new Wall(renderer,{px,py,0},{0,0,10,10},1);//Enemie(renderer,{static_cast<double>(i*100),200,0},0);
+			}
+		}
+	}
 	pthread_mutex_unlock(&PhysicsEngineMutex);
+}
+void prepareMainMenu()
+{
+	GE_ResetPhysicsEngine();
+
+	Enemie*  lastenemy;
+	for (int i=0;i<20;i++)
+	{	
+		double randomx = rand() % 5000 + 1;
+		double randomy = rand() % 1000 + 1;
+
+		//new Enemie(renderer, {randomx-1500,randomy,0},1);
+	}
 }
 
 
@@ -188,7 +218,7 @@ class UI_HealthView : public GE_UI_Element
 		UI_HealthView(SDL_Renderer* renderer,Vector2 position, Vector2 size, Camera* camera)
 		{
 			this->size = size;
-			mySurface = new GE_UI_Surface(renderer,position,size,GE_Color{0x00,0x33,0x00,255});
+			mySurface = std::unique_ptr<GE_UI_Surface>(new GE_UI_Surface(renderer,position,size,GE_Color{0x00,0x33,0x00,255}));
 
 			numHealthTexts = 0;
 
@@ -198,7 +228,8 @@ class UI_HealthView : public GE_UI_Element
 				GE_UI_Text* newText = new GE_UI_Text(renderer,{size.x/2,15*static_cast<double>(i)},{0,0},"This message should've been updated.", GE_Color{0x66,0xFF,0x00,0xFF},tinySans);
 				newText->centerX();
 				newText->expandToTextSize();
-				printf("add element %d\n",mySurface->addElement(newText));
+				mySurface->addElement(newText);
+
 				healthTexts[numHealthTexts] = newText;
 				GE_LinkGlueToPhysicsObject(player,GE_addGlueSubject(&healthAmmount[numHealthTexts],&(player->iterableSubsystems[numHealthTexts]->health),GE_PULL_ON_PHYSICS_TICK,sizeof(double)) );
 				healthAmmount[numHealthTexts] = 100;
@@ -206,7 +237,6 @@ class UI_HealthView : public GE_UI_Element
 				shakeHealthTillTick[numHealthTexts] = -1;
 				numHealthTexts++;
 			}
-			printf("doneIterable\n");
 			speedText = new GE_UI_Text(renderer,{size.x/2,15*static_cast<double>(numHealthTexts+1)},{0,0},"This message should've been updated.", GE_Color{0x66,0xFF,0x00,0xFF},tinySans);
 
 			speedText->centerX();
@@ -217,11 +247,6 @@ class UI_HealthView : public GE_UI_Element
 			GE_LinkVectorToPhysicsObjectVelocity(player,&playerSpeed);
 
 			this->wantsEvents = false;
-		}
-
-		~UI_HealthView()
-		{
-			delete mySurface; //removes elements added
 		}
 		void render(Vector2 parrentPosition)
 		{
@@ -257,7 +282,7 @@ class UI_HealthView : public GE_UI_Element
 		Vector2 size;
 
 		int numHealthTexts;
-		GE_UI_Surface* mySurface;
+		std::unique_ptr<GE_UI_Surface> mySurface;
 		GE_UI_Text* healthTexts[MAX_SUBSYSTEMS];
 		double lastHealth[MAX_SUBSYSTEMS];
 		int shakeHealthTillTick[MAX_SUBSYSTEMS]; //stores what tick shaking the object will stop, or -1 if the object is not shaking
@@ -279,7 +304,7 @@ class UI_WorldView : public GE_UI_Element //Includes stars and rendered objects 
 			this->camera = camera;
 
 			//create a surface to put everything on
-			mySurface = new GE_UI_Surface(renderer,position,size,gameBackgroundColor);
+			mySurface = std::unique_ptr<GE_UI_Surface>(new GE_UI_Surface(renderer,position,size,gameBackgroundColor));
 
 			//stars should be background elements so add them first
 #define additionalStars 3
@@ -300,10 +325,6 @@ class UI_WorldView : public GE_UI_Element //Includes stars and rendered objects 
 
 			this->wantsEvents = true;
 		}
-		~UI_WorldView()
-		{
-			delete mySurface; //the surface will automatically free any elements added to it
-		}
 		void render(Vector2 parrentPosition)
 		{
 			mySurface->render(parrentPosition);	
@@ -314,7 +335,7 @@ class UI_WorldView : public GE_UI_Element //Includes stars and rendered objects 
 		}
 	private:
 		Camera* camera;
-		GE_UI_Surface* mySurface;
+		std::unique_ptr<GE_UI_Surface> mySurface;
 };
 class UI_GameView : public GE_UI_TopLevelElement //Includes a UI_WorldView and HUD elements
 {
@@ -324,7 +345,7 @@ class UI_GameView : public GE_UI_TopLevelElement //Includes a UI_WorldView and H
 				this->position = position;
 				this->size = size;
 
-				mySurface = new GE_UI_Surface(renderer,position,size,GE_Color{0x00,0x00,0x00,0x00}); //background color doesn't actually matter; the WorldView fills the surface
+				mySurface = std::unique_ptr<GE_UI_Surface>(new GE_UI_Surface(renderer,position,size,GE_Color{0x00,0x00,0x00,0x00})); //background color doesn't actually matter; the WorldView fills the surface
 				//add the WorldView first to put it in the background
 				worldView = new UI_WorldView(renderer,position,size,camera);
 				mySurface->addElement(worldView);
@@ -334,10 +355,6 @@ class UI_GameView : public GE_UI_TopLevelElement //Includes a UI_WorldView and H
 				mySurface->addElement( new GE_UI_Minimap(renderer, {0,0},{150,150},0.02, {0x00,0x33,0x00,255},{0x33,0x99,0x00,0xFF}, camera) ); 
 
 				this->wantsEvents = true;
-		}
-		~UI_GameView()
-		{
-			delete mySurface; //surfaces will automatically deleted elements added to them
 		}
 		void render(Vector2 parrentPosition)
 		{
@@ -352,14 +369,13 @@ class UI_GameView : public GE_UI_TopLevelElement //Includes a UI_WorldView and H
 			return checkIfFocused_ForBox(mousex,mousey,position,size);
 		}
 	private:
-		GE_UI_Surface* mySurface;
+		std::unique_ptr<GE_UI_Surface> mySurface;
 		UI_WorldView* worldView;
 		Vector2 position;
 		Vector2 size;
 };
 
 
-UI_GameView* myGameView;
 
 class UI_MainMenu : public GE_UI_TopLevelElement
 {
@@ -370,9 +386,11 @@ class UI_MainMenu : public GE_UI_TopLevelElement
 			this->position = position;
 			this->size = size;
 
+			prepareMainMenu();
+
 
 			//put everything on a surface. this handles rendering order, and deletes stuff put on it when deleted.
-			mySurface = new GE_UI_Surface(renderer,position,size,gameBackgroundColor);
+			mySurface = std::unique_ptr<GE_UI_Surface>(new GE_UI_Surface(renderer,position,size,gameBackgroundColor));
 
 
 			//create some stars, and times the location the camera is at differently to give the illusion of depth
@@ -387,6 +405,7 @@ class UI_MainMenu : public GE_UI_TopLevelElement
 			mySurface->addElement( new GE_Stars(renderer, 50*additionalStars, maxScreenSize,maxScreenSize,starSizes,0.833333333/2,starColors,&camera) ); 
 			mySurface->addElement( new GE_Stars(renderer, 20*additionalStars, maxScreenSize,maxScreenSize,starSizes,1.8, starColors,&camera ) );
 
+			mySurface->addElement(new GE_UI_GameRender(renderer, position,size,&camera,0.75));
 
 			lastTick = rendererThreadsafeTicknum;
 
@@ -437,12 +456,15 @@ class UI_MainMenu : public GE_UI_TopLevelElement
 			
 			mySurface->addElement(copyright);
 
+			#ifdef tickperftest
+				startGame->setIsTriggered(true);
+			#endif
+
 
 
 		}
 		void render(Vector2 parrentPosition)
 		{
-			int dt = rendererThreadsafeTicknum-lastTick; //get ticks since last call
 			camera.pos = {static_cast<double>(rendererThreadsafeTicknum)*3,0,0};
 			titleText->setPosition({size.x/2,((size.y/2)-(250))+(std::sin((static_cast<double>(rendererThreadsafeTicknum)/60)))*20});
 			mySurface->render(parrentPosition);
@@ -460,7 +482,7 @@ class UI_MainMenu : public GE_UI_TopLevelElement
 				startTheGame();
 	
 				
-				myGameView = new UI_GameView(renderer,{0,0},{static_cast<double>(camera.screenWidth),static_cast<double>(camera.screenHeight)},&camera);
+				auto myGameView = new UI_GameView(renderer,{0,0},{static_cast<double>(camera.screenWidth),static_cast<double>(camera.screenHeight)},&camera);
 
 				//simply set the game view to the new background. only one background may exist
 				GE_UI_SetBackgroundElement(myGameView);
@@ -474,7 +496,8 @@ class UI_MainMenu : public GE_UI_TopLevelElement
 				SDL_Event quitEvent;
 				quitEvent.type = SDL_QUIT;
 				SDL_PushEvent(&quitEvent);
-				delete this; //Now that's a rarity
+
+				//the ui system will free this.
 			}
 			if (levelEditorButton->getIsTriggered())
 			{
@@ -489,6 +512,7 @@ class UI_MainMenu : public GE_UI_TopLevelElement
 					style,
 					rclickstyle
 				};
+				GE_ResetPhysicsEngine();
 				GE_UI_SetBackgroundElement(new GE_UI_LevelEditor2D(renderer,position,size,newstyle));
 			}
 		}
@@ -501,7 +525,7 @@ class UI_MainMenu : public GE_UI_TopLevelElement
 		SDL_Renderer* renderer;
 		Vector2 position;
 		Vector2 size;
-		GE_UI_Surface* mySurface;
+		std::unique_ptr<GE_UI_Surface> mySurface;
 
 		GE_Experimental_UI_Button* startGame;
 		int lastTick;
@@ -543,7 +567,7 @@ class MyOmniEventReciever : public GE_UI_OmniEventReciever
 				else if (event.key.keysym.sym == SDLK_ESCAPE)
 				{
 					GE_UI_SetBackgroundElement(myMainMenu);
-					GE_ResetPhysicsEngine();
+					prepareMainMenu();
 				}
 			}
 		
@@ -614,29 +638,32 @@ int main(int argc, char* argv[])
 	GE_GlueTarget* ticknumGlue = GE_addGlueSubject(&rendererThreadsafeTicknum,&ticknum, GE_PULL_ON_PHYSICS_TICK,sizeof(int));
 	
 	
-	GE_UI_Text* GameOver = new GE_UI_Text(renderer,{static_cast<double>(camera.screenWidth/2),static_cast<double>(camera.screenHeight/2)},{0,0},"GAME OVER!",{0xFF,0x00,0x00,0xFF},bigSans);
+	/*
+	auto GameOver = std::make_unique<GE_UI_Text>(GE_UI_Text(renderer,{static_cast<double>(camera.screenWidth/2),static_cast<double>(camera.screenHeight/2)},{0,0},"GAME OVER!",{0xFF,0x00,0x00,0xFF},bigSans));
 	GameOver->center();
 	GameOver->expandToTextSize();
+	*/
 
 	
 #ifdef GE_DEBUG
 		GE_DEBUG_PassRenderer(renderer,&camera);
 #endif
 
-	GE_UI_Window* window = new GE_UI_Window(renderer,"INVENTORY",{250,250},{618,320},style);
-	myMainMenu = new UI_MainMenu(renderer,Vector2{0.f,0.f},Vector2{static_cast<double>(camera.screenWidth),static_cast<double>(camera.screenHeight)});
-	GE_UI_SetBackgroundElement(myMainMenu);
 
 	printf("Done with initial setup. Unlocking physics engine.\n");
 	pthread_mutex_unlock(&PhysicsEngineMutex);
 
 	//initialize our omni event handler
 	MyOmniEventReciever* myOmniEventReciever = new MyOmniEventReciever();
-	GE_UI_InsertOmniEventReciever(myOmniEventReciever);
+	GE_UI_InsertOmniEventReciever(myOmniEventReciever); //will me memory managed by the UI library
 
 
 	//initialize our game-specific classes
 	InitClasses();
+
+	myMainMenu = new UI_MainMenu(renderer,Vector2{0.f,0.f},Vector2{static_cast<double>(camera.screenWidth),static_cast<double>(camera.screenHeight)});
+	GE_UI_SetBackgroundElement(myMainMenu);
+
 
 
 	while (true)
@@ -648,11 +675,11 @@ int main(int argc, char* argv[])
 		GE_RUN_UNIT_TEST(GE_TEST_FS);
 		GE_RUN_UNIT_TEST(GE_TEST_SerializeBasic);
 		GE_RUN_UNIT_TEST(GE_TEST_Vector2);
+		GE_RUN_UNIT_TEST(GE_TEST_ThreadedDelete);
 		printf("-------------END UNIT TESTS-------------\n");
 		break;
 #endif
 
-//#define tickperftest
 #ifdef tickperftest
 		if (rendererThreadsafeTicknum >= 30)
 		{
@@ -660,8 +687,15 @@ int main(int argc, char* argv[])
 		}
 
 #endif
-
+		int _prevtick = rendererThreadsafeTicknum;
 		GE_GlueRenderCallback(); //update all positions from the buffer
+		if ((_prevtick+1) < rendererThreadsafeTicknum)
+		{
+			printf("Renderer lag! Skipped %d ticks", (rendererThreadsafeTicknum-_prevtick));
+		}
+		//SDL_Delay(32);
+		//printf("rtick \n");
+
 
 
 #ifdef NO_CAMERA_ROTATE
@@ -698,8 +732,6 @@ int main(int argc, char* argv[])
 	}
 	printf("--BEGIN SHUTDOWN--\n");
 	GE_FreeGlueObject(ticknumGlue);
-	delete GameOver;
-	delete myOmniEventReciever;
 	GE_Shutdown();
 	SDL_DestroyWindow(myWindow);
 	SDL_DestroyRenderer(renderer);
@@ -1087,8 +1119,6 @@ int main(int argc, char *argv[])
 	GE_FreeStars(stars3);
 	GE_FreeStars(stars4);
 	GE_FreeStars(stars5);
-
-	delete myOmniEventReciever;
 
 	printf("--Engine shutdown--\n");
 	pthread_mutex_unlock(&PhysicsEngineMutex);

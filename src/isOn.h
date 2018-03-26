@@ -6,4 +6,6 @@
  */
 #pragma once
 
-extern bool GE_IsOn;
+#include <atomic>
+
+extern std::atomic<bool> GE_IsOn;

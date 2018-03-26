@@ -15,6 +15,8 @@ JUST MEMCPY OVER THE CHAR* ARRAY. NO NEED FOR THIS BULLSHIT
 
 //some more thoughts, all those uis and stuff that are using glue can be left as-is if glue is fully networked...
 
+/*
+
 void parseAddRenderedObject(char* bytes, size_t size)
 {
 
@@ -95,4 +97,5 @@ void parse(GE_NetworkSocket* recieverSocket)
 }
 
 
+*/
 #endif

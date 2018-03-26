@@ -108,7 +108,7 @@ DirList GE_ListInDir(std::string directory)
 unsigned int GE_GetFileExtensionPosition(std::string fullfilename)
 {
 	int position = -1;
-	for (int i=0;i<=fullfilename.size();i++)
+	for (unsigned int i=0;i<=fullfilename.size();i++)
 	{
 		if (fullfilename[i] == '.')
 		{
@@ -126,7 +126,7 @@ unsigned int GE_GetFileExtensionPosition(const char* fullfilename)
 unsigned int GE_GetParrentDirectoryPosition(std::string fullfilename)
 {
 	int position = -1;
-	for (int i=0;i<=fullfilename.size();i++)
+	for (unsigned int i=0;i<=fullfilename.size();i++)
 	{
 		if (fullfilename[i] == '/')
 		{

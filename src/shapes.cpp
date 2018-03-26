@@ -5,7 +5,7 @@
 //needed for rectangle to points
 #include "physics.h"
 
-void GE_Shape::render(Vector2r position, Vector2 size) {}
+void GE_Shape::render(Vector2r UNUSED(position), Vector2 UNUSED(size)) {}
 
 GE_RectangleShape::GE_RectangleShape(SDL_Renderer* renderer, GE_Color color)
 {
@@ -51,7 +51,7 @@ void GE_RectangleShape::render(Vector2 start, Vector2 end, double thickness)
 	finalsize.x = GE_Distance(start,end);
 	finalsize.y = thickness;
 	//the final starting position
-	finalposition.x = start.x;//-(finalsize.y/2);
+	finalposition.x = start.x;
 	finalposition.y = start.y-(finalsize.y/2);
 
 	//find the angle between start and end 

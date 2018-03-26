@@ -86,13 +86,13 @@ int Inventory::add(ItemStack item)
 	currentMass += newItemMass;
 	return 0;
 }
-void Inventory::remove(int itemID)
+void Inventory::remove(unsigned int itemID)
 {
 	auto it = storage.begin()+itemID;
 	currentMass -= getItemMass((*it).item);
 	storage.erase(it);
 }
-int Inventory::pickup(int itemID)
+int Inventory::pickup(unsigned int itemID)
 {
 	if (isHoldingItem || (itemID >= storage.size()))
 	{
@@ -104,7 +104,7 @@ int Inventory::pickup(int itemID)
 	remove(itemID);
 	return 0;
 }
-int Inventory::transferFromPeer(Inventory* peer, int itemID)
+int Inventory::transferFromPeer(Inventory* peer, unsigned int itemID)
 {
 	int err = add((*(peer->storage.begin()+itemID)));
 	if (err == 0)
@@ -143,12 +143,12 @@ Vector2r Inventory::getPosition()
 }
 struct SchedulePickup
 {
-	int itemID;
+	unsigned int itemID;
 };
 struct ScheduleTransfer
 {
 	Inventory* peer;
-	int itemID;
+	unsigned int itemID;
 };
 struct ScheduleTransferHeld
 {
@@ -199,7 +199,7 @@ void Inventory::handleSchedules()
 	pthread_mutex_unlock(&schedulemutex);
 }
 
-void Inventory::schedulePickup(int itemID)
+void Inventory::schedulePickup(unsigned int itemID)
 {
 	pthread_mutex_lock(&schedulemutex);
 	USchedule u;
@@ -208,7 +208,7 @@ void Inventory::schedulePickup(int itemID)
 	pthread_mutex_unlock(&schedulemutex);
 }
 
-void Inventory::scheduleTransferFromPeer(Inventory* peer, int itemID)
+void Inventory::scheduleTransferFromPeer(Inventory* peer, unsigned int itemID)
 {
 	pthread_mutex_lock(&schedulemutex);
 	USchedule u;
@@ -240,7 +240,7 @@ void renderInventoryBox(ItemStack* stack, Vector2 position, GE_UI_Text* ammountT
 
 
 
-UI_FloatingInventoryElement::UI_FloatingInventoryElement(SDL_Renderer* renderer)
+UI_FloatingInventoryElement::UI_FloatingInventoryElement(SDL_Renderer* UNUSED(renderer))
 {
 }
 void UI_FloatingInventoryElement::render(Vector2 parrentPosition)
@@ -250,11 +250,11 @@ void UI_FloatingInventoryElement::render(Vector2 parrentPosition)
 		renderInventoryBox(&globalHeldItemInventory->held, parrentPosition,globalCountText);
 	}
 }
-void UI_FloatingInventoryElement::giveEvent(Vector2 parrentPosition, SDL_Event event)
+void UI_FloatingInventoryElement::giveEvent(Vector2 UNUSED(parrentPosition), SDL_Event UNUSED(event))
 {
 
 }
-bool UI_FloatingInventoryElement::checkIfFocused(int mousex, int mousey)
+bool UI_FloatingInventoryElement::checkIfFocused(int UNUSED(mousex), int UNUSED(mousey))
 {
 	return false;
 }

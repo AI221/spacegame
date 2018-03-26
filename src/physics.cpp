@@ -31,6 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "GeneralEngineCPP.h"
 #include "isOn.h"
+#include "threadeddelete.h"
 
 
 #include <unordered_set>
@@ -49,10 +50,10 @@ bool GE_PhysicsEngine_TickingObjectsEnabled = true;
 
 //Config defaults 
 
-double PhysicsDelaySeconds = 0.16667;
+double PhysicsDelaySeconds = 0.1666666666666666666;
 
 
-bool PhysicsEngineThreadShutdown = false;
+std::atomic<bool> PhysicsEngineThreadShutdown(false);
 
 pthread_t PhysicsEngineThread;
 
@@ -64,6 +65,9 @@ int numPhysicsObjects = 0;
 
 
 std::map<physics_area_coord_t,physics_area_t*> world;  //TODO: Re-implemt the sGrid idea but with each area having its own sGrid?
+
+GE_ThreadedDelete<GE_PhysicsObject>* deleter;
+
 
 
 #define checkNotDead(object) (deadPhysicsObjects.find(object) == deadPhysicsObjects.end())
@@ -138,7 +142,7 @@ bool GE_PhysicsObject::C_Update()
 	printf("!!Shouldn't be called!!\n");
 	return false;
 }
-bool GE_PhysicsObject::C_Collision(GE_PhysicsObject* victim, int collisionRectangleID)
+bool GE_PhysicsObject::C_Collision(GE_PhysicsObject* UNUSED(victim), int UNUSED(collisionRectangleID))
 {
 	return false;
 }
@@ -177,6 +181,7 @@ GE_PhysicsObject::~GE_PhysicsObject()
 int GE_PhysicsInit()
 {
 	pthread_create(&PhysicsEngineThread,NULL,GE_physicsThreadMain,NULL );
+	deleter = new GE_ThreadedDelete<GE_PhysicsObject>;
 	return 0;
 }
 void GE_LinkVectorToPhysicsObjectPosition(GE_PhysicsObject* subject, Vector2r* link)
@@ -233,63 +238,8 @@ void GE_AddRelativeVelocity(GE_PhysicsObject* physicsObject, Vector2r moreVeloci
 }
 
 
- 
-void* GE_physicsThreadMain(void *)
-{
-	double startTime, finishTime;
-	while(GE_IsOn)
-	{
-
-#ifdef PHYSICS_DEBUG_SLOWRENDERS
-		if (DEBUG_allowPhysicsTick) //For freezing the physics engine
-		{
-#endif
-		
-		startTime = GE_GetUNIXTime();
-		
-		pthread_mutex_lock(&PhysicsEngineMutex);	
-		for (int i=0;i<numPhysicsTickPreCallbacks+1;i++)
-		{
-			C_PhysicsTickPreCallbacks[i]();
-		}
-		GE_TickPhysics();
-		for (int i=0;i<numPhysicsTickDoneCallbacks+1;i++)
-		{
-			C_PhysicsTickDoneCallbacks[i]();
-		}
-		pthread_mutex_unlock(&PhysicsEngineMutex);
-
-		//wait the rest of the 16.6ms
-		/*printf("time them %f time now %f\n",(float)pt.tv_usec,(float) nt.tv_usec);
-		printf("tick took %f\n",(float)(nt.tv_usec-pt.tv_usec));
-		printf("Unlock physics engine sleep for %f\n",fmax(PhysicsDelaySeconds-(nt.tv_usec-pt.tv_usec),0));*/
-		finishTime = GE_GetUNIXTime();
-		double sleepTime = fmax((PhysicsDelaySeconds-(finishTime-startTime))*10e4,0);
-
-
-		/*printf("delta time %f\n",(finishTime-startTime));
-		printf("sleep time %f\n",sleepTime);
-		printf("finish time %f\n",finishTime);*/
-		usleep(sleepTime); //delay the physics engine thread to get a perfect 16.67ms/tick
-
-		//10e4 is derrived from 10e6 (to take seconds and microseconds and produce seconds with decimals, eg. 1.656785) 
-	
-
-#ifdef PHYSICS_DEBUG_SLOWRENDERS
-		}
-		//SDL_Delay(1); //prevent from taking up a whole core, sdl is available to physics engine in debug mode
-#endif
-
-		
-
-	}
-	printf("Physics Engine thread is shutting down.\n");
-	PhysicsEngineThreadShutdown = true;
-	return (void*)NULL;
-}
-
 //really deletes the object instead of queing for deletion
-void GE_FreePhysicsObject_InternalFullDelete(GE_PhysicsObject* physicsObject) //MUST be allocated with new
+void internal_full_delete(GE_PhysicsObject* physicsObject) //MUST be allocated with new
 {
 
 	allPhysicsObjects.remove(physicsObject);
@@ -307,14 +257,98 @@ void GE_FreePhysicsObject_InternalFullDelete(GE_PhysicsObject* physicsObject) //
 		physicsObject->areas.erase(it);
 	}
 
-	for (int i=0;i<=physicsObject->numGlueTargets;i++)
+	
+	//delete physicsObject;
+	deleter->queue_delete(physicsObject);
+}
+void internal_physics_object_gc_cycle()
+{
+	std::unordered_set<GE_PhysicsObject*>::iterator it;
+	while(!deadPhysicsObjects.empty()) //erase stuff like a queue, cause we're constantly removing things and shifting the iterators arround, this works best
 	{
-		GE_FreeGlueObject(physicsObject->glueTargets[i]);
-		physicsObject->glueTargets[i] = NULL;
+		it = deadPhysicsObjects.begin();
+		if (it == deadPhysicsObjects.end())
+		{
+			break;
+		}
+
+		internal_full_delete(*it);
+		deadPhysicsObjects.erase(it);
 	}
-	delete physicsObject;
+
+	if(wraparround_clamp(ticknum,60)==0)
+	{
+		deleter->force_cylce();
+	}
 }
 
+
+ 
+#include <SDL2/SDL.h>
+void* GE_physicsThreadMain(void *)
+{
+	double startTime, finishTime;
+	while(GE_IsOn.load())
+	{
+
+#ifdef PHYSICS_DEBUG_SLOWRENDERS
+		if (DEBUG_allowPhysicsTick) //For freezing the physics engine
+		{
+#endif
+		
+		startTime = GE_GetUNIXTime();
+
+		pthread_mutex_lock(&PhysicsEngineMutex);	
+		for (int i=0;i<numPhysicsTickPreCallbacks+1;i++)
+		{
+			C_PhysicsTickPreCallbacks[i]();
+		}
+
+
+		GE_TickPhysics();
+		internal_physics_object_gc_cycle();
+
+		for (int i=0;i<numPhysicsTickDoneCallbacks+1;i++)
+		{
+			C_PhysicsTickDoneCallbacks[i]();
+		}
+
+
+
+		pthread_mutex_unlock(&PhysicsEngineMutex);
+
+
+
+
+		//SDL_Delay(1);
+		//wait the rest of the 16.6ms
+		finishTime = GE_GetUNIXTime();
+		double sleepTime = fmax((PhysicsDelaySeconds-(finishTime-startTime))*10e4 ,0);
+		//printf("delay %f\n",sleepTime);
+		//printf("delaysecod %f\n",PhysicsDelaySeconds);
+		//printf("%f\n",finishTime-startTime);
+
+		/*printf("delta time %f\n",(finishTime-startTime));
+		printf("sleep time %f\n",sleepTime);
+		printf("finish time %f\n",finishTime);*/
+
+
+		usleep(sleepTime); //delay the physics engine thread to get a perfect 16.67ms/tick
+
+		//10e4 is derrived from 10e6 (to take seconds and microseconds and produce seconds with decimals, eg. 1.656785) 
+	
+
+#ifdef PHYSICS_DEBUG_SLOWRENDERS
+		}
+#endif
+
+		
+
+	}
+	printf("Physics Engine thread is shutting down.\n");
+	PhysicsEngineThreadShutdown.store(true);
+	pthread_exit(static_cast<void*>(NULL));
+}
 
 void GE_TickPhysics()
 {
@@ -338,18 +372,6 @@ void GE_TickPhysics()
 	localdebug_worldsectors();
 #endif
 
-	std::unordered_set<GE_PhysicsObject*>::iterator it;
-	while(true) //erase stuff like a queue, cause we're constantly removing things and shifting the iterators arround, this works best
-	{
-		it = deadPhysicsObjects.begin();
-		if (it == deadPhysicsObjects.end())
-		{
-			break;
-		}
-
-		GE_FreePhysicsObject_InternalFullDelete(*it);
-		deadPhysicsObjects.erase(it);
-	}
 }
 
 struct InternalResult
@@ -546,12 +568,16 @@ InternalResult GE_TickPhysics_ForObject_Internal(GE_PhysicsObject* cObj, Vector2
 #endif
 			physics_area_coord_t coord = physics_area_coord_t(x,y);
 			auto area_it = world.find(coord);
-			physics_area_t* area = area_it->second;
+			physics_area_t* area;
 			if (area_it == world.end())
 			{
 				world[coord]  = new physics_area_t();
 				area = world[coord];
 				//printf("New map spot!\n");
+			}
+			else
+			{
+				area = area_it->second;
 			}
 			
 
@@ -576,6 +602,7 @@ InternalResult GE_TickPhysics_ForObject_Internal(GE_PhysicsObject* cObj, Vector2
 				{
 					double maxSize = cObj->radius;//fmax(cObj->grid.x, cObj->grid.x); //fmax tested to be about 2x faster than std::max in this situation
 					double theirMaxSize = victimObj->radius;//fmax(victimObj->grid.x, victimObj->grid.x);
+					//take a sphere arround both objects which represents the greatest possible size they could take up. do they collide?
 					if ( ( cObj->position.x+maxSize >= victimObj->position.x-theirMaxSize) && (cObj->position.x-maxSize <= victimObj->position.x+theirMaxSize) && (cObj->position.y+maxSize >= victimObj->position.y-theirMaxSize) && (cObj->position.y-maxSize <=victimObj->position.y+theirMaxSize)) //tested to help a lot as compared to just running a full check.
 					{
 						InternalResult result = GE_CollisionFullCheck(cObj,victimObj);
@@ -607,7 +634,7 @@ bool GE_TickPhysics_ForObject(GE_PhysicsObject* cObj)
 
 
 
-	for (int i = 0; i <= miniTickrate; i++)
+	for (unsigned int i = 0; i <= miniTickrate; i++)
 	{//TODO: Because of this mini-tick system, objects that collide with a i/miniTickrate value of <1 will have non-up-to-date velocities being added. 
 		InternalResult result = GE_TickPhysics_ForObject_Internal(cObj,velocity); 
 		if (result.deleteMe)
@@ -639,7 +666,13 @@ bool GE_TickPhysics_ForObject(GE_PhysicsObject* cObj)
 
 void GE_FreePhysicsObject(GE_PhysicsObject* physicsObject)
 {
+	for (int i=0;i<=physicsObject->numGlueTargets;i++)
+	{
+		GE_FreeGlueObject(physicsObject->glueTargets[i]);
+		physicsObject->glueTargets[i] = NULL;
+	}
 	deadPhysicsObjects.insert(physicsObject);
+	physicsObject->C_Destroyed();
 }
 
 
@@ -783,15 +816,21 @@ std::set<GE_PhysicsObject*> GE_GetObjectsInRadius(Vector2 position, double radiu
 void GE_ResetPhysicsEngine()
 {
 	pthread_mutex_lock(&PhysicsEngineMutex);
+	pthread_mutex_lock(&GlueMutex);
+	GE_GlueSetSafeMode(false);
+
 	for (GE_PhysicsObject* object : allPhysicsObjects)
 	{
 		GE_FreePhysicsObject(object);
 	}
 	ticknum = 0;
+	GE_GlueSetSafeMode(true);
+	pthread_mutex_unlock(&GlueMutex);
 	pthread_mutex_unlock(&PhysicsEngineMutex);
 }
 
 void GE_ShutdownPhysicsEngine()
 {
 	GE_ResetPhysicsEngine();
+	pthread_join(PhysicsEngineThread,NULL);
 }

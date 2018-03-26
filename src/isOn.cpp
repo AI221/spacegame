@@ -1,2 +1,2 @@
 #include "isOn.h"
-bool GE_IsOn;
+std::atomic<bool> GE_IsOn;

@@ -60,3 +60,8 @@ void GE_FreeGlueObject(GE_GlueTarget* subject);
 
 
 
+
+/*!
+ * Weather GE_FreeGlueObject should lock the glue mutex, or wheather you will do it yourself.
+ */
+void GE_GlueSetSafeMode(bool _safe);

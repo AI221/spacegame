@@ -103,14 +103,26 @@ GE_GlueTarget* GE_addGlueSubject(void* updateData, void* pullData, GE_PULL_ON pu
 	return newGlue;
 }
 
+bool safe;
 void GE_FreeGlueObject(GE_GlueTarget* subject)
 {
-	pthread_mutex_lock(&GlueMutex);
-	printf("KILL GLUE OBJECT\n");
+
+	if (safe)
+	{
+		pthread_mutex_lock(&GlueMutex);
+	}
 	targets.remove(subject);
-	pthread_mutex_unlock(&GlueMutex); //no longer in the list of glue targets; thread-safe to unlock now
+	if (safe)
+	{
+		pthread_mutex_unlock(&GlueMutex); //no longer in the list of glue targets; thread-safe to unlock now
+	}
+
 
 	free(subject->buffer);
 
 	delete subject;
+}
+void GE_GlueSetSafeMode(bool _safe)
+{
+	safe = _safe;
 }

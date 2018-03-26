@@ -120,7 +120,6 @@ void GE_FreeRenderedObject(GE_RenderedObject* subject) //will not destroy render
 }
 void GE_ScheduleFreeRenderedObject(GE_RenderedObject* subject)
 {
-	printf("scheduling %d\n",subject);
 	pthread_mutex_lock(&deleteObjectStackMutex);
 
 	scheduleToDelete.push(subject);

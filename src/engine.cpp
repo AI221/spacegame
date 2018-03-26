@@ -23,7 +23,7 @@ static_assert(std::numeric_limits<double>::is_iec559,"Doubles must be implemente
 
 int GE_Init(SDL_Renderer* renderer)
 {
-	GE_IsOn = true;
+	GE_IsOn.store(true);
 	int error;
 	error = GE_SpriteInit(renderer);
 	if (error != 0)
@@ -72,8 +72,8 @@ int GE_Init(SDL_Renderer* renderer)
 void GE_Shutdown()
 {
 	printf("----FULL ENGINE SHUTDOWN----\n");
-	GE_IsOn = false;
-	while (!PhysicsEngineThreadShutdown) //dont want to free physics engine things before it's finished a tick. 
+	GE_IsOn.store(false);
+	while (!PhysicsEngineThreadShutdown.load()) //dont want to free physics engine things before it's finished a tick. 
 	{
 		SDL_Delay(16);
 #ifdef PHYSICS_DEBUG_SLOWRENDERS 

@@ -13,18 +13,19 @@ set (EXECUTABLE_OUTPUT_PATH bin)
 
 set( CMAKE_EXPORT_COMPILE_COMMANDS ON )
 
-set(CMAKE_BUILD_TYPE Debug)
 
 #option
 option(WINDOWS "WINDOWS" OFF)
+option(RELEASE "RELEASE" OFF) #release optimizations, slow compile no debug info
 
+
+#global compilation flags
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++17 -march=haswell -Wall -Wextra -Wno-long-long -pedantic -Wswitch -Wimplicit-fallthrough ")
 
 #nix
 if (NOT WINDOWS)
 	set (CMAKE_C_COMPILER "/usr/bin/gcc")
 	set (CMAKE_CXX_COMPILER "/usr/bin/g++")
-
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++17 -march=haswell -g3 -Wall -Wno-long-long -pedantic -Wswitch -Wimplicit-fallthrough") 
 else ()
 	#win
 	set (CMAKE_SYSTEM_NAME "Windows")
@@ -49,7 +50,7 @@ else ()
 	#set (TARGET_ENVIRONMENT /usr/i686-w64-mingw32)
 	set (CMAKE_FIND_ROOT_PATH ${TARGET_ENVIRONMENT})
 
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -lmingw32 -mwindows -static-libgcc -static-libstdc++ -fpermissive -lws2_32 ")#-g3")-export-dynamic")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}-lmingw32 -mwindows -static-libgcc -static-libstdc++ -fpermissive -lws2_32")
 
 
 
@@ -63,7 +64,19 @@ file(GLOB spacegame_SRC
 
 
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
+if( RELEASE)
+	#append args to flags
+
+	set(CMAKE_BUILD_TYPE Release)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -flto")
+else ()
+	#append args to flags
+	#set(CMAKE_BUILD_TYPE Debug)
+
+	#TODO add fsanitize for leak,address
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb3 -fsanitize=undefined,thread -fstack-protector-all -Wstack-protector -fstack-check -fvtv-counts --param ssp-buffer-size=4  -O0 -fno-omit-frame-pointer -fverbose-asm -mno-omit-leaf-frame-pointer -mtune=generic -fvar-tracking -D_GLIBCXX_DEBUG=1 -frecord-gcc-switches -femit-class-debug-always -fmath-errno -fno-eliminate-unused-debug-symbols -fno-eliminate-unused-debug-types -fno-merge-debug-strings -fexceptions -fvar-tracking -fbounds-check -rdynamic -UNDEBUG -DDEBUG=1 -fno-stack-check")
+endif ()
+
 
 
 

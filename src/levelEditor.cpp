@@ -4,6 +4,7 @@
 #include <set>
 #include <map>
 #include <algorithm>
+#include <memory>
 
 //Local includes
 
@@ -65,14 +66,13 @@ class GE_UI_HighlightBox : GE_UI_Element
 
 		Vector2 size;
 	private:
-		GE_RectangleShape* draggableBoxes;
-		GE_RectangleShape* rotatableBoxes;
-		GE_HollowRectangleShape* box;
+		std::unique_ptr<GE_RectangleShape> draggableBoxes;
+		std::unique_ptr<GE_RectangleShape> rotatableBoxes;
+		std::unique_ptr<GE_HollowRectangleShape> box;
 
 		Vector2r position;
 		Camera* camera;
 		Camera scaledcamera;
-		Vector2 scaledsize;
 		GE_UI_LevelEditor2D* levelEditor;
 
 		GE_UI_HighlightBoxStyle style;
@@ -102,10 +102,10 @@ GE_UI_HighlightBox::GE_UI_HighlightBox(SDL_Renderer* renderer,  Camera* camera, 
 	this->camera = camera;
 	this->levelEditor = levelEditor;
 
-	this->draggableBoxes = new GE_RectangleShape(renderer,style.draggableBoxColor);
-	this->rotatableBoxes = new GE_RectangleShape(renderer,style.rotatableBoxColor);
+	this->draggableBoxes = std::unique_ptr<GE_RectangleShape>(new GE_RectangleShape(renderer,style.draggableBoxColor));
+	this->rotatableBoxes = std::unique_ptr<GE_RectangleShape>(new GE_RectangleShape(renderer,style.rotatableBoxColor));
 
-	this->box = new GE_HollowRectangleShape(renderer,style.boxColor,style.lineThickness);
+	this->box = std::unique_ptr<GE_HollowRectangleShape>(new GE_HollowRectangleShape(renderer,style.boxColor,style.lineThickness));
 
 	isBeingDragged = false;
 	expandByCenter = false;
@@ -113,9 +113,6 @@ GE_UI_HighlightBox::GE_UI_HighlightBox(SDL_Renderer* renderer,  Camera* camera, 
 }
 GE_UI_HighlightBox::~GE_UI_HighlightBox()
 {
-	delete draggableBoxes;
-	delete rotatableBoxes;
-	delete box;
 }
 internal_draggablebox_position getOppositeCorner(internal_draggablebox_position corner)
 {
@@ -138,6 +135,12 @@ internal_draggablebox_position getOppositeCorner(internal_draggablebox_position 
 			break;
 		case middleRight:
 			return middleLeft;
+			break;
+		case middleTop:
+			return middleBottom;
+			break;
+		case middleBottom:
+			return middleTop;
 			break;
 		default:
 			return topLeft;
@@ -178,10 +181,9 @@ Vector2r GE_UI_HighlightBox::getDraggableBoxPosition(Vector2r topleftParrentPosi
 			point = {size.x/2,size.y/2,0};
 			break;
 	}
-	Vector2 scaledsize = size;//*levelEditor->levelScale;
-
 	point.r = position.r;
 		
+	//if (box != hollowBox) point = point+(Vector2{style.draggableBoxDiameter,style.draggableBoxDiameter}/2);
 	//point = point-(Vector2{scaledsize.x,scaledsize.y}/2);
 	if(box != hollowBox)
 	{
@@ -192,15 +194,15 @@ Vector2r GE_UI_HighlightBox::getDraggableBoxPosition(Vector2r topleftParrentPosi
 	{
 		point = point+Vector2{style.draggableBoxDiameter/2,style.draggableBoxDiameter/2};
 	}
-	point = point+(Vector2{scaledsize.x,scaledsize.y}/2)+Vector2{topleftParrentPosition.x,topleftParrentPosition.y}-(Vector2{style.draggableBoxDiameter,style.draggableBoxDiameter}/2);
+	point = point+Vector2{topleftParrentPosition.x,topleftParrentPosition.y};
 
 	if (addCamera)
 	{
-		point = point*(levelEditor->levelScale);
+		point.x = point.x*(levelEditor->levelScale);
+		point.y = point.y*(levelEditor->levelScale);
 		point = GE_ApplyCameraOffset(&scaledcamera,point);
-
-		//printf("pt %s\n",GE_DEBUG_VectorToString(point).c_str());
 	}
+	//if (box != hollowBox) point = point-(Vector2{style.draggableBoxDiameter,style.draggableBoxDiameter}/2);
 	return point;
 }
 Vector2r GE_UI_HighlightBox::getTopLeftPosition(Vector2 parrentPosition)
@@ -208,9 +210,12 @@ Vector2r GE_UI_HighlightBox::getTopLeftPosition(Vector2 parrentPosition)
 	Vector2r pos = Vector2r{parrentPosition.x,parrentPosition.y,0};
 	pos = pos+ position;
 
+
 	Vector2r topleftPos = pos;
-	topleftPos.x -= scaledsize.x/2;
-	topleftPos.y -= scaledsize.y/2;
+	Vector2 rotatedsize = size;
+	GE_Vector2RotationCCW(&rotatedsize,pos.r);
+	topleftPos.x -= rotatedsize.x/2;
+	topleftPos.y -= rotatedsize.y/2;
 	return topleftPos;
 }
 void GE_UI_HighlightBox::render(Vector2 parrentPosition)
@@ -218,13 +223,6 @@ void GE_UI_HighlightBox::render(Vector2 parrentPosition)
 	scaledcamera = *camera;
 	scaledcamera.pos.x *= levelEditor->levelScale;
 	scaledcamera.pos.y *= levelEditor->levelScale;
-	scaledsize = size*levelEditor->levelScale;
-
-	//position.r += 0.01;
-	
-
-	
-
 
 	Vector2r topleftPos = getTopLeftPosition(parrentPosition);
 	
@@ -240,20 +238,32 @@ void GE_UI_HighlightBox::render(Vector2 parrentPosition)
 	for (int i=0;i!=9;i++)
 	{
 		draggableBoxes->render(getDraggableBoxPosition(topleftPos,static_cast<internal_draggablebox_position>(i),true),{style.draggableBoxDiameter,style.draggableBoxDiameter});
-		auto tmp = getDraggableBoxPosition(topleftPos,static_cast<internal_draggablebox_position>(i),true);
-	GE_DEBUG_DrawRect_PhysicsPosition({tmp.x,tmp.y,4,4});
 	}	
-
-	GE_DEBUG_DrawRect_PhysicsPosition({topleftPos.x,topleftPos.y,4,4});
-	
-
 }
-Vector2 resizeAnchoringAPoint(Vector2r anchor,Vector2 center,Vector2 initialSize, Vector2 newSize)
+Vector2 resizeAnchoringAPoint(Vector2r anchor,internal_draggablebox_position movedPoint,Vector2 center,Vector2 initialSize, Vector2 newSize)
 {
 	Vector2 deltaSize = newSize-initialSize;
 
 	Vector2 result = deltaSize/2;
-
+	//adjust which points are anchored by adjusting how the position changes
+	switch(movedPoint)
+	{
+		case middleTop:
+		case middleLeft:
+		case topLeft:
+			result.x *= -1;
+			result.y *= -1;
+			break;
+		case topRight:
+			result.y *= -1;
+			break;
+		case bottomLeft:
+			result.x *= -1;
+			break;
+		case bottomRight:
+		default:
+			break;
+	}
 	GE_Vector2RotationCCW(&result,anchor.r);
 
 	return result;
@@ -261,27 +271,30 @@ Vector2 resizeAnchoringAPoint(Vector2r anchor,Vector2 center,Vector2 initialSize
 
 void GE_UI_HighlightBox::giveEvent(Vector2 parrentPosition, SDL_Event event)
 {
+
+	//Perhaps I should give up on UI code. lol.
+	
+
+
 	scaledcamera = *camera;
 	scaledcamera.pos.x *= levelEditor->levelScale;
 	scaledcamera.pos.y *= levelEditor->levelScale;
-	scaledsize = size*levelEditor->levelScale;
 
 
 	Vector2r topleftPos = getTopLeftPosition(parrentPosition);
 	Vector2 mousepos;
 	levelEditor->getRealWorldCursorPosition(&mousepos.x,&mousepos.y);
+	GE_DEBUG_TextAt(GE_DEBUG_VectorToString(mousepos),Vector2{0,0});
 	
 	if(event.type == SDL_MOUSEBUTTONDOWN)
 	{
-		for(int i=0;i!=8;i++)
+		for(int i=0;i!=9;i++)
 		{
 			Vector2r pos = getDraggableBoxPosition(topleftPos,static_cast<internal_draggablebox_position>(i),false);
-			GE_DEBUG_DrawRect_PhysicsPosition({pos.x,pos.y,2,2},{0xff,0x00,0xff});
-			if (checkIfFocused_ForBox(mousepos.x,mousepos.y,{pos.x,pos.y},Vector2{style.draggableBoxDiameter,style.draggableBoxDiameter}))
+			if (GE_Distance(mousepos,pos) <= (style.draggableBoxDiameter*2)/levelEditor->levelScale) //check if the cursor is in a radius. this makes it much easier to grab the rectangles.
 			{
 				isBeingDragged = true;
 				boxDragged = static_cast<internal_draggablebox_position>(i);
-				printf("i %d\n",i);
 
 				levelEditor->getRealWorldCursorPosition(&initialMousePosition.x,&initialMousePosition.y);
 				
@@ -297,42 +310,46 @@ void GE_UI_HighlightBox::giveEvent(Vector2 parrentPosition, SDL_Event event)
 	{
 		isBeingDragged = false;
 	}
-	if (isBeingDragged && (event.type == SDL_MOUSEMOTION || event.type == SDL_USEREVENT))
+	if (isBeingDragged)
 	{
-		if (static_cast<int>(boxDragged) <= 3 || boxDragged == middleLeft || boxDragged == middleRight)
+		if (static_cast<int>(boxDragged) <= 7) //handle moveable corners
 		{
-			Vector2r start_rot = getDraggableBoxPosition(topleftPos,getOppositeCorner(boxDragged),false)/levelEditor->levelScale;
+			//figure out the new rectangle size by moving a point
+			Vector2r start_rot = getDraggableBoxPosition(topleftPos,getOppositeCorner(boxDragged),false);
 			Vector2 start = start_rot;
 			Vector2 end = mousepos;
 				
+			//find rect size
 			Vector2 sizeAfterResizingBasedOnCursor= GE_PointsToRectangle(start,end,position.r);
+
+
+			//correct for negatives
 			sizeAfterResizingBasedOnCursor.x = std::abs(sizeAfterResizingBasedOnCursor.x);
 			sizeAfterResizingBasedOnCursor.y = std::abs(sizeAfterResizingBasedOnCursor.y);
+			//if they drag a middle one, then they're only resizing in 1 direction
+			switch(boxDragged)
+			{
+				case middleRight:
+					[[fallthrough]];
+				case middleLeft:
+					sizeAfterResizingBasedOnCursor.y = size.y;
+					
+					break;
+				case middleBottom:
+					[[fallthrough]];
+				case middleTop:
+					sizeAfterResizingBasedOnCursor.x = size.x;
+					break;
+				default:
+					break;
+			}
+
+
 			if (!resizeRectangleByCenter)
 			{
-				Vector2 movement = (resizeAnchoringAPoint(start_rot,position,size,sizeAfterResizingBasedOnCursor));
-				switch(boxDragged)
-				{
-					case topLeft:
-					
-						position = position-movement;
-						break;
-					case bottomRight:
-						position = position+movement;
-						break;
-					case topRight:
-						position.x += movement.x;
-						position.y -= movement.y;
-						break;
-					case bottomLeft:
-						position.x -= movement.x;
-						position.y += movement.y;
-						break;
-					default:
-						break;
-				}
-
+				position = position+(resizeAnchoringAPoint(start_rot,boxDragged,position,size,sizeAfterResizingBasedOnCursor));
 			}
+
 
 
 			
@@ -342,11 +359,17 @@ void GE_UI_HighlightBox::giveEvent(Vector2 parrentPosition, SDL_Event event)
 			
 
 		}
+		else if(boxDragged == hollowBox)
+		{
+			position.x = mousepos.x;
+			position.y = mousepos.y;
+		}
 	}
 	else if (event.type == SDL_KEYDOWN)
 	{
 		if (event.key.keysym.sym == SDLK_LSHIFT || event.key.keysym.sym == SDLK_RSHIFT)
 		{
+			printf("!\n");
 			resizeRectangleByCenter = true;
 		}
 	}
@@ -369,7 +392,7 @@ enum class rightClickOptions
 };
 
 GE_UI_HighlightBox* highlightBox;
-GE_UI_HighlightBoxStyle style_highlightBox = {2,4,4,{0x55,0x00,0x00,0xff},{0x00,0xff,0x00,0xff},{0x00,0xff,0x00,0xff}};
+GE_UI_HighlightBoxStyle style_highlightBox = {2,8,4,{0x55,0x00,0x00,0xff},{0x00,0xff,0x00,0xff},{0x00,0xff,0x00,0xff}};
 GE_UI_LevelEditor2D::GE_UI_LevelEditor2D(SDL_Renderer* renderer, Vector2 position, Vector2 size,GE_UI_LevelEditor2DStyle style)
 {
 	this->renderer = renderer;
@@ -501,6 +524,15 @@ void GE_UI_LevelEditor2D::render(Vector2 parrentPosition)
 	SDL_GetMouseState(&screenX,&screenY);
 	GE_DEBUG_DrawRect({static_cast<double>(screenX),static_cast<double>(screenY),2,2});
 	SDL_ShowCursor(SDL_DISABLE);*/
+
+	
+	//give updates to the highlight box - hack
+	
+	{
+		SDL_Event hack;
+		hack.type = SDL_USEREVENT;
+		highlightBox->giveEvent(parrentPosition,hack);
+	}
 
 	highlightBox->render(parrentPosition);
 
@@ -637,7 +669,9 @@ void GE_UI_LevelEditor2D::giveEvent(Vector2 parrentPosition, SDL_Event event)
 	else if(event.type == SDL_USEREVENT)
 	{
 		//TODO HACK
-		GE_UI_RemoveTopLevelElement(rightClickMenu);
+		{
+			GE_UI_RemoveTopLevelElement(rightClickMenu);
+		}
 	}
 
 

@@ -16,10 +16,12 @@
 #include <unordered_map>
 #include <functional>
 #include <vector>
+#include <atomic>
 
 #include "vector2.h"
 #include "gluePhysicsObject.h"
 #include "serialize.h"
+#include "GeneralEngineCPP.h"
 
 //#define PHYSICS_DEBUG_SLOWRENDERS 
 
@@ -53,7 +55,7 @@ extern bool DEBUG_allowPhysicsTick;
 extern double PhysicsDelaySeconds;
 
 
-extern bool PhysicsEngineThreadShutdown;
+extern std::atomic<bool> PhysicsEngineThreadShutdown;
 
 extern bool GE_PhysicsEngine_CollisionsEnabled;
 extern bool GE_PhysicsEngine_TickingObjectsEnabled;
@@ -78,9 +80,16 @@ class GE_PhysicsObject : public GE_Serializable
 {
 	public:
 		GE_PhysicsObject(Vector2r position, Vector2r velocity, double mass);
+
+		/*!
+		 * This should exclusively manage memory. 
+		 *
+		 * Using this for behaviors such as remoivng yourself from a minimap, or sending signals to other objects that you're dead is undefined behavior.
+		 * The destructor is not guarnteed to be called soon after the physics object is destroyed, and it is not guarnteed to run on any particular thread.
+		 */
 		virtual ~GE_PhysicsObject();
 
-		virtual void serialize(char** buffer, size_t* bufferUsed, size_t* bufferSize) {};
+		virtual void serialize(char** UNUSED(buffer), size_t* UNUSED(bufferUsed), size_t* UNUSED(bufferSize)) {};
 
 		
 
@@ -118,6 +127,16 @@ class GE_PhysicsObject : public GE_Serializable
 		 * @return True if you want YOUR physics object to be deleted.
 		 */
 		virtual bool C_Collision(GE_PhysicsObject* victim, int collisionRectangleID);
+
+		/*!
+		 * A callback called upon deletion. Guarnteed to be ran in the same tick as your death. Guarnteed to run on the phyiscs thread.
+		 * 
+		 * Attempting to access memory from this physics object after this function is called is undefined behaviour. In most circumstances, you will want to remove yourself from anythingthat utilizes lists of physics objects (minimap, glue, serialization, etc.)
+		 *
+		 * This is for tasks such as removing yourself from a minimap, or informing the serialization manager that you're dead. Doing this in a destructor is undefined behaviour, as
+		 * the time between a physics object dying and actually being deallocated is non-deterministic and may happen on another thread.
+		 */
+		virtual void C_Destroyed() {};
 
 		/*!
 		 * Weather or not to call the update callback

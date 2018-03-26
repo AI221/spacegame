@@ -14,6 +14,17 @@ typedef std::map<unsigned int, unserializationFunctionDef_t> unserializeFunction
 
 unserializeFunctions_t unserializeFunctions;
 
+
+
+struct noUnserializationFunction : std::exception
+{
+	noUnserializationFunction(unsigned int type)
+	{
+		this->type = type;
+	}
+	unsigned int type;
+	const char* what() const noexcept { return ("Tried to unserialize type "+std::to_string(type)+" which does not have an unserialize function registered.").c_str(); }
+};
 class GE_TrackedObject : GE_Serializable
 {
 	public:
@@ -45,7 +56,14 @@ class GE_TrackedObject : GE_Serializable
 			unsigned int type = GE_Unserialize<unsigned int>(buffer,bufferUnserialized,version);
 			//call unserialization function for type
 			
-			GE_PhysicsObject* newObject = newObject = unserializeFunctions[type](buffer,bufferUnserialized,version);
+			auto it = unserializeFunctions.find(type);
+			if (it == unserializeFunctions.end())
+			{
+				throw new noUnserializationFunction(type);
+				return NULL; //so that the compiler will take a hint and not give me a warning
+			}
+			
+			GE_PhysicsObject* newObject = it->second(buffer,bufferUnserialized,version);
 
 			return new GE_TrackedObject(type,newObject);
 		}

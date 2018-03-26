@@ -87,8 +87,9 @@ class Player : public GE_PhysicsObject, public GE_LevelEditorInterface
 	public:
 		Player(SDL_Renderer* renderer);
 		~Player();
-		bool C_Update();
-		bool C_Collision(GE_PhysicsObject* victim, int collisionRectangleID);
+		void C_Destroyed() override;
+		bool C_Update() override;
+		bool C_Collision(GE_PhysicsObject* victim, int collisionRectangleID) override;
 		bool GetIsOnline();
 		Subsystem* iterableSubsystems[MAX_SUBSYSTEMS];
 		const static int numIterableSubsystems = 8;
@@ -98,7 +99,7 @@ class Player : public GE_PhysicsObject, public GE_LevelEditorInterface
 
 		Inventory* inventory;
 
-		void serialize(char** buffer, size_t* bufferUsed,size_t* bufferSize);
+		void serialize(char** buffer, size_t* bufferUsed,size_t* bufferSize) override;
 		static Player* unserialize(char* buffer, size_t* bufferUnserialized, int version);
 		static GE_PhysicsObject* spawnFromLevelEditor(SDL_Renderer* renderer, Vector2r position);
 	
@@ -122,15 +123,17 @@ class Enemie : public GE_PhysicsObject, public GE_LevelEditorInterface
 	public:
 		Enemie(SDL_Renderer* renderer, Vector2r position, int level);
 		~Enemie();
-		bool C_Update();
-		bool C_Collision(GE_PhysicsObject* victim, int collisionRectangleID);
+		void C_Destroyed() override;
 
-		void serialize(char** buffer, size_t* bufferUsed,size_t* bufferSize);
+		bool C_Update() override;
+		bool C_Collision(GE_PhysicsObject* victim, int collisionRectangleID) override;
+
+		void serialize(char** buffer, size_t* bufferUsed,size_t* bufferSize) override;
 		static Enemie* unserialize(char* buffer, size_t* bufferUnserialized, int version);
 		static GE_PhysicsObject* spawnFromLevelEditor(SDL_Renderer* renderer, Vector2r position);
 
 		const static std::string name;
-		constexpr const static GE_LevelEditorObjectProperties properties = {0};
+		constexpr const static GE_LevelEditorObjectProperties properties = GE_LevelEditorObjectProperties{};
 		
 	private:
 		GE_RenderedObject* renderObject;
@@ -163,6 +166,7 @@ class StdBullet : public BulletType //Hah
 	public: 
 		StdBullet(SDL_Renderer* renderer, Vector2r position, const char* spriteName);
 		~StdBullet();
+		void C_Destroyed();
 
 	private:
 		GE_RenderedObject* renderObject;
@@ -174,13 +178,15 @@ class Wall : public GE_PhysicsObject, public GE_LevelEditorInterface
 	public:
 		Wall(SDL_Renderer* renderer, Vector2r position, GE_Rectangle shape, double mass);
 		~Wall();
+		void C_Destroyed() override;
+
 
 		void serialize(char** buffer, size_t* bufferUsed,size_t* bufferSize) override;
 		static Wall* unserialize(char* buffer, size_t* bufferUnserialized, int version);
 		static GE_PhysicsObject* spawnFromLevelEditor(SDL_Renderer* renderer, Vector2r position);
 
 		const static std::string name;
-		constexpr const static GE_LevelEditorObjectProperties properties = {1};
+		constexpr const static GE_LevelEditorObjectProperties properties = GE_LevelEditorObjectProperties{};
 
 		GE_Rectangle getRelativeRectangle(unsigned int id) override;
 		void setRelativeRectangle(unsigned int id, GE_Rectangle rectangle) override;

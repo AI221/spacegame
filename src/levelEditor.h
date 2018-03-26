@@ -91,7 +91,7 @@ class GE_LevelEditorInterface
 		/*!
 		 * Returns one of the resizable rectangles.
 		 */
-		virtual GE_Rectangle getRelativeRectangle(unsigned int id) 
+		virtual GE_Rectangle getRelativeRectangle(unsigned int UNUSED(id)) 
 		{
 			assert(false);
 		};
@@ -99,7 +99,7 @@ class GE_LevelEditorInterface
 		/*!
 		 * Sets one of the relative rectangles. Runs with the physics thread locked.
 		 */
-		virtual void setRelativeRectangle(unsigned int id, GE_Rectangle rectangle)
+		virtual void setRelativeRectangle(unsigned int UNUSED(id), GE_Rectangle UNUSED(rectangle))
 		{
 			assert(false);
 		};

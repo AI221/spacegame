@@ -270,7 +270,7 @@ class GE_UI_PositioningRectangle
 		Vector2 originPosition;
 		Vector2 originSize;
 
-		bool modifiers[static_cast<int>(GE_UI_PositioningRectangleModifiers::SIZE)];
+		bool modifiers[static_cast<int>(GE_UI_PositioningRectangleModifiers::SIZE)] = {0}; //initialize array to 0
 
 };
 
@@ -499,11 +499,12 @@ void GE_UI_RemoveTopLevelElement(GE_UI_TopLevelElement* element);
 
 /*
  * Inserts another omni event reciever
+ * Memory managed automatically by the UI library. 
  */
 void GE_UI_InsertOmniEventReciever(GE_UI_OmniEventReciever* element);
 
 /*!
- * Removes an omni event reciever
+ * Removes an omni event reciever and deletes it
  */
 void GE_UI_RemoveOmniEventReciever(GE_UI_OmniEventReciever* element);
 

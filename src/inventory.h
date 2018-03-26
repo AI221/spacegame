@@ -54,17 +54,17 @@ class Inventory
 		Inventory(int maxCapacityMass, GE_PhysicsObject* host);
 		~Inventory();
 		int add(ItemStack item);
-		void remove(int itemID);
-		int pickup(int itemID);
-		int transferFromPeer(Inventory* peer, int itemID);
+		void remove(unsigned int itemID);
+		int pickup(unsigned int itemID);
+		int transferFromPeer(Inventory* peer, unsigned int itemID);
 		int transferHeldFromPeer(Inventory* peer);
 		void handleSchedules();
 
 		int getCurrentMass();
 		Vector2r getPosition();
 
-		void schedulePickup(int itemID);
-		void scheduleTransferFromPeer(Inventory* peer, int itemID);
+		void schedulePickup(unsigned int itemID);
+		void scheduleTransferFromPeer(Inventory* peer, unsigned int itemID);
 		void scheduleTransferHeldFromPeer(Inventory* peer);
 
 		std::vector<ItemStack> storage;

@@ -36,7 +36,7 @@ void GE_Font_LoadFromList(std::string list)
 	Json::Value root;
 	GE_ReadJson(buffer,&root);
 	Json::Value spritelist = root["fontlist"];
-	for (int i = 0; i < spritelist.size(); i++)
+	for (unsigned int i = 0; i < spritelist.size(); i++)
 	{
 		fontPath_t path = parrentPath+"/"+spritelist[i].asString();
 		fontName_t name = GE_GetBaseName(GE_GetFileNoExtension(path));

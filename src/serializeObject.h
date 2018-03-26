@@ -34,6 +34,7 @@ int GE_Init_SerializeObject();
 
 
 struct noSerializationFunction;
+struct noUnserializationFunction;
 
 /*!
  * Adds an object to be 'tracked' (serialized, unserialized, state synchronization) by the serializeObject system.

@@ -21,6 +21,8 @@
 
 #include <map>
 
+#include "GeneralEngineCPP.h"
+
 
 
 
@@ -172,7 +174,7 @@ typename std::enable_if<is_vectorish<typename std::remove_pointer<container_t>::
 }
 //Allow map
 template<typename container_t>
-typename std::enable_if<!(is_vectorish<typename std::remove_pointer<container_t>::type>::value),container_t>::type internal_serialize_container(container_t container,char** buffer, size_t* bufferUsed, size_t* bufferSize)
+typename std::enable_if<!(is_vectorish<typename std::remove_pointer<container_t>::type>::value),void>::type internal_serialize_container(container_t container,char** buffer, size_t* bufferUsed, size_t* bufferSize)
 {
 	internal_serialize_container_map(container,buffer,bufferUsed,bufferSize);
 }
@@ -244,7 +246,7 @@ typename std::enable_if<std::is_arithmetic<data>::value,void>::type GE_Serialize
 
 
 template<class data>
-typename std::enable_if<std::is_arithmetic<data>::value,data>::type GE_Unserialize(char* serialized, size_t* bufferUnserialized,int serializedVersion)
+typename std::enable_if<std::is_arithmetic<data>::value,data>::type GE_Unserialize(char* serialized, size_t* bufferUnserialized,int UNUSED(serializedVersion))
 {
 	return internal_unserialize_basic<data>(serialized,bufferUnserialized);	
 }

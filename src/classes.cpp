@@ -202,16 +202,17 @@ Player::Player(SDL_Renderer* renderer) : GE_PhysicsObject({0,0,0},{0,0,0},25)
 	//tracker = GE_AddTrackedObject(type,this);
 	
 }
-Player::~Player()
+void Player::C_Destroyed()
 {
-	printf("Deleting the player!!!\n");
+	GE_RemoveTrackedObject(tracker);
 	for (int i=0;i<=numIterableSubsystems;i++)
 	{
 		delete iterableSubsystems[i];
 	}
-
-	GE_RemoveTrackedObject(tracker);
-
+}
+Player::~Player()
+{
+	printf("Deleting the player!!!\n");
 }
 void Player::serialize(char** buffer, size_t* bufferUsed, size_t* bufferSize)
 {
@@ -282,7 +283,7 @@ class tester : public GE_PhysicsObject
 			velocity.x = 1;
 
 		}
-		~tester()
+		void C_Destroyed()
 		{
 			GE_RemoveTrackedObject(tracker);
 			GE_FreeRenderedObject(renderObject);
@@ -368,7 +369,7 @@ bool Player::C_Update()
 				if (event.key.keysym.sym == SDLK_p)
 				{
 					printf(" kjfaskl jasdklfj sdkla;fjasdkl;ifjalsjk;\n");
-					Enemie* un = new Enemie(renderer, {position.x+100,position.y+100,0},1);
+					new Enemie(renderer, {position.x+100,position.y+100,0},1);
 				}
 				if (event.key.keysym.sym == SDLK_u)
 				{
@@ -605,7 +606,8 @@ Enemie::Enemie(SDL_Renderer* renderer, Vector2r position, int level) : GE_Physic
 
 	tracker = GE_AddTrackedObject(type,this);
 }
-Enemie::~Enemie()
+Enemie::~Enemie(){}
+void Enemie::C_Destroyed()
 {
 	GE_ScheduleFreeMinimapTarget(renderObject);
 	GE_RemoveTrackedObject(tracker);
@@ -643,7 +645,7 @@ bool canStop(double velocity, double distance, double acceleration)
 bool Enemie::C_Update()
 {
 
-	Player* targetPlayer;
+	GE_PhysicsObject* targetPlayer;
 	bool foundTarget = false;
 	std::vector<GE_PhysicsObject*> potentialBlock;
 	
@@ -654,7 +656,7 @@ bool Enemie::C_Update()
 		{
 			if (obj->type == TYPE_PLAYER)
 			{
-				targetPlayer = static_cast<Player*>(obj);
+				targetPlayer = obj;
 				foundTarget = true;
 			}
 			potentialBlock.insert(potentialBlock.end(), obj);
@@ -797,7 +799,6 @@ StdBullet::StdBullet(SDL_Renderer* renderer, Vector2r position, const char* spri
 	renderObject = GE_CreateRenderedObject(renderer,spriteName); 
 	renderObject->size = {2,10};
 	renderObject->animation = {0,0,1,5};
-	printf("fin ro\n");
 
 	GE_LinkVectorToPhysicsObjectPosition(this,&(renderObject->position)); 
 	
@@ -806,11 +807,11 @@ StdBullet::StdBullet(SDL_Renderer* renderer, Vector2r position, const char* spri
 	
 	callCallbackAfterCollisionFunction = true;
 }
-StdBullet::~StdBullet()
+void StdBullet::C_Destroyed()
 {
 	GE_ScheduleFreeRenderedObject(renderObject);
-
 }
+StdBullet::~StdBullet() {}
 
 
 const std::string Wall::name = std::string("Wall");
@@ -833,6 +834,9 @@ Wall::Wall(SDL_Renderer* renderer, Vector2r position, GE_Rectangle shape, double
 
 
 Wall::~Wall()
+{
+}
+void Wall::C_Destroyed()
 {
 	GE_RemoveTrackedObject(tracker);
 	GE_FreeRenderedObject(renderObject);

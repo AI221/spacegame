@@ -10,6 +10,7 @@
 #include "UI.h"
 #include <unordered_set>
 #include <vector>
+#include <memory>
 
 class Camera;
 
@@ -32,10 +33,10 @@ class GE_Stars : public GE_UI_Element
 	private:
 
 		SDL_Renderer* renderer;
-		std::unordered_set<GE_SingleStar*> stars;
+		std::unordered_set<std::shared_ptr<GE_SingleStar>> stars;
 		Vector2 allStarsSize;
 		double allStarsScale;
-		std::vector<GE_RectangleShape*> starRectangles;
+		std::vector<std::shared_ptr<GE_RectangleShape>> starRectangles;
 		Camera* camera;
 };
 

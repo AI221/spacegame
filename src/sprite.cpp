@@ -139,7 +139,7 @@ int GE_LoadSpritesFromDir(SDL_Renderer* renderer, std::string directory)
 	*/
 
 	std::string parrentDirectory = GE_GetParrentDirectory(directory);
-	for (int i = 0; i < spritelist.size(); i++)
+	for (unsigned int i = 0; i < spritelist.size(); i++)
 	{
 		GE_LoadSpriteFromPath(renderer, (parrentDirectory+"/"+spritelist[i].asString()).c_str() );
 	}
@@ -218,6 +218,7 @@ void GE_BlitSprite(GE_Sprite* sprite, Vector2r position,Vector2 size, GE_Rectang
 
 	switch(flip)
 	{
+		default:
 		case GE_FLIP_NONE:
 			flip_real = SDL_FLIP_NONE;
 			break;
