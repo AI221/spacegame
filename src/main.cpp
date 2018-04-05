@@ -175,7 +175,7 @@ void startTheGame()
 	//new Wall(renderer,Vector2r{00,-90,0},GE_Rectangle{0,0,200,10},25);
 	//new Wall(renderer,Vector2r{300,-90,0},GE_Rectangle{0,0,200,10},999);
 	//new Enemie(renderer,{0,-250,0},1);
-	int numobjs = 5000;//10000;
+	int numobjs = 0;//5000;//10000;
 	int iter = sqrt(numobjs);
 
 	for (int y=-(iter/2);y<=iter/2;y++)
@@ -205,6 +205,9 @@ void prepareMainMenu()
 		//new Enemie(renderer, {randomx-1500,randomy,0},1);
 	}
 }
+
+
+bool hasLevelEditorOpen = false; //TODO: Kind of a hack.
 
 
 
@@ -514,6 +517,7 @@ class UI_MainMenu : public GE_UI_TopLevelElement
 				};
 				GE_ResetPhysicsEngine();
 				GE_UI_SetBackgroundElement(new GE_UI_LevelEditor2D(renderer,position,size,newstyle));
+				hasLevelEditorOpen = true;
 			}
 		}
 		bool checkIfFocused(int mousex, int mousey)
@@ -566,6 +570,11 @@ class MyOmniEventReciever : public GE_UI_OmniEventReciever
 				}
 				else if (event.key.keysym.sym == SDLK_ESCAPE)
 				{
+					if (hasLevelEditorOpen)
+					{
+						hasLevelEditorOpen = false;
+						delete GE_UI_GetBackgroundElement();
+					}
 					GE_UI_SetBackgroundElement(myMainMenu);
 					prepareMainMenu();
 				}

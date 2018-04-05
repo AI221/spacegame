@@ -9,6 +9,8 @@
 #include <functional>
 #include <type_traits>
 #include <cassert>
+#include <memory>
+#include <optional>
 
 #include "UI.h"
 
@@ -24,7 +26,76 @@ typedef std::function<GE_PhysicsObject*(SDL_Renderer*,Vector2r)> GE_NewObject_t;
 
 
 class GE_Stars;
+class GE_UI_LevelEditor2D;
 
+
+
+struct GE_UI_HighlightBoxStyle
+{
+	double lineThickness;
+	double draggableBoxDiameter;
+	double rotatableBoxDiameter;
+	GE_Color boxColor;
+	GE_Color draggableBoxColor;
+	GE_Color rotatableBoxColor;
+};
+enum internal_draggablebox_position
+{
+	topLeft,
+	topRight,
+	bottomRight,
+	bottomLeft,
+	middleTop,
+	middleRight,
+	middleBottom,
+	middleLeft,
+	hollowBox,
+};
+
+
+/*!
+ * Gives a resizable, moveable, rotatable box. Positioned by CENTER!
+ */
+class GE_UI_HighlightBox : GE_UI_Element
+{
+	public:
+		GE_UI_HighlightBox(SDL_Renderer* renderer, Camera* camera, GE_UI_LevelEditor2D* levelEditor, Vector2r position, Vector2 size,GE_UI_HighlightBoxStyle style);
+		~GE_UI_HighlightBox();
+		void render(Vector2 parrentPosition);
+		void giveEvent(Vector2 parrentPosition, SDL_Event event);
+		GE_UI_PositioningRectangle* positioningRectangle;
+		GE_Rectangle getRectangle();
+
+
+
+		Vector2 size;
+	private:
+		std::unique_ptr<GE_RectangleShape> draggableBoxes;
+		std::unique_ptr<GE_RectangleShape> rotatableBoxes;
+		std::unique_ptr<GE_HollowRectangleShape> box;
+
+		Vector2r position;
+		Camera* camera;
+		Camera scaledcamera;
+		GE_UI_LevelEditor2D* levelEditor;
+
+		GE_UI_HighlightBoxStyle style;
+
+		bool isBeingDragged; 
+		internal_draggablebox_position boxDragged;
+		bool resizeRectangleByCenter;
+
+
+		Vector2 initialMousePosition;
+		Vector2 initialSize;
+		Vector2r initialPosition;
+		bool expandByCenter; //basically, if true, when the corners are dragged both sides will expand equally. probably set when SHIFT is held down.
+
+		Vector2r getDraggableBoxPosition(Vector2r topleftParrentPosition,internal_draggablebox_position box, bool addCamera);
+		Vector2r getTopLeftPosition(Vector2 parrentPosition);
+
+		
+};
 
 
 struct GE_UI_LevelEditor2DStyle
@@ -33,6 +104,7 @@ struct GE_UI_LevelEditor2DStyle
 	GE_UI_TextListStyle dropDown;
 };
 
+class GE_PhysicsObjectHighlightBoxManager;
 class GE_UI_LevelEditor2D : public GE_UI_TopLevelElement
 {
 	public:
@@ -70,6 +142,8 @@ class GE_UI_LevelEditor2D : public GE_UI_TopLevelElement
 		void setStarsScale(double scale);
 
 		void updateMovingObjectPosition();
+
+		std::optional<std::unique_ptr<GE_PhysicsObjectHighlightBoxManager>> highlightBoxManager;
 	
 
 };
@@ -89,17 +163,17 @@ class GE_LevelEditorInterface
 {
 	public:
 		/*!
-		 * Returns one of the resizable rectangles.
+		 * Returns one of the resizable rectangles, in absolute cordinates.
 		 */
-		virtual GE_Rectangle getRelativeRectangle(unsigned int UNUSED(id)) 
+		virtual GE_Rectangle getRectangle(unsigned int UNUSED(id)) 
 		{
 			assert(false);
 		};
 
 		/*!
-		 * Sets one of the relative rectangles. Runs with the physics thread locked.
+		 * Sets one of the rectangles. Runs with the physics thread locked. Given in absolute cordinates.
 		 */
-		virtual void setRelativeRectangle(unsigned int UNUSED(id), GE_Rectangle UNUSED(rectangle))
+		virtual void setRectangle(unsigned int UNUSED(id), GE_Rectangle UNUSED(rectangle))
 		{
 			assert(false);
 		};
@@ -112,7 +186,7 @@ class GE_LevelEditorInterface
 		/*!
 		 * The non-user-defined properties of this object
 		 */
-		constexpr const static GE_LevelEditorObjectProperties properties = {1};
+		constexpr const static GE_LevelEditorObjectProperties properties = {0};
 		
 		virtual ~GE_LevelEditorInterface(){};
 };

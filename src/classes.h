@@ -133,7 +133,7 @@ class Enemie : public GE_PhysicsObject, public GE_LevelEditorInterface
 		static GE_PhysicsObject* spawnFromLevelEditor(SDL_Renderer* renderer, Vector2r position);
 
 		const static std::string name;
-		constexpr const static GE_LevelEditorObjectProperties properties = GE_LevelEditorObjectProperties{};
+		constexpr const static GE_LevelEditorObjectProperties properties = GE_LevelEditorObjectProperties{0};
 		
 	private:
 		GE_RenderedObject* renderObject;
@@ -186,10 +186,10 @@ class Wall : public GE_PhysicsObject, public GE_LevelEditorInterface
 		static GE_PhysicsObject* spawnFromLevelEditor(SDL_Renderer* renderer, Vector2r position);
 
 		const static std::string name;
-		constexpr const static GE_LevelEditorObjectProperties properties = GE_LevelEditorObjectProperties{};
+		constexpr const static GE_LevelEditorObjectProperties properties = GE_LevelEditorObjectProperties{1};
 
-		GE_Rectangle getRelativeRectangle(unsigned int id) override;
-		void setRelativeRectangle(unsigned int id, GE_Rectangle rectangle) override;
+		GE_Rectangle getRectangle(unsigned int id) override;
+		void setRectangle(unsigned int id, GE_Rectangle rectangle) override;
 		
 	private:
 		GE_RenderedObject* renderObject;

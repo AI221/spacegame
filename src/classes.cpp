@@ -441,6 +441,7 @@ bool Player::C_Update()
 				}
 				if (event.key.keysym.sym == SDLK_m) //tmp load
 				{
+					
 					GE_UnserializeTrackedObjects(TEMP);
 				}
 				if (event.key.keysym.sym == SDLK_f)
@@ -821,6 +822,7 @@ Wall::Wall(SDL_Renderer* renderer, Vector2r position, GE_Rectangle shape, double
 	this->addCollisionRectangle(shape);
 	renderObject = GE_CreateRenderedObject(renderer,"gray");
 	renderObject->size = {shape.w,shape.h};
+	//GE_LinkGlueToPhysicsObject(this,GE_addGlueSubject(&renderObject->size.w,&collisionRectangle[0].w,&collisionRectangle[0].h
 	renderObject->animation={0,0,1,1};
 
 	GE_LinkVectorToPhysicsObjectPosition(this,&(renderObject->position)); 
@@ -845,7 +847,7 @@ void Wall::serialize(char** buffer, size_t* bufferUsed, size_t* bufferSize)
 {
 	GE_Serialize(&position,buffer,bufferUsed,bufferSize);
 	GE_Serialize(&velocity,buffer,bufferUsed,bufferSize);
-	GE_Serialize(&shape,buffer,bufferUsed,bufferSize);
+	GE_Serialize(&collisionRectangles[0],buffer,bufferUsed,bufferSize); //collision rectangle 0 = shape 
 	GE_Serialize(mass,buffer,bufferUsed,bufferSize);
 	printf("serialize a wall\n");
 
@@ -873,13 +875,20 @@ GE_PhysicsObject* Wall::spawnFromLevelEditor(SDL_Renderer* renderer, Vector2r po
 {
 	return static_cast<GE_PhysicsObject*>(new Wall(GE_DEBUG_Renderer,position,GE_Rectangle{0,0,100,10},100)); 
 }
-GE_Rectangle Wall::getRelativeRectangle(unsigned int rect)
+GE_Rectangle Wall::getRectangle(unsigned int rect)
 {
 	return collisionRectangles[0];
 }
-void Wall::setRelativeRectangle(unsigned int rect, GE_Rectangle value)
+void Wall::setRectangle(unsigned int rect, GE_Rectangle value)
 {
+	position.x = value.x;
+	position.y = value.y;
+	value.x -= position.x;
+	value.y -= position.y;
 	collisionRectangles[0] = value;
+	pthread_mutex_lock(&RenderEngineMutex);
+	renderObject->size = {value.w,value.h};
+	pthread_mutex_unlock(&RenderEngineMutex);
 }
 void InitClasses()
 {

@@ -921,6 +921,7 @@ GE_UI_TextList::GE_UI_TextList(SDL_Renderer* renderer, Vector2 position, Vector2
 	_construct_step_1(renderer,position,size,elements,style);
 	this->hasDropRightMenus = false;
 	this->hasDropRightMenuOpen = false;
+	this->hasHighlightedTextObject = false;
 }
 
 

@@ -4,7 +4,6 @@
 #include <set>
 #include <map>
 #include <algorithm>
-#include <memory>
 
 //Local includes
 
@@ -28,70 +27,55 @@ std::map<class_id_t,class_id_t> classRealTypeIDToLevelTypeID;
 
 
 
-struct GE_UI_HighlightBoxStyle
-{
-	double lineThickness;
-	double draggableBoxDiameter;
-	double rotatableBoxDiameter;
-	GE_Color boxColor;
-	GE_Color draggableBoxColor;
-	GE_Color rotatableBoxColor;
-};
-enum internal_draggablebox_position
-{
-	topLeft,
-	topRight,
-	bottomRight,
-	bottomLeft,
-	middleTop,
-	middleRight,
-	middleBottom,
-	middleLeft,
-	hollowBox,
-};
-
-/*!
- * Gives a resizable, moveable, rotatable box. Positioned by CENTER!
- */
-class GE_UI_HighlightBox : GE_UI_Element
+class GE_PhysicsObjectHighlightBoxManager
 {
 	public:
-		GE_UI_HighlightBox(SDL_Renderer* renderer, Camera* camera, GE_UI_LevelEditor2D* levelEditor, Vector2r position, Vector2 size,GE_UI_HighlightBoxStyle style);
-		~GE_UI_HighlightBox();
-		void render(Vector2 parrentPosition);
+		GE_PhysicsObjectHighlightBoxManager(SDL_Renderer* renderer, Camera* camera, GE_UI_LevelEditor2D* levelEditor, GE_PhysicsObject* object, unsigned int numBoxes, GE_UI_HighlightBoxStyle style);
+		~GE_PhysicsObjectHighlightBoxManager();
+
 		void giveEvent(Vector2 parrentPosition, SDL_Event event);
-		GE_UI_PositioningRectangle* positioningRectangle;
-
-
-
-		Vector2 size;
+		void render(Vector2 parrentPosition);
 	private:
-		std::unique_ptr<GE_RectangleShape> draggableBoxes;
-		std::unique_ptr<GE_RectangleShape> rotatableBoxes;
-		std::unique_ptr<GE_HollowRectangleShape> box;
+		GE_PhysicsObject* object;
+		unsigned int numBoxes;
+		std::vector<std::unique_ptr<GE_UI_HighlightBox>> highlightBoxes;
+};
 
-		Vector2r position;
-		Camera* camera;
-		Camera scaledcamera;
-		GE_UI_LevelEditor2D* levelEditor;
+GE_PhysicsObjectHighlightBoxManager::GE_PhysicsObjectHighlightBoxManager(SDL_Renderer* renderer, Camera* camera, GE_UI_LevelEditor2D* levelEditor, GE_PhysicsObject* object, unsigned int numBoxes, GE_UI_HighlightBoxStyle style)
+{
+	this->numBoxes = numBoxes;
+	this->object = object;
+	for (unsigned int i=0;i!=numBoxes;i++)
+	{
+		auto rectangle = dynamic_cast<GE_LevelEditorInterface*>(object)->getRectangle(i); 
+		
+		highlightBoxes.push_back(std::move(std::unique_ptr<GE_UI_HighlightBox>(new GE_UI_HighlightBox(renderer,camera,levelEditor,Vector2r{rectangle.x+object->position.x,rectangle.y+object->position.y,object->position.r},Vector2{rectangle.w,rectangle.h},style))));
+	}
+}
+GE_PhysicsObjectHighlightBoxManager::~GE_PhysicsObjectHighlightBoxManager(){}
 
-		GE_UI_HighlightBoxStyle style;
-
-		bool isBeingDragged; 
-		internal_draggablebox_position boxDragged;
-		bool resizeRectangleByCenter;
-
-
-		Vector2 initialMousePosition;
-		Vector2 initialSize;
-		Vector2r initialPosition;
-		bool expandByCenter; //basically, if true, when the corners are dragged both sides will expand equally. probably set when SHIFT is held down.
-
-		Vector2r getDraggableBoxPosition(Vector2r topleftParrentPosition,internal_draggablebox_position box, bool addCamera);
-		Vector2r getTopLeftPosition(Vector2 parrentPosition);
+void GE_PhysicsObjectHighlightBoxManager::giveEvent(Vector2 parrentPosition, SDL_Event event)
+{
+	auto interf = dynamic_cast<GE_LevelEditorInterface*>(object);
+	unsigned int i = 0;
+	for (auto& highlightBox : highlightBoxes)
+	{
+		i++;
+		highlightBox->giveEvent(parrentPosition, event);
+		pthread_mutex_lock(&PhysicsEngineMutex);
+		interf->setRectangle(i,highlightBox->getRectangle());
+		pthread_mutex_unlock(&PhysicsEngineMutex);
+	}
 
 		
-};
+}
+void GE_PhysicsObjectHighlightBoxManager::render(Vector2 parrentPosition)
+{
+	for (auto& highlightBox : highlightBoxes)
+	{
+		highlightBox->render(parrentPosition);
+	}
+}
 
 
 GE_UI_HighlightBox::GE_UI_HighlightBox(SDL_Renderer* renderer,  Camera* camera, GE_UI_LevelEditor2D* levelEditor,Vector2r position, Vector2 size,GE_UI_HighlightBoxStyle style)
@@ -365,7 +349,11 @@ void GE_UI_HighlightBox::giveEvent(Vector2 parrentPosition, SDL_Event event)
 			position.y = mousepos.y;
 		}
 	}
-	else if (event.type == SDL_KEYDOWN)
+	
+
+
+	//shift behaviour
+	if (event.type == SDL_KEYDOWN)
 	{
 		if (event.key.keysym.sym == SDLK_LSHIFT || event.key.keysym.sym == SDLK_RSHIFT)
 		{
@@ -382,7 +370,10 @@ void GE_UI_HighlightBox::giveEvent(Vector2 parrentPosition, SDL_Event event)
 	}
 
 }
-
+GE_Rectangle GE_UI_HighlightBox::getRectangle()
+{
+	return GE_Rectangle{position.x,position.y,size.x,size.y};
+}
 
 const double rightClickMenuWidth = 200;
 enum class rightClickOptions
@@ -461,11 +452,12 @@ GE_UI_LevelEditor2D::GE_UI_LevelEditor2D(SDL_Renderer* renderer, Vector2 positio
 
 
 
+
 }
 GE_UI_LevelEditor2D::~GE_UI_LevelEditor2D()
 {
+	printf("Delete level editor\n");
 	delete camera;
-	delete levelRenderer;
 	delete mySurface;
 	GE_PhysicsEngine_TickingObjectsEnabled = true;
 	GE_PhysicsEngine_CollisionsEnabled = true;
@@ -534,7 +526,11 @@ void GE_UI_LevelEditor2D::render(Vector2 parrentPosition)
 		highlightBox->giveEvent(parrentPosition,hack);
 	}
 
-	highlightBox->render(parrentPosition);
+	//highlightBox->render(parrentPosition);
+	if(highlightBoxManager.has_value())
+	{
+		(*highlightBoxManager)->render(parrentPosition);
+	}
 
 }
 const double cameraSpeed = .1;
@@ -623,8 +619,9 @@ void GE_UI_LevelEditor2D::giveEvent(Vector2 parrentPosition, SDL_Event event)
 					{
 						if(hasFocusedObject)
 						{
-							GE_FreeGlueObject(focusedObjectChangeGlue);	
+							//GE_FreeGlueObject(focusedObjectChangeGlue);	
 						}
+						/*
 						hasFocusedObject = true;
 						focusedObject = obj;
 						tempvector = {static_cast<double>(x),static_cast<double>(y),0};
@@ -632,17 +629,22 @@ void GE_UI_LevelEditor2D::giveEvent(Vector2 parrentPosition, SDL_Event event)
 
 						updateMovingObjectPosition();
 
-						focusedObjectChangeGlue = GE_addGlueSubject(&(focusedObject->position),&tempvector,GE_PULL_ON_RENDER,sizeof(Vector2r));
+						//focusedObjectChangeGlue = GE_addGlueSubject(&(focusedObject->position),&tempvector,GE_PULL_ON_RENDER,sizeof(Vector2r));
 
+						*/
 						auto objLevelEditorInterface = dynamic_cast<GE_LevelEditorInterface*>(obj);
-						auto rect = objLevelEditorInterface->getRelativeRectangle(0);
+						/*
+						auto rect = objLevelEditorInterface->getRectangle(0);
 						printf("!! w %f\n",rect.w);
 						rect.x += obj->position.x;
 						rect.y += obj->position.y;
 
 						highlightBox->size.x = rect.w;
 						highlightBox->size.y = rect.h;
+						*/
 
+						highlightBoxManager = std::unique_ptr<GE_PhysicsObjectHighlightBoxManager>(new GE_PhysicsObjectHighlightBoxManager(renderer,camera,this,obj,classProperties[classRealTypeIDToLevelTypeID[obj->type]].numResizableRectangles,style_highlightBox));
+						printf("lid %llu\n",classRealTypeIDToLevelTypeID[obj->type]);
 
 						
 
@@ -654,7 +656,7 @@ void GE_UI_LevelEditor2D::giveEvent(Vector2 parrentPosition, SDL_Event event)
 			else if (event.type == SDL_MOUSEBUTTONUP && hasFocusedObject)
 			{
 				hasFocusedObject = false;
-				GE_FreeGlueObject(focusedObjectChangeGlue);
+				//GE_FreeGlueObject(focusedObjectChangeGlue);
 			}
 			if (event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_RIGHT)
 			{
@@ -681,7 +683,11 @@ void GE_UI_LevelEditor2D::giveEvent(Vector2 parrentPosition, SDL_Event event)
 		updateMovingObjectPosition();
 	}
 	
-	highlightBox->giveEvent(parrentPosition,event);
+	//highlightBox->giveEvent(parrentPosition,event);
+	if(highlightBoxManager.has_value())
+	{
+		(*highlightBoxManager)->giveEvent(parrentPosition,event);
+	}
 }
 
 bool GE_UI_LevelEditor2D::checkIfFocused(int mousex, int mousey)
@@ -732,8 +738,9 @@ void GE_UI_LevelEditor2D::getRealWorldCursorPosition(double* x, double* y)
 
 void internal_RegisterClassWithLevelEditor(std::string name, GE_NewObject_t allocationFunction, unsigned long long classID,GE_LevelEditorObjectProperties properties)
 {
+	printf("rid %llu num %d\n",classID,properties.numResizableRectangles);
+	classRealTypeIDToLevelTypeID.insert(std::make_pair(classID,classNames.size()));	
 	classNames.push_back(name);
 	classCreationFunctions.push_back(allocationFunction);
-	classRealTypeIDToLevelTypeID.insert(std::make_pair(classID,classNames.size()));	
 	classProperties.push_back(properties);
 }
