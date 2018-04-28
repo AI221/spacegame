@@ -913,6 +913,8 @@ void GE_UI_TextList::_construct_step_1(SDL_Renderer* renderer, Vector2 position,
 	//potentially may set position of sub-menus
 	this->setPosition(position);
 
+	this->hasHighlightedTextObject = false;
+
 
 	this->wantsEvents = true;
 }
@@ -970,6 +972,9 @@ struct internal_return
 	bool happened;
 };
 void GE_UI_TextList::giveEvent(Vector2 parrentPosition, SDL_Event event)
+	//TODO: 
+	//Upon an out-of-range click, this will assign click.trail[0] = 0. This is wrong
+	//I may redo this entire thing instead of fixing that because this thing is weird.
 {
 	int x,y;
 	SDL_GetMouseState(&x,&y);

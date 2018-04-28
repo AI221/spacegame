@@ -29,6 +29,21 @@ class GE_Stars;
 class GE_UI_LevelEditor2D;
 
 
+GE_FORCE_INLINE bool single_run_if_object_at(Vector2 position, std::function<void(GE_PhysicsObject* obj)> function)
+{
+	std::set<GE_PhysicsObject*> objects = GE_GetObjectsInRadius(position,500);
+	for( GE_PhysicsObject* obj : objects)
+	{
+		if (GE_IsPointInPhysicsObject(position,obj))
+		{
+			function(obj);
+			return true;
+		}
+	}
+	return false;
+}
+
+
 
 struct GE_UI_HighlightBoxStyle
 {
@@ -49,6 +64,8 @@ enum internal_draggablebox_position
 	middleRight,
 	middleBottom,
 	middleLeft,
+	center,
+	rotater,
 	hollowBox,
 };
 
@@ -59,20 +76,23 @@ enum internal_draggablebox_position
 class GE_UI_HighlightBox : GE_UI_Element
 {
 	public:
-		GE_UI_HighlightBox(SDL_Renderer* renderer, Camera* camera, GE_UI_LevelEditor2D* levelEditor, Vector2r position, Vector2 size,GE_UI_HighlightBoxStyle style);
+		GE_UI_HighlightBox(SDL_Renderer* renderer, Camera* camera, GE_UI_LevelEditor2D* levelEditor, Vector2r hostPosition, GE_Rectangler rectangle,bool resizeEnabled,GE_UI_HighlightBoxStyle style);
 		~GE_UI_HighlightBox();
 		void render(Vector2 parrentPosition);
 		void giveEvent(Vector2 parrentPosition, SDL_Event event);
 		GE_UI_PositioningRectangle* positioningRectangle;
-		GE_Rectangle getRectangle();
+		GE_Rectangler getRectangle();
 
 
 
 		Vector2 size;
 	private:
+		bool resizeEnabled; 
 		std::unique_ptr<GE_RectangleShape> draggableBoxes;
 		std::unique_ptr<GE_RectangleShape> rotatableBoxes;
 		std::unique_ptr<GE_HollowRectangleShape> box;
+
+		Vector2r originPosition;
 
 		Vector2r position;
 		Camera* camera;
@@ -94,6 +114,8 @@ class GE_UI_HighlightBox : GE_UI_Element
 		Vector2r getDraggableBoxPosition(Vector2r topleftParrentPosition,internal_draggablebox_position box, bool addCamera);
 		Vector2r getTopLeftPosition(Vector2 parrentPosition);
 
+		void renderDraggableBox(unsigned int box, Vector2r parrentPosition);
+
 		
 };
 
@@ -104,7 +126,9 @@ struct GE_UI_LevelEditor2DStyle
 	GE_UI_TextListStyle dropDown;
 };
 
+
 class GE_PhysicsObjectHighlightBoxManager;
+class GE_PhysicsObjectResizeManager;
 class GE_UI_LevelEditor2D : public GE_UI_TopLevelElement
 {
 	public:
@@ -131,10 +155,16 @@ class GE_UI_LevelEditor2D : public GE_UI_TopLevelElement
 		bool hasFocusedObject;
 		GE_GlueTarget* focusedObjectChangeGlue;
 		Vector2 originalDistanceFromCenter;
-		Vector2r tempvector;
+		Vector2r cursorVector;
 
-		GE_UI_TextList* rightClickMenu;
-		bool rightClickOpen;
+		GE_UI_TextList* rightClickMenu_normal;
+		GE_UI_TextList* rightClickMenu_object;
+		enum {
+			NONE,
+			NORMAL,
+			OBJECT
+		} rightClickOpen;
+		GE_PhysicsObject* rightClickMenuSelectedObject;
 
 		bool keysHeld[323];
 
@@ -144,13 +174,20 @@ class GE_UI_LevelEditor2D : public GE_UI_TopLevelElement
 		void updateMovingObjectPosition();
 
 		std::optional<std::unique_ptr<GE_PhysicsObjectHighlightBoxManager>> highlightBoxManager;
+
+		std::optional<std::unique_ptr<GE_PhysicsObjectResizeManager>> resizeManager;
+
+		void closeRightClickMenu();
+		void closeObjectManipulators();
 	
 
 };
 
+
 struct GE_LevelEditorObjectProperties
 {
 	unsigned int numResizableRectangles;
+	bool resizeEnabled;
 };
 
 
@@ -165,7 +202,7 @@ class GE_LevelEditorInterface
 		/*!
 		 * Returns one of the resizable rectangles, in absolute cordinates.
 		 */
-		virtual GE_Rectangle getRectangle(unsigned int UNUSED(id)) 
+		virtual GE_Rectangler getRectangle(unsigned int UNUSED(id)) 
 		{
 			assert(false);
 		};
@@ -173,10 +210,43 @@ class GE_LevelEditorInterface
 		/*!
 		 * Sets one of the rectangles. Runs with the physics thread locked. Given in absolute cordinates.
 		 */
-		virtual void setRectangle(unsigned int UNUSED(id), GE_Rectangle UNUSED(rectangle))
+		virtual void setRectangle(unsigned int UNUSED(id), GE_Rectangler UNUSED(rectangle))
 		{
 			assert(false);
 		};
+		
+		/*!
+		 * This should be implemented if you set the "resizeEnabled" property is set
+		 */
+		virtual void setSize(Vector2 size)
+		{
+			assert(false);
+		};
+
+		/*!
+		 * This should be implemented if you set the "resizeEnabled" property is set
+		 */
+		virtual Vector2 getSize()
+		{
+			assert(false);
+			return {0,0};
+		};
+
+		/*!
+		 * Contains a default implementation -- suitable for most cases
+		 */
+		virtual void setPosition(Vector2r position)
+		{
+			dynamic_cast<GE_PhysicsObject*>(this)->position = position;
+		}
+
+		/*!
+		 * Contains a default implementation -- suitable for most cases
+		 */
+		virtual Vector2r getPosition()
+		{
+			return dynamic_cast<GE_PhysicsObject*>(this)->position;
+		}
 
 		/*!
 		 * Simply holds the human-readable name of this class
@@ -184,9 +254,9 @@ class GE_LevelEditorInterface
 		const static std::string name;
 
 		/*!
-		 * The non-user-defined properties of this object
+		 * The properties of this object
 		 */
-		constexpr const static GE_LevelEditorObjectProperties properties = {0};
+		constexpr const static GE_LevelEditorObjectProperties properties = {0,false,};
 		
 		virtual ~GE_LevelEditorInterface(){};
 };

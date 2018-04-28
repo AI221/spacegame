@@ -160,6 +160,9 @@ void startTheGame()
 	player = new Player(renderer);
 	GE_LinkVectorToPhysicsObjectPosition(player,&camera.pos);
 	GE_LinkGlueToPhysicsObject(player,GE_addGlueSubject(&playerGrid,&player->grid,GE_PULL_ON_PHYSICS_TICK,sizeof(playerGrid))); //because we need the bounding box to center
+
+	//(new GE_PhysicsObject({200,200,0},{0,0,0},10000))->addCollisionRectangle({10,10,M_PI/4,25,25});
+
 	
 	/*
 	Enemie*  lastenemy;
@@ -186,7 +189,7 @@ void startTheGame()
 			double py = static_cast<double>((y*200));
 			if (!(GE_Distance(0,0,px,py) <= 200))
 			{
-				new Wall(renderer,{px,py,0},{0,0,10,10},1);//Enemie(renderer,{static_cast<double>(i*100),200,0},0);
+				new Wall(renderer,{px,py,0},{0,0,0,10,10},1);//Enemie(renderer,{static_cast<double>(i*100),200,0},0);
 			}
 		}
 	}

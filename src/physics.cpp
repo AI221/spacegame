@@ -146,7 +146,7 @@ bool GE_PhysicsObject::C_Collision(GE_PhysicsObject* UNUSED(victim), int UNUSED(
 {
 	return false;
 }
-void GE_PhysicsObject::addCollisionRectangle(GE_Rectangle newRectangle)
+void GE_PhysicsObject::addCollisionRectangle(GE_Rectangler newRectangle)
 {
 	//add rectangle
 	collisionRectangles[numCollisionRectangles] = newRectangle;
@@ -677,7 +677,7 @@ void GE_FreePhysicsObject(GE_PhysicsObject* physicsObject)
 
 
 
-void GE_RectangleToPoints(GE_Rectangle rect, Vector2 grid, Vector2* points, Vector2r hostPosition) 
+void GE_RectangleToPoints(GE_Rectangler rect, Vector2 grid, Vector2* points, Vector2r hostPosition) 
 {
 		
 	//Points make collision checking easy because you cannot rotate a point in space (or rather, rotating it would have no effect)
@@ -691,7 +691,7 @@ void GE_RectangleToPoints(GE_Rectangle rect, Vector2 grid, Vector2* points, Vect
 	{
 		points[i].x -= grid.x/2;
 		points[i].y -= grid.y/2;
-		GE_Vector2RotationCCW(&points[i],hostPosition.r);
+		GE_Vector2RotationCCW(&points[i],hostPosition.r+rect.r);
 		points[i].x += /*halfrectw+*/hostPosition.x;
 		points[i].y += /*halfrecth+*/hostPosition.y;
 
@@ -730,6 +730,7 @@ bool GE_IsPointInPhysicsObject(Vector2 point, GE_PhysicsObject* obj)
 	Vector2 rectPoints[4];
 	for (int i=0;i!=obj->numCollisionRectangles;i++)
 	{
+		
 		GE_RectangleToPoints(obj->collisionRectangles[i],obj->grid,rectPoints,obj->position);
 
 		Vector2 AM = point-rectPoints[0]; //M-A
@@ -745,6 +746,7 @@ bool GE_IsPointInPhysicsObject(Vector2 point, GE_PhysicsObject* obj)
 		{
 			return true;
 		}
+		printf("failcheck \n");
 	}
 	return false;
 }

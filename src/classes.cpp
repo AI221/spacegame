@@ -115,6 +115,7 @@ Subsystem::~Subsystem()
 
 
 
+const std::string Player::name = "Player";
 
 #define bump() i++;
 #define sizePlusDoubleSize(x,y)  {x*2,y*2}, {0,0,x,y}
@@ -136,15 +137,15 @@ Player::Player(SDL_Renderer* renderer) : GE_PhysicsObject({0,0,0},{0,0,0},25)
 
 	//If I'd more time I'd make this... uh, better in every way.
 
-	addCollisionRectangle(GE_Rectangle{18,0,10,102});
-	addCollisionRectangle(GE_Rectangle{28,26,42,52}); 
-	addCollisionRectangle(GE_Rectangle{0,30,4,38}); 
-	addCollisionRectangle(GE_Rectangle{90,30,4,38}); 
-	addCollisionRectangle(GE_Rectangle{70,0,10,102}); 
-	addCollisionRectangle(GE_Rectangle{28,70,42,22}); 
-	addCollisionRectangle(GE_Rectangle{28,4,42,22});  //~~
-	addCollisionRectangle(GE_Rectangle{10,42,9,18});  
-	addCollisionRectangle(GE_Rectangle{80,42,9,18});  
+	addCollisionRectangle(GE_Rectangler{18,0,0,10,102});
+	addCollisionRectangle(GE_Rectangler{28,26,0,42,52}); 
+	addCollisionRectangle(GE_Rectangler{0,30,0,4,38}); 
+	addCollisionRectangle(GE_Rectangler{90,30,0,4,38}); 
+	addCollisionRectangle(GE_Rectangler{70,0,0,10,102}); 
+	addCollisionRectangle(GE_Rectangler{28,70,0,42,22}); 
+	addCollisionRectangle(GE_Rectangler{28,4,0,42,22});  //~~
+	addCollisionRectangle(GE_Rectangler{10,42,0,9,18});  
+	addCollisionRectangle(GE_Rectangler{80,42,0,9,18});  
 
 	callCallbackUpdate = true;
 
@@ -199,6 +200,8 @@ Player::Player(SDL_Renderer* renderer) : GE_PhysicsObject({0,0,0},{0,0,0},25)
 
 	dampeners = false;
 
+	C_Update();
+
 	//tracker = GE_AddTrackedObject(type,this);
 	
 }
@@ -221,12 +224,8 @@ void Player::serialize(char** buffer, size_t* bufferUsed, size_t* bufferSize)
 }
 Player* Player::unserialize(char* buffer, size_t* bufferUnserialized,int version)
 {
-	printf("~~PLAYER\n");
 	Vector2r* _position = GE_Unserialize<Vector2r*>(buffer,bufferUnserialized,version);
 	Vector2r* _velocity = GE_Unserialize<Vector2r*>(buffer,bufferUnserialized,version);
-
-	printf("velocity %s",GE_DEBUG_VectorToString(*_velocity).c_str());
-	SDL_Delay(10000);
 
 	auto newObj = new Player(GE_DEBUG_Renderer);
 	newObj->position = *_position;
@@ -237,9 +236,15 @@ Player* Player::unserialize(char* buffer, size_t* bufferUnserialized,int version
 }
 GE_PhysicsObject* Player::spawnFromLevelEditor(SDL_Renderer* renderer, Vector2r position)
 {
-//TODO	
+	auto myplayer = static_cast<GE_PhysicsObject*>(new Player(renderer));
+	myplayer->position = position;
+	return myplayer;
 }
-
+void Player::setPosition(Vector2r position)
+{
+	this->position = position;
+	C_Update();
+}
 
 
 
@@ -271,7 +276,7 @@ class tester : public GE_PhysicsObject
 			renderObject = GE_CreateRenderedObject(renderer,"simple"); 
 			renderObject->size = {8*2,9*2};
 			renderObject->animation = {0,0,8,9};
-			addCollisionRectangle(GE_Rectangle{0,0,8*2,9*2});
+			addCollisionRectangle(GE_Rectangler{0,0,0,8*2,9*2});
 
 			GE_LinkVectorToPhysicsObjectPosition(this,&(renderObject->position)); 
 
@@ -307,6 +312,8 @@ class tester : public GE_PhysicsObject
 
 };
 
+
+
 const double turnSpeed= 0.0008726646;
 const double moveSpeed = 0.25;
 const double strafeSpeed = 0.05;
@@ -327,7 +334,7 @@ bool Player::C_Update()
 		iterableSubsystems[i]->Update(position);
 		if (!iterableSubsystems[i]->GetIsOnline())
 		{
-			collisionRectangles[i] = {0,0,0,0};
+			collisionRectangles[i] = {0,0,0,0,0};
 		}
 	}
 	//TODO temp
@@ -380,7 +387,7 @@ bool Player::C_Update()
 					
 
 					GE_PhysicsObject* me = new GE_PhysicsObject(Vector2r{this->position.x+50,this->position.y+150,0},Vector2r{25,25,0},25);
-					me->addCollisionRectangle(GE_Rectangle{0,0,25,25});
+					me->addCollisionRectangle(GE_Rectangler{0,0,0,25,25});
 					me->callCallbackBeforeCollisionFunction = true;
 
 					GE_LinkVectorToPhysicsObjectPosition(me,&(ro->position));
@@ -596,7 +603,7 @@ Enemie::Enemie(SDL_Renderer* renderer, Vector2r position, int level) : GE_Physic
 
 	GE_LinkVectorToPhysicsObjectPosition(this,&(renderObject->position)); 
 	
-	addCollisionRectangle(GE_Rectangle{0,0,38,42}); 
+	addCollisionRectangle(GE_Rectangler{0,0,0,38,42}); 
 
 	
 	callCallbackAfterCollisionFunction = true;
@@ -803,7 +810,7 @@ StdBullet::StdBullet(SDL_Renderer* renderer, Vector2r position, const char* spri
 
 	GE_LinkVectorToPhysicsObjectPosition(this,&(renderObject->position)); 
 	
-	addCollisionRectangle(GE_Rectangle{0,0,4,10}); 
+	addCollisionRectangle(GE_Rectangler{0,0,0,4,10}); 
 
 	
 	callCallbackAfterCollisionFunction = true;
@@ -816,7 +823,7 @@ StdBullet::~StdBullet() {}
 
 
 const std::string Wall::name = std::string("Wall");
-Wall::Wall(SDL_Renderer* renderer, Vector2r position, GE_Rectangle shape, double mass) : GE_PhysicsObject(position,Vector2r{0,0,0},mass)
+Wall::Wall(SDL_Renderer* renderer, Vector2r position, GE_Rectangler shape, double mass) : GE_PhysicsObject(position,Vector2r{0,0,0},mass)
 {
 	this->shape = shape;
 	this->addCollisionRectangle(shape);
@@ -855,10 +862,10 @@ void Wall::serialize(char** buffer, size_t* bufferUsed, size_t* bufferSize)
 Wall* Wall::unserialize(char* buffer, size_t* bufferUnserialized,int version)
 {
 	printf("~~WALL\n");
-	Vector2r* _position = GE_Unserialize<Vector2r*>(buffer,bufferUnserialized,version);
-	Vector2r* _velocity = GE_Unserialize<Vector2r*>(buffer,bufferUnserialized,version);
-	GE_Rectangle* _shape = GE_Unserialize<GE_Rectangle*>(buffer,bufferUnserialized,version);
-	double mass = GE_Unserialize<double>(buffer,bufferUnserialized,version);
+	auto _position = GE_Unserialize<Vector2r*>(buffer,bufferUnserialized,version);
+	auto _velocity = GE_Unserialize<Vector2r*>(buffer,bufferUnserialized,version);
+	auto _shape = GE_Unserialize<GE_Rectangler*>(buffer,bufferUnserialized,version);
+	auto mass = GE_Unserialize<double>(buffer,bufferUnserialized,version);
 	
 	printf("rectw %f\n",_shape->w);
 	//SDL_Delay(10000);
@@ -873,18 +880,29 @@ Wall* Wall::unserialize(char* buffer, size_t* bufferUnserialized,int version)
 
 GE_PhysicsObject* Wall::spawnFromLevelEditor(SDL_Renderer* renderer, Vector2r position)
 {
-	return static_cast<GE_PhysicsObject*>(new Wall(GE_DEBUG_Renderer,position,GE_Rectangle{0,0,100,10},100)); 
+	return static_cast<GE_PhysicsObject*>(new Wall(GE_DEBUG_Renderer,position,GE_Rectangler{0,0,0,100,10},100)); 
 }
-GE_Rectangle Wall::getRectangle(unsigned int rect)
+GE_Rectangler Wall::getRectangle(unsigned int rect)
 {
-	return collisionRectangles[0];
+	auto collisionRect = collisionRectangles[0];
+	return collisionRect;
 }
-void Wall::setRectangle(unsigned int rect, GE_Rectangle value)
+Vector2 Wall::getSize()
 {
-	position.x = value.x;
-	position.y = value.y;
-	value.x -= position.x;
-	value.y -= position.y;
+	auto rectangle = collisionRectangles[0];
+	return {rectangle.w,rectangle.h};
+
+}
+void Wall::setSize(Vector2 size)
+{
+	collisionRectangles[0].w = size.x;
+	collisionRectangles[0].h = size.y;
+	pthread_mutex_lock(&RenderEngineMutex);
+	renderObject->size = size;
+	pthread_mutex_unlock(&RenderEngineMutex);
+}
+void Wall::setRectangle(unsigned int rect, GE_Rectangler value)
+{
 	collisionRectangles[0] = value;
 	pthread_mutex_lock(&RenderEngineMutex);
 	renderObject->size = {value.w,value.h};
@@ -902,5 +920,6 @@ void InitClasses()
 
 	GE_RegisterClassWithLevelEditor<Wall>(TYPE_SHIPWALL);
 	GE_RegisterClassWithLevelEditor<Enemie>(TYPE_ENEMY);
+	GE_RegisterClassWithLevelEditor<Player>(TYPE_PLAYER);
 }
 

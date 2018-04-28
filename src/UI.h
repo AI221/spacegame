@@ -546,6 +546,18 @@ void GE_UI_Render();
 
 IntVector2 GE_UI_GetMousePosition();
 
+struct MessageDialog_StringInputOptions
+{
+	bool allowCancel;
+};
+struct MessageDialog_StringInputReturn
+{
+	bool readyToRead;
+	bool accepted;
+	std::string output;
+};
+void MessageDialog_StringInput(SDL_Renderer* renderer, std::string name, std::string startingText,MessageDialog_StringInputOptions options, MessageDialog_StringInputReturn& returnVal, GE_UI_Style style);
+
 
 
 void GE_ShutdownUI();

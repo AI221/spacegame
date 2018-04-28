@@ -20,7 +20,7 @@ option(RELEASE "RELEASE" OFF) #release optimizations, slow compile no debug info
 
 
 #global compilation flags
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++17 -march=haswell -Wall -Wextra -Wno-long-long -pedantic -Wswitch -Wimplicit-fallthrough ")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++17 -march=haswell -Wall -Wextra -Wno-long-long -pedantic -Wswitch -Wimplicit-fallthrough -Wno-unused-parameter ")
 
 #nix
 if (NOT WINDOWS)
@@ -74,7 +74,7 @@ else ()
 	#set(CMAKE_BUILD_TYPE Debug)
 
 	#TODO add fsanitize for leak,address
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb3 -fsanitize=undefined,thread -fstack-protector-all -Wstack-protector -fstack-check -fvtv-counts --param ssp-buffer-size=4  -O0 -fno-omit-frame-pointer -fverbose-asm -mno-omit-leaf-frame-pointer -mtune=generic -fvar-tracking -D_GLIBCXX_DEBUG=1 -frecord-gcc-switches -femit-class-debug-always -fmath-errno -fno-eliminate-unused-debug-symbols -fno-eliminate-unused-debug-types -fno-merge-debug-strings -fexceptions -fvar-tracking -fbounds-check -rdynamic -UNDEBUG -DDEBUG=1 -fno-stack-check")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb3 -fsanitize=undefined,thread -fstack-protector-all -Wstack-protector -fstack-check -fvtv-counts --param ssp-buffer-size=4  -O0 -fno-omit-frame-pointer -fverbose-asm -mno-omit-leaf-frame-pointer -mtune=generic -fvar-tracking -D_GLIBCXX_DEBUG=1 -frecord-gcc-switches -femit-class-debug-always -fmath-errno -fno-eliminate-unused-debug-symbols -fno-eliminate-unused-debug-types -fno-merge-debug-strings -fexceptions -fvar-tracking -fbounds-check -rdynamic -UNDEBUG -DDEBUG=1 -fno-stack-check -Wno-unused-parameter")
 endif ()
 
 

@@ -379,7 +379,7 @@ struct IntVector2
 /*! 
  *	A 2D Rectangle. No additional operators provided.
  */
-struct GE_Rectangle : GE_Serializable //TODO allow rectangles themselves to be rotated relative to their owners
+struct GE_Rectangle : GE_Serializable 
 {
 	GE_Rectangle(double x, double y, double w, double h)
 	{
@@ -415,6 +415,53 @@ struct GE_Rectangle : GE_Serializable //TODO allow rectangles themselves to be r
 	{
 		x = other.x;
 		y = other.y;
+		w = other.w;
+		h = other.h;
+		return *this;
+	}
+};
+struct GE_Rectangler : GE_Serializable 
+{
+	GE_Rectangler(double x, double y,double r, double w, double h)
+	{
+		this->x = x;
+		this->y = y;
+		this->r = r;
+		this->w = w;
+		this->h = h;
+	};
+	GE_Rectangler(){};
+
+	void serialize(char** buffer, size_t* bufferUsed, size_t* bufferSize)
+	{
+		GE_Serialize(x,buffer,bufferUsed,bufferSize);
+		GE_Serialize(y,buffer,bufferUsed,bufferSize);
+		GE_Serialize(r,buffer,bufferUsed,bufferSize);
+		GE_Serialize(w,buffer,bufferUsed,bufferSize);
+		GE_Serialize(h,buffer,bufferUsed,bufferSize);
+	};
+	static GE_Rectangler* unserialize(char* buffer, size_t* bufferUnserialized,int version)
+	{
+		double _x = GE_Unserialize<double>(buffer,bufferUnserialized,version);
+		double _y = GE_Unserialize<double>(buffer,bufferUnserialized,version);
+		double _r = GE_Unserialize<double>(buffer,bufferUnserialized,version);
+		double _w = GE_Unserialize<double>(buffer,bufferUnserialized,version);
+		double _h = GE_Unserialize<double>(buffer,bufferUnserialized,version);
+		return new GE_Rectangler{_x,_y,_r,_w,_h};
+	};
+
+	double x;
+	double y;
+	double r;
+	double w;
+	double h;
+	
+
+	GE_Rectangler operator=(GE_Rectangler other)
+	{
+		x = other.x;
+		y = other.y;
+		r = other.r;
 		w = other.w;
 		h = other.h;
 		return *this;

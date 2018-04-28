@@ -101,11 +101,8 @@ class Player : public GE_PhysicsObject, public GE_LevelEditorInterface
 
 		void serialize(char** buffer, size_t* bufferUsed,size_t* bufferSize) override;
 		static Player* unserialize(char* buffer, size_t* bufferUnserialized, int version);
-
 		static GE_PhysicsObject* spawnFromLevelEditor(SDL_Renderer* renderer, Vector2r position);
-		void setPosition(Vector2r position) override;
-		const static std::string name;
-		constexpr const static GE_LevelEditorObjectProperties properties = GE_LevelEditorObjectProperties{0,false};
+	
 	private:
 		GE_RenderedObject* renderObject;
 		bool keysHeld[323] = {false}; 
@@ -136,7 +133,7 @@ class Enemie : public GE_PhysicsObject, public GE_LevelEditorInterface
 		static GE_PhysicsObject* spawnFromLevelEditor(SDL_Renderer* renderer, Vector2r position);
 
 		const static std::string name;
-		constexpr const static GE_LevelEditorObjectProperties properties = GE_LevelEditorObjectProperties{0,false};
+		constexpr const static GE_LevelEditorObjectProperties properties = GE_LevelEditorObjectProperties{0};
 		
 	private:
 		GE_RenderedObject* renderObject;

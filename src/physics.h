@@ -23,7 +23,7 @@
 #include "serialize.h"
 #include "GeneralEngineCPP.h"
 
-//#define PHYSICS_DEBUG_SLOWRENDERS 
+#define PHYSICS_DEBUG_SLOWRENDERS 
 
 #ifdef PHYSICS_DEBUG_SLOWRENDERS
 	#include<SDL2/SDL.h>
@@ -106,7 +106,7 @@ class GE_PhysicsObject : public GE_Serializable
 		Vector2 centerOfMass; 
 		Vector2 warpedShape;
 		int ID;
-		GE_Rectangle collisionRectangles[MAX_COLLISION_RECTANGLES_PER_OBJECT];
+		GE_Rectangler collisionRectangles[MAX_COLLISION_RECTANGLES_PER_OBJECT];
 		int numCollisionRectangles;
 		Vector2 grid; //the bounding box is the smallest box that can fit all collision rectangles
 		GE_GlueTarget* glueTargets[MAX_GLUE_OBJECTS_PER_OBJECT]; //Hold glue targets to delete them right before we're deleted //TODO this forces you to keep your glue active until you kill the physics object. This is undesired.
@@ -118,7 +118,7 @@ class GE_PhysicsObject : public GE_Serializable
 		/*!
 		 * Adds a collision rectangle to this object and updates cached values
 		 */
-		void addCollisionRectangle(GE_Rectangle newRectangle);
+		void addCollisionRectangle(GE_Rectangler newRectangle);
 
 		/*!
 		 * A callback upon collision
@@ -274,7 +274,7 @@ void GE_FreePhysicsObject(GE_PhysicsObject* physicsObject); //MUST be allocated 
  * @param points An array that can contain 4 Vector2* s. 
  * @param hostPosition a Vector2r , note the r, that the GE_Rectangle rect belongs to. It is used to be added to the positions of points, and its rotation will translate them.
  */
-void GE_RectangleToPoints(GE_Rectangle rect, Vector2 grid, Vector2* points, Vector2r hostPosition);
+void GE_RectangleToPoints(GE_Rectangler rect, Vector2 grid, Vector2* points, Vector2r hostPosition);
 
 /*!
  * Finds wheather a point is inside a physics object's collision boxes.

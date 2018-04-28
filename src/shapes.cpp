@@ -76,13 +76,15 @@ GE_HollowRectangleShape::~GE_HollowRectangleShape()
 }
 void GE_HollowRectangleShape::render(Vector2r position, Vector2 size)
 {
+	position.r *= -1; 
+
 	position.x += thickness;
  	position.y += thickness;
  	size.x -=thickness;
  	size.y -=thickness;
 
 	Vector2 points[4];
-	GE_RectangleToPoints({0,0,size.x,size.y},size,points,position);
+	GE_RectangleToPoints({0,0,0,size.x,size.y},size,points,position);
 	//render the connection betwen all the points in the rectangle
 	color->render(points[0]-Vector2{thickness/2,0},points[1]+Vector2{thickness/2,0},thickness);
 	color->render(points[1],points[3],thickness);
