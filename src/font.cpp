@@ -44,7 +44,7 @@ void GE_Font_LoadFromList(std::string list)
 		fonts.insert(std::make_pair(name,path));
 	}
 }
-GE_Font GE_Font_GetFont(std::string name, unsigned int size)
+std::optional<GE_Font> GE_Font_GetFont(std::string name, unsigned int size)
 {
 	//fontPath_t font = *(fonts.find(name));
 	fontRenders_t::iterator fontIt = fontRenders.find(fontPair_t(name,size));
@@ -53,19 +53,19 @@ GE_Font GE_Font_GetFont(std::string name, unsigned int size)
 		fonts_t::iterator pathIt = fonts.find(name);
 		if (pathIt == fonts.end())
 		{
-			return NULL;
+			return {};
 		}
-		GE_Font font = TTF_OpenFont((pathIt->second).c_str(), size);
-		if (!font)
+		GE_Font font = {TTF_OpenFont((pathIt->second).c_str(), size),size};
+		if (!(font.font))
 		{
 			printf("TTF_OpenFont: %s\n", TTF_GetError());
-			return NULL;
+			return {};
 		}
 		fontRenders.insert(std::make_pair(fontPair_t(name,size),font));
 
-		return font;
+		return {font};
 	}
-	return fontIt->second;
+	return {fontIt->second};
 }
 void GE_Font_Shutdown()
 {
@@ -77,7 +77,7 @@ void GE_Font_Shutdown()
 		{
 			break;
 		}
-		TTF_CloseFont(it->second);
+		TTF_CloseFont(it->second.font);
 		fontRenders.erase(it);
 	}
 	TTF_Quit();

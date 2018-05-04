@@ -23,7 +23,8 @@
 #include "serialize.h"
 #include "GeneralEngineCPP.h"
 
-#define PHYSICS_DEBUG_SLOWRENDERS 
+//define PHYSICS_DEBUG_SLOWRENDERS 
+
 
 #ifdef PHYSICS_DEBUG_SLOWRENDERS
 	#include<SDL2/SDL.h>

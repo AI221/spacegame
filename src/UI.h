@@ -14,7 +14,10 @@
 #include <SDL2/SDL_ttf.h>
 #include <string>
 #include <functional>
+#include <memory>
+#include <optional>
 
+#include "font.h"
 #include "shapes.h"
 
 class Vector2;
@@ -30,7 +33,7 @@ union SDL_Event;
 struct GE_UI_FontStyle
 {
 	GE_Color color;
-	TTF_Font* font;
+	GE_Font font;
 };
 struct GE_UI_ButtonStyle
 {
@@ -39,7 +42,7 @@ struct GE_UI_ButtonStyle
 	GE_Color text;
 	GE_Color textPressed;
 	Vector2 paddingSize;
-	TTF_Font* font;
+	GE_Font font;
 };
 
 struct GE_UI_WindowTitleStyle
@@ -75,7 +78,7 @@ struct GE_UI_Style
 struct GE_UI_SpacerStyle
 {
 	GE_Color color;
-	double verticalSize;
+	double size;
 	double spaceLeftAtEachEdge;
 	double extraSpaceBetween;
 };
@@ -139,7 +142,7 @@ GE_FORCE_INLINE bool checkIfFocused_ForBox(int mousex, int mousey, Vector2 posit
 class GE_UI_Text : public GE_UI_Element
 {
 	public:
-		GE_UI_Text(SDL_Renderer* renderer, Vector2 position, Vector2 size, std::string text, GE_Color color,TTF_Font* font);
+		GE_UI_Text(SDL_Renderer* renderer, Vector2 position, Vector2 size, std::string text, GE_Color color,GE_Font font);
 		GE_UI_Text(SDL_Renderer* renderer, Vector2 position, Vector2 size, std::string text, GE_UI_FontStyle style);
 		~GE_UI_Text();
 		void render(Vector2 parrentPosition);
@@ -178,7 +181,7 @@ class GE_UI_Text : public GE_UI_Element
 
 
 	private:
-		TTF_Font* font;//Sans = TTF_OpenFont("/usr/share/fonts/truetype/freefont/FreeSans.ttf", 15);
+		GE_Font font;//Sans = TTF_OpenFont("/usr/share/fonts/truetype/freefont/FreeSans.ttf", 15);
 		Vector2 position;
 		Vector2 size;
 		GE_Color color;
@@ -192,12 +195,12 @@ class GE_UI_Text : public GE_UI_Element
 		bool doCenterY;
 		bool doAlignLeft;
 
-		void _init(SDL_Renderer* renderer, Vector2 position, Vector2 size, std::string text, GE_Color color,TTF_Font* font);
+		const void _init(SDL_Renderer* renderer, Vector2 position, Vector2 size, std::string text, GE_Color color);
 };
 class GE_UI_TextInput : public GE_UI_Element
 {
 	public:
-		GE_UI_TextInput(SDL_Renderer* renderer, Vector2 position, Vector2 size, GE_Color textColor, GE_Color color, TTF_Font* font);
+		GE_UI_TextInput(SDL_Renderer* renderer, Vector2 position, Vector2 size, GE_Color textColor, GE_Color color, GE_Font font);
 		~GE_UI_TextInput();
 		void render(Vector2 parrentPosition);
 		void render(); 
@@ -222,7 +225,7 @@ class GE_UI_TextInput : public GE_UI_Element
 class GE_UI_Button : public GE_UI_Element
 {
 	public:
-		GE_UI_Button(SDL_Renderer* renderer, Vector2 position, Vector2 paddingSize, std::string text, GE_Color textColor, GE_Color color, GE_Color pressedColor, TTF_Font* font);
+		GE_UI_Button(SDL_Renderer* renderer, Vector2 position, Vector2 paddingSize, std::string text, GE_Color textColor, GE_Color color, GE_Color pressedColor, GE_Font font);
 		~GE_UI_Button();
 		void render(Vector2 parrentPosition);
 		void render();
@@ -280,7 +283,7 @@ class GE_UI_PositioningRectangle
 class GE_Experimental_UI_Button : public GE_UI_Element
 {
 	public:
-		GE_Experimental_UI_Button(SDL_Renderer* renderer, Vector2 position, Vector2 paddingSize, GE_Color color, GE_Color pressedColor, GE_UI_Text* text);
+		GE_Experimental_UI_Button(SDL_Renderer* renderer, Vector2 position, Vector2 paddingSize, GE_Color color, GE_Color pressedColor, GE_Color highlightColor, GE_UI_Text* text);
 		~GE_Experimental_UI_Button();
 		void render(Vector2 parrentPosition);
 		void render();
@@ -288,20 +291,22 @@ class GE_Experimental_UI_Button : public GE_UI_Element
 		Vector2 getSize();
 		bool getIsTriggered();
 		void setIsTriggered(bool triggered);
+		bool getIsHighlighted();
 
-		GE_UI_PositioningRectangle* positioningRectangle;
+		std::unique_ptr<GE_UI_PositioningRectangle> positioningRectangle;
 	private:
 		SDL_Renderer* renderer;
 		Vector2 position;
 		Vector2 paddingSize;
-		GE_Color color;
-		GE_Color pressedColor;
 		GE_UI_Text* text;
 		
 		bool pressed;
 		bool triggered;
-		GE_RectangleShape* normalRectangle;
-		GE_RectangleShape* pressedRectangle;
+		bool highlighted;
+
+		std::unique_ptr<GE_RectangleShape> normalRectangle;
+		std::unique_ptr<GE_RectangleShape> pressedRectangle;
+		std::unique_ptr<GE_RectangleShape> highlightRectangle;
 };
 
 class GE_UI_ProgressBar : public GE_UI_Element
@@ -472,6 +477,60 @@ class GE_UI_TextList : public GE_UI_TopLevelElement
 		void _construct_step_1(SDL_Renderer* renderer, Vector2 position, Vector2 size, std::vector<GE_UI_StringOrDivider> elements, GE_UI_TextListStyle style);
 		internal_return checkIfCursorOnText(Vector2 parrentPosition, int x, int y);
 };
+
+
+struct GE_UI_IDStringList
+{
+	unsigned int ID;
+	std::string string;
+};
+struct GE_UI_ListElement
+{
+	bool divider;
+	unsigned int ID; //ignored if divider is true
+};
+
+
+class GE_Experimental_UI_TextList : GE_UI_Element
+{
+	public:
+		GE_Experimental_UI_TextList(SDL_Renderer* renderer, Vector2 position, std::map<unsigned int, std::string> list, std::vector<GE_UI_ListElement> elements,bool listGoesDown, GE_UI_TextListStyle style);
+		void render(Vector2 parrentPosition) override;
+		void giveEvent(Vector2 parrentPosition, SDL_Event event) override;
+
+		std::optional<unsigned int> getHighlighted();
+		void setSelected(std::optional<unsigned int> selected);
+		std::optional<unsigned int> getSelected();
+
+	private:
+		std::vector<std::unique_ptr<GE_UI_Rectangle>> dividers;
+		std::vector<std::unique_ptr<GE_Experimental_UI_Button>> texts;
+		std::vector<unsigned int> userIDs;
+		std::unique_ptr<GE_UI_Rectangle> background;
+		
+		std::vector<GE_UI_ListElement> elements;
+
+		double fontHeight;
+		Vector2 size;
+		Vector2 position;
+
+
+		std::optional<unsigned int> highlightedText;
+		std::optional<unsigned int> selectedText;
+
+		
+
+		GE_UI_TextListStyle style;
+		Vector2 calcSize(std::map<unsigned int, std::string> list, bool listGoesDown );
+
+
+
+};
+
+
+
+
+
 /*!
  * This recieves all events all the time
  *

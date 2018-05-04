@@ -17,10 +17,15 @@ set( CMAKE_EXPORT_COMPILE_COMMANDS ON )
 #option
 option(WINDOWS "WINDOWS" OFF)
 option(RELEASE "RELEASE" OFF) #release optimizations, slow compile no debug info
+option(PROFILE "PROFILE" OFF) #performance profiles for release builds
+
+if (PROFILE)
+	set(RELEASE on)
+endif ()
 
 
 #global compilation flags
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++17 -march=haswell -Wall -Wextra -Wno-long-long -pedantic -Wswitch -Wimplicit-fallthrough -Wno-unused-parameter ")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++17 -march=haswell -Wall -Wextra -Wfloat-equal -Wno-long-long -pedantic -Wswitch -Wimplicit-fallthrough -Wno-unused-parameter ")
 
 #nix
 if (NOT WINDOWS)
@@ -68,7 +73,11 @@ if( RELEASE)
 	#append args to flags
 
 	set(CMAKE_BUILD_TYPE Release)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -flto")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -flto -mtune=native -fprofile-use -fprofile-correction ")
+	if (PROFILE)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-generate -fprofile-use -fprofile-correction ")
+	endif ()
+		
 else ()
 	#append args to flags
 	#set(CMAKE_BUILD_TYPE Debug)

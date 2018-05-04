@@ -45,7 +45,7 @@ void GE_DEBUG_PassRenderer(SDL_Renderer* yourRenderer, Camera* yourCamera)
 void GE_DEBUG_TextAt(std::string text, Vector2 position)
 {
 	initIfNeeded();
-	auto mytext = GE_UI_Text(GE_DEBUG_Renderer, position, {0,0}, text, {0xff,0xff,0x99,0xFF},debugSans); //create a new text to render it once. debug-grade effeciency
+	auto mytext = GE_UI_Text(GE_DEBUG_Renderer, position, {0,0}, text, {0xff,0xff,0x99,0xFF},{debugSans,15}); //create a new text to render it once. debug-grade effeciency
 	mytext.expandToTextSize();
 	mytext.render({0,0});
 }

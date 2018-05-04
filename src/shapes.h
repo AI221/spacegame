@@ -30,6 +30,8 @@ struct GE_Color
 	}
 };
 
+const GE_Color GE_EmptyColor {0,0,0,0};
+
 /*!
  * Base class for rendered shapes
  */

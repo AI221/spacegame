@@ -47,7 +47,7 @@ void GE_UI_Text::setText(const char* text)
 	strncpy(currentText,text,end);
 	currentText[end] = '\0';
 
-	SDL_Surface* surfaceMessage = TTF_RenderText_Blended(font, text, static_cast<SDL_Color>(color));
+	SDL_Surface* surfaceMessage = TTF_RenderText_Blended(font.font, text, static_cast<SDL_Color>(color));
 	if (surfaceMessage == NULL) //extra protection
 	{
 		return; //TODO CRASH NOTE: IF, DURING CONSTRUCTION, MESSAGE IS FAILED TO BE SET, THE NEXT RENDER() WILL CAUSE A CRASH.
@@ -104,20 +104,19 @@ void GE_UI_Text::expandToTextSize()
 	this->size.y = this->Message_rect.h;
 }
 
-void GE_UI_Text::_init(SDL_Renderer* renderer, Vector2 position, Vector2 size, std::string text, GE_Color color, TTF_Font* font)
+const void GE_UI_Text::_init(SDL_Renderer* renderer, Vector2 position, Vector2 size, std::string text, GE_Color color)
 {
 	//sanity checks because you don't want errors on font rendering(hard to trace)
 	
-	if (font == NULL)
+	if (this->font.font == NULL)
 	{
-		printf("[Fatal] 0001: GE_UI_Text -- Your TTF_Font* was NULL.\n");
+		printf("[Fatal] 0001: GE_UI_Text -- Your GE_Font was NULL.\n");
 		exit(EXIT_FAILURE);
 	}
 	
 
 
 
-	this->font = font;
 
 
 
@@ -142,13 +141,13 @@ void GE_UI_Text::_init(SDL_Renderer* renderer, Vector2 position, Vector2 size, s
 	this->wantsEvents = false;
 }
 
-GE_UI_Text::GE_UI_Text(SDL_Renderer* renderer, Vector2 position, Vector2 size, std::string text, GE_Color color, TTF_Font* font)
+GE_UI_Text::GE_UI_Text(SDL_Renderer* renderer, Vector2 position, Vector2 size, std::string text, GE_Color color, GE_Font font) : font(font) 
 {
-	_init(renderer,position,size,text,color,font);
+	_init(renderer,position,size,text,color);
 }
-GE_UI_Text::GE_UI_Text(SDL_Renderer* renderer, Vector2 position, Vector2 size, std::string text, GE_UI_FontStyle style)
+GE_UI_Text::GE_UI_Text(SDL_Renderer* renderer, Vector2 position, Vector2 size, std::string text, GE_UI_FontStyle style) : font(style.font)
 {
-	_init(renderer, position, size, text, style.color,style.font);
+	_init(renderer, position, size, text, style.color);
 }
 GE_UI_Text::~GE_UI_Text()
 {
@@ -190,7 +189,7 @@ void GE_UI_Text::render()
 {
 	render({0,0});
 }
-GE_UI_TextInput::GE_UI_TextInput(SDL_Renderer* renderer, Vector2 position, Vector2 size, GE_Color textColor, GE_Color color, TTF_Font* font)
+GE_UI_TextInput::GE_UI_TextInput(SDL_Renderer* renderer, Vector2 position, Vector2 size, GE_Color textColor, GE_Color color, GE_Font font)
 {
 	this->renderer = renderer;
 	this->position = position;
@@ -310,7 +309,7 @@ const char* GE_UI_TextInput::getText_cstr()
 }
 
 
-GE_UI_Button::GE_UI_Button(SDL_Renderer* renderer, Vector2 position, Vector2 paddingSize, std::string text, GE_Color textColor, GE_Color color, GE_Color pressedColor, TTF_Font* font)
+GE_UI_Button::GE_UI_Button(SDL_Renderer* renderer, Vector2 position, Vector2 paddingSize, std::string text, GE_Color textColor, GE_Color color, GE_Color pressedColor, GE_Font font)
 {
 	myText = new GE_UI_Text(renderer,position+paddingSize/2,{0,0},text,textColor,font);
 	myText->expandToTextSize();
@@ -457,32 +456,26 @@ Vector2 GE_UI_PositioningRectangle::getOriginSize()
 	return originSize;
 }
 
-GE_Experimental_UI_Button::GE_Experimental_UI_Button(SDL_Renderer* renderer, Vector2 position, Vector2 paddingSize, GE_Color color, GE_Color pressedColor, GE_UI_Text* text)
+GE_Experimental_UI_Button::GE_Experimental_UI_Button(SDL_Renderer* renderer, Vector2 position, Vector2 paddingSize, GE_Color color, GE_Color pressedColor, GE_Color highlightColor, GE_UI_Text* text)
 {
 	this->text = text;
 	this->renderer = renderer;
 	this->paddingSize = paddingSize;
-	this->color = color;
-	this->pressedColor = pressedColor;
 
-	positioningRectangle = new GE_UI_PositioningRectangle(position,paddingSize);
+	positioningRectangle = std::unique_ptr<GE_UI_PositioningRectangle>(new GE_UI_PositioningRectangle(position,paddingSize));
 	//positioningRectangle->setModifier(GE_UI_PositioningRectangleModifiers::expandSizeToFit,true);
-	normalRectangle = new GE_RectangleShape(renderer,color);
-	pressedRectangle = new GE_RectangleShape(renderer,pressedColor);
+	normalRectangle = std::unique_ptr<GE_RectangleShape>(new GE_RectangleShape(renderer,color));
+	pressedRectangle = std::unique_ptr<GE_RectangleShape>(new GE_RectangleShape(renderer,pressedColor));
+	highlightRectangle = std::unique_ptr<GE_RectangleShape>(new GE_RectangleShape(renderer, highlightColor));
 	this->pressed = false;
 	this->triggered = false;
+	this->highlighted = false;
 
 	this->wantsEvents = true;
 }
 GE_Experimental_UI_Button::~GE_Experimental_UI_Button()
 {
 	delete text;
-
-	delete positioningRectangle;
-	delete normalRectangle;
-	delete pressedRectangle;
-	
-
 }
 void GE_Experimental_UI_Button::render(Vector2 parrentPosition)
 {
@@ -491,15 +484,27 @@ void GE_Experimental_UI_Button::render(Vector2 parrentPosition)
 		//adjust our size in case the text size changed
 		positioningRectangle->setSize({text->Message_rect.w+paddingSize.x,text->Message_rect.h+paddingSize.y});
 	}
-	if (pressed)
+	Vector2 spot = parrentPosition+positioningRectangle->getPosition();
+	Vector2 size = positioningRectangle->getSize();
+
+	normalRectangle->render(spot,size);
+
+	//if m1 down and cursor over, or was pressed, render pressedRectangle
+	//If pressed but not over, render highlightRectangle
+	//if cursor over render highlight rectangle
+
+	if ((pressed && highlighted) || triggered)
 	{
-		pressedRectangle->render(parrentPosition+positioningRectangle->getPosition(),positioningRectangle->getSize());
+		pressedRectangle->render(spot,size);
 	}
-	else
+	else if ((highlighted || triggered) || pressed)
 	{
-		normalRectangle->render(parrentPosition+positioningRectangle->getPosition(),positioningRectangle->getSize());
+
+		highlightRectangle->render(spot,size);
 	}
-	text->render(parrentPosition);
+
+
+	text->render(spot+size/2);
 }
 void GE_Experimental_UI_Button::render()
 {
@@ -510,15 +515,15 @@ void GE_Experimental_UI_Button::giveEvent(Vector2 parrentPosition, SDL_Event eve
 	Vector2 actualPosition = positioningRectangle->getPosition();
 	actualPosition.x += parrentPosition.x;
 	actualPosition.y += parrentPosition.y;
+	int x,y;
+	SDL_GetMouseState(&x,&y);
+	highlighted = checkIfFocused_ForBox(x,y,actualPosition,positioningRectangle->getSize());
 	if (event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_MOUSEBUTTONUP)
 	{
 		if (event.button.button == SDL_BUTTON_LEFT)
 		{
-			int x,y;
-			SDL_GetMouseState(&x,&y);
-			if (actualPosition.x <= x && actualPosition.y <= y && positioningRectangle->getSize().x+positioningRectangle->getPosition().x >= x && positioningRectangle->getSize().y +positioningRectangle->getPosition().y>= y)
+			if(highlighted) //check if the cursor is over the button
 			{
-				std::cout << "BINGO" << std::endl;
 				if (event.type == SDL_MOUSEBUTTONDOWN)
 				{
 					pressed = true;
@@ -545,7 +550,10 @@ void GE_Experimental_UI_Button::setIsTriggered(bool triggered)
 {
 	this->triggered = triggered;
 }
-
+bool GE_Experimental_UI_Button::getIsHighlighted()
+{
+	return highlighted;
+}
 
 GE_UI_ProgressBar::GE_UI_ProgressBar(SDL_Renderer* renderer, Vector2 position, Vector2 size, GE_Color color, GE_Color background, bool showProgressNumber)
 {
@@ -881,11 +889,11 @@ void GE_UI_TextList::_construct_step_1(SDL_Renderer* renderer, Vector2 position,
 			dividers.push_back(new GE_UI_Rectangle(
 						renderer,
 						{style.spacer.spaceLeftAtEachEdge,verticalPositition+style.spacer.spaceLeftAtEachEdge/2},
-						{size.x-(style.spacer.spaceLeftAtEachEdge*2),style.spacer.verticalSize},
+						{size.x-(style.spacer.spaceLeftAtEachEdge*2),style.spacer.size},
 						style.spacer.color)
 					);
 
-			verticalPositition += style.spacer.verticalSize+style.spacer.spaceLeftAtEachEdge;
+			verticalPositition += style.spacer.size+style.spacer.spaceLeftAtEachEdge;
 		}
 		else
 		{
@@ -1183,6 +1191,241 @@ Vector2 GE_UI_TextList::getSize()
 	return size;
 }
 
+
+
+
+void iterate_elements(std::vector<GE_UI_ListElement> list,std::function<void(GE_UI_ListElement&)> divider,std::function<void(GE_UI_ListElement&)> text)
+{
+	for (auto& element : list)
+	{
+		if (element.divider)
+		{
+			divider(element);
+		}
+		else
+		{
+			text(element);
+		}
+	}
+}
+
+Vector2 GE_Experimental_UI_TextList::calcSize(std::map<unsigned int, std::string> list, bool listGoesDown)
+{
+	Vector2 figuredSize;
+	double workingSize;
+	iterate_elements(elements,
+	[&](GE_UI_ListElement&)
+	{
+			workingSize += style.spacer.size+style.spaceBetweenElements+style.spacer.extraSpaceBetween;
+	},
+	[&](GE_UI_ListElement& element)
+	{
+		if(listGoesDown)
+		{
+			workingSize += fontHeight;
+		}
+		int size; 
+		TTF_SizeText(style.font.font.font,list[(element.ID)].c_str(),&size,NULL);
+		if (listGoesDown)
+		{
+			figuredSize.x = std::max(figuredSize.x,static_cast<double>(size));
+		}
+		else
+		{
+			workingSize += size;
+		}
+
+	});
+	workingSize+= style.spaceBetweenElements;
+	if (listGoesDown)
+	{
+		figuredSize.y = workingSize;
+
+	}
+	else
+	{
+		figuredSize.y = fontHeight;
+		figuredSize.x = workingSize;
+	}
+	return figuredSize;
+}
+
+Vector2 reverseif(Vector2 subject, bool val)
+{
+	if(val)
+	{
+		subject = reverseVector(subject);
+	}
+	return subject;
+}
+GE_Experimental_UI_TextList::GE_Experimental_UI_TextList(SDL_Renderer* renderer, Vector2 position, std::map<unsigned int, std::string> list, std::vector<GE_UI_ListElement> elements,bool listGoesDown, GE_UI_TextListStyle style)
+{
+	this->style = style;
+	this->position = position;
+
+	fontHeight = static_cast<double>(TTF_FontHeight(style.font.font.font)); // I should be more verbose with my names
+	this->elements = elements;
+	size = calcSize(list,listGoesDown);
+
+	double workingPosition = listGoesDown? position.y : position.x;
+	iterate_elements(elements,
+	[&,this](GE_UI_ListElement&)
+	{
+		dividers.push_back(std::unique_ptr<GE_UI_Rectangle>(
+			new GE_UI_Rectangle(
+				renderer,
+				reverseif({style.spacer.spaceLeftAtEachEdge,(workingPosition+style.spacer.extraSpaceBetween)-(style.spacer.size/2)},!listGoesDown),
+				reverseif({(listGoesDown? size.x : size.y)-(style.spacer.spaceLeftAtEachEdge*2),style.spacer.size},!listGoesDown),
+				style.spacer.color)
+			)
+		);
+		workingPosition += style.spaceBetweenElements+style.spacer.extraSpaceBetween;
+	},
+	[&,this](GE_UI_ListElement& element)
+	{
+		auto buttonText = new GE_UI_Text(
+			renderer,
+			{0,0},
+			{size.x,fontHeight},
+			list[element.ID],style.font
+		);
+		buttonText->center();
+
+		int sizex; 
+		if (!listGoesDown)
+		{
+			TTF_SizeText(style.font.font.font,list[(element.ID)].c_str(),&sizex,NULL);
+		}
+
+		texts.push_back(std::unique_ptr<GE_Experimental_UI_Button>(
+			new GE_Experimental_UI_Button(
+				renderer,
+				reverseif(Vector2{0,workingPosition},!listGoesDown)+position,
+				{listGoesDown? size.x : static_cast<double>(sizex),fontHeight},
+				GE_EmptyColor,
+				style.highlight,
+				style.highlight,
+				buttonText
+			)
+		));
+		userIDs.push_back(element.ID);
+		workingPosition += style.spaceBetweenElements+(listGoesDown? fontHeight : static_cast<double>(sizex));
+	});
+
+	background = std::unique_ptr<GE_UI_Rectangle>(new GE_UI_Rectangle(renderer,position,size,style.background));
+	this->elements = elements;
+
+
+	this->wantsEvents = true;
+}
+
+void GE_Experimental_UI_TextList::render(Vector2 parrentPosition)
+{
+	background->render(parrentPosition);
+	for(auto& obj : texts)
+	{
+		obj->render(parrentPosition);
+	}
+	for(auto& obj : dividers)
+	{
+		obj->render(parrentPosition);
+	}
+}
+void GE_Experimental_UI_TextList::giveEvent(Vector2 parrentPosition, SDL_Event event)
+{
+	highlightedText.reset();
+	unsigned int i = 0;
+	for(auto& obj : texts)
+	{
+		obj->giveEvent(parrentPosition,event);
+		if(obj->getIsHighlighted())
+		{
+			highlightedText = userIDs[i];
+		}
+		if (obj->getIsTriggered())
+		{
+			setSelected({userIDs[i]});
+		}
+		i++;
+	}
+}
+void GE_Experimental_UI_TextList::setSelected(std::optional<unsigned int> selected)
+{
+	//we can only select 1 thing at a time
+	for (auto& obj : texts) 
+	{
+		obj->setIsTriggered(false);
+	}
+	this->selectedText = selected;
+	if (selected.has_value())
+	{
+		texts[selected.value()]->setIsTriggered(true);	
+	}
+}
+std::optional<unsigned int> GE_Experimental_UI_TextList::getSelected()
+{
+	return selectedText;	
+}
+std::optional<unsigned int> GE_Experimental_UI_TextList::getHighlighted()
+{
+	return highlightedText;
+}
+
+/*
+class GE_UI_TextListGroup : GE_UI_Element
+{
+	public:
+		GE_UI_TextListGroup(std::map<unsigned int, GE_Experimental_UI_TextList&> lists, std::map<unsigned int, unsigned int> menuOpeningsTextIDToTextListID);
+		void render(Vector2 parrentPosition);
+		void giveEvent(Vector2 parrentPosition, SDL_Event event);
+
+		void setIsOpen(unsigned int listID, bool isOpen);
+	private:
+		std::map<unsigned int, GE_Experimental_UI_TextList&> lists;
+		std::map<unsigned int, unsigned int> menuOpeningsTextIDToTextListID;
+
+		std::vector<GE_Experimental_UI_TextList&> openLists;
+
+};
+template<typename container_t, typename value_t>
+void insert_unique(container_t container, value_t value)
+{
+	if (std::find(std::begin(container),std::end(container),value) != std::end(container))
+	{
+		container.push_back(value);
+	}
+}
+
+
+
+GE_UI_TextListGroup::GE_UI_TextListGroup(std::map<unsigned int, GE_Experimental_UI_TextList&> lists, std::map<unsigned int, unsigned int> menuOpeningsTextIDToTextListID)
+{
+	this->lists = lists;
+	this->menuOpeningsTextIDToTextListID = menuOpeningsTextIDToTextListID;
+
+	this->wantsEvents = true;
+}
+void GE_UI_TextListGroup::render(Vector2 parrentPosition)
+{
+
+}
+void GE_UI_TextListGroup::giveEvent(Vector2 parrentPosition, SDL_Event event)
+{
+
+}
+void GE_UI_TextListGroup::setIsOpen(unsigned int listID, bool isOpen)
+{
+	if(isOpen)
+	{
+		//insert_unique(openLists,list[listID]);
+	}
+	else
+	{
+		//openLists.erase(lists[listID]);
+	}
+
+}
+*/
 
 
 

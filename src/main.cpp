@@ -138,9 +138,9 @@ GE_Rectangle camerasGrid;
 int rendererThreadsafeTicknum;
 
 
-TTF_Font* tinySans;
-TTF_Font* bigSans;
-TTF_Font* titleSans;
+GE_Font tinySans;
+GE_Font bigSans;
+GE_Font titleSans;
 
 GE_UI_FontStyle fstyle;
 GE_UI_WindowTitleStyle windowTitleStyle;
@@ -178,7 +178,7 @@ void startTheGame()
 	//new Wall(renderer,Vector2r{00,-90,0},GE_Rectangle{0,0,200,10},25);
 	//new Wall(renderer,Vector2r{300,-90,0},GE_Rectangle{0,0,200,10},999);
 	//new Enemie(renderer,{0,-250,0},1);
-	int numobjs = 0;//5000;//10000;
+	int numobjs = 1000;//00;
 	int iter = sqrt(numobjs);
 
 	for (int y=-(iter/2);y<=iter/2;y++)
@@ -383,6 +383,7 @@ class UI_GameView : public GE_UI_TopLevelElement //Includes a UI_WorldView and H
 
 
 
+GE_Experimental_UI_TextList* test_;
 class UI_MainMenu : public GE_UI_TopLevelElement
 {
 	public:
@@ -417,8 +418,8 @@ class UI_MainMenu : public GE_UI_TopLevelElement
 
 
 
-			GE_Font titleFont = GE_Font_GetFont("FreeMono",50);
-			TTF_SetFontStyle(titleFont,TTF_STYLE_ITALIC);
+			GE_Font titleFont = GE_Font_GetFont("FreeMono",50).value();
+			TTF_SetFontStyle(titleFont.font,TTF_STYLE_ITALIC);
 			titleText = new GE_UI_Text(renderer,{size.x/2,(size.y/2)-(300)},{0,0},"S P A C E G A M E",GE_Color{0xff,0xff,0xff,0x00},titleFont);
 			titleText->expandToTextSize();
 			titleText->centerX();
@@ -426,36 +427,31 @@ class UI_MainMenu : public GE_UI_TopLevelElement
 			mySurface->addElement(titleText);
 
 
-			GE_UI_Text* buttonText = new GE_UI_Text(renderer,{size.x/2,size.y/2},{0,0},"Start Game",GE_Color{0xff,0xff,0xff,0x00},tinySans);
+			GE_UI_Text* buttonText = new GE_UI_Text(renderer,{0,0},{0,0},"Start Game",GE_Color{0xff,0xff,0xff,0x00},tinySans);
 			buttonText->expandToTextSize();
 			buttonText->center();
-			startGame = new GE_Experimental_UI_Button(renderer, {size.x/2,size.y/2},{200,75},{0x00,0x33,0x00,255},GE_Color{0x55,0xee,0x22,0xff},buttonText);
+			startGame = new GE_Experimental_UI_Button(renderer, {size.x/2,size.y/2},{200,75},{0x00,0x33,0x00,255},GE_Color{0x55,0xee,0x22,0xff},GE_Color{0x1e,0x88,0x1a,0xff},buttonText);
 			startGame->positioningRectangle->setModifier(GE_UI_PositioningRectangleModifiers::centerX,true);
 			startGame->positioningRectangle->setModifier(GE_UI_PositioningRectangleModifiers::centerY,true);
-			startGame->render({0,0});
-
-			printf("%s", (GE_DEBUG_VectorToString(startGame->positioningRectangle->getPosition())+"\n").c_str());
-			//SDL_Delay(6000);
 			mySurface->addElement(startGame);
 
-			buttonText = new GE_UI_Text(renderer,{size.x/2,size.y/2+100},{0,0},"Quit",GE_Color{0xff,0xff,0xff,0x00},tinySans);
+			buttonText = new GE_UI_Text(renderer,{0,0},{0,0},"Quit",GE_Color{0xff,0xff,0xff,0x00},tinySans);
 			buttonText->expandToTextSize();
 			buttonText->center();
-			quitGame = new GE_Experimental_UI_Button(renderer, {size.x/2,size.y/2+100},{200,75},{0x00,0x33,0x00,255},GE_Color{0x55,0xee,0x22,0xff},buttonText);
+			quitGame = new GE_Experimental_UI_Button(renderer, {size.x/2,size.y/2+100},{200,75},{0x00,0x33,0x00,255},GE_Color{0x55,0xee,0x22,0xff},GE_Color{0x1e,0x88,0x1a,0xff},buttonText);
 			quitGame->positioningRectangle->setModifier(GE_UI_PositioningRectangleModifiers::centerX,true);
 			quitGame->positioningRectangle->setModifier(GE_UI_PositioningRectangleModifiers::centerY,true);
-//			quitGame->positioningRectangle->setModifier(GE_UI_PositioningRectangleModifiers::expandSizeToFit,true);
 			mySurface->addElement(quitGame);
 
-			buttonText = new GE_UI_Text(renderer,{size.x/2,size.y/2+200},{0,0},"Level Editor",GE_Color{0xff,0xff,0xff,0x00},tinySans);
+			buttonText = new GE_UI_Text(renderer,{0,0},{0,0},"Level Editor",GE_Color{0xff,0xff,0xff,0x00},tinySans);
 			buttonText->expandToTextSize();
 			buttonText->center();
-			levelEditorButton = new GE_Experimental_UI_Button(renderer, {size.x/2,size.y/2+200},{200,75},{0x00,0x33,0x00,255},GE_Color{0x55,0xee,0x22,0xff},buttonText);
+			levelEditorButton = new GE_Experimental_UI_Button(renderer, {size.x/2,size.y/2+200},{200,75},{0x00,0x33,0x00,255},GE_Color{0x55,0xee,0x22,0xff},GE_Color{0x1e,0x88,0x1a,0xff},buttonText);
 			levelEditorButton->positioningRectangle->setModifier(GE_UI_PositioningRectangleModifiers::centerX,true);
 			levelEditorButton->positioningRectangle->setModifier(GE_UI_PositioningRectangleModifiers::centerY,true);
 			mySurface->addElement(levelEditorButton);
 
-			GE_Font copyrightFont = GE_Font_GetFont("FreeMono",18);
+			GE_Font copyrightFont = GE_Font_GetFont("FreeMono",18).value();
 			GE_UI_Text* copyright = new GE_UI_Text(renderer,{size.x,size.y-18},{0,0},"Copyright 2018 Jackson Reed McNeill. Licensed under GNU GPL v3",GE_Color{0xff,0xff,0xff,0xff},copyrightFont);
 			copyright->alignLeft();
 			copyright->expandToTextSize();
@@ -467,6 +463,12 @@ class UI_MainMenu : public GE_UI_TopLevelElement
 			#endif
 
 
+				//testarea plz delete
+			GE_Font rclickfont = GE_Font_GetFont("FreeSans",35).value();
+			GE_UI_TextListStyle rclickstyle = {{GE_Color{0xff,0xff,0xff,0x00},rclickfont},900000,5,GE_Color{0x00,0x33,0x00,255},GE_Color{0xff,0x00,0x00,255},{{0x00,0x22,0x00,0xff},3,15,0},3};
+			test_ = new GE_Experimental_UI_TextList(renderer, {0,0},{{0,"File"},{1,"Edit"},{2,"View"}}, {{false,0},{true,0},{false,1},{false,2}},true, rclickstyle);
+
+
 
 		}
 		void render(Vector2 parrentPosition)
@@ -474,9 +476,11 @@ class UI_MainMenu : public GE_UI_TopLevelElement
 			camera.pos = {static_cast<double>(rendererThreadsafeTicknum)*3,0,0};
 			titleText->setPosition({size.x/2,((size.y/2)-(250))+(std::sin((static_cast<double>(rendererThreadsafeTicknum)/60)))*20});
 			mySurface->render(parrentPosition);
+			test_->render(parrentPosition);
 		}
 		void giveEvent(Vector2 parrentPosition, SDL_Event event)
 		{
+			test_->giveEvent(parrentPosition,event);
 			//give events to the buttons, etc.
 			mySurface->giveEvent(parrentPosition,event);
 
@@ -510,7 +514,7 @@ class UI_MainMenu : public GE_UI_TopLevelElement
 				levelEditorButton->setIsTriggered(false);
 
 
-				GE_Font rclickfont = GE_Font_GetFont("FreeSans",15);
+				GE_Font rclickfont = GE_Font_GetFont("FreeSans",15).value();
 				GE_UI_TextListStyle rclickstyle = {{GE_Color{0xff,0xff,0xff,0x00},rclickfont},18,5,GE_Color{0x00,0x33,0x00,255},GE_Color{0xff,0x00,0x00,255},{{0x00,0x22,0x00,0xff},3,15,0},3};
 
 				GE_UI_LevelEditor2DStyle newstyle = 
@@ -628,11 +632,11 @@ int main(int argc, char* argv[])
 
 	//initialize some fonts we use
 	GE_Font_LoadFromList("../fonts/list.json");
-	tinySans = GE_Font_GetFont("FreeSans",15);
-	bigSans = GE_Font_GetFont("FreeSans",72);
-	titleSans = GE_Font_GetFont("FreeSans",18);
-	TTF_SetFontStyle(bigSans,TTF_STYLE_ITALIC);
-	TTF_SetFontStyle(titleSans,TTF_STYLE_NORMAL | TTF_STYLE_BOLD);
+	tinySans = GE_Font_GetFont("FreeSans",15).value();
+	bigSans = GE_Font_GetFont("FreeSans",72).value();
+	titleSans = GE_Font_GetFont("FreeSans",18).value();
+	TTF_SetFontStyle(bigSans.font,TTF_STYLE_ITALIC);
+	TTF_SetFontStyle(titleSans.font,TTF_STYLE_NORMAL | TTF_STYLE_BOLD);
 
 
 

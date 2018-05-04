@@ -31,6 +31,8 @@ GE_FORCE_INLINE double GE_CapRotation(double rotation)
 }
 
 
+
+
 struct IntVector2;
 
 /*!
@@ -153,7 +155,13 @@ struct Vector2 : public GE_Serializable
 
 	//Vector2 operator=(const IntVector2& subject);
 };
-
+GE_FORCE_INLINE Vector2 reverseVector(Vector2 subject)
+{
+	auto _x = subject.x;
+	subject.x = subject.y;
+	subject.y = _x;
+	return subject;
+}
 
 /*!
  * A point in 2D space with rotation
