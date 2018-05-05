@@ -1269,7 +1269,7 @@ GE_Experimental_UI_TextList::GE_Experimental_UI_TextList(SDL_Renderer* renderer,
 
 	double workingPosition = listGoesDown? position.y : position.x;
 	iterate_elements(elements,
-	[&,this](GE_UI_ListElement&)
+	[&,this](GE_UI_ListElement& element)
 	{
 		dividers.push_back(std::unique_ptr<GE_UI_Rectangle>(
 			new GE_UI_Rectangle(
@@ -1279,6 +1279,7 @@ GE_Experimental_UI_TextList::GE_Experimental_UI_TextList(SDL_Renderer* renderer,
 				style.spacer.color)
 			)
 		);
+		elementPositions.insert(std::make_pair(element.ID,workingPosition));
 		workingPosition += style.spaceBetweenElements+style.spacer.extraSpaceBetween;
 	},
 	[&,this](GE_UI_ListElement& element)
@@ -1309,11 +1310,16 @@ GE_Experimental_UI_TextList::GE_Experimental_UI_TextList(SDL_Renderer* renderer,
 			)
 		));
 		userIDs.push_back(element.ID);
+		elementPositions.insert(std::make_pair(element.ID,workingPosition));
 		workingPosition += style.spaceBetweenElements+(listGoesDown? fontHeight : static_cast<double>(sizex));
 	});
 
 	background = std::unique_ptr<GE_UI_Rectangle>(new GE_UI_Rectangle(renderer,position,size,style.background));
 	this->elements = elements;
+
+	this->listGoesDown = listGoesDown;
+
+	this->postCreationPositionSet = {0,0};
 
 
 	this->wantsEvents = true;
@@ -1321,6 +1327,7 @@ GE_Experimental_UI_TextList::GE_Experimental_UI_TextList(SDL_Renderer* renderer,
 
 void GE_Experimental_UI_TextList::render(Vector2 parrentPosition)
 {
+	parrentPosition = parrentPosition+postCreationPositionSet;
 	background->render(parrentPosition);
 	for(auto& obj : texts)
 	{
@@ -1333,6 +1340,7 @@ void GE_Experimental_UI_TextList::render(Vector2 parrentPosition)
 }
 void GE_Experimental_UI_TextList::giveEvent(Vector2 parrentPosition, SDL_Event event)
 {
+	parrentPosition = parrentPosition+postCreationPositionSet;
 	highlightedText.reset();
 	unsigned int i = 0;
 	for(auto& obj : texts)
@@ -1340,16 +1348,26 @@ void GE_Experimental_UI_TextList::giveEvent(Vector2 parrentPosition, SDL_Event e
 		obj->giveEvent(parrentPosition,event);
 		if(obj->getIsHighlighted())
 		{
-			highlightedText = userIDs[i];
+			highlightedText = i;
 		}
 		if (obj->getIsTriggered())
 		{
-			setSelected({userIDs[i]});
+			setSelected_int({i});
 		}
 		i++;
 	}
 }
+bool GE_Experimental_UI_TextList::checkIfFocused(int mousex, int mousey, Vector2 parrentPosition)
+{
+	return checkIfFocused_ForBox(mousex, mousey,position+postCreationPositionSet+parrentPosition,size);
+}
+const std::optional<unsigned int> blank_optional = std::optional<unsigned int>();
 void GE_Experimental_UI_TextList::setSelected(std::optional<unsigned int> selected)
+{
+	setSelected_int(selected.has_value()? std::make_optional(userIDs[selected.value()]) : blank_optional);
+
+}
+void GE_Experimental_UI_TextList::setSelected_int(std::optional<unsigned int> selected)
 {
 	//we can only select 1 thing at a time
 	for (auto& obj : texts) 
@@ -1364,68 +1382,215 @@ void GE_Experimental_UI_TextList::setSelected(std::optional<unsigned int> select
 }
 std::optional<unsigned int> GE_Experimental_UI_TextList::getSelected()
 {
-	return selectedText;	
+	return selectedText.has_value()? std::make_optional(userIDs[selectedText.value()]) : blank_optional;
 }
 std::optional<unsigned int> GE_Experimental_UI_TextList::getHighlighted()
 {
-	return highlightedText;
+	return highlightedText.has_value()? std::make_optional(userIDs[highlightedText.value()]) : blank_optional;
 }
-
-/*
-class GE_UI_TextListGroup : GE_UI_Element
+double GE_Experimental_UI_TextList::getTextDeterminatedSize()
 {
-	public:
-		GE_UI_TextListGroup(std::map<unsigned int, GE_Experimental_UI_TextList&> lists, std::map<unsigned int, unsigned int> menuOpeningsTextIDToTextListID);
-		void render(Vector2 parrentPosition);
-		void giveEvent(Vector2 parrentPosition, SDL_Event event);
+	return listGoesDown? size.x : size.y;
+}
+double GE_Experimental_UI_TextList::getElementPosition(unsigned int element)
+{
+	return elementPositions[element]+(listGoesDown? postCreationPositionSet.y : postCreationPositionSet.x);
+}
+void GE_Experimental_UI_TextList::setPosition(Vector2 newPosition)
+{
+	postCreationPositionSet = newPosition;
+}
+Vector2 GE_Experimental_UI_TextList::getPosition()
+{
+	return postCreationPositionSet+position;
+}
+bool GE_Experimental_UI_TextList::doesListGoDown()
+{
+	return listGoesDown;
+}
+	
 
-		void setIsOpen(unsigned int listID, bool isOpen);
-	private:
-		std::map<unsigned int, GE_Experimental_UI_TextList&> lists;
-		std::map<unsigned int, unsigned int> menuOpeningsTextIDToTextListID;
-
-		std::vector<GE_Experimental_UI_TextList&> openLists;
-
-};
 template<typename container_t, typename value_t>
 void insert_unique(container_t container, value_t value)
 {
 	if (std::find(std::begin(container),std::end(container),value) != std::end(container))
 	{
+		printf("inserting value\n");
 		container.push_back(value);
 	}
 }
 
 
 
-GE_UI_TextListGroup::GE_UI_TextListGroup(std::map<unsigned int, GE_Experimental_UI_TextList&> lists, std::map<unsigned int, unsigned int> menuOpeningsTextIDToTextListID)
+GE_UI_TextListGroup::GE_UI_TextListGroup(Vector2 position, Vector2 screenSize,std::map<listID, std::shared_ptr<GE_Experimental_UI_TextList>> lists, std::map<listID,elementID> ListToItsOpeningSubelement, listID defaultOpen)
 {
 	this->lists = lists;
-	this->menuOpeningsTextIDToTextListID = menuOpeningsTextIDToTextListID;
+	this->ListToItsOpeningSubelement = ListToItsOpeningSubelement;
+	this->defaultOpen = defaultOpen;
+	this->position = position;
+	this->screenSize = screenSize;
+
+	for (auto& list : lists)
+	{
+		for (elementID element : list.second->userIDs)
+		{
+			elementToList.insert(std::make_pair(element,list.first));
+		}
+		listPositions.insert(std::make_pair(list.first,Vector2{0,0})); //fill list positions with blanks, to be updated at giveEvent
+		parrentToChildMap.insert(std::make_pair(list.first,std::vector<listID>({})));
+	}
+	listPositions[defaultOpen] = position;
+
+	for (auto& mapElement : ListToItsOpeningSubelement)
+	{
+		childToParrentMap.insert(std::make_pair(mapElement.first,elementToList[mapElement.second]));
+		parrentToChildMap[elementToList[mapElement.second]].push_back(mapElement.first);
+		OpeningSubelementToItsList.insert(std::make_pair(mapElement.second,mapElement.first));
+	}
+	/*
+	for (auto& mapElement : childToParrentMap)
+	{
+		auto position = lists[mapElement.first]->getPosition();
+		position
+	}
+	*/
+
+
+	openLists.insert(defaultOpen);
+
+	appendChildrenToHiearchy(defaultOpen); //append all lists
+	semiHiearchy.erase(std::begin(semiHiearchy)); //remove defaultOpen
 
 	this->wantsEvents = true;
 }
+void GE_UI_TextListGroup::appendChildrenToHiearchy(listID parrent)
+{
+	printf("do for %d\n",parrent);
+	semiHiearchy.push_back(parrent);
+	auto it = parrentToChildMap.find(parrent);
+	if (it != std::end(parrentToChildMap))
+	{
+		std::for_each(std::begin(it->second),std::end(it->second),[this](listID child){this->appendChildrenToHiearchy(child);});
+	}
+}
 void GE_UI_TextListGroup::render(Vector2 parrentPosition)
 {
+	for (auto list : openLists)
+	{
+		lists[list]->render(parrentPosition+listPositions[list]);
+	}
 
 }
+#include "debugRenders.h"
+
 void GE_UI_TextListGroup::giveEvent(Vector2 parrentPosition, SDL_Event event)
 {
+	for (listID list : semiHiearchy)
+	{
+		listID parrent = childToParrentMap[list];
 
+		//get position relative to parrent list
+		Vector2 relativePos = {lists[parrent]->getElementPosition(ListToItsOpeningSubelement[list]),lists[parrent]->getTextDeterminatedSize()};
+		printf("%s\n",GE_DEBUG_VectorToString(relativePos).c_str());
+		relativePos = reverseif(relativePos,lists[parrent]->doesListGoDown());
+
+
+		listPositions[list] = relativePos+listPositions[parrent];
+	}
+	for (listID list : openLists)
+	{
+		/*
+		if (list != defaultOpen)
+		{
+			int x,y;
+			SDL_GetMouseState(&x,&y);
+			if (!checkIfListShouldBeOpen(parrentPosition,x,y,list))
+			{
+				closingLists.insert(list);
+				continue;
+			}
+
+		}
+		*/
+		std::shared_ptr<GE_Experimental_UI_TextList> list_ptr = lists[list];
+		list_ptr->giveEvent(parrentPosition+listPositions[list],event);
+		std::optional<elementID> selectedElement = list_ptr->getHighlighted();
+		if (selectedElement.has_value())
+		{
+			//printf("has value\n");
+			auto it = OpeningSubelementToItsList.find(selectedElement.value());
+			if (it != std::end(OpeningSubelementToItsList))
+			{
+				printf("set open\n");
+				setIsOpen(it->second,true);
+			}
+
+
+		}
+
+	}
+
+	for (auto i=semiHiearchy.rbegin();i!=semiHiearchy.rend();i++)
+	{
+		printf("id %d\n",*i);
+		if(*i == defaultOpen || openLists.find(*i) == std::end(openLists))
+		{
+			printf("cont\n");
+			continue;
+		}
+		int x,y;
+		SDL_GetMouseState(&x,&y);
+		if (checkIfListShouldBeOpen(parrentPosition,x,y,*i))
+		{
+			printf("reach end\n");
+			break; //cannot close parrent list if their child is open
+		}
+		else
+		{
+			printf("rm\n");
+			closingLists.insert(*i);
+		}
+		
+	}
+
+	while (std::begin(closingLists) != std::end(closingLists))
+	{
+		setIsOpen(*std::begin(closingLists),false);
+		closingLists.erase(std::begin(closingLists));//an iterator can be used because it is the same list.
+	} 
+
+
+
+}
+bool GE_UI_TextListGroup::checkIfListShouldBeOpen(Vector2 parrentPosition, int mousex, int mousey, listID ID)
+{
+	if(lists[ID]->checkIfFocused(mousex,mousey, parrentPosition+listPositions[ID])) //todo
+	{
+		return true;
+	}
+	else
+	{
+		std::optional<elementID> element= lists[childToParrentMap[ID]]->getHighlighted();
+		if (element.has_value() && OpeningSubelementToItsList[element.value()] == ID)
+		{
+			return true;
+		}
+	}
+	return false;
 }
 void GE_UI_TextListGroup::setIsOpen(unsigned int listID, bool isOpen)
 {
 	if(isOpen)
 	{
-		//insert_unique(openLists,list[listID]);
+		openLists.insert(listID);
 	}
 	else
 	{
-		//openLists.erase(lists[listID]);
+		openLists.erase(listID);
+		lists[childToParrentMap[listID]]->setSelected({});
 	}
 
 }
-*/
 
 
 

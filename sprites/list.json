@@ -35,7 +35,8 @@
 		"debug/DEBUG_nothingHere.bmp",
 		"debug/DEBUG_somethingHere.bmp",
 
-		"ui/mainmenu/background-ss.png"
+		"ui/mainmenu/background-ss.png",
+		"ui/button.png"
 		
 	]
 }

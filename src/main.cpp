@@ -383,7 +383,7 @@ class UI_GameView : public GE_UI_TopLevelElement //Includes a UI_WorldView and H
 
 
 
-GE_Experimental_UI_TextList* test_;
+GE_UI_TextListGroup* test_;
 class UI_MainMenu : public GE_UI_TopLevelElement
 {
 	public:
@@ -466,7 +466,10 @@ class UI_MainMenu : public GE_UI_TopLevelElement
 				//testarea plz delete
 			GE_Font rclickfont = GE_Font_GetFont("FreeSans",35).value();
 			GE_UI_TextListStyle rclickstyle = {{GE_Color{0xff,0xff,0xff,0x00},rclickfont},900000,5,GE_Color{0x00,0x33,0x00,255},GE_Color{0xff,0x00,0x00,255},{{0x00,0x22,0x00,0xff},3,15,0},3};
-			test_ = new GE_Experimental_UI_TextList(renderer, {0,0},{{0,"File"},{1,"Edit"},{2,"View"}}, {{false,0},{true,0},{false,1},{false,2}},true, rclickstyle);
+			auto list = std::shared_ptr<GE_Experimental_UI_TextList>(new GE_Experimental_UI_TextList(renderer, {0,0},{{0,"File"},{1,"Edit"},{27,"View"}}, {{false,0},{true,0},{false,1},{false,27}},false, rclickstyle));
+			auto list2 = std::shared_ptr<GE_Experimental_UI_TextList>(new GE_Experimental_UI_TextList(renderer, {0,0},{{3,"File"},{4,"im different"},{5,"View"}}, {{false,3},{true,0},{false,4},{false,5}},true, rclickstyle));
+			auto list3 = std::shared_ptr<GE_Experimental_UI_TextList>(new GE_Experimental_UI_TextList(renderer, {0,0},{{7,"File"},{666,"im different"},{9,"View"}}, {{false,7},{true,666},{false,666},{false,9}},true, rclickstyle));
+			test_ = new GE_UI_TextListGroup({0,0},{640,480},{{7,list},{1,list2},{0,list3}},{{1,1},{0,5}},7);
 
 
 

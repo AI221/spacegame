@@ -16,6 +16,10 @@
 #include <functional>
 #include <memory>
 #include <optional>
+#include <map>
+#include <vector>
+#include <set>
+
 
 #include "font.h"
 #include "shapes.h"
@@ -209,6 +213,7 @@ class GE_UI_TextInput : public GE_UI_Element
 		void giveEvent(Vector2 parrentPosition, SDL_Event event);
 		std::string getText();	
 		const char* getText_cstr();
+
 		
 		bool isFocused;
 
@@ -497,15 +502,24 @@ class GE_Experimental_UI_TextList : GE_UI_Element
 		GE_Experimental_UI_TextList(SDL_Renderer* renderer, Vector2 position, std::map<unsigned int, std::string> list, std::vector<GE_UI_ListElement> elements,bool listGoesDown, GE_UI_TextListStyle style);
 		void render(Vector2 parrentPosition) override;
 		void giveEvent(Vector2 parrentPosition, SDL_Event event) override;
+		bool checkIfFocused(int mousex, int mousey, Vector2 parrentPosition);
 
 		std::optional<unsigned int> getHighlighted();
 		void setSelected(std::optional<unsigned int> selected);
 		std::optional<unsigned int> getSelected();
 
+		std::vector<unsigned int> userIDs;
+
+		double getTextDeterminatedSize();
+		double getElementPosition(unsigned int element);
+
+		void setPosition(Vector2 newPosition);
+		Vector2 getPosition();
+
+		bool doesListGoDown();
 	private:
 		std::vector<std::unique_ptr<GE_UI_Rectangle>> dividers;
 		std::vector<std::unique_ptr<GE_Experimental_UI_Button>> texts;
-		std::vector<unsigned int> userIDs;
 		std::unique_ptr<GE_UI_Rectangle> background;
 		
 		std::vector<GE_UI_ListElement> elements;
@@ -514,20 +528,69 @@ class GE_Experimental_UI_TextList : GE_UI_Element
 		Vector2 size;
 		Vector2 position;
 
+		Vector2 postCreationPositionSet;
+
+		bool listGoesDown;
+		std::map<unsigned int, double> elementPositions;
+
 
 		std::optional<unsigned int> highlightedText;
 		std::optional<unsigned int> selectedText;
+
 
 		
 
 		GE_UI_TextListStyle style;
 		Vector2 calcSize(std::map<unsigned int, std::string> list, bool listGoesDown );
+		/*!
+		 * Uses internal IDs rather than user IDs
+		 */
+		void setSelected_int(std::optional<unsigned int> selected);
 
 
 
 };
 
 
+typedef unsigned int listID;
+typedef unsigned int elementID;
+
+class GE_UI_TextListGroup : GE_UI_Element
+{
+	public:
+		GE_UI_TextListGroup(Vector2 position, Vector2 screenSize, std::map<listID, std::shared_ptr<GE_Experimental_UI_TextList>> lists, std::map<listID,elementID> ListToItsOpeningSubelement, listID defaultOpen);
+		void render(Vector2 parrentPosition);
+		void giveEvent(Vector2 parrentPosition, SDL_Event event);
+
+		void setIsOpen(unsigned int listID, bool isOpen);
+	private:
+		std::map<listID, std::shared_ptr<GE_Experimental_UI_TextList>> lists;
+		std::map<listID,elementID> ListToItsOpeningSubelement;
+
+		//generated containers
+		std::map<elementID,listID> OpeningSubelementToItsList;
+		std::map<listID,listID> childToParrentMap;
+		std::map<listID,std::vector<listID>> parrentToChildMap;
+		std::map<elementID, listID> elementToList;
+		std::map<listID,Vector2> listPositions;
+
+		std::vector<listID> semiHiearchy; //parrent->child hiearchy; no element anywhere after an object shall be a parrent to it.
+		
+		std::set<listID> openLists;
+
+		std::set<listID> closingLists;
+
+		bool checkIfListShouldBeOpen(Vector2 parrentPosition, int mousex, int mousey, listID ID);
+		void appendChildrenToHiearchy(listID parrent);
+
+		listID defaultOpen;
+
+		Vector2 position;
+		Vector2 screenSize;
+
+
+
+};
 
 
 
