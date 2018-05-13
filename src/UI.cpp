@@ -704,6 +704,8 @@ GE_UI_Titlebar::GE_UI_Titlebar(SDL_Renderer* renderer, std::string name, GE_UI_W
 
 	this->parrent = parrent;
 
+	this->dragging = false;
+
 	this->wantsEvents = true;
 }
 GE_UI_Titlebar::~GE_UI_Titlebar()
@@ -1491,7 +1493,6 @@ void GE_UI_TextListGroup::giveEvent(Vector2 parrentPosition, SDL_Event event)
 
 		//get position relative to parrent list
 		Vector2 relativePos = {lists[parrent]->getElementPosition(ListToItsOpeningSubelement[list]),lists[parrent]->getTextDeterminatedSize()};
-		printf("%s\n",GE_DEBUG_VectorToString(relativePos).c_str());
 		relativePos = reverseif(relativePos,lists[parrent]->doesListGoDown());
 
 
@@ -1499,19 +1500,6 @@ void GE_UI_TextListGroup::giveEvent(Vector2 parrentPosition, SDL_Event event)
 	}
 	for (listID list : openLists)
 	{
-		/*
-		if (list != defaultOpen)
-		{
-			int x,y;
-			SDL_GetMouseState(&x,&y);
-			if (!checkIfListShouldBeOpen(parrentPosition,x,y,list))
-			{
-				closingLists.insert(list);
-				continue;
-			}
-
-		}
-		*/
 		std::shared_ptr<GE_Experimental_UI_TextList> list_ptr = lists[list];
 		list_ptr->giveEvent(parrentPosition+listPositions[list],event);
 		std::optional<elementID> selectedElement = list_ptr->getHighlighted();
@@ -1521,7 +1509,6 @@ void GE_UI_TextListGroup::giveEvent(Vector2 parrentPosition, SDL_Event event)
 			auto it = OpeningSubelementToItsList.find(selectedElement.value());
 			if (it != std::end(OpeningSubelementToItsList))
 			{
-				printf("set open\n");
 				setIsOpen(it->second,true);
 			}
 
@@ -1532,22 +1519,18 @@ void GE_UI_TextListGroup::giveEvent(Vector2 parrentPosition, SDL_Event event)
 
 	for (auto i=semiHiearchy.rbegin();i!=semiHiearchy.rend();i++)
 	{
-		printf("id %d\n",*i);
 		if(*i == defaultOpen || openLists.find(*i) == std::end(openLists))
 		{
-			printf("cont\n");
 			continue;
 		}
 		int x,y;
 		SDL_GetMouseState(&x,&y);
 		if (checkIfListShouldBeOpen(parrentPosition,x,y,*i))
 		{
-			printf("reach end\n");
 			break; //cannot close parrent list if their child is open
 		}
 		else
 		{
-			printf("rm\n");
 			closingLists.insert(*i);
 		}
 		

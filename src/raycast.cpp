@@ -6,9 +6,9 @@
 
 
 
-Vector2 GE_Raycast(Vector2 start, Vector2 end, GE_ShapeLinesVector obstacles)
+std::optional<Vector2> GE_Raycast(Vector2 start, Vector2 end, GE_ShapeLinesVector obstacles)
 {
-	Vector2 currentShortest = {NAN,NAN};
+	std::optional<Vector2> currentShortest = {};
 	for (auto shape : obstacles)
 	{
 		if (shape.begin() == shape.end())
@@ -23,17 +23,24 @@ Vector2 GE_Raycast(Vector2 start, Vector2 end, GE_ShapeLinesVector obstacles)
 			GE_Line shapeLine = GE_GetLine(*lastSpot,*spot);	
 
 			//check intersection. if a line(or both) is infinite, tell intersection about this. 
-			double intersectionXVal = GE_LineIntersection(rayLine.m,rayLine.b,shapeLine.m,shapeLine.b,((static_cast<unsigned char>(rayLine.mIsInf))+(static_cast<unsigned char>(shapeLine.mIsInf)*2)));
+			std::optional<double> intersectionXVal = GE_LineIntersection(rayLine.m,rayLine.b,shapeLine.m,shapeLine.b,((static_cast<unsigned char>(rayLine.mIsInf))+(static_cast<unsigned char>(shapeLine.mIsInf)*2)));
 			//check if it's real, and in the x range of the ray and shape line
-			if (!std::isnan(intersectionXVal) && GE_IsInRange(intersectionXVal,start.x,end.x) && GE_IsInRange(intersectionXVal,lastSpot->x,spot->x))
+			if (intersectionXVal.has_value() && GE_IsInRange(intersectionXVal.value(),start.x,end.x) && GE_IsInRange(intersectionXVal.value(),lastSpot->x,spot->x))
 			{
 				//check in y range of shape line -- do not use a vertical line
-				double intersectionYVal = shapeLine.mIsInf? (rayLine.m*intersectionXVal)+rayLine.b : (shapeLine.m*intersectionXVal)+shapeLine.b;
+				double intersectionYVal = shapeLine.mIsInf? (rayLine.m*intersectionXVal.value())+rayLine.b : (shapeLine.m*intersectionXVal.value())+shapeLine.b;
 				if (GE_IsInRange(intersectionYVal,start.y,end.y) && GE_IsInRange(intersectionYVal,lastSpot->y,spot->y))
 				{
-					Vector2 find = Vector2{intersectionXVal,intersectionYVal};
+					Vector2 find = Vector2{intersectionXVal.value(),intersectionYVal};
 					//we have to keep iterating because this might not be the best solution. 
-					currentShortest = (std::isnan(currentShortest.x) || std::isnan(currentShortest.y))? find :  GE_ClosestVector(start,find,currentShortest);
+					if(!currentShortest.has_value())
+					{
+						currentShortest = {find};
+					}
+					else
+					{
+						currentShortest = {GE_ClosestVector(start,find,currentShortest.value())};
+					}
 				}
 			}
 
@@ -66,13 +73,17 @@ ObjectRaycastReturn GE_Raycast(Vector2 start, Vector2 end, std::vector<GE_Physic
 			shapeLines.insert(shapeLines.end(),points[0]); 
 			shapes.insert(shapes.end(),shapeLines);
 		}
-		Vector2 result = GE_Raycast(start,end,shapes);
-#ifdef PHYSICS_DEBUG_SLOWRENDERS
-		GE_DEBUG_TextAt_PhysicsPosition(std::to_string(GE_Distance(start,result)),result);
-#endif
-		if (GE_Distance(start,result) <= GE_Distance(start,currentShortest))
+		auto result = GE_Raycast(start,end,shapes);
+		if (!result.has_value())
 		{
-			currentShortest = result;
+			continue;
+		}
+#ifdef PHYSICS_DEBUG_SLOWRENDERS
+		GE_DEBUG_TextAt_PhysicsPosition(std::to_string(GE_Distance(start,result.value())),result.value());
+#endif
+		if (GE_Distance(start,result.value()) <= GE_Distance(start,currentShortest))
+		{
+			currentShortest = result.value();
 			currentShortestObj = obj;
 		}
 		else if(currentShortestObj != NULL)

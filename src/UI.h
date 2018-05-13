@@ -574,7 +574,7 @@ class GE_UI_TextListGroup : GE_UI_Element
 		std::map<elementID, listID> elementToList;
 		std::map<listID,Vector2> listPositions;
 
-		std::vector<listID> semiHiearchy; //parrent->child hiearchy; no element anywhere after an object shall be a parrent to it.
+		std::vector<listID> semiHiearchy; //parrent->child hiearchy; no element anywhere after an element shall be a parrent to it.
 		
 		std::set<listID> openLists;
 

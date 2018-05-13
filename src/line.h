@@ -7,6 +7,7 @@
 #pragma once
 
 #include <vector>
+#include <optional>
 
 #include "vector2.h"
 #include "GeneralEngineCPP.h"
@@ -25,4 +26,7 @@ struct GE_Line
 
 GE_Line GE_GetLine(Vector2 start, Vector2 end);
 
-double GE_LineIntersection(double m1,double b1,double m2,double b2,unsigned char infValue);
+std::optional<double> GE_LineIntersection(double m1,double b1,double m2,double b2,unsigned char infValue);
+
+
+std::optional<Vector2> GE_LineIntersectionVector(GE_Line line_one, GE_Line line_two);

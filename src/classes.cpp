@@ -325,6 +325,7 @@ char* TEMP;
 size_t TEMPused;
 size_t TEMPsize;
 #include "FS.h"
+bool tempcandoit = true;
 bool Player::C_Update()
 {
 	//Update subsystem positions
@@ -414,7 +415,7 @@ bool Player::C_Update()
 					myfile.write(TEMP,TEMPused);
 					myfile.close();
 				}
-				if (event.key.keysym.sym == SDLK_b) //tmp loadfilesave
+				if (event.key.keysym.sym == SDLK_b ) //tmp loadfilesave
 				{
 
 					std::streampos size;
@@ -446,8 +447,9 @@ bool Player::C_Update()
 					*/
 					TEMP = GE_GetCharArrayFromFileString(GE_ReadAllFromFile("/tmp/REMOVE-tempsave2"));
 				}
-				if (event.key.keysym.sym == SDLK_m) //tmp load
+				if (event.key.keysym.sym == SDLK_m && tempcandoit) //tmp load
 				{
+					tempcandoit = false;
 					
 					GE_UnserializeTrackedObjects(TEMP);
 				}

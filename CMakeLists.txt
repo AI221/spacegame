@@ -18,6 +18,8 @@ set( CMAKE_EXPORT_COMPILE_COMMANDS ON )
 option(WINDOWS "WINDOWS" OFF)
 option(RELEASE "RELEASE" OFF) #release optimizations, slow compile no debug info
 option(PROFILE "PROFILE" OFF) #performance profiles for release builds
+option(DTHREAD "DTHREAD" OFF) #debugging threads: slow compile, slow perf
+option(DLEAK "DALL" OFF) #debug everything but thread
 
 if (PROFILE)
 	set(RELEASE on)
@@ -83,9 +85,13 @@ else ()
 	#set(CMAKE_BUILD_TYPE Debug)
 
 	#TODO add fsanitize for leak,address
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb3 -fsanitize=undefined,thread -fstack-protector-all -Wstack-protector -fstack-check -fvtv-counts --param ssp-buffer-size=4  -O0 -fno-omit-frame-pointer -fverbose-asm -mno-omit-leaf-frame-pointer -mtune=generic -fvar-tracking -D_GLIBCXX_DEBUG=1 -frecord-gcc-switches -femit-class-debug-always -fmath-errno -fno-eliminate-unused-debug-symbols -fno-eliminate-unused-debug-types -fno-merge-debug-strings -fexceptions -fvar-tracking -fbounds-check -rdynamic -UNDEBUG -DDEBUG=1 -fno-stack-check -Wno-unused-parameter")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb3  -fstack-protector-all -Wstack-protector -fstack-check -fvtv-counts --param ssp-buffer-size=4  -O0 -fno-omit-frame-pointer -fverbose-asm -mno-omit-leaf-frame-pointer -mtune=generic -fvar-tracking -D_GLIBCXX_DEBUG=1 -frecord-gcc-switches -femit-class-debug-always -fmath-errno -fno-eliminate-unused-debug-symbols -fno-eliminate-unused-debug-types -fno-merge-debug-strings -fexceptions -fvar-tracking -fbounds-check -rdynamic -UNDEBUG -DDEBUG=1 -fno-stack-check -Wno-unused-parameter")
 endif ()
-
+if ( DTHREAD)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=undefined,thread ")
+elseif ( DALL)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=leak,undefined,bounds-strict,address")
+endif ()
 
 
 

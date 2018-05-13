@@ -145,7 +145,7 @@ double GE_GetUNIXTime();
 
 /*!
  * Starts a performance benchmark. Note: Uses the variable 'startPerformanceTime'
- * Do not use in mainline code, for test purposes only
+# * Do not use in mainline code, for test purposes only
  */
 #define GE_TEST_StartBenchmark() double startPerformanceTime = GE_GetUNIXTime();
 /*!

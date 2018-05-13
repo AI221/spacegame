@@ -747,7 +747,7 @@ bool GE_IsPointInPhysicsObject(Vector2 point, GE_PhysicsObject* obj)
 		{
 			return true;
 		}
-		printf("failcheck \n");
+		printf("physics.cppfailcheck \n");
 	}
 	return false;
 }
