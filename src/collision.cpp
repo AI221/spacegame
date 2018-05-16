@@ -1,7 +1,7 @@
 #include "collision.h"
 
 /*
-bool doShapesCollide(Vector2 start, Vector2 end, GE_ShapeLinesVector obstacles)
+bool doShapesCollide(GE_ShapeLinesVector shapes)
 {
 	for (auto shape : obstacles)
 	{

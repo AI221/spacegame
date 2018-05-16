@@ -363,7 +363,7 @@ void GE_UI_HighlightBox::giveEvent(Vector2 parrentPosition, SDL_Event event)
 		{
 			//figure out the new rectangle size by moving a point
 			Vector2r start_rot = getDraggableBoxPosition(topleftPos,getOppositeCorner(boxDragged),false);
-			Vector2 start = start_rot;
+			Vector2 start = GE_StripVectorRotation(start_rot);
 			Vector2 end = mousepos;
 				
 			//find rect size
@@ -394,7 +394,7 @@ void GE_UI_HighlightBox::giveEvent(Vector2 parrentPosition, SDL_Event event)
 
 			if (!resizeRectangleByCenter)
 			{
-				position = position+(resizeAnchoringAPoint(start_rot,boxDragged,position,size,sizeAfterResizingBasedOnCursor));
+				position = position+(resizeAnchoringAPoint(start_rot,boxDragged,GE_StripVectorRotation(position),size,sizeAfterResizingBasedOnCursor));
 			}
 
 

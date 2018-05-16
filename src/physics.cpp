@@ -625,7 +625,8 @@ bool GE_TickPhysics_ForObject(GE_PhysicsObject* cObj)
 	//To avoid Clipping/"Bullet through paper" effect, we will slow down the physics simulation for a specific object by an unsigned nonzero integer and then slow down velocity accordingly. The user SHOULD NOT be able to tell any of this is happening. For performance, velocity is passed as a pointer to the internal function.
 	
 	unsigned int miniTickrate = fmax(ceil(  ((abs(cObj->velocity.x)+abs(cObj->velocity.y))/PHYSICS_MAX_SPEED_BEFORE_BROKEN_INTO_MINI_TICKS ) ),1.0); //minimum of 1. //TODO adjust this to good value
-	miniTickrate = fmax(miniTickrate,256);
+	miniTickrate = std::min(miniTickrate,static_cast<unsigned int>(256));
+	//printf("minitickrate %d\n",miniTickrate);
 	
 	
 	Vector2r* velocity = new Vector2r{cObj->velocity.x/miniTickrate, cObj->velocity.y/miniTickrate, cObj->velocity.r/miniTickrate};

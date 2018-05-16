@@ -681,7 +681,7 @@ bool Enemie::C_Update()
 
 #ifdef PHYSICS_DEBUG_SLOWRENDERS
 		GE_DEBUG_DrawLine_PhysicsPosition(Vector2{position.x,position.y},endCast,GE_Color{0xff,0x00,0x00,0x00});
-		GE_DEBUG_DrawRect_PhysicsPosition({ret.position.x,ret.position.y,2,2},{0x00,0xff,0x00,0x00});
+		//GE_DEBUG_DrawRect_PhysicsPosition({ret.position.x,ret.position.y,2,2},{0x00,0xff,0x00,0x00});
 #endif
 
 		//ret.victim->velocity.x += 0.1;

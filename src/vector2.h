@@ -38,14 +38,16 @@ struct IntVector2;
 /*!
  * A point in 2D space with no rotation. 
  */
-struct Vector2 : public GE_Serializable
+struct Vector2 
 {
+	double x;
+	double y;
+	/*
 	Vector2(double x, double y)
 	{
 		this->x=x;
 		this->y=y;
 	}
-	Vector2() {} //allow creation of empty vector
 
 	template<class XY>
 	Vector2(XY vector)
@@ -61,21 +63,7 @@ struct Vector2 : public GE_Serializable
 			this->y = vector.y;
 		}
 	}
-	double x;
-	double y;
-
-	void serialize(char** buffer, size_t* bufferUsed, size_t* bufferSize)
-	{
-		GE_Serialize(x,buffer,bufferUsed,bufferSize);
-		GE_Serialize(y,buffer,bufferUsed,bufferSize);
-	}
-	static Vector2* unserialize(char* buffer, size_t* bufferUnserialized,int version)
-	{
-		double _x = GE_Unserialize<double>(buffer,bufferUnserialized,version);
-		double _y = GE_Unserialize<double>(buffer,bufferUnserialized,version);
-		return new Vector2{_x,_y};
-	}
-
+	*/
 	GE_FORCE_INLINE Vector2 operator+(double other)
 	{
 		Vector2 newVector = {this->x+other,this->y+other};
@@ -155,6 +143,22 @@ struct Vector2 : public GE_Serializable
 
 	//Vector2 operator=(const IntVector2& subject);
 };
+
+
+
+void GE_Serialize(Vector2* serializeMe, char** buffer, size_t* bufferUsed, size_t* bufferSize)
+{
+	GE_Serialize(serializeMe->x,buffer,bufferUsed,bufferSize);
+	GE_Serialize(serializeMe->y,buffer,bufferUsed,bufferSize);
+}
+template<class data>
+typename std::enable_if<std::is_same<data,Vector2*>::value,Vector2*>::type GE_Unserialize(char* serialized, size_t* bufferUnserialized,int serializedVersion)
+{
+	auto x = GE_Unserialize<double>(serialized,bufferUnserialized,serializedVersion);
+	auto y = GE_Unserialize<double>(serialized,bufferUnserialized,serializedVersion);
+	return new Vector2{x,y};
+}
+
 GE_FORCE_INLINE Vector2 reverseVector(Vector2 subject)
 {
 	auto _x = subject.x;
@@ -166,12 +170,13 @@ GE_FORCE_INLINE Vector2 reverseVector(Vector2 subject)
 /*!
  * A point in 2D space with rotation
  */
-struct Vector2r : public GE_Serializable
+struct Vector2r
 {
 	double x;
 	double y;
 	double r;
 
+	/*
 	Vector2r(double x, double y,double r)
 	{
 		this->x=x;
@@ -179,19 +184,8 @@ struct Vector2r : public GE_Serializable
 		this->r=r;
 	}
 	Vector2r() {} //allow creation of empty vector
-	void serialize(char** buffer, size_t* bufferUsed, size_t* bufferSize)
-	{
-		GE_Serialize(x,buffer,bufferUsed,bufferSize);
-		GE_Serialize(y,buffer,bufferUsed,bufferSize);
-		GE_Serialize(r,buffer,bufferUsed,bufferSize);
-	}
-	static Vector2r* unserialize(char* buffer, size_t* bufferUnserialized,int version)
-	{
-		double _x = GE_Unserialize<double>(buffer,bufferUnserialized,version);
-		double _y = GE_Unserialize<double>(buffer,bufferUnserialized,version);
-		double _r = GE_Unserialize<double>(buffer,bufferUnserialized,version);
-		return new Vector2r{_x,_y,_r};
-	}
+	
+	*/
 
 	void addRelativeVelocity(Vector2r adder);
 	GE_FORCE_INLINE Vector2r operator+(Vector2r other)
@@ -298,6 +292,29 @@ struct Vector2r : public GE_Serializable
 		
 };
 
+
+
+void GE_Serialize(Vector2r* data, char** buffer, size_t* bufferUsed, size_t* bufferSize)
+{
+	GE_Serialize(data->x,buffer,bufferUsed,bufferSize);
+	GE_Serialize(data->y,buffer,bufferUsed,bufferSize);
+	GE_Serialize(data->r,buffer,bufferUsed,bufferSize);
+}
+template<class data>
+typename std::enable_if<std::is_same<data,Vector2r*>::value,Vector2r*>::type GE_Unserialize(char* buffer, size_t* bufferUnserialized,int version)
+{
+	double _x = GE_Unserialize<double>(buffer,bufferUnserialized,version);
+	double _y = GE_Unserialize<double>(buffer,bufferUnserialized,version);
+	double _r = GE_Unserialize<double>(buffer,bufferUnserialized,version);
+	return new Vector2r{_x,_y,_r};
+}
+
+
+
+GE_FORCE_INLINE constexpr Vector2 GE_StripVectorRotation(Vector2r vector_subject)
+{
+	return Vector2{vector_subject.x,vector_subject.y};
+}
 
 struct IntVector2
 {

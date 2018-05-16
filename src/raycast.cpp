@@ -3,10 +3,13 @@
 #include "vector2.h"
 #include "GeneralEngineCPP.h"
 
+#include "debugRenders.h"
 
 
 
-std::optional<Vector2> GE_Raycast(Vector2 start, Vector2 end, GE_ShapeLinesVector obstacles)
+
+
+constexpr std::optional<Vector2> GE_Raycast(Vector2 start, Vector2 end, GE_ShapeLinesVector obstacles)
 {
 	std::optional<Vector2> currentShortest = {};
 	for (auto shape : obstacles)
@@ -21,25 +24,22 @@ std::optional<Vector2> GE_Raycast(Vector2 start, Vector2 end, GE_ShapeLinesVecto
 		for (auto spot = shape.begin()+1;spot!= shape.end();spot++)
 		{
 			GE_Line shapeLine = GE_GetLine(*lastSpot,*spot);	
+			//SDL_RenderPresent(GE_DEBUG_Renderer);
+			//GE_DEBUG_DrawLine(rayLine);
+			std::optional<Vector2> runnerUp = GE_LineIntersectionVector(rayLine,shapeLine);
 
-			//check intersection. if a line(or both) is infinite, tell intersection about this. 
-			std::optional<double> intersectionXVal = GE_LineIntersection(rayLine.m,rayLine.b,shapeLine.m,shapeLine.b,((static_cast<unsigned char>(rayLine.mIsInf))+(static_cast<unsigned char>(shapeLine.mIsInf)*2)));
-			//check if it's real, and in the x range of the ray and shape line
-			if (intersectionXVal.has_value() && GE_IsInRange(intersectionXVal.value(),start.x,end.x) && GE_IsInRange(intersectionXVal.value(),lastSpot->x,spot->x))
+			//ensure collision is in range of ray, and shape
+			if (runnerUp.has_value() && GE_IsInRange(runnerUp.value().x,start.x,end.x) && GE_IsInRange(runnerUp.value().x,lastSpot->x,spot->x))
 			{
-				//check in y range of shape line -- do not use a vertical line
-				double intersectionYVal = shapeLine.mIsInf? (rayLine.m*intersectionXVal.value())+rayLine.b : (shapeLine.m*intersectionXVal.value())+shapeLine.b;
-				if (GE_IsInRange(intersectionYVal,start.y,end.y) && GE_IsInRange(intersectionYVal,lastSpot->y,spot->y))
+				if (GE_IsInRange(runnerUp.value().y,start.y,end.y) && GE_IsInRange(runnerUp.value().y,lastSpot->y,spot->y))
 				{
-					Vector2 find = Vector2{intersectionXVal.value(),intersectionYVal};
-					//we have to keep iterating because this might not be the best solution. 
 					if(!currentShortest.has_value())
 					{
-						currentShortest = {find};
+						currentShortest = runnerUp;
 					}
 					else
 					{
-						currentShortest = {GE_ClosestVector(start,find,currentShortest.value())};
+						currentShortest = {GE_ClosestVector(start,runnerUp.value(),currentShortest.value())};
 					}
 				}
 			}
@@ -48,6 +48,7 @@ std::optional<Vector2> GE_Raycast(Vector2 start, Vector2 end, GE_ShapeLinesVecto
 		}
 	}
 	return currentShortest; //return the last found shortest value, which was initially initialized to NAN,NAN
+
 
 }
 
@@ -64,6 +65,9 @@ ObjectRaycastReturn GE_Raycast(Vector2 start, Vector2 end, std::vector<GE_Physic
 		{
 			Vector2 points[4];
 			GE_RectangleToPoints(obj->collisionRectangles[i],obj->grid,points,obj->position); //populate points
+			GE_Rectangler x = obj->collisionRectangles[i];
+			GE_Rectangle y = {x.x+obj->position.x,x.y+obj->position.y,x.w,x.h};
+			//GE_DEBUG_DrawRect(y);
 			GE_ShapeLines shapeLines;
 			//connect every point on the rectangle with lines
 			shapeLines.insert(shapeLines.end(),points[0]);

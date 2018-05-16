@@ -101,7 +101,7 @@ void GE_DEBUG_DrawLine(Vector2 start, Vector2 end)
 }
 void GE_DEBUG_DrawLine(GE_Line shapeLine)
 {
-	if (shapeLine.mIsInf)
+	if (shapeLine.vertical)
 	{
 		GE_DEBUG_DrawLine({shapeLine.b,0},{shapeLine.b,1000});
 	}

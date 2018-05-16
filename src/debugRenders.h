@@ -12,6 +12,7 @@
 #include <string>
 //Local includes
 #include "line.h"
+#include "shapes.h"
 
 
 //forward declarations

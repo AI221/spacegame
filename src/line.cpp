@@ -2,9 +2,9 @@
 
 
 /*!
- * Gets the slope-intecept form of a line. Guranteed to return 0 for m and start.x for b if mIsInf is true
+ * Gets the slope-intecept form of a line. Guranteed to return 0 for m and start.x for b if vertical is true
  */
-GE_Line GE_GetLine(Vector2 start, Vector2 end)
+constexpr GE_Line GE_GetLine(Vector2 start, Vector2 end)
 {
 	if (start.x == end.x)
 	{
@@ -20,7 +20,7 @@ GE_Line GE_GetLine(Vector2 start, Vector2 end)
  * m1,b1,m2,b2 are values for each side of the y=mx+b line
  * infValue is either 0,1,2, or 3 for whether m1 or m2 is equal to infinity. 0 for neither, 1 or 2 for their respectives, 3 for both. Anything higher is undefined behaviour. If no intersection exists, NAN is returned
  */
-std::optional<double> GE_LineIntersection(double m1,double b1,double m2,double b2,unsigned char infValue)
+constexpr std::optional<double> GE_LineIntersection(double m1,double b1,double m2,double b2,unsigned char infValue)
 {
 	switch(infValue)
 	{
@@ -44,31 +44,57 @@ std::optional<double> GE_LineIntersection(double m1,double b1,double m2,double b
 	return {};
 }
 
-GE_FORCE_INLINE Vector2 calcYVal(Vector2 vec, GE_Line NonInfLine)
+constexpr GE_FORCE_INLINE double calcYVal(double x, GE_Line NonInfLine)
 {
-	vec.y = (NonInfLine.m*vec.x)+NonInfLine.b;
+	return (NonInfLine.m*x)+NonInfLine.b;
 }
 
-std::optional<Vector2> GE_LineIntersectionVector(GE_Line line_one, GE_Line line_two)
+constexpr std::optional<Vector2> GE_LineIntersectionVector(GE_Line line_one, GE_Line line_two)
 {
-	Vector2 returnval;
-	switch(static_cast<unsigned char>(line_one.mIsInf)+(2*static_cast<unsigned char>(line_two.mIsInf)))
+	if (line_one.vertical && line_two.vertical)
+	{
+		return {};	
+	}
+	else if (line_two.vertical)
+	{
+		Vector2 returnval;
+		returnval.x = line_two.b;
+		returnval.y = calcYVal(returnval.x,line_one);
+		return {{line_two.b,calcYVal(line_two.b,line_one)}};
+	}
+	else if(line_one.vertical)
+	{
+		Vector2 returnval;
+		returnval.x = line_one.b; //the line is x=b, so the collision should accur at b.
+		returnval.y = calcYVal(returnval.x,line_two);
+		return {returnval};
+	}
+	else
+	{
+		Vector2 returnval;
+		returnval.x =(line_one.b-line_two.b)/(line_two.m-line_one.m);
+		returnval.y = calcYVal(returnval.x,line_two);
+		return {returnval};
+	}
+	/*
+	switch(static_cast<unsigned char>(line_one.vertical)+(2*static_cast<unsigned char>(line_two.vertical)))
 	{
 		case(0):
 			returnval = {(line_one.b-line_two.b)/(line_one.m-line_two.m),0};
-			returnval = calcYVal(returnval,line_one);
+			returnval.y = calcYVal(returnval.x,line_one);
 			break;
 		case(1):
 			returnval = {line_one.b,0};
-			returnval = calcYVal(returnval,line_two);
+			returnval.y = calcYVal(returnval.x,line_two);
 			break;
 		case(2):
 			returnval = {line_two.b,0};
-			returnval = calcYVal(returnval,line_one);
+			returnval.y = calcYVal(returnval.x,line_one);
 			break;
-		case(3):
+		case(3): //TODO handle for when m1==m2
 			return {};
 			break;
 	}
 	return {returnval};
+	*/
 }
