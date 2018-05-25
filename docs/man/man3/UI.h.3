@@ -1,0 +1,231 @@
+.TH "src/UI.h" 3 "Fri May 18 2018" "Version 0.1" "2D game engine yet to be properly named" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+src/UI.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <SDL2/SDL_ttf\&.h>\fP
+.br
+\fC#include <string>\fP
+.br
+\fC#include <functional>\fP
+.br
+\fC#include <memory>\fP
+.br
+\fC#include <optional>\fP
+.br
+\fC#include <map>\fP
+.br
+\fC#include <vector>\fP
+.br
+\fC#include <set>\fP
+.br
+\fC#include 'font\&.h'\fP
+.br
+\fC#include 'shapes\&.h'\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "struct \fBGE_UI_FontStyle\fP"
+.br
+.ti -1c
+.RI "struct \fBGE_UI_ButtonStyle\fP"
+.br
+.ti -1c
+.RI "struct \fBGE_UI_WindowTitleStyle\fP"
+.br
+.ti -1c
+.RI "struct \fBGE_UI_WindowStyle\fP"
+.br
+.ti -1c
+.RI "struct \fBGE_UI_Style\fP"
+.br
+.ti -1c
+.RI "struct \fBGE_UI_SpacerStyle\fP"
+.br
+.ti -1c
+.RI "struct \fBGE_UI_TextListStyle\fP"
+.br
+.ti -1c
+.RI "struct \fBGE_UI_StringOrDivider\fP"
+.br
+.ti -1c
+.RI "struct \fBGE_UI_ClickedObject\fP"
+.br
+.ti -1c
+.RI "class \fBGE_UI_Element\fP"
+.br
+.ti -1c
+.RI "class \fBGE_UI_TopLevelElement\fP"
+.br
+.ti -1c
+.RI "class \fBGE_UI_Text\fP"
+.br
+.ti -1c
+.RI "class \fBGE_UI_TextInput\fP"
+.br
+.ti -1c
+.RI "class \fBGE_UI_Button\fP"
+.br
+.ti -1c
+.RI "class \fBGE_UI_PositioningRectangle\fP"
+.br
+.ti -1c
+.RI "class \fBGE_Experimental_UI_Button\fP"
+.br
+.ti -1c
+.RI "class \fBGE_UI_ProgressBar\fP"
+.br
+.ti -1c
+.RI "class \fBGE_UI_DraggableProgressBar\fP"
+.br
+.ti -1c
+.RI "class \fBGE_UI_Titlebar\fP"
+.br
+.ti -1c
+.RI "class \fBGE_UI_Surface\fP"
+.br
+.ti -1c
+.RI "class \fBGE_UI_Window\fP"
+.br
+.ti -1c
+.RI "class \fBGE_UI_Rectangle\fP"
+.br
+.ti -1c
+.RI "class \fBGE_UI_TextList\fP"
+.br
+.ti -1c
+.RI "struct \fBGE_UI_IDStringList\fP"
+.br
+.ti -1c
+.RI "struct \fBGE_UI_ListElement\fP"
+.br
+.ti -1c
+.RI "class \fBGE_Experimental_UI_TextList\fP"
+.br
+.ti -1c
+.RI "class \fBGE_UI_TextListGroup\fP"
+.br
+.ti -1c
+.RI "class \fBGE_UI_OmniEventReciever\fP"
+.br
+.ti -1c
+.RI "struct \fBMessageDialog_StringInputOptions\fP"
+.br
+.ti -1c
+.RI "struct \fBMessageDialog_StringInputReturn\fP"
+.br
+.in -1c
+.SS "Macros"
+
+.in +1c
+.ti -1c
+.RI "#define \fBMAX_SURFACE_UI_ELEMENTS\fP   256"
+.br
+.in -1c
+.SS "Typedefs"
+
+.in +1c
+.ti -1c
+.RI "typedef unsigned int \fBlistID\fP"
+.br
+.ti -1c
+.RI "typedef unsigned int \fBelementID\fP"
+.br
+.in -1c
+.SS "Enumerations"
+
+.in +1c
+.ti -1c
+.RI "enum \fBGE_UI_PositioningRectangleModifiers\fP { \fBNONE\fP, \fBcenterX\fP, \fBcenterY\fP, \fBexpandSizeToFit\fP, \fBSIZE\fP }"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBGE_FORCE_INLINE\fP bool \fBcheckIfFocused_ForBox\fP (int mousex, int mousey, \fBVector2\fP position, \fBVector2\fP size)"
+.br
+.ti -1c
+.RI "void \fBGE_UI_InsertTopLevelElement\fP (\fBGE_UI_TopLevelElement\fP *element)"
+.br
+.ti -1c
+.RI "void \fBGE_UI_RemoveTopLevelElement\fP (\fBGE_UI_TopLevelElement\fP *element)"
+.br
+.ti -1c
+.RI "void \fBGE_UI_InsertOmniEventReciever\fP (\fBGE_UI_OmniEventReciever\fP *element)"
+.br
+.ti -1c
+.RI "void \fBGE_UI_RemoveOmniEventReciever\fP (\fBGE_UI_OmniEventReciever\fP *element)"
+.br
+.ti -1c
+.RI "void \fBGE_UI_SetTopElement\fP (\fBGE_UI_TopLevelElement\fP *element)"
+.br
+.ti -1c
+.RI "void \fBGE_UI_SetBackgroundElement\fP (\fBGE_UI_TopLevelElement\fP *element)"
+.br
+.ti -1c
+.RI "\fBGE_UI_TopLevelElement\fP * \fBGE_UI_GetBackgroundElement\fP ()"
+.br
+.ti -1c
+.RI "void \fBGE_UI_RemoveBackgroundElement\fP ()"
+.br
+.ti -1c
+.RI "void \fBGE_UI_SetCursorFollower\fP (\fBGE_UI_TopLevelElement\fP *element)"
+.br
+.ti -1c
+.RI "bool \fBGE_UI_PullEvents\fP ()"
+.br
+.ti -1c
+.RI "void \fBGE_UI_Render\fP ()"
+.br
+.ti -1c
+.RI "\fBIntVector2\fP \fBGE_UI_GetMousePosition\fP ()"
+.br
+.ti -1c
+.RI "void \fBMessageDialog_StringInput\fP (SDL_Renderer *renderer, std::string name, std::string startingText, \fBMessageDialog_StringInputOptions\fP options, \fBMessageDialog_StringInputReturn\fP &returnVal, \fBGE_UI_Style\fP style)"
+.br
+.ti -1c
+.RI "void \fBGE_ShutdownUI\fP ()"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+
+.PP
+\fBAuthor:\fP
+.RS 4
+Jackson McNeill
+.RE
+.PP
+A simple object-oriented UI system\&. This is intended to remain as minimal as possible, while providing necasary features for game HUDs and UIs\&. Many objects do not support rotation; some do (usually if used in HUDs)\&. This helps to keep this system minimal\&.
+.PP
+Copying any UI element results in undefined behavior\&. Relying on a \fBGE_UI_Window\fP without checking if it's been deleting results in undefined behavior\&. Top level elements might not be rendered every frame--optimization is allowed to be performed\&. 
+.SH "Function Documentation"
+.PP 
+.SS "\fBGE_UI_TopLevelElement\fP* GE_UI_GetBackgroundElement ()"
+Returns the background element 
+.SS "void GE_UI_InsertTopLevelElement (\fBGE_UI_TopLevelElement\fP * element)"
+Inserts a top level element but does not focus it 
+.SS "bool GE_UI_PullEvents ()"
+Gives events to the focused top level UI element, and may shift focus 
+.SS "void GE_UI_RemoveBackgroundElement ()"
+Removes the background element and does not free any memory 
+.SS "void GE_UI_RemoveOmniEventReciever (\fBGE_UI_OmniEventReciever\fP * element)"
+Removes an omni event reciever and deletes it 
+.SS "void GE_UI_RemoveTopLevelElement (\fBGE_UI_TopLevelElement\fP * element)"
+Removes a top level element and does not free any memory 
+.SS "void GE_UI_Render ()"
+Renders all top level UI elements\&. Don't assume your element will be rendered every time, optimization is allowed to be performed to not render hidden elements 
+.SS "void GE_UI_SetBackgroundElement (\fBGE_UI_TopLevelElement\fP * element)"
+Sets THE ONLY background element 
+.SS "void GE_UI_SetCursorFollower (\fBGE_UI_TopLevelElement\fP * element)"
+Sets THE ONE cursor follower 
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for 2D game engine yet to be properly named from the source code\&.

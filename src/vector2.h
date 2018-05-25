@@ -20,11 +20,11 @@
 /*!
   *Prevents rotation from being >2pi
   */
-GE_FORCE_INLINE void GE_CapRotation(double* rotation)
+GE_FORCE_INLINE constexpr void GE_CapRotation(double* rotation)
 {
 	(*rotation) -= floor(*rotation/TWO_PI)*TWO_PI;
 }
-GE_FORCE_INLINE double GE_CapRotation(double rotation)
+GE_FORCE_INLINE constexpr double GE_CapRotation(double rotation)
 {
 	GE_CapRotation(&rotation);
 	return rotation;
@@ -64,40 +64,40 @@ struct Vector2
 		}
 	}
 	*/
-	GE_FORCE_INLINE Vector2 operator+(double other)
+	GE_FORCE_INLINE constexpr Vector2 operator+(double other) const 
 	{
 		Vector2 newVector = {this->x+other,this->y+other};
 		return newVector;
 	}
-	GE_FORCE_INLINE Vector2 operator-(double other)
+	GE_FORCE_INLINE constexpr Vector2 operator-(double other) const
 	{
 		Vector2 newVector = {this->x-other,this->y-other};
 		return newVector;
 	}
-	GE_FORCE_INLINE Vector2 operator*(double other)
+	GE_FORCE_INLINE constexpr Vector2 operator*(double other) const
 	{
 		Vector2 newVector = {this->x*other,this->y*other};
 		return newVector;
 	}
-	GE_FORCE_INLINE Vector2 operator/(double other)
+	GE_FORCE_INLINE constexpr Vector2 operator/(double other) const
 	{
 		Vector2 newVector = {this->x/other,this->y/other};
 		return newVector;
 	}
 	template<class XY>
-	GE_FORCE_INLINE Vector2 operator+(XY other)
+	GE_FORCE_INLINE constexpr Vector2 operator+(XY other) const
 	{
 		Vector2 newVector = {this->x+other.x,this->y+other.y};
 		return newVector;
 	}
 	template<class XY>
-	GE_FORCE_INLINE Vector2 operator-(XY other)
+	GE_FORCE_INLINE constexpr Vector2 operator-(XY other) const
 	{
 		Vector2 newVector = {this->x-other.x,this->y-other.y};
 		return newVector;
 	}
 	template<class XY>
-	GE_FORCE_INLINE Vector2 operator*(XY other)
+	GE_FORCE_INLINE constexpr Vector2 operator*(XY other) const
 	{	
 		Vector2 newVector = {this->x*other.x,this->y*other.y};
 		return newVector;
@@ -108,27 +108,27 @@ struct Vector2
 		y = std::abs(y);
 	}
 	template<class XY>
-	GE_FORCE_INLINE bool operator>(XY other)
+	GE_FORCE_INLINE constexpr bool operator>(XY other) const
 	{
 		return ( (x > other.x) && (y > other.y) );
 	}
 	template<class XY>
-	GE_FORCE_INLINE bool operator<(XY other)
+	GE_FORCE_INLINE constexpr bool operator<(XY other) const
 	{
 		return ( (x < other.x) && (y < other.y) );
 	}
 	template<class XY>
-	GE_FORCE_INLINE bool operator>=(XY other)
+	GE_FORCE_INLINE constexpr bool operator>=(XY other) const
 	{
 		return ( (x >= other.x) && (y >= other.y) );
 	}
 	template<class XY>
-	GE_FORCE_INLINE bool operator<=(XY other)
+	GE_FORCE_INLINE constexpr bool operator<=(XY other) const
 	{
 		return ( (x <= other.x) && (y <= other.y) );
 	}
 	template <class XY>
-	GE_FORCE_INLINE Vector2 operator=(XY other)
+	GE_FORCE_INLINE constexpr Vector2 operator=(XY other) const
 	{
 		std::swap(x,other.x);
 		std::swap(y,other.y);
@@ -136,36 +136,44 @@ struct Vector2
 
 	}
 	template<class XY>
-	GE_FORCE_INLINE bool operator==(XY other)
+	GE_FORCE_INLINE constexpr bool operator==(XY other) const
 	{
 		return ( (x == other.x) && (y == other.y) );
 	}
 
 	//Vector2 operator=(const IntVector2& subject);
+	
+
+	GE_FORCE_INLINE constexpr static void serialize(Vector2* serializeMe, serialization::serialization_state& state)
+	{
+		serialization::serialize(serializeMe->x,state);
+		serialization::serialize(serializeMe->y,state);
+	}
+
+
+	static Vector2* unserialize(serialization::unserialization_state& state)
+	{
+		auto x = serialization::unserialize<double>(state);
+		auto y = serialization::unserialize<double>(state);
+		return new Vector2{x,y};
+	}
+
 };
 
 
 
-void GE_Serialize(Vector2* serializeMe, char** buffer, size_t* bufferUsed, size_t* bufferSize)
-{
-	GE_Serialize(serializeMe->x,buffer,bufferUsed,bufferSize);
-	GE_Serialize(serializeMe->y,buffer,bufferUsed,bufferSize);
-}
-template<class data>
-typename std::enable_if<std::is_same<data,Vector2*>::value,Vector2*>::type GE_Unserialize(char* serialized, size_t* bufferUnserialized,int serializedVersion)
-{
-	auto x = GE_Unserialize<double>(serialized,bufferUnserialized,serializedVersion);
-	auto y = GE_Unserialize<double>(serialized,bufferUnserialized,serializedVersion);
-	return new Vector2{x,y};
-}
 
-GE_FORCE_INLINE Vector2 reverseVector(Vector2 subject)
+
+GE_FORCE_INLINE constexpr Vector2 reverseVector(Vector2 subject)
 {
 	auto _x = subject.x;
 	subject.x = subject.y;
 	subject.y = _x;
 	return subject;
 }
+
+class Vector2r;
+constexpr void GE_Vector2RotationCCW(Vector2r& subject);
 
 /*!
  * A point in 2D space with rotation
@@ -187,43 +195,44 @@ struct Vector2r
 	
 	*/
 
-	void addRelativeVelocity(Vector2r adder);
-	GE_FORCE_INLINE Vector2r operator+(Vector2r other)
+	constexpr void addRelativeVelocity(Vector2r adder);
+
+	GE_FORCE_INLINE constexpr Vector2r operator+(Vector2r other) const
 	{
 		Vector2r newVector = {this->x+other.x,this->y+other.y,this->r+other.r};
 		GE_CapRotation(&newVector.r);
 
 		return newVector;
 	}
-	GE_FORCE_INLINE Vector2r operator-(Vector2r other)
+	GE_FORCE_INLINE constexpr Vector2r operator-(Vector2r other) const
 	{
 		Vector2r newVector = {this->x-other.x,this->y-other.y,this->r-other.r};
 		GE_CapRotation(&newVector.r);
 
 		return newVector;
 	}
-	GE_FORCE_INLINE Vector2r operator*(Vector2r other)
+	GE_FORCE_INLINE constexpr Vector2r operator*(Vector2r other) const
 	{	
 		Vector2r newVector = {this->x*other.x,this->y*other.y,this->r*other.r};
 		GE_CapRotation(&newVector.r);
 
 		return newVector;
 	}
-	GE_FORCE_INLINE Vector2r operator/(Vector2r other)
+	GE_FORCE_INLINE constexpr Vector2r operator/(Vector2r other) const
 	{	
 		Vector2r newVector = {this->x/other.x,this->y/other.y,this->r/other.r};
 		GE_CapRotation(&newVector.r);
 
 		return newVector;
 	}
-	GE_FORCE_INLINE Vector2r operator*(double other)
+	GE_FORCE_INLINE constexpr Vector2r operator*(double other) const
 	{
 		Vector2r newVector = {this->x*other,this->y*other,this->r*other};
 		GE_CapRotation(&newVector.r);
 
 		return newVector;
 	}
-	GE_FORCE_INLINE Vector2r operator/(double other)
+	GE_FORCE_INLINE constexpr Vector2r operator/(double other) const
 	{
 		Vector2r newVector = {this->x/other,this->y/other,this->r/other};
 		GE_CapRotation(&newVector.r);
@@ -250,23 +259,23 @@ struct Vector2r
 
 	//Vector2 operations
 
-	GE_FORCE_INLINE Vector2r operator+(Vector2 other)
+	GE_FORCE_INLINE constexpr Vector2r operator+(Vector2 other) const
 	{
 		Vector2r newVector = {this->x+other.x,this->y+other.y,this->r};
 		return newVector;
 	}
-	GE_FORCE_INLINE Vector2r operator-(Vector2 other)
+	GE_FORCE_INLINE constexpr Vector2r operator-(Vector2 other) const
 	{
 		Vector2r newVector = {this->x-other.x,this->y-other.y,this->r};
 		return newVector;
 	}
-	GE_FORCE_INLINE Vector2r operator*(Vector2 other)
+	GE_FORCE_INLINE constexpr Vector2r operator*(Vector2 other) const
 	{	
 		Vector2r newVector = {this->x*other.x,this->y*other.y,this->r};
 		return newVector;
 	}
 	template <class XY>
-	GE_FORCE_INLINE Vector2r operator=(XY other)
+	GE_FORCE_INLINE constexpr Vector2r operator=(XY other) const
 	{
 		/*if constexpr(std::is_pointer<XY>::value) //TODO: this doesn't work?
 		{
@@ -285,29 +294,28 @@ struct Vector2r
 
 	}
 	template<class XYR>
-	GE_FORCE_INLINE bool operator==(XYR other)
+	GE_FORCE_INLINE constexpr bool operator==(XYR other) const
 	{
 		return ( (x == other.x) && (y == other.y) && (r == other.r) );
 	}
 		
+	GE_FORCE_INLINE constexpr static void serialize(Vector2r* data, serialization::serialization_state& state)
+	{
+		serialization::serialize(data->x,state);
+		serialization::serialize(data->y,state);
+		serialization::serialize(data->r,state);
+	}
+	static Vector2r* unserialize(serialization::unserialization_state& state)
+	{
+		double _x = serialization::unserialize<double>(state);
+		double _y = serialization::unserialize<double>(state);
+		double _r = serialization::unserialize<double>(state);
+		return new Vector2r{_x,_y,_r};
+	}
+
 };
 
 
-
-void GE_Serialize(Vector2r* data, char** buffer, size_t* bufferUsed, size_t* bufferSize)
-{
-	GE_Serialize(data->x,buffer,bufferUsed,bufferSize);
-	GE_Serialize(data->y,buffer,bufferUsed,bufferSize);
-	GE_Serialize(data->r,buffer,bufferUsed,bufferSize);
-}
-template<class data>
-typename std::enable_if<std::is_same<data,Vector2r*>::value,Vector2r*>::type GE_Unserialize(char* buffer, size_t* bufferUnserialized,int version)
-{
-	double _x = GE_Unserialize<double>(buffer,bufferUnserialized,version);
-	double _y = GE_Unserialize<double>(buffer,bufferUnserialized,version);
-	double _r = GE_Unserialize<double>(buffer,bufferUnserialized,version);
-	return new Vector2r{_x,_y,_r};
-}
 
 
 
@@ -404,33 +412,8 @@ struct IntVector2
 /*! 
  *	A 2D Rectangle. No additional operators provided.
  */
-struct GE_Rectangle : GE_Serializable 
+struct GE_Rectangle 
 {
-	GE_Rectangle(double x, double y, double w, double h)
-	{
-		this->x = x;
-		this->y = y;
-		this->w = w;
-		this->h = h;
-	};
-	GE_Rectangle(){};
-
-	void serialize(char** buffer, size_t* bufferUsed, size_t* bufferSize)
-	{
-		GE_Serialize(x,buffer,bufferUsed,bufferSize);
-		GE_Serialize(y,buffer,bufferUsed,bufferSize);
-		GE_Serialize(w,buffer,bufferUsed,bufferSize);
-		GE_Serialize(h,buffer,bufferUsed,bufferSize);
-	};
-	static GE_Rectangle* unserialize(char* buffer, size_t* bufferUnserialized,int version)
-	{
-		double _x = GE_Unserialize<double>(buffer,bufferUnserialized,version);
-		double _y = GE_Unserialize<double>(buffer,bufferUnserialized,version);
-		double _w = GE_Unserialize<double>(buffer,bufferUnserialized,version);
-		double _h = GE_Unserialize<double>(buffer,bufferUnserialized,version);
-		return new GE_Rectangle{_x,_y,_w,_h};
-	};
-
 	double x;
 	double y;
 	double w;
@@ -444,44 +427,37 @@ struct GE_Rectangle : GE_Serializable
 		h = other.h;
 		return *this;
 	}
+
+	GE_FORCE_INLINE constexpr static void serialize(GE_Rectangle* data, serialization::serialization_state& state)
+	{
+		serialization::serialize(data->x,state);
+		serialization::serialize(data->y,state);
+		serialization::serialize(data->w,state);
+		serialization::serialize(data->h,state);
+	}
+
+	static GE_Rectangle* unserialize(serialization::unserialization_state& state)
+	{
+		double _x = serialization::unserialize<double>(state);
+		double _y = serialization::unserialize<double>(state);
+		double _w = serialization::unserialize<double>(state);
+		double _h = serialization::unserialize<double>(state);
+		return new GE_Rectangle{_x,_y,_w,_h};
+	}
+
+
 };
-struct GE_Rectangler : GE_Serializable 
+
+
+struct GE_Rectangler 
 {
-	GE_Rectangler(double x, double y,double r, double w, double h)
-	{
-		this->x = x;
-		this->y = y;
-		this->r = r;
-		this->w = w;
-		this->h = h;
-	};
-	GE_Rectangler(){};
-
-	void serialize(char** buffer, size_t* bufferUsed, size_t* bufferSize)
-	{
-		GE_Serialize(x,buffer,bufferUsed,bufferSize);
-		GE_Serialize(y,buffer,bufferUsed,bufferSize);
-		GE_Serialize(r,buffer,bufferUsed,bufferSize);
-		GE_Serialize(w,buffer,bufferUsed,bufferSize);
-		GE_Serialize(h,buffer,bufferUsed,bufferSize);
-	};
-	static GE_Rectangler* unserialize(char* buffer, size_t* bufferUnserialized,int version)
-	{
-		double _x = GE_Unserialize<double>(buffer,bufferUnserialized,version);
-		double _y = GE_Unserialize<double>(buffer,bufferUnserialized,version);
-		double _r = GE_Unserialize<double>(buffer,bufferUnserialized,version);
-		double _w = GE_Unserialize<double>(buffer,bufferUnserialized,version);
-		double _h = GE_Unserialize<double>(buffer,bufferUnserialized,version);
-		return new GE_Rectangler{_x,_y,_r,_w,_h};
-	};
-
+	
 	double x;
 	double y;
 	double r;
 	double w;
 	double h;
 	
-
 	GE_Rectangler operator=(GE_Rectangler other)
 	{
 		x = other.x;
@@ -491,12 +467,35 @@ struct GE_Rectangler : GE_Serializable
 		h = other.h;
 		return *this;
 	}
+
+
+	GE_FORCE_INLINE constexpr static void serialize(GE_Rectangler* data, serialization::serialization_state& state)
+	{
+		serialization::serialize(data->x,state);
+		serialization::serialize(data->y,state);
+		serialization::serialize(data->r,state);
+		serialization::serialize(data->w,state);
+		serialization::serialize(data->h,state);
+	}
+	static GE_Rectangler* unserialize(serialization::unserialization_state& state)
+	{
+		double x = serialization::unserialize<double>(state);
+		double y = serialization::unserialize<double>(state);
+		double r = serialization::unserialize<double>(state);
+		double w = serialization::unserialize<double>(state);
+		double h = serialization::unserialize<double>(state);
+		return new GE_Rectangler{x,y,r,w,h};
+	}
+
+
 };
+
+
 
 /*!
  * Adds counter-clockwise rotation to x and y using rotation
  */
-GE_FORCE_INLINE void GE_Vector2RotationCCW(double* x, double* y, double rotation)
+GE_FORCE_INLINE constexpr void GE_Vector2RotationCCW(double* x, double* y, double rotation)
 {
 	double sin_rotation = sin(rotation); //posr must be used because this vector is a velocity vector, not a position vector
 	double cos_rotation = cos(rotation);
@@ -512,7 +511,7 @@ GE_FORCE_INLINE void GE_Vector2RotationCCW(double* x, double* y, double rotation
 /*!
  * Adds counter-clockwise rotation to subject's x and y using subject's r
  */
-GE_FORCE_INLINE void GE_Vector2RotationCCW(Vector2r* subject)
+GE_FORCE_INLINE constexpr void GE_Vector2RotationCCW(Vector2r* subject)
 {
 	GE_Vector2RotationCCW(&subject->x,&subject->y,subject->r);
 }
@@ -520,7 +519,7 @@ GE_FORCE_INLINE void GE_Vector2RotationCCW(Vector2r* subject)
 /*!
  * Adds counter-clockwise rotation to subject's x and y using rotation
  */
-GE_FORCE_INLINE void GE_Vector2RotationCCW(Vector2r* subject, double rotation)
+GE_FORCE_INLINE constexpr void GE_Vector2RotationCCW(Vector2r* subject, double rotation)
 {
 	GE_Vector2RotationCCW(&subject->x,&subject->y,rotation);
 }
@@ -528,7 +527,7 @@ GE_FORCE_INLINE void GE_Vector2RotationCCW(Vector2r* subject, double rotation)
 /*!
  * Adds counter-clockwise rotation to subject's x and y using rotation
  */
-GE_FORCE_INLINE void GE_Vector2RotationCCW(Vector2* subject, double rotation)
+GE_FORCE_INLINE constexpr void GE_Vector2RotationCCW(Vector2* subject, double rotation)
 {
 	GE_Vector2RotationCCW(&subject->x,&subject->y,rotation);
 }
@@ -537,7 +536,7 @@ GE_FORCE_INLINE void GE_Vector2RotationCCW(Vector2* subject, double rotation)
 /*!
  * Adds clockwise rotation to subject's x and y using subject's r
  */
-GE_FORCE_INLINE void GE_Vector2Rotation(double* x, double* y, double rotation)
+GE_FORCE_INLINE constexpr void GE_Vector2Rotation(double* x, double* y, double rotation)
 {
 	double sin_rotation = sin(rotation); //posr must be used because this vector is a velocity vector, not a position vector
 	double cos_rotation = cos(rotation);
@@ -552,7 +551,7 @@ GE_FORCE_INLINE void GE_Vector2Rotation(double* x, double* y, double rotation)
 /*!
  * Adds clockwise rotation to subject's x and y using subject's r
  */
-GE_FORCE_INLINE void GE_Vector2Rotation(Vector2r* subject)
+GE_FORCE_INLINE constexpr void GE_Vector2Rotation(Vector2r* subject)
 {
 	GE_Vector2Rotation(&subject->x,&subject->y,subject->r);
 }
@@ -560,7 +559,7 @@ GE_FORCE_INLINE void GE_Vector2Rotation(Vector2r* subject)
 /*!
  * Adds clockwise rotation to subject's x and y using subject's r
  */
-GE_FORCE_INLINE void GE_Vector2Rotation(Vector2r* subject, double rotation)
+GE_FORCE_INLINE constexpr void GE_Vector2Rotation(Vector2r* subject, double rotation)
 {
 	GE_Vector2Rotation(&subject->x,&subject->y,rotation);
 }
@@ -568,7 +567,7 @@ GE_FORCE_INLINE void GE_Vector2Rotation(Vector2r* subject, double rotation)
 /*!
  * Adds clockwise rotation to subject's x and y using subject's r
  */
-GE_FORCE_INLINE void GE_Vector2Rotation(Vector2* subject, double rotation)
+GE_FORCE_INLINE constexpr void GE_Vector2Rotation(Vector2* subject, double rotation)
 {
 	GE_Vector2Rotation(&subject->x,&subject->y,rotation);
 }
@@ -577,9 +576,9 @@ GE_FORCE_INLINE void GE_Vector2Rotation(Vector2* subject, double rotation)
  * Distance between x1, y1 and x2, y2
  * @return The distance between x1, y1 and x2, y2, in a double
  */
-GE_FORCE_INLINE double GE_Distance(double x1, double y1, double x2, double y2)
+GE_FORCE_INLINE constexpr double GE_Distance(double x1, double y1, double x2, double y2)
 {
-	return sqrt((pow(x2-x1,2))+(pow(y2-y1,2)));
+	return std::sqrt((std::pow(x2-x1,2))+(std::pow(y2-y1,2)));
 }
 
 /*!
@@ -587,7 +586,7 @@ GE_FORCE_INLINE double GE_Distance(double x1, double y1, double x2, double y2)
  * @return The distance between the 2 vectors, in a double
  */
 template <class XY1,class XY2>
-GE_FORCE_INLINE double GE_Distance(XY1 subject, XY2 subject2)
+GE_FORCE_INLINE constexpr double GE_Distance(XY1 subject, XY2 subject2)
 {
 	return GE_Distance(subject.x,subject.y,subject2.x,subject2.y);
 }
@@ -598,7 +597,7 @@ GE_FORCE_INLINE double GE_Distance(XY1 subject, XY2 subject2)
 * Returns the result of a dot product with subject and subject2
 */
 template<class XY>
-GE_FORCE_INLINE double GE_Dot(XY subject, XY subject2)
+GE_FORCE_INLINE constexpr double GE_Dot(XY subject, XY subject2)
 {
 	return (subject.x*subject2.x)+(subject.y*subject2.y);
 }
@@ -607,7 +606,7 @@ GE_FORCE_INLINE double GE_Dot(XY subject, XY subject2)
  * Gives you the angle between a point with rotation, and a point
  */
 template<class XYR, class XY>
-GE_FORCE_INLINE double GE_GetRotationalDistance(XYR subject, XY victim)
+GE_FORCE_INLINE constexpr double GE_GetRotationalDistance(XYR subject, XY victim)
 {
 	//based on: https://gamedev.stackexchange.com/a/124803 though it's pretty simple math, my major impedence was getting this done in a game jam after being up for 24+ hours
 	return GE_CapRotation( (subject.r)-((atan2(victim.x-subject.x,victim.y-subject.y))) );
@@ -615,17 +614,28 @@ GE_FORCE_INLINE double GE_GetRotationalDistance(XYR subject, XY victim)
 
 
 
+
 /*!
  * Converts the rotation from radians to degrees
  */
-void GE_PhysicsVectorToRenderVector(Vector2r* subject);
+constexpr void GE_PhysicsVectorToRenderVector(Vector2r* subject)
+{	
+	subject->r *= RAD_TO_DEG; //SDL uses degrees instead of radians
+}
+
+
 /*!
  * Converts from radians to degrees
  */
-void GE_PhysicsRotationToRenderRotation(double* rotation);
+constexpr void GE_PhysicsRotationToRenderRotation(double* rotation)
+{
+	(*rotation) = (*rotation)*RAD_TO_DEG;
+}
+
+
 
 template<class XY>
-XY GE_ClosestVector(XY origin,XY point1,XY point2)
+constexpr XY GE_ClosestVector(XY origin,XY point1,XY point2)
 {
 	if (GE_Distance(origin,point1) < GE_Distance(origin,point2))
 	{
@@ -634,7 +644,7 @@ XY GE_ClosestVector(XY origin,XY point1,XY point2)
 	return point2;
 }
 template<class XY>
-XY GE_FurthestVector(XY origin,XY point1,XY point2)
+constexpr XY GE_FurthestVector(XY origin,XY point1,XY point2)
 {
 	if (GE_Distance(origin,point1) > GE_Distance(origin,point2))
 	{
@@ -647,4 +657,29 @@ bool GE_TEST_Vector2();
 
 
 
-Vector2 GE_PointsToRectangle(Vector2 start, Vector2 end,double rotation);
+//Vector2 GE_PointsToRectangle(Vector2 start, Vector2 end,double rotation);
+
+constexpr Vector2 GE_PointsToRectangle(Vector2 start, Vector2 end,double rotation)
+{
+	end = end-start;
+	start = {0,0};
+
+	Vector2 centerPoint = (start+end)/2;
+
+	start = start-(centerPoint/2);
+	end = end-(centerPoint/2);
+	GE_Vector2Rotation(&start,rotation);
+	GE_Vector2Rotation(&end,rotation);
+	start = start+(centerPoint/2);
+	end = end+(centerPoint/2);
+
+	return {end.x-start.x,end.y-start.y};
+}
+
+
+constexpr void Vector2r::addRelativeVelocity(Vector2r adder)
+{
+	GE_Vector2RotationCCW(&adder);
+	x += adder.x;
+	y += adder.y;
+}

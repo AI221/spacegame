@@ -1,0 +1,111 @@
+.TH "Player" 3 "Fri May 18 2018" "Version 0.1" "2D game engine yet to be properly named" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+Player
+.SH SYNOPSIS
+.br
+.PP
+.PP
+Inherits \fBGE_PhysicsObject\fP, and \fBGE_LevelEditorInterface\fP\&.
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBPlayer\fP (SDL_Renderer *renderer)"
+.br
+.ti -1c
+.RI "void \fBC_Destroyed\fP () override"
+.br
+.ti -1c
+.RI "bool \fBC_Update\fP () override"
+.br
+.ti -1c
+.RI "bool \fBC_Collision\fP (\fBGE_PhysicsObject\fP *victim, int collisionRectangleID) override"
+.br
+.ti -1c
+.RI "bool \fBGetIsOnline\fP ()"
+.br
+.ti -1c
+.RI "constexpr const void \fBserialize\fP (\fBserialization::serialization_state\fP &state)"
+.br
+.ti -1c
+.RI "void \fBsetPosition\fP (\fBVector2r\fP position) override"
+.br
+.in -1c
+.SS "Static Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "static \fBPlayer\fP * \fBunserialize\fP (\fBserialization::unserialization_state\fP &state)"
+.br
+.ti -1c
+.RI "static \fBGE_PhysicsObject\fP * \fBspawnFromLevelEditor\fP (SDL_Renderer *renderer, \fBVector2r\fP position)"
+.br
+.in -1c
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "\fBSubsystem\fP * \fBiterableSubsystems\fP [MAX_SUBSYSTEMS]"
+.br
+.ti -1c
+.RI "\fBGE_ThreadedEventStack\fP \fBthreadedEventStack\fP"
+.br
+.ti -1c
+.RI "\fBInventory\fP * \fBinventory\fP"
+.br
+.in -1c
+.SS "Static Public Attributes"
+
+.in +1c
+.ti -1c
+.RI "static const int \fBnumIterableSubsystems\fP = 8"
+.br
+.ti -1c
+.RI "static const std::string \fBname\fP = 'Player'"
+.br
+.ti -1c
+.RI "constexpr static const \fBGE_LevelEditorObjectProperties\fP \fBproperties\fP = \fBGE_LevelEditorObjectProperties\fP{0,false}"
+.br
+.in -1c
+.SH "Member Function Documentation"
+.PP 
+.SS "bool Player::C_Collision (\fBGE_PhysicsObject\fP * victim, int collisionRectangleID)\fC [override]\fP, \fC [virtual]\fP"
+A callback upon collision 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIvictimID\fP the ID of the colliding physics object 
+.br
+\fIcollisionRectangleID\fP The ID of YOUR collision rectangle that was collided with 
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+True if you want YOUR physics object to be deleted\&. 
+.RE
+.PP
+
+.PP
+Reimplemented from \fBGE_PhysicsObject\fP\&.
+.SS "void Player::C_Destroyed ()\fC [override]\fP, \fC [virtual]\fP"
+A callback called upon deletion\&. Guarnteed to be ran in the same tick as your death\&. Guarnteed to run on the phyiscs thread\&.
+.PP
+Attempting to access memory from this physics object after this function is called is undefined behaviour\&. In most circumstances, you will want to remove yourself from anythingthat utilizes lists of physics objects (minimap, glue, serialization, etc\&.)
+.PP
+This is for tasks such as removing yourself from a minimap, or informing the serialization manager that you're dead\&. Doing this in a destructor is undefined behaviour, as the time between a physics object dying and actually being deallocated is non-deterministic and may happen on another thread\&. 
+.PP
+Reimplemented from \fBGE_PhysicsObject\fP\&.
+.SS "bool Player::C_Update ()\fC [override]\fP, \fC [virtual]\fP"
+Called during a physics tick, after position updates & collision calculations 
+.PP
+Reimplemented from \fBGE_PhysicsObject\fP\&.
+.SS "void Player::setPosition (\fBVector2r\fP position)\fC [override]\fP, \fC [virtual]\fP"
+Contains a default implementation -- suitable for most cases 
+.PP
+Reimplemented from \fBGE_LevelEditorInterface\fP\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for 2D game engine yet to be properly named from the source code\&.

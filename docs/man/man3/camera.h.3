@@ -1,0 +1,46 @@
+.TH "src/camera.h" 3 "Fri May 18 2018" "Version 0.1" "2D game engine yet to be properly named" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+src/camera.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <math\&.h>\fP
+.br
+\fC#include 'vector2\&.h'\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "struct \fBCamera\fP"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBVector2r\fP \fBGE_ApplyCameraOffset\fP (\fBCamera\fP *camera, \fBVector2r\fP subject)"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+
+.PP
+\fBAuthor:\fP
+.RS 4
+Jackson McNeill
+.RE
+.PP
+A small \fBCamera\fP stucture and a function to apply offset based upon it 
+.SH "Function Documentation"
+.PP 
+.SS "\fBVector2r\fP GE_ApplyCameraOffset (\fBCamera\fP * camera, \fBVector2r\fP subject)"
+Applys camera offset, makes the camera->pos the center of the screen, and applys rotation\&.
+.PP
+The applying of rotation may be unexpected due to many 2D games not doing this; simply set the r in camera->pos to 0 to stop this behaviour\&. 
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for 2D game engine yet to be properly named from the source code\&.

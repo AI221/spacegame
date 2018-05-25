@@ -1,0 +1,54 @@
+.TH "GE_Experimental_UI_Button" 3 "Fri May 18 2018" "Version 0.1" "2D game engine yet to be properly named" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+GE_Experimental_UI_Button
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <UI\&.h>\fP
+.PP
+Inherits \fBGE_UI_Element\fP\&.
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBGE_Experimental_UI_Button\fP (SDL_Renderer *renderer, \fBVector2\fP position, \fBVector2\fP paddingSize, \fBGE_Color\fP color, \fBGE_Color\fP pressedColor, \fBGE_Color\fP highlightColor, \fBGE_UI_Text\fP *text)"
+.br
+.ti -1c
+.RI "void \fBrender\fP (\fBVector2\fP parrentPosition)"
+.br
+.ti -1c
+.RI "void \fBrender\fP ()"
+.br
+.ti -1c
+.RI "void \fBgiveEvent\fP (\fBVector2\fP parrentPosition, SDL_Event event)"
+.br
+.ti -1c
+.RI "\fBVector2\fP \fBgetSize\fP ()"
+.br
+.ti -1c
+.RI "bool \fBgetIsTriggered\fP ()"
+.br
+.ti -1c
+.RI "void \fBsetIsTriggered\fP (bool triggered)"
+.br
+.ti -1c
+.RI "bool \fBgetIsHighlighted\fP ()"
+.br
+.in -1c
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "std::unique_ptr< \fBGE_UI_PositioningRectangle\fP > \fBpositioningRectangle\fP"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+An experimental UI implementation which makes use of a positioning rectangle, which effectively creates a standard method of positioning, centering, and sizing\&. 
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for 2D game engine yet to be properly named from the source code\&.

@@ -9,7 +9,7 @@
 
 
 
-constexpr std::optional<Vector2> GE_Raycast(Vector2 start, Vector2 end, GE_ShapeLinesVector obstacles)
+std::optional<Vector2> GE_Raycast(Vector2 start, Vector2 end, GE_ShapeLinesVector obstacles)
 {
 	std::optional<Vector2> currentShortest = {};
 	for (auto shape : obstacles)
@@ -21,7 +21,7 @@ constexpr std::optional<Vector2> GE_Raycast(Vector2 start, Vector2 end, GE_Shape
 		}
 		GE_Line rayLine = GE_GetLine(start,end);
 		auto lastSpot = shape.begin();
-		for (auto spot = shape.begin()+1;spot!= shape.end();spot++)
+		for (auto spot = std::begin(shape);spot!= std::end(shape);spot++)
 		{
 			GE_Line shapeLine = GE_GetLine(*lastSpot,*spot);	
 			//SDL_RenderPresent(GE_DEBUG_Renderer);

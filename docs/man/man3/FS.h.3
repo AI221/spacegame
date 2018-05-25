@@ -1,0 +1,156 @@
+.TH "src/FS.h" 3 "Fri May 18 2018" "Version 0.1" "2D game engine yet to be properly named" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+src/FS.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'GeneralEngineCPP\&.h'\fP
+.br
+\fC#include <sys/types\&.h>\fP
+.br
+\fC#include <dirent\&.h>\fP
+.br
+\fC#include <vector>\fP
+.br
+\fC#include <string>\fP
+.br
+\fC#include <exception>\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "struct \fBDirList\fP"
+.br
+.in -1c
+.SS "Typedefs"
+
+.in +1c
+.ti -1c
+.RI "typedef std::vector< char > \fBGE_FileString\fP"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBDirList\fP \fBGE_ListInDir\fP (std::string directory)"
+.br
+.ti -1c
+.RI "unsigned int \fBGE_GetFileExtensionPosition\fP (std::string fullfilename)"
+.br
+.ti -1c
+.RI "unsigned int \fBGE_GetFileExtensionPosition\fP (const char *fullfilename)"
+.br
+.ti -1c
+.RI "unsigned int \fBGE_GetParrentDirectoryPosition\fP (std::string fullfilename)"
+.br
+.ti -1c
+.RI "unsigned int \fBGE_GetParrentDirectoryPosition\fP (const char *fullfilename)"
+.br
+.ti -1c
+.RI "std::string \fBGE_GetFileExtension\fP (const char *fullfilename)"
+.br
+.ti -1c
+.RI "std::string \fBGE_GetFileExtension\fP (std::string fullfilename)"
+.br
+.ti -1c
+.RI "std::string \fBGE_GetFileNoExtension\fP (std::string fullfilename)"
+.br
+.ti -1c
+.RI "std::string \fBGE_GetFileNoExtension\fP (const char *fullfilename)"
+.br
+.ti -1c
+.RI "std::string \fBGE_GetParrentDirectory\fP (std::string fullfilename)"
+.br
+.ti -1c
+.RI "std::string \fBGE_GetParrentDirectory\fP (const char *fullfilename)"
+.br
+.ti -1c
+.RI "GE_FileString \fBGE_ReadAllFromFile\fP (std::string fullfilename)"
+.br
+.ti -1c
+.RI "GE_FileString \fBGE_ReadAllFromFile\fP (const char *fullfilename)"
+.br
+.ti -1c
+.RI "void \fBGE_WriteToFile\fP (const char *fullfilename, char *contents, size_t size)"
+.br
+.ti -1c
+.RI "void \fBGE_WriteToFile\fP (const char *fullfilename, GE_FileString contents)"
+.br
+.ti -1c
+.RI "void \fBGE_WriteToFile\fP (std::string fullfilename, GE_FileString contents)"
+.br
+.ti -1c
+.RI "std::string \fBGE_GetBaseName\fP (std::string fullfilename)"
+.br
+.ti -1c
+.RI "std::string \fBGE_GetBaseName\fP (const char *fullfilename)"
+.br
+.ti -1c
+.RI "std::string \fBGE_GetStringFromFileString\fP (GE_FileString filestring)"
+.br
+.ti -1c
+.RI "char * \fBGE_GetCharArrayFromFileString\fP (GE_FileString filestring)"
+.br
+.ti -1c
+.RI "bool \fBGE_TEST_FS\fP ()"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+
+.PP
+\fBAuthor:\fP
+.RS 4
+Jackson McNeill
+.RE
+.PP
+A small FS abstraction to fill the gaps SDL leaves with its own FS abstraction\&. 
+.SH "Function Documentation"
+.PP 
+.SS "std::string GE_GetBaseName (std::string fullfilename)"
+Returns the base file name
+.PP
+Example: folder/folder2/fiLe\&.txt -> fiLe\&.txt 
+.SS "char* GE_GetCharArrayFromFileString (GE_FileString filestring)"
+Returns a char array representing the given GE_FileString
+.PP
+Allocates using operator new -- delete it with delete[] 
+.SS "std::string GE_GetFileExtension (const char * fullfilename)"
+Gets file extension\&. Example: doc\&.txt -> txt 
+.SS "unsigned int GE_GetFileExtensionPosition (std::string fullfilename)"
+Gets the position that a file extension is at 
+.SS "std::string GE_GetFileNoExtension (std::string fullfilename)"
+Strips the extension off a file Example: doc\&.txt -> doc 
+.SS "std::string GE_GetParrentDirectory (std::string fullfilename)"
+Gives you the enclosing directory
+.PP
+Example: folder/folder2/file -> folder/folder2 
+.SS "unsigned int GE_GetParrentDirectoryPosition (std::string fullfilename)"
+Gets the position that the final / in path is at 
+.SS "std::string GE_GetStringFromFileString (GE_FileString filestring)"
+Returns a std::string representing the given GE_FileString\&.
+.PP
+Note, this will loose the ability to hold the \\0 character\&. 
+.SS "\fBDirList\fP GE_ListInDir (std::string directory)"
+TODO: Broken for windows! Returns a \fBDirList\fP for a directory\&. If the directory doesn't exist, DirList\&.error will be 1\&. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIdirectory\fP A directory that exists\&. 
+.RE
+.PP
+
+.SS "GE_FileString GE_ReadAllFromFile (std::string fullfilename)"
+Returns a GE_FileString which has the contents of a file 
+.SS "void GE_WriteToFile (const char * fullfilename, char * contents, size_t size)"
+Writes to a file and closes it\&.
+.PP
+Will create the file if it doesn't exist, or overwrite it if it does\&. 
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for 2D game engine yet to be properly named from the source code\&.

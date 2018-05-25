@@ -692,7 +692,7 @@ int main(int argc, char* argv[])
 #ifdef UNIT_TEST
 		printf("-------------BEGIN UNIT TESTS-------------\n");
 		GE_RUN_UNIT_TEST(GE_TEST_FS);
-		GE_RUN_UNIT_TEST(GE_TEST_SerializeBasic);
+		GE_RUN_UNIT_TEST(serialize::unit_test);
 		GE_RUN_UNIT_TEST(GE_TEST_Vector2);
 		GE_RUN_UNIT_TEST(GE_TEST_ThreadedDelete);
 		printf("-------------END UNIT TESTS-------------\n");

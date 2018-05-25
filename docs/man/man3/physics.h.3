@@ -1,0 +1,307 @@
+.TH "src/physics.h" 3 "Fri May 18 2018" "Version 0.1" "2D game engine yet to be properly named" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+src/physics.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <pthread\&.h>\fP
+.br
+\fC#include <forward_list>\fP
+.br
+\fC#include <list>\fP
+.br
+\fC#include <set>\fP
+.br
+\fC#include <unordered_map>\fP
+.br
+\fC#include <functional>\fP
+.br
+\fC#include <vector>\fP
+.br
+\fC#include <atomic>\fP
+.br
+\fC#include 'vector2\&.h'\fP
+.br
+\fC#include 'gluePhysicsObject\&.h'\fP
+.br
+\fC#include 'GeneralEngineCPP\&.h'\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "class \fBGE_PhysicsObject\fP"
+.br
+.in -1c
+.SS "Macros"
+
+.in +1c
+.ti -1c
+.RI "#define \fBMAX_COLLISION_RECTANGLES_PER_OBJECT\fP   32"
+.br
+.ti -1c
+.RI "#define \fBMAX_GLUE_OBJECTS_PER_OBJECT\fP   32"
+.br
+.ti -1c
+.RI "#define \fBMAX_PHYSICS_ENGINE_DONE_CALLBACKS\fP   64"
+.br
+.ti -1c
+.RI "#define \fBMAX_PHYSICS_ENGINE_PRE_CALLBACKS\fP   64"
+.br
+.ti -1c
+.RI "#define \fBPHYSICS_AREA_SIZE\fP   500"
+.br
+.ti -1c
+.RI "#define \fBPHYSICS_MAX_SPEED_BEFORE_BROKEN_INTO_MINI_TICKS\fP   20"
+.br
+.in -1c
+.SS "Typedefs"
+
+.in +1c
+.ti -1c
+.RI "typedef long long int \fBphysics_area_single_coord_t\fP"
+.br
+.ti -1c
+.RI "typedef std::pair< physics_area_single_coord_t, physics_area_single_coord_t > \fBphysics_area_coord_t\fP"
+.br
+.ti -1c
+.RI "typedef std::forward_list< \fBGE_PhysicsObject\fP * > \fBphysics_area_t\fP"
+.br
+.ti -1c
+.RI "typedef std::vector< physics_area_t * > \fBphysics_object_area_list_t\fP"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "int \fBGE_PhysicsInit\fP ()"
+.br
+.ti -1c
+.RI "void \fBGE_LinkVectorToPhysicsObjectPosition\fP (\fBGE_PhysicsObject\fP *subject, \fBVector2r\fP *link)"
+.br
+.ti -1c
+.RI "void \fBGE_LinkVectorToPhysicsObjectVelocity\fP (\fBGE_PhysicsObject\fP *subject, \fBVector2r\fP *link)"
+.br
+.ti -1c
+.RI "void \fBGE_LinkGlueToPhysicsObject\fP (\fBGE_PhysicsObject\fP *subject, \fBGE_GlueTarget\fP *glue)"
+.br
+.ti -1c
+.RI "int \fBGE_AddPhysicsDoneCallback\fP (std::function< void()> callback)"
+.br
+.ti -1c
+.RI "int \fBGE_AddPhysicsPreCallback\fP (std::function< void()> callback)"
+.br
+.ti -1c
+.RI "void \fBGE_AddPhysicsObjectCollisionCallback\fP (\fBGE_PhysicsObject\fP *subject, std::function< bool(\fBGE_PhysicsObject\fP *cObj, \fBGE_PhysicsObject\fP *victimObj)> C_Collision, bool callCallbackBeforeCollisionFunction)"
+.br
+.ti -1c
+.RI "void constexpr \fBGE_AddVelocity\fP (\fBGE_PhysicsObject\fP *physicsObject, \fBVector2r\fP moreVelocity)"
+.br
+.ti -1c
+.RI "constexpr void \fBGE_AddRelativeVelocity\fP (\fBGE_PhysicsObject\fP *physicsObject, \fBVector2r\fP moreVelocity)"
+.br
+.ti -1c
+.RI "void * \fBGE_physicsThreadMain\fP (void *)"
+.br
+.ti -1c
+.RI "void \fBGE_TickPhysics\fP ()"
+.br
+.ti -1c
+.RI "bool \fBGE_TickPhysics_ForObject\fP (\fBGE_PhysicsObject\fP *cObj)"
+.br
+.ti -1c
+.RI "void \fBGE_FreePhysicsObject\fP (\fBGE_PhysicsObject\fP *physicsObject)"
+.br
+.ti -1c
+.RI "void \fBGE_RectangleToPoints\fP (\fBGE_Rectangler\fP rect, \fBVector2\fP grid, \fBVector2\fP *points, \fBVector2r\fP hostPosition)"
+.br
+.ti -1c
+.RI "bool \fBGE_IsPointInPhysicsObject\fP (\fBVector2\fP point, \fBGE_PhysicsObject\fP *obj)"
+.br
+.ti -1c
+.RI "void \fBGE_InelasticCollision\fP (\fBGE_PhysicsObject\fP *subject, \fBVector2\fP collisionPoint, \fBVector2r\fP momentum, bool CCW)"
+.br
+.ti -1c
+.RI "std::set< \fBGE_PhysicsObject\fP * > \fBGE_GetObjectsInRadius\fP (\fBVector2\fP position, double radius)"
+.br
+.ti -1c
+.RI "template<class container > std::vector< \fBGE_PhysicsObject\fP * > \fBGE_SortPhysicsObjectByClosest_Inaccurate\fP (\fBVector2\fP position, container oldSet)"
+.br
+.ti -1c
+.RI "void \fBGE_ShutdownPhysicsEngine\fP ()"
+.br
+.ti -1c
+.RI "void \fBGE_ResetPhysicsEngine\fP ()"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "bool \fBDEBUG_allowPhysicsTick\fP"
+.br
+.ti -1c
+.RI "double \fBPhysicsDelaySeconds\fP"
+.br
+.ti -1c
+.RI "std::atomic< bool > \fBPhysicsEngineThreadShutdown\fP"
+.br
+.ti -1c
+.RI "bool \fBGE_PhysicsEngine_CollisionsEnabled\fP"
+.br
+.ti -1c
+.RI "bool \fBGE_PhysicsEngine_TickingObjectsEnabled\fP"
+.br
+.ti -1c
+.RI "pthread_t \fBPhysicsEngineThread\fP"
+.br
+.ti -1c
+.RI "pthread_mutex_t \fBPhysicsEngineMutex\fP"
+.br
+.ti -1c
+.RI "std::function< void()> \fBC_PhysicsTickDoneCallbacks\fP [MAX_PHYSICS_ENGINE_DONE_CALLBACKS]"
+.br
+.ti -1c
+.RI "int \fBnumPhysicsTickDoneCallbacks\fP"
+.br
+.ti -1c
+.RI "std::function< void()> \fBC_PhysicsTickPreCallbacks\fP [MAX_PHYSICS_ENGINE_PRE_CALLBACKS]"
+.br
+.ti -1c
+.RI "int \fBnumPhysicsTickPreCallbacks\fP"
+.br
+.ti -1c
+.RI "int \fBticknum\fP"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+
+.PP
+\fBAuthor:\fP
+.RS 4
+Jackson McNeill
+.RE
+.PP
+An overkill 2D physics engine\&. Before checking 'full' collision, there is a preliminatory check which involves sGrid\&.
+.PP
+This preliminatory check works by setting elements in the 2D sGrid array to their physicsID\&. When overlap in this is detected, a full collision check happens\&. TODO: better explanation 
+.SH "Function Documentation"
+.PP 
+.SS "int GE_AddPhysicsDoneCallback (std::function< void()> callback)"
+Adds a callback which will be ran after each physics tick\&. Used by the engine itself for gluing things to the physics engine\&.
+.PP
+\fBParameters:\fP
+.RS 4
+\fIcallback\fP A function that gives void output and takes no input 
+.RE
+.PP
+
+.SS "void GE_AddPhysicsObjectCollisionCallback (\fBGE_PhysicsObject\fP * subject, std::function< bool(\fBGE_PhysicsObject\fP *cObj, \fBGE_PhysicsObject\fP *victimObj)> C_Collision, bool callCallbackBeforeCollisionFunction)"
+Adds a callback to an individual physics object that will be called when it collides with any other physics object\&. It is not gauranteed your callback will be called first, or at all if your physics object is killed\&. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIsubject\fP The physics object to add the callback to 
+.br
+\fIC_Collision\fP A function that takes GE_PhysicsObject* 's cObj(you) and victimObj(your collision partner) and outputs true when a either cObj or victimObj has been killed\&. 
+.br
+\fIcallCallbackBeforeCollisionFunction\fP True to call the callback BEFORE velocities have been exchanged, false to call it AFTER\&. 
+.RE
+.PP
+
+.SS "int GE_AddPhysicsPreCallback (std::function< void()> callback)"
+Adds a callback which will be ran before each physics tick\&. Used by the engine itself for gluing things to the physics engine\&.
+.PP
+\fBParameters:\fP
+.RS 4
+\fIcallback\fP A function that gives void output and takes no input 
+.RE
+.PP
+
+.SS "constexpr void GE_AddRelativeVelocity (\fBGE_PhysicsObject\fP * physicsObject, \fBVector2r\fP moreVelocity)"
+Add velocity to the physics object, relative to its rotation\&.
+.PP
+\fBParameters:\fP
+.RS 4
+\fIphysicsObject\fP The physics object to add the velocity to 
+.br
+\fImoreVelocity\fP How much more velocity to add 
+.RE
+.PP
+
+.SS "void constexpr GE_AddVelocity (\fBGE_PhysicsObject\fP * physicsObject, \fBVector2r\fP moreVelocity)"
+Add velocity to a physics object\&. Note that only 1 additional velocity will be added per tick, so calling it 3 times will result in the call being added\&.
+.PP
+\fBParameters:\fP
+.RS 4
+\fIphysicsObject\fP The physics object to add the velocity to 
+.br
+\fImoreVelocity\fP How much more velocity to add 
+.RE
+.PP
+
+.SS "void GE_FreePhysicsObject (\fBGE_PhysicsObject\fP * physicsObject)"
+Frees the memory used by a physics object\&. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIphysicsObject\fP The physics object which will be DELETED and you can no longer use afterwards 
+.RE
+.PP
+
+.SS "std::set<\fBGE_PhysicsObject\fP*> GE_GetObjectsInRadius (\fBVector2\fP position, double radius)"
+Returns physics objects in a given radius\&.
+.PP
+Due to the world being broken into sectors behind-the-scenes, this function is generally very fast\&. 
+.SS "void GE_InelasticCollision (\fBGE_PhysicsObject\fP * subject, \fBVector2\fP collisionPoint, \fBVector2r\fP momentum, bool CCW)"
+Runs an inelastic collision for a given momentum exchange\&. 
+.SS "bool GE_IsPointInPhysicsObject (\fBVector2\fP point, \fBGE_PhysicsObject\fP * obj)"
+Finds wheather a point is inside a physics object's collision boxes\&. 
+.SS "void GE_LinkGlueToPhysicsObject (\fBGE_PhysicsObject\fP * subject, \fBGE_GlueTarget\fP * glue)"
+Link an arbitrary glue object so that it's destroyed when the linked physics object is destroyed 
+.SS "void GE_LinkVectorToPhysicsObjectPosition (\fBGE_PhysicsObject\fP * subject, \fBVector2r\fP * link)"
+Convience function that creates a new glue object, linking link to subject 's position\&. It will be deleted when the physics objected is freed\&. 
+.SS "void GE_LinkVectorToPhysicsObjectVelocity (\fBGE_PhysicsObject\fP * subject, \fBVector2r\fP * link)"
+Convience function that creates a new glue object, linking link to subject 's velocity\&. It will be deleted when the physics objected is freed\&. 
+.SS "int GE_PhysicsInit ()"
+Spawns a new thread containing the physics engine\&. 
+.SS "void* GE_physicsThreadMain (void *)"
+The function made into a new thread by GE_PhysicsInit \&. In general: Don't touch this 
+.SS "void GE_RectangleToPoints (\fBGE_Rectangler\fP rect, \fBVector2\fP grid, \fBVector2\fP * points, \fBVector2r\fP hostPosition)"
+Converts a rectangle to 4 points in 2D space\&. A point in 2D space has no rotation, so it is described by a \fBVector2\fP\&. Use it if you want\&. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIrect\fP The rectangle to be converted 
+.br
+\fIpoints\fP An array that can contain 4 Vector2* s\&. 
+.br
+\fIhostPosition\fP a \fBVector2r\fP , note the r, that the \fBGE_Rectangle\fP rect belongs to\&. It is used to be added to the positions of points, and its rotation will translate them\&. 
+.RE
+.PP
+
+.SS "void GE_ResetPhysicsEngine ()"
+Frees all physics objects in memory\&. 
+.SS "void GE_ShutdownPhysicsEngine ()"
+Frees all physics objects in memory\&. Call only on shutdown\&. 
+.SS "template<class container > std::vector<\fBGE_PhysicsObject\fP*> GE_SortPhysicsObjectByClosest_Inaccurate (\fBVector2\fP position, container oldSet)"
+Takes a container of physics objects and sorts them into a vector, where the first element is the closest and last is the furthest away\&. NOTE: This isn't perfectly accurate, as it does NOT take into account collision rectangles\&. If you're, for example, raycasting, you want to keep checking elements beyond when you find a collision until you get to one that is definitely farther away(i\&.e\&. accounting for its rectangles and position) 
+.SS "void GE_TickPhysics ()"
+The function called every tick\&. In general: Don't touch this 
+.SS "bool GE_TickPhysics_ForObject (\fBGE_PhysicsObject\fP * cObj)"
+The function called for every physics object, during a physics tick\&. In general: Don't touch this 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIcObj\fP The pointer to the physics object to tick 
+.RE
+.PP
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for 2D game engine yet to be properly named from the source code\&.

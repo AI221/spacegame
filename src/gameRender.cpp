@@ -31,7 +31,7 @@ void GE_UI_GameRender::giveEvent(Vector2 parrentPosition, SDL_Event event)
 {
 	//playerEventStack->giveEvent(event);
 }
-void GE_UI_GameRender::render(Vector2 parrentPosition)
+void GE_UI_GameRender::render(Vector2 parrentPosition) 
 {
 	GE_DeleteRenderedObjectsMarkedForDeletion();
 	pthread_mutex_lock(&RenderEngineMutex);

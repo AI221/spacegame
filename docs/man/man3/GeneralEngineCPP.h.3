@@ -1,0 +1,174 @@
+.TH "src/GeneralEngineCPP.h" 3 "Fri May 18 2018" "Version 0.1" "2D game engine yet to be properly named" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+src/GeneralEngineCPP.h
+.SH SYNOPSIS
+.br
+.PP
+.SS "Macros"
+
+.in +1c
+.ti -1c
+.RI "#define \fBGE_DEBUG\fP"
+.br
+.ti -1c
+.RI "#define \fBGE_NoGreaterThan\fP(number,  maxval)   if(number>=maxval) { return 1; }"
+.br
+.ti -1c
+.RI "#define \fBGE_NoGreaterThan_NULL\fP(number,  maxval)   if(number>=maxval) { return NULL; }"
+.br
+.ti -1c
+.RI "#define \fBlikely\fP(x)   __builtin_expect(!!(x), 1)"
+.br
+.ti -1c
+.RI "#define \fBunlikely\fP(x)   __builtin_expect(!!(x), 0)"
+.br
+.ti -1c
+.RI "#define \fB__DOUBLE_MAX_STRLENGTH\fP   (DBL_MAX_10_EXP+2)"
+.br
+.ti -1c
+.RI "#define \fBGE_FORCE_INLINE\fP   inline __attribute__((always_inline))"
+.br
+.ti -1c
+.RI "#define \fBGE_ReduceAccuracy\fP(number,  accuracyDegree)   (  std::floor(number/accuracyDegree)*accuracyDegree  )"
+.br
+.ti -1c
+.RI "#define \fBrandom_range_double\fP(low,  high)   (static_cast<double>(  ((rand() % (std::abs(low)+high+1)))\-low  ))"
+.br
+.ti -1c
+.RI "#define \fBwraparround_clamp\fP(number,  maxval)   (  (number)\-(std::floor((number)/(maxval))*(maxval))  )"
+.br
+.ti -1c
+.RI "#define \fBGE_TEST_INIT\fP()   bool passedAll = true;"
+.br
+.ti -1c
+.RI "#define \fBGE_TEST_RETURN\fP()   return passedAll;"
+.br
+.ti -1c
+.RI "#define \fBGE_TEST_Log\fP(\&.\&.\&.)   printf(__VA_ARGS__)"
+.br
+.ti -1c
+.RI "#define \fBGE_TEST_STD\fP(stringify,  outtype,  out,  function, \&.\&.\&.)"
+.br
+.ti -1c
+.RI "#define \fBGE_TEST_ASSERT\fP(stringify,  variable,  equals,  op)"
+.br
+.ti -1c
+.RI "#define \fBGE_RUN_UNIT_TEST\fP(function)   \fBGE_TEST_Log\fP('\-\-\-\-\-\-\-\- BEGIN TEST %s \-\-\-\-\-\-\-\-\\n',#function); \fBGE_TEST_Log\fP('\-\-\-\-\-\-\-\- %s %s \-\-\-\-\-\-\-\-\\n',(function())? 'PASS' : 'FAIL', #function);"
+.br
+.ti -1c
+.RI "#define \fBGE_StringifyBool\fP(in)   (in? 'true' : 'false')"
+.br
+.ti -1c
+.RI "#define \fBGE_StringifyString\fP(in)   (in\&.c_str())"
+.br
+.ti -1c
+.RI "#define \fBGE_StringifyNumber\fP(in)   (std::to_string(in)\&.c_str())"
+.br
+.ti -1c
+.RI "#define \fBGE_StringifyChar\fP(in)   GE_StringifyNumber(in)"
+.br
+.ti -1c
+.RI "#define \fBGE_ReturnInput\fP(in)   (in)"
+.br
+.ti -1c
+.RI "#define \fBGE_TEST_StartBenchmark\fP()   double startPerformanceTime = \fBGE_GetUNIXTime\fP();"
+.br
+.ti -1c
+.RI "#define \fBGE_TEST_BenchmarkResult\fP()   (\fBGE_GetUNIXTime\fP()\-startPerformanceTime)"
+.br
+.ti -1c
+.RI "#define \fBUNUSED\fP(x)   x"
+.br
+.in -1c
+.SS "Typedefs"
+
+.in +1c
+.ti -1c
+.RI "typedef bool \fBGE_TEST_TYPE_RETURN\fP"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "template<class number > bool \fBGE_IsInRange\fP (number value, number range1, number range2)"
+.br
+.ti -1c
+.RI "double \fBGE_GetUNIXTime\fP ()"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+
+.PP
+\fBAuthor:\fP
+.RS 4
+Jackson McNeill
+.RE
+.PP
+Generic macros and preprocessor definitions (Such as what OS is being compiled for) Expanded to contain a couple utility functions and a macro-based unit testing system 
+.SH "Macro Definition Documentation"
+.PP 
+.SS "#define __DOUBLE_MAX_STRLENGTH   (DBL_MAX_10_EXP+2)"
+Define the maximum length a double will be, after conversion to a string 
+.SS "#define GE_FORCE_INLINE   inline __attribute__((always_inline))"
+Define force-inline (for compiler compatibility) 
+.SS "#define GE_NoGreaterThan(number, maxval)   if(number>=maxval) { return 1; }"
+Returns 1 if a number is greater than maxval 
+.SS "#define GE_NoGreaterThan_NULL(number, maxval)   if(number>=maxval) { return NULL; }"
+Returns NULL if a number is greater than maxval 
+.SS "#define GE_ReduceAccuracy(number, accuracyDegree)   (  std::floor(number/accuracyDegree)*accuracyDegree  )"
+Reduce accuracy Example: \fBGE_ReduceAccuracy(26,25)\fP -> 25 , \fBGE_ReduceAccuracy(24,25)\fP -> 0 , \fBGE_ReduceAccuracy(25,25)\fP ->25 \fBGE_ReduceAccuracy(51,25)\fP ->50 
+.SS "#define GE_StringifyBool(in)   (in? 'true' : 'false')"
+Converts a bool to a string 
+.SS "#define GE_StringifyString(in)   (in\&.c_str())"
+Converts an std::string to char 
+.SS "#define GE_TEST_ASSERT(stringify, variable, equals, op)"
+\fBValue:\fP
+.PP
+.nf
+{\
+    bool pass = variable op equals;\
+    passedAll = std::min(pass,passedAll);\\
+	\\
+	GE_TEST_Log("[%s][ASSERTION] %s(=%s) %s %s(=%s)\n",pass? "PASS" : "FAIL", #variable,stringify(variable), pass? #op : "!"#op, #equals, stringify(equals));\
+}
+.fi
+.SS "#define GE_TEST_BenchmarkResult()   (\fBGE_GetUNIXTime\fP()\-startPerformanceTime)"
+Returns the resulting time from the benchmark\&. Note, there is some degree of inacuracy, because it takes time to get the time 
+.SS "#define GE_TEST_Log( \&.\&.\&.)   printf(__VA_ARGS__)"
+Log something to the unit/integration test logs with printf syntax 
+.SS "#define GE_TEST_StartBenchmark()   double startPerformanceTime = \fBGE_GetUNIXTime\fP();"
+Starts a performance benchmark\&. Note: Uses the variable 'startPerformanceTime' 
+.SH "* Do not use in mainline code, for test purposes only"
+.PP
+
+.SS "#define GE_TEST_STD(stringify, outtype, out, function,  \&.\&.\&.)"
+\fBValue:\fP
+.PP
+.nf
+{\
+    outtype expectout = out;\
+    outtype testout = function(__VA_ARGS__);\
+    bool pass = testout == expectout;\
+    passedAll = std::min(pass,passedAll);\\
+\\
+	GE_TEST_Log("[%s] %s(%s), wanted: %s, result: %s\n",pass? "PASS" : "FAIL", #function, #__VA_ARGS__,stringify(expectout), stringify(testout));\
+}
+.fi
+Standard, simple unit testing\&. Does not test for std's\&. Make sure to define the variable 'passedAll' as bool and initialize to true\&. 
+.SS "#define likely(x)   __builtin_expect(!!(x), 1)"
+Define likely / unlikely macros (like Linux kernel) (pulled: https://kernelnewbies.org/FAQ/LikelyUnlikely)\&. Only insert the given variable if __NO_BUILTIN_EXPECT 
+.SS "#define random_range_double(low, high)   (static_cast<double>(  ((rand() % (std::abs(low)+high+1)))\-low  ))"
+Generate a random value between low, high 
+.SS "#define wraparround_clamp(number, maxval)   (  (number)\-(std::floor((number)/(maxval))*(maxval))  )"
+'Wraps arround', think the Asteroids ship at the edge of the screen\&. Examples: \fBwraparround_clamp(10,25)\fP->25 wraparroundclamp(26,25) ->1 wraparroundclamp(50,25)->0 
+.SH "Function Documentation"
+.PP 
+.SS "double GE_GetUNIXTime ()"
+Returns UNIX time in seconds\&.miliseconds 
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for 2D game engine yet to be properly named from the source code\&.

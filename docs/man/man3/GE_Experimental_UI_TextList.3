@@ -1,0 +1,61 @@
+.TH "GE_Experimental_UI_TextList" 3 "Fri May 18 2018" "Version 0.1" "2D game engine yet to be properly named" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+GE_Experimental_UI_TextList
+.SH SYNOPSIS
+.br
+.PP
+.PP
+Inherits \fBGE_UI_Element\fP\&.
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBGE_Experimental_UI_TextList\fP (SDL_Renderer *renderer, \fBVector2\fP position, std::map< unsigned int, std::string > list, std::vector< \fBGE_UI_ListElement\fP > elements, bool listGoesDown, \fBGE_UI_TextListStyle\fP style)"
+.br
+.ti -1c
+.RI "void \fBrender\fP (\fBVector2\fP parrentPosition) override"
+.br
+.ti -1c
+.RI "void \fBgiveEvent\fP (\fBVector2\fP parrentPosition, SDL_Event event) override"
+.br
+.ti -1c
+.RI "bool \fBcheckIfFocused\fP (int mousex, int mousey, \fBVector2\fP parrentPosition)"
+.br
+.ti -1c
+.RI "std::optional< unsigned int > \fBgetHighlighted\fP ()"
+.br
+.ti -1c
+.RI "void \fBsetSelected\fP (std::optional< unsigned int > selected)"
+.br
+.ti -1c
+.RI "std::optional< unsigned int > \fBgetSelected\fP ()"
+.br
+.ti -1c
+.RI "double \fBgetTextDeterminatedSize\fP ()"
+.br
+.ti -1c
+.RI "double \fBgetElementPosition\fP (unsigned int element)"
+.br
+.ti -1c
+.RI "void \fBsetPosition\fP (\fBVector2\fP newPosition)"
+.br
+.ti -1c
+.RI "\fBVector2\fP \fBgetPosition\fP ()"
+.br
+.ti -1c
+.RI "bool \fBdoesListGoDown\fP ()"
+.br
+.in -1c
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "std::vector< unsigned int > \fBuserIDs\fP"
+.br
+.in -1c
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for 2D game engine yet to be properly named from the source code\&.

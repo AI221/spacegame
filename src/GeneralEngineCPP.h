@@ -77,6 +77,11 @@
 #define wraparround_clamp(number,maxval) (  (number)-(std::floor((number)/(maxval))*(maxval))  )
 
 
+#define GE_TEST_INIT() bool passedAll = true; 
+
+#define GE_TEST_RETURN() return passedAll;
+
+typedef bool GE_TEST_TYPE_RETURN;
 
 /*!
  * Log something to the unit/integration test logs with printf syntax

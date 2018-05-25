@@ -1,0 +1,36 @@
+.TH "GE_UI_Element" 3 "Fri May 18 2018" "Version 0.1" "2D game engine yet to be properly named" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+GE_UI_Element
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <UI\&.h>\fP
+.PP
+Inherited by \fBGE_Experimental_UI_Button\fP, \fBGE_Experimental_UI_TextList\fP\fC [private]\fP, \fBGE_Stars\fP, \fBGE_UI_Button\fP, \fBGE_UI_HighlightBox\fP\fC [private]\fP, \fBGE_UI_Minimap\fP, \fBGE_UI_ProgressBar\fP, \fBGE_UI_Rectangle\fP, \fBGE_UI_Surface\fP, \fBGE_UI_Text\fP, \fBGE_UI_TextInput\fP, \fBGE_UI_TextListGroup\fP\fC [private]\fP, \fBGE_UI_TopLevelElement\fP, \fBUI_HealthView\fP, \fBUI_InventoryView\fP, and \fBUI_WorldView\fP\&.
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "virtual void \fBrender\fP (\fBVector2\fP parrentPosition)=0"
+.br
+.ti -1c
+.RI "virtual void \fBgiveEvent\fP (\fBVector2\fP parrentPosition, SDL_Event event)"
+.br
+.in -1c
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "bool \fBwantsEvents\fP"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+An element which is intended to be added to a \fBGE_UI_TopLevelElement\fP 
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for 2D game engine yet to be properly named from the source code\&.

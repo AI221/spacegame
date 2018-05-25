@@ -1,0 +1,32 @@
+.TH "GE_Networkable" 3 "Fri May 18 2018" "Version 0.1" "2D game engine yet to be properly named" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+GE_Networkable
+.SH SYNOPSIS
+.br
+.PP
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "virtual void \fBGE_Update\fP (char *buffer, size_t *bufferUnserialized)=0"
+.br
+.ti -1c
+.RI "virtual void \fBGE_PartialSerialization\fP (char **buffer, size_t *bufferUsed, size_t *bufferSize)=0"
+.br
+.in -1c
+.SH "Member Function Documentation"
+.PP 
+.SS "virtual void GE_Networkable::GE_PartialSerialization (char ** buffer, size_t * bufferUsed, size_t * bufferSize)\fC [pure virtual]\fP"
+Serializes the values that have changed and should be synced\&.
+.PP
+Note, you must read everything you wrote in the GE_Update function or you will misalign everything\&. 
+.SS "virtual void GE_Networkable::GE_Update (char * buffer, size_t * bufferUnserialized)\fC [pure virtual]\fP"
+Updates values from a partial serialization\&.
+.PP
+Note, you must read everything written by your partial serialization\&. Failure to do so will misalign everything after you, and almost certainly crash\&. 
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for 2D game engine yet to be properly named from the source code\&.

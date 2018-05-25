@@ -651,10 +651,10 @@ void GE_UI_LevelEditor2D::giveEvent(Vector2 parrentPosition, SDL_Event event)
 					break;
 				case 1:
 					printf("do a save\n");
-					size_t TEMPused,TEMPsize;
-					auto TEMP = GE_SerializedTrackedObjects(&TEMPused,&TEMPsize);
-					GE_WriteToFile("/tmp/REMOVE-tempsave2",TEMP,TEMPused);
-					free(TEMP);
+					serialization::serialization_state& state = *(new serialization::serialization_state(9001));
+
+					GE_SerializedTrackedObjects(state);
+					filesystem::write_to_file("/tmp/REMOVE-tempsave2",state.buffer,state.bufferUsed);
 
 			}
 		}

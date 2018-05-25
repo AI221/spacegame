@@ -1,0 +1,35 @@
+.TH "GE_UI_TopLevelElement" 3 "Fri May 18 2018" "Version 0.1" "2D game engine yet to be properly named" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+GE_UI_TopLevelElement
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <UI\&.h>\fP
+.PP
+Inherits \fBGE_UI_Element\fP\&.
+.PP
+Inherited by \fBGE_UI_GameRender\fP, \fBGE_UI_LevelEditor2D\fP, \fBGE_UI_TextList\fP, \fBGE_UI_Window\fP, \fBUI_FloatingInventoryElement\fP, \fBUI_GameView\fP, and \fBUI_MainMenu\fP\&.
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "virtual void \fBrender\fP (\fBVector2\fP parrentPosition)=0"
+.br
+.ti -1c
+.RI "virtual void \fBgiveEvent\fP (\fBVector2\fP parrentPosition, SDL_Event event)=0"
+.br
+.ti -1c
+.RI "virtual bool \fBcheckIfFocused\fP (int mousex, int mousey)=0"
+.br
+.in -1c
+.SS "Additional Inherited Members"
+.SH "Detailed Description"
+.PP 
+An element which is intended to hold various GE_UI_Elements\&. This type of element must be able to check if it should steal focus\&. Similar to a window in an operating system\&. 
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for 2D game engine yet to be properly named from the source code\&.

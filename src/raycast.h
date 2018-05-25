@@ -20,7 +20,7 @@ struct ObjectRaycastReturn
 /*!
  * Raycasts using a line and shapes and returns the collision point. 
  */
-constexpr std::optional<Vector2> GE_Raycast(Vector2 start, Vector2 end, GE_ShapeLinesVector obstacles);
+std::optional<Vector2> GE_Raycast(Vector2 start, Vector2 end, GE_ShapeLinesVector obstacles);
 /*!
  * Raycasts using a line and an non-order-specific vector list of physics objects and returns the physics object hit and the spot hit
  */

@@ -1,0 +1,51 @@
+.TH "src/raycast.h" 3 "Fri May 18 2018" "Version 0.1" "2D game engine yet to be properly named" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+src/raycast.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'line\&.h'\fP
+.br
+\fC#include <vector>\fP
+.br
+\fC#include 'physics\&.h'\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "struct \fBObjectRaycastReturn\fP"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "std::optional< \fBVector2\fP > \fBGE_Raycast\fP (\fBVector2\fP start, \fBVector2\fP end, GE_ShapeLinesVector obstacles)"
+.br
+.ti -1c
+.RI "\fBObjectRaycastReturn\fP \fBGE_Raycast\fP (\fBVector2\fP start, \fBVector2\fP end, std::vector< \fBGE_PhysicsObject\fP *> objects)"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+
+.PP
+\fBAuthor:\fP
+.RS 4
+Jackson McNeill Performs raycasting 
+.RE
+.PP
+
+.SH "Function Documentation"
+.PP 
+.SS "std::optional<\fBVector2\fP> GE_Raycast (\fBVector2\fP start, \fBVector2\fP end, GE_ShapeLinesVector obstacles)"
+Raycasts using a line and shapes and returns the collision point\&. 
+.SS "\fBObjectRaycastReturn\fP GE_Raycast (\fBVector2\fP start, \fBVector2\fP end, std::vector< \fBGE_PhysicsObject\fP *> objects)"
+Raycasts using a line and an non-order-specific vector list of physics objects and returns the physics object hit and the spot hit 
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for 2D game engine yet to be properly named from the source code\&.

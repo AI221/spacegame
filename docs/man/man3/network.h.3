@@ -1,0 +1,163 @@
+.TH "src/network.h" 3 "Fri May 18 2018" "Version 0.1" "2D game engine yet to be properly named" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+src/network.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <stdio\&.h>\fP
+.br
+
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBGE_NetworkSocket\fP * \fBGE_CreateNetworkSocket\fP ()"
+.br
+.ti -1c
+.RI "int \fBGE_FillNetworkSocket\fP (\fBGE_NetworkSocket\fP *aSocket, unsigned short port)"
+.br
+.ti -1c
+.RI "int \fBGE_BindServer\fP (\fBGE_NetworkSocket\fP *nSocket)"
+.br
+.ti -1c
+.RI "int \fBGE_ConnectServer\fP (\fBGE_NetworkSocket\fP *sSocket, char *hostname)"
+.br
+.ti -1c
+.RI "int \fBGE_ConnectClient\fP (\fBGE_NetworkSocket\fP *cSocket, \fBGE_NetworkSocket\fP *nSocket)"
+.br
+.ti -1c
+.RI "int \fBGE_Read\fP (\fBGE_NetworkSocket\fP *cSocket, char *buffer, size_t buffersize)"
+.br
+.ti -1c
+.RI "int \fBGE_Write\fP (\fBGE_NetworkSocket\fP *cSocket, char *buffer, size_t buffersize)"
+.br
+.ti -1c
+.RI "void \fBGE_FreeNetworkSocket\fP (\fBGE_NetworkSocket\fP *socket)"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+
+.PP
+\fBAuthor:\fP
+.RS 4
+Jackson McNeill
+.RE
+.PP
+A small network abstraction layer, using Unix sockets\&. No windows equivilent available\&. 
+.SH "Function Documentation"
+.PP 
+.SS "int GE_BindServer (\fBGE_NetworkSocket\fP * nSocket)"
+Binds a socket to a port 
+.PP
+\fBParameters:\fP
+.RS 4
+\fInSocket\fP The socket to bind 
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+0 if okay, <0 if not okay 
+.RE
+.PP
+
+.SS "int GE_ConnectClient (\fBGE_NetworkSocket\fP * cSocket, \fBGE_NetworkSocket\fP * nSocket)"
+Connects (listens for) a client to your server\&. Blocks\&. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIcSocket\fP The socket that will be associated with the client 
+.br
+\fInSocket\fP Your bound server socket 
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+0 if okay, <0 if not okay, 1 if server was NULL 
+.RE
+.PP
+
+.SS "int GE_ConnectServer (\fBGE_NetworkSocket\fP * sSocket, char * hostname)"
+Connects a socket to a server 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIsSocket\fP The socket that will be associated with the server 
+.br
+\fIhostname\fP The hostname of the server 
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+0 if okay, <0 if not okay 
+.RE
+.PP
+
+.SS "\fBGE_NetworkSocket\fP* GE_CreateNetworkSocket ()"
+Creates, but does not populate, a \fBGE_NetworkSocket\fP 
+.SS "int GE_FillNetworkSocket (\fBGE_NetworkSocket\fP * aSocket, unsigned short port)"
+Fills a \fBGE_NetworkSocket\fP to be a TCP socket 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIaSocket\fP The socket to fill 
+.br
+\fIport\fP The port the socket will be on
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+0 if okay, <0 if not okay 
+.RE
+.PP
+
+.SS "void GE_FreeNetworkSocket (\fBGE_NetworkSocket\fP * socket)"
+Frees the memory taken by a network socket\&. Do not use a socket after freeing\&. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIsocket\fP The network socket to free 
+.RE
+.PP
+
+.SS "int GE_Read (\fBGE_NetworkSocket\fP * cSocket, char * buffer, size_t buffersize)"
+Reads to a socket 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIcSocket\fP The socket to read on 
+.br
+\fIbuffer\fP A buffer that will be filled with information 
+.br
+\fIbuffersize\fP The size of buffer 
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+0 if okay, <0 if not okay 
+.RE
+.PP
+
+.SS "int GE_Write (\fBGE_NetworkSocket\fP * cSocket, char * buffer, size_t buffersize)"
+Writes to a socket 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIcSocket\fP The socket to write on 
+.br
+\fIbuffer\fP Will be written to the socket 
+.br
+\fIbuffersize\fP The size of buffer 
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+0 if okay, <0 if not okay 
+.RE
+.PP
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for 2D game engine yet to be properly named from the source code\&.

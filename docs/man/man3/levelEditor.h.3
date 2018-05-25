@@ -1,0 +1,95 @@
+.TH "src/levelEditor.h" 3 "Fri May 18 2018" "Version 0.1" "2D game engine yet to be properly named" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+src/levelEditor.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <functional>\fP
+.br
+\fC#include <type_traits>\fP
+.br
+\fC#include <cassert>\fP
+.br
+\fC#include <memory>\fP
+.br
+\fC#include <optional>\fP
+.br
+\fC#include 'UI\&.h'\fP
+.br
+\fC#include 'gameRender\&.h'\fP
+.br
+\fC#include 'camera\&.h'\fP
+.br
+\fC#include 'physics\&.h'\fP
+.br
+\fC#include 'gluePhysicsObject\&.h'\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "struct \fBGE_UI_HighlightBoxStyle\fP"
+.br
+.ti -1c
+.RI "class \fBGE_UI_HighlightBox\fP"
+.br
+.ti -1c
+.RI "struct \fBGE_UI_LevelEditor2DStyle\fP"
+.br
+.ti -1c
+.RI "class \fBGE_UI_LevelEditor2D\fP"
+.br
+.ti -1c
+.RI "struct \fBGE_LevelEditorObjectProperties\fP"
+.br
+.ti -1c
+.RI "class \fBGE_LevelEditorInterface\fP"
+.br
+.in -1c
+.SS "Typedefs"
+
+.in +1c
+.ti -1c
+.RI "typedef std::function< \fBGE_PhysicsObject\fP *(SDL_Renderer *, \fBVector2r\fP)> \fBGE_NewObject_t\fP"
+.br
+.in -1c
+.SS "Enumerations"
+
+.in +1c
+.ti -1c
+.RI "enum \fBinternal_draggablebox_position\fP { \fBtopLeft\fP, \fBtopRight\fP, \fBbottomRight\fP, \fBbottomLeft\fP, \fBmiddleTop\fP, \fBmiddleRight\fP, \fBmiddleBottom\fP, \fBmiddleLeft\fP, \fBcenter\fP, \fBrotater\fP, \fBhollowBox\fP }"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBGE_FORCE_INLINE\fP bool \fBsingle_run_if_object_at\fP (\fBVector2\fP position, std::function< void(\fBGE_PhysicsObject\fP *obj)> function)"
+.br
+.ti -1c
+.RI "void \fBinternal_RegisterClassWithLevelEditor\fP (std::string name, \fBGE_NewObject_t\fP allocationFunction, unsigned long long classID, \fBGE_LevelEditorObjectProperties\fP properties)"
+.br
+.ti -1c
+.RI "template<class type > void \fBGE_RegisterClassWithLevelEditor\fP (unsigned long long classID)"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+
+.PP
+\fBAuthor:\fP
+.RS 4
+Jackson McNeill
+.RE
+.PP
+A standard level editor 
+.SH "Typedef Documentation"
+.PP 
+.SS "typedef std::function<\fBGE_PhysicsObject\fP*(SDL_Renderer*,\fBVector2r\fP)> \fBGE_NewObject_t\fP"
+return a new physics object when given the position under the cursor 
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for 2D game engine yet to be properly named from the source code\&.

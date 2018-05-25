@@ -1,0 +1,78 @@
+.TH "GE_ThreadedDelete< T >" 3 "Fri May 18 2018" "Version 0.1" "2D game engine yet to be properly named" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+GE_ThreadedDelete< T >
+.SH SYNOPSIS
+.br
+.PP
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBGE_ThreadedDelete\fP (unsigned int thread_count)"
+.br
+.ti -1c
+.RI "void \fBlock\fP ()"
+.br
+.ti -1c
+.RI "void \fBunlock\fP ()"
+.br
+.ti -1c
+.RI "void \fBqueue_delete\fP (T *object)"
+.br
+.ti -1c
+.RI "void \fBforce_cylce\fP ()"
+.br
+.in -1c
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "unsigned int \fBthread_count\fP"
+.br
+.ti -1c
+.RI "std::vector< char > \fBresume_flags\fP"
+.br
+.ti -1c
+.RI "std::vector< pthread_cond_t > \fBresume_conds\fP"
+.br
+.ti -1c
+.RI "std::vector< std::stack< T * > > \fBwork\fP"
+.br
+.ti -1c
+.RI "std::vector< pthread_mutex_t > \fBwork_mutexs\fP"
+.br
+.ti -1c
+.RI "std::vector< pthread_mutex_t > \fBcond_mutexs\fP"
+.br
+.ti -1c
+.RI "std::vector< pthread_t > \fBthreads\fP"
+.br
+.ti -1c
+.RI "std::vector< std::atomic< bool > * > \fBthreads_on\fP"
+.br
+.ti -1c
+.RI "unsigned int \fBthread_to_do_work\fP = 0"
+.br
+.ti -1c
+.RI "std::stack< T * > \fBwork_list_nothreadaccess_unsorted\fP"
+.br
+.ti -1c
+.RI "std::atomic< bool > \fBon\fP"
+.br
+.in -1c
+.SH "Member Function Documentation"
+.PP 
+.SS "template<class T > void \fBGE_ThreadedDelete\fP< T >::force_cylce ()"
+Force a delete cycle - must happen while unlocked 
+.SS "template<class T > void \fBGE_ThreadedDelete\fP< T >::lock ()"
+Lock all delete threads 
+.SS "template<class T > void \fBGE_ThreadedDelete\fP< T >::queue_delete (T * object)"
+Queue a delete - must happen while locked 
+.SS "template<class T > void \fBGE_ThreadedDelete\fP< T >::unlock ()"
+Unlock all delete threads 
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for 2D game engine yet to be properly named from the source code\&.

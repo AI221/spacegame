@@ -20,8 +20,8 @@
 
 #include "vector2.h"
 #include "gluePhysicsObject.h"
-#include "serialize.h"
 #include "GeneralEngineCPP.h"
+#include "serialize.h"
 
 //#define PHYSICS_DEBUG_SLOWRENDERS 
 
@@ -74,10 +74,8 @@ typedef std::vector<physics_area_t*> physics_object_area_list_t;
 
 /*!
  * The basic Physics object structure. It's recommended that your game objects inhereit from this, though you can do non-OO design alternatively using glueObject's buffering.
- *
- * Physics object must have a controller which implements the GE_Serializable interface in order to be serialized.
  */
-class GE_PhysicsObject : public GE_Serializable 
+class GE_PhysicsObject : public serialization::polymorphic_serialization
 {
 	public:
 		GE_PhysicsObject(Vector2r position, Vector2r velocity, double mass);
@@ -90,7 +88,7 @@ class GE_PhysicsObject : public GE_Serializable
 		 */
 		virtual ~GE_PhysicsObject();
 
-		virtual void serialize(char** UNUSED(buffer), size_t* UNUSED(bufferUsed), size_t* UNUSED(bufferSize)) {};
+		virtual void serialize(serialization::serialization_state& state) {} //TODO
 
 		
 
@@ -237,7 +235,12 @@ void GE_AddPhysicsObjectCollisionCallback(GE_PhysicsObject* subject, std::functi
  * @param physicsObject The physics object to add the velocity to
  * @param moreVelocity How much more velocity to add
  */
-void GE_AddVelocity(GE_PhysicsObject* physicsObject, Vector2r moreVelocity);
+void constexpr GE_AddVelocity(GE_PhysicsObject* physicsObject, Vector2r moreVelocity)
+{
+	physicsObject->velocity.x = physicsObject->velocity.x+moreVelocity.x;
+	physicsObject->velocity.y = physicsObject->velocity.y+moreVelocity.y;
+	physicsObject->velocity.r = physicsObject->velocity.r-moreVelocity.r;
+}
 
 /*! 
  * Add velocity to the physics object, relative to its rotation. 
@@ -245,7 +248,11 @@ void GE_AddVelocity(GE_PhysicsObject* physicsObject, Vector2r moreVelocity);
  * @param physicsObject The physics object to add the velocity to
  * @param moreVelocity How much more velocity to add
  */
-void GE_AddRelativeVelocity(GE_PhysicsObject* physicsObject, Vector2r moreVelocity);
+constexpr void GE_AddRelativeVelocity(GE_PhysicsObject* physicsObject, Vector2r moreVelocity)
+{
+	physicsObject->velocity.r = physicsObject->velocity.r-moreVelocity.r;
+	physicsObject->velocity.addRelativeVelocity({moreVelocity.x,moreVelocity.y,physicsObject->position.r}); //TODO: De-OOify
+}
 
 /*! 
  * The function made into a new thread by GE_PhysicsInit . In general: Don't touch this

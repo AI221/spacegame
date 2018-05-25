@@ -1,0 +1,79 @@
+.TH "src/serializeObject.h" 3 "Fri May 18 2018" "Version 0.1" "2D game engine yet to be properly named" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+src/serializeObject.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'physics\&.h'\fP
+.br
+\fC#include <functional>\fP
+.br
+\fC#include <exception>\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "class \fBGE_Networkable\fP"
+.br
+.in -1c
+.SS "Typedefs"
+
+.in +1c
+.ti -1c
+.RI "typedef std::function< \fBGE_PhysicsObject\fP *(\fBserialization::unserialization_state\fP &)> \fBunserializationFunctionDef_t\fP"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "int \fBGE_Init_SerializeObject\fP ()"
+.br
+.ti -1c
+.RI "\fBGE_TrackedObject\fP * \fBGE_AddTrackedObject\fP (unsigned int type, \fBGE_PhysicsObject\fP *obj)"
+.br
+.ti -1c
+.RI "void \fBGE_RemoveTrackedObject\fP (\fBGE_TrackedObject\fP *object)"
+.br
+.ti -1c
+.RI "void \fBGE_SetGameSerializationVersion\fP (int version)"
+.br
+.ti -1c
+.RI "void \fBGE_RegisterUnserializationFunction\fP (unsigned int type, unserializationFunctionDef_t function)"
+.br
+.ti -1c
+.RI "void \fBGE_SerializedTrackedObjects\fP (\fBserialization::serialization_state\fP &state)"
+.br
+.ti -1c
+.RI "void \fBGE_UnserializeTrackedObjects\fP (\fBserialization::unserialization_state\fP &state)"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+
+.PP
+\fBAuthor:\fP
+.RS 4
+Jackson McNeill Allows for easy serialization of physics objects with multiple class types 
+.RE
+.PP
+
+.SH "Function Documentation"
+.PP 
+.SS "\fBGE_TrackedObject\fP* GE_AddTrackedObject (unsigned int type, \fBGE_PhysicsObject\fP * obj)"
+Adds an object to be 'tracked' (serialized, unserialized, state synchronization) by the serializeObject system\&.
+.PP
+Throws \fBnoSerializationFunction\fP exception if you forget to call !!! for the type of the object you add\&. You are not expected to handle this exception; rather, your program should crash\&. The exception should never throw in production, because object types should be assigned right after engine startup\&.
+.PP
+Okay to call any time (on the physics thread), but you must wait until the end of the physics tick to remove yourself from the buffer or else it won't work\&. 
+.SS "void GE_RemoveTrackedObject (\fBGE_TrackedObject\fP * object)"
+Do NOT call when you're in a serialization function
+.PP
+For example, it is not okay to call this while being serialized, unserialized, or while in your constructor which was called from an unserialization\&. 
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for 2D game engine yet to be properly named from the source code\&.

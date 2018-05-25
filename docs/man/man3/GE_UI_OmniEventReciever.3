@@ -1,0 +1,28 @@
+.TH "GE_UI_OmniEventReciever" 3 "Fri May 18 2018" "Version 0.1" "2D game engine yet to be properly named" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+GE_UI_OmniEventReciever
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <UI\&.h>\fP
+.PP
+Inherited by \fBMyOmniEventReciever\fP\&.
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "virtual void \fBgiveEvent\fP (SDL_Event event)=0"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+This recieves all events all the time
+.PP
+Typical use is to have one single one for your entire game and to never remove it until shutdown\&. But you could add and remove one every frame if you wanted to\&. Must be called from the renderer thread, or while the rendering thread is locked 
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for 2D game engine yet to be properly named from the source code\&.

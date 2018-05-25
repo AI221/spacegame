@@ -1,0 +1,155 @@
+.TH "GE_PhysicsObject" 3 "Fri May 18 2018" "Version 0.1" "2D game engine yet to be properly named" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+GE_PhysicsObject
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <physics\&.h>\fP
+.PP
+Inherited by \fBBulletType\fP, \fBEnemie\fP, \fBPlayer\fP, \fBtester\fP, and \fBWall\fP\&.
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBGE_PhysicsObject\fP (\fBVector2r\fP position, \fBVector2r\fP velocity, double mass)"
+.br
+.ti -1c
+.RI "virtual \fB~GE_PhysicsObject\fP ()"
+.br
+.ti -1c
+.RI "virtual void \fBserialize\fP (char **UNUSED(buffer), size_t *UNUSED(bufferUsed), size_t *UNUSED(bufferSize))"
+.br
+.ti -1c
+.RI "void \fBaddCollisionRectangle\fP (\fBGE_Rectangler\fP newRectangle)"
+.br
+.ti -1c
+.RI "virtual bool \fBC_Collision\fP (\fBGE_PhysicsObject\fP *victim, int collisionRectangleID)"
+.br
+.ti -1c
+.RI "virtual void \fBC_Destroyed\fP ()"
+.br
+.ti -1c
+.RI "virtual bool \fBC_Update\fP ()"
+.br
+.in -1c
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "\fBVector2r\fP \fBposition\fP"
+.br
+.ti -1c
+.RI "\fBVector2r\fP \fBvelocity\fP"
+.br
+.ti -1c
+.RI "double \fBmass\fP"
+.br
+.ti -1c
+.RI "\fBVector2\fP \fBcenterOfMass\fP"
+.br
+.ti -1c
+.RI "\fBVector2\fP \fBwarpedShape\fP"
+.br
+.ti -1c
+.RI "int \fBID\fP"
+.br
+.ti -1c
+.RI "\fBGE_Rectangler\fP \fBcollisionRectangles\fP [MAX_COLLISION_RECTANGLES_PER_OBJECT]"
+.br
+.ti -1c
+.RI "int \fBnumCollisionRectangles\fP"
+.br
+.ti -1c
+.RI "\fBVector2\fP \fBgrid\fP"
+.br
+.ti -1c
+.RI "\fBGE_GlueTarget\fP * \fBglueTargets\fP [MAX_GLUE_OBJECTS_PER_OBJECT]"
+.br
+.ti -1c
+.RI "int \fBnumGlueTargets\fP"
+.br
+.ti -1c
+.RI "\fBVector2r\fP \fBlastGoodPosition\fP"
+.br
+.ti -1c
+.RI "bool \fBcallCallbackBeforeCollisionFunction\fP"
+.br
+.ti -1c
+.RI "bool \fBcallCallbackAfterCollisionFunction\fP"
+.br
+.ti -1c
+.RI "bool \fBcallCallbackUpdate\fP"
+.br
+.ti -1c
+.RI "physics_object_area_list_t \fBareas\fP"
+.br
+.ti -1c
+.RI "double \fBdiameter\fP"
+.br
+.ti -1c
+.RI "double \fBradius\fP"
+.br
+.ti -1c
+.RI "int \fBtype\fP"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+The basic Physics object structure\&. It's recommended that your game objects inhereit from this, though you can do non-OO design alternatively using glueObject's buffering\&. 
+.SH "Constructor & Destructor Documentation"
+.PP 
+.SS "GE_PhysicsObject::~GE_PhysicsObject ()\fC [virtual]\fP"
+This should exclusively manage memory\&.
+.PP
+Using this for behaviors such as remoivng yourself from a minimap, or sending signals to other objects that you're dead is undefined behavior\&. The destructor is not guarnteed to be called soon after the physics object is destroyed, and it is not guarnteed to run on any particular thread\&. 
+.SH "Member Function Documentation"
+.PP 
+.SS "void GE_PhysicsObject::addCollisionRectangle (\fBGE_Rectangler\fP newRectangle)"
+Adds a collision rectangle to this object and updates cached values \fBVector2\fP minPoint = {0,0}; 
+.SS "bool GE_PhysicsObject::C_Collision (\fBGE_PhysicsObject\fP * victim, int collisionRectangleID)\fC [virtual]\fP"
+A callback upon collision 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIvictimID\fP the ID of the colliding physics object 
+.br
+\fIcollisionRectangleID\fP The ID of YOUR collision rectangle that was collided with 
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+True if you want YOUR physics object to be deleted\&. 
+.RE
+.PP
+
+.PP
+Reimplemented in \fBBulletType\fP, \fBEnemie\fP, and \fBPlayer\fP\&.
+.SS "virtual void GE_PhysicsObject::C_Destroyed ()\fC [inline]\fP, \fC [virtual]\fP"
+A callback called upon deletion\&. Guarnteed to be ran in the same tick as your death\&. Guarnteed to run on the phyiscs thread\&.
+.PP
+Attempting to access memory from this physics object after this function is called is undefined behaviour\&. In most circumstances, you will want to remove yourself from anythingthat utilizes lists of physics objects (minimap, glue, serialization, etc\&.)
+.PP
+This is for tasks such as removing yourself from a minimap, or informing the serialization manager that you're dead\&. Doing this in a destructor is undefined behaviour, as the time between a physics object dying and actually being deallocated is non-deterministic and may happen on another thread\&. 
+.PP
+Reimplemented in \fBtester\fP, \fBWall\fP, \fBStdBullet\fP, \fBEnemie\fP, and \fBPlayer\fP\&.
+.SS "bool GE_PhysicsObject::C_Update ()\fC [virtual]\fP"
+Called during a physics tick, after position updates & collision calculations 
+.PP
+Reimplemented in \fBEnemie\fP, and \fBPlayer\fP\&.
+.SH "Field Documentation"
+.PP 
+.SS "physics_object_area_list_t GE_PhysicsObject::areas"
+Which area(s) the physics object is in the world (basically, a cached value you don't have to worry about) 
+.SS "bool GE_PhysicsObject::callCallbackUpdate"
+Weather or not to call the update callback 
+.SS "\fBVector2\fP GE_PhysicsObject::centerOfMass"
+How offset the center-of-mass is from the geometric center\&. Default value is 0,0 
+.SS "int GE_PhysicsObject::type"
+Game-specific\&. Intended for specifying what type this object is\&. Default is 0\&. I'd recommend to use an enum with this\&. 
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for 2D game engine yet to be properly named from the source code\&.

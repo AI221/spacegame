@@ -217,15 +217,15 @@ Player::~Player()
 {
 	printf("Deleting the player!!!\n");
 }
-void Player::serialize(char** buffer, size_t* bufferUsed, size_t* bufferSize)
+void Player::serialize(serialization::serialization_state& state)
 {
-	GE_Serialize(&position,buffer,bufferUsed,bufferSize);
-	GE_Serialize(&velocity,buffer,bufferUsed,bufferSize);
+	serialization::serialize(&position,state);
+	serialization::serialize(&velocity,state);
 }
-Player* Player::unserialize(char* buffer, size_t* bufferUnserialized,int version)
+Player* Player::unserialize(serialization::unserialization_state& state)
 {
-	Vector2r* _position = GE_Unserialize<Vector2r*>(buffer,bufferUnserialized,version);
-	Vector2r* _velocity = GE_Unserialize<Vector2r*>(buffer,bufferUnserialized,version);
+	Vector2r* _position = serialization::unserialize<Vector2r*>(state);
+	Vector2r* _velocity = serialization::unserialize<Vector2r*>(state);
 
 	auto newObj = new Player(GE_DEBUG_Renderer);
 	newObj->position = *_position;
@@ -267,6 +267,7 @@ void ShootBullet(SDL_Renderer* renderer, GE_PhysicsObject* host, Vector2r addToV
 	GE_AddVelocity(mybullet,addToVelocity);
 }
 
+/*
 
 class tester : public GE_PhysicsObject
 {
@@ -293,13 +294,13 @@ class tester : public GE_PhysicsObject
 			GE_RemoveTrackedObject(tracker);
 			GE_FreeRenderedObject(renderObject);
 		}
-		void serialize(char** buffer, size_t* bufferUsed, size_t* bufferSize)
+		void serialize(serialization::serialization_state& state) override;
 		{
-			GE_Serialize(&(this->position),buffer,bufferUsed,bufferSize);
+			serialization::serialize(&(this->position),state);
 		}
-		static tester* unserialize(char* buffer, size_t* bufferUnserialized,int version)
+		static tester* unserialize(serialization::unserialization_state& state)
 		{
-			Vector2r* _pos = GE_Unserialize<Vector2r*>(buffer,bufferUnserialized, version);	
+			Vector2r* _pos = serialization::unserialize<Vector2r*>(state);	
 			auto newclass = new tester(GE_DEBUG_Renderer,*_pos);
 			delete _pos;
 			return newclass;
@@ -311,6 +312,7 @@ class tester : public GE_PhysicsObject
 
 
 };
+*/
 
 
 
@@ -321,9 +323,7 @@ const double strafeSpeed = 0.05;
 #include <iostream>
 #include <fstream>
 
-char* TEMP;
-size_t TEMPused;
-size_t TEMPsize;
+const char* tmpstr;
 #include "FS.h"
 bool tempcandoit = true;
 bool Player::C_Update()
@@ -396,7 +396,7 @@ bool Player::C_Update()
 				}
 				if (event.key.keysym.sym == SDLK_i)
 				{
-					new tester(renderer,position+Vector2r{50,150,0});
+					//new tester(renderer,position+Vector2r{50,150,0});
 				}
 				if (event.key.keysym.sym == SDLK_k)
 				{
@@ -408,12 +408,16 @@ bool Player::C_Update()
 				}
 				if (event.key.keysym.sym == SDLK_n) //tmp save
 				{
-					GE_FreeSerializeString(TEMP);
-					TEMP = GE_SerializedTrackedObjects(&TEMPused,&TEMPsize);
+					/*
+					char* tmpstr
+					size_t size;
 					std::ofstream myfile;
 					myfile.open ("/tmp/REMOVE-testsave2",std::ios::out|std::ios::binary|std::ios::ate);
-					myfile.write(TEMP,TEMPused);
+					myfile.write(tempstr,size);
 					myfile.close();
+
+					TEMP = serializaetion::unserialization_state(tempstr);
+					*/
 				}
 				if (event.key.keysym.sym == SDLK_b ) //tmp loadfilesave
 				{
@@ -445,13 +449,18 @@ bool Player::C_Update()
 
 					TEMP = memblock;
 					*/
-					TEMP = GE_GetCharArrayFromFileString(GE_ReadAllFromFile("/tmp/REMOVE-tempsave2"));
+					auto tmpstr_s = filesystem::read_all_from_file("/tmp/REMOVE-tempsave2");
+					tmpstr = tmpstr_s.c_str();
+					printf("READ TMPSTR %s\n",tmpstr);
 				}
 				if (event.key.keysym.sym == SDLK_m && tempcandoit) //tmp load
 				{
 					tempcandoit = false;
 					
-					GE_UnserializeTrackedObjects(TEMP);
+					serialization::unserialization_state* TEMP=new  serialization::unserialization_state(const_cast<char*>(tmpstr));
+serialization::unserialization_state& TEMP2 = *TEMP;
+					GE_UnserializeTrackedObjects(TEMP2);
+					delete TEMP;
 				}
 				if (event.key.keysym.sym == SDLK_f)
 				{
@@ -623,16 +632,16 @@ void Enemie::C_Destroyed()
 	GE_RemoveTrackedObject(tracker);
 	GE_ScheduleFreeRenderedObject(renderObject);
 }
-void Enemie::serialize(char** buffer, size_t* bufferUsed, size_t* bufferSize)
+void Enemie::serialize(serialization::serialization_state& state)
 {
-	GE_Serialize(&position,buffer,bufferUsed,bufferSize);
-	GE_Serialize(&velocity,buffer,bufferUsed,bufferSize);
+	serialization::serialize(&position,state);
+	serialization::serialize(&velocity,state);
 }
-Enemie* Enemie::unserialize(char* buffer, size_t* bufferUnserialized,int version)
+Enemie* Enemie::unserialize(serialization::unserialization_state& state)
 {
 	printf("~~ENEMIE\n");
-	Vector2r* _position = GE_Unserialize<Vector2r*>(buffer,bufferUnserialized,version);
-	Vector2r* _velocity = GE_Unserialize<Vector2r*>(buffer,bufferUnserialized,version);
+	Vector2r* _position = serialization::unserialize<Vector2r*>(state);
+	Vector2r* _velocity = serialization::unserialize<Vector2r*>(state);
 
 	printf("~~ENEMIE2\n");
 	auto newObj = new Enemie(GE_DEBUG_Renderer,Vector2r{0,0,0},0);
@@ -806,6 +815,7 @@ BulletType::~BulletType()
 
 StdBullet::StdBullet(SDL_Renderer* renderer, Vector2r position, const char* spriteName) : BulletType(position,{0,0,0},STD_BULLET_MASS)
 {
+	this->spriteName = spriteName;
 	renderObject = GE_CreateRenderedObject(renderer,spriteName); 
 	renderObject->size = {2,10};
 	renderObject->animation = {0,0,1,5};
@@ -822,6 +832,18 @@ void StdBullet::C_Destroyed()
 	GE_ScheduleFreeRenderedObject(renderObject);
 }
 StdBullet::~StdBullet() {}
+
+void StdBullet::serialize(serialization::serialization_state& state) 
+{
+	/*
+	serialization::serialize(spriteName,state);
+	serialization::serialize(position,state);
+	serialization::serialize(velocity,state);
+	*/
+}
+static BulletType* unserialize(serialization::unserialization_state& state)
+{
+}
 
 
 const std::string Wall::name = std::string("Wall");
@@ -852,22 +874,20 @@ void Wall::C_Destroyed()
 	GE_RemoveTrackedObject(tracker);
 	GE_FreeRenderedObject(renderObject);
 }
-void Wall::serialize(char** buffer, size_t* bufferUsed, size_t* bufferSize)
+void Wall::serialize(serialization::serialization_state& state)
 {
-	GE_Serialize(&position,buffer,bufferUsed,bufferSize);
-	GE_Serialize(&velocity,buffer,bufferUsed,bufferSize);
-	GE_Serialize(&collisionRectangles[0],buffer,bufferUsed,bufferSize); //collision rectangle 0 = shape 
-	GE_Serialize(mass,buffer,bufferUsed,bufferSize);
-	printf("serialize a wall\n");
-
+	serialization::serialize(&position,state);
+	serialization::serialize(&velocity,state);
+	serialization::serialize(&collisionRectangles[0],state); //collision rectangle 0 = shape 
+	serialization::serialize(mass,state);
 }
-Wall* Wall::unserialize(char* buffer, size_t* bufferUnserialized,int version)
+Wall* Wall::unserialize(serialization::unserialization_state& state)
 {
 	printf("~~WALL\n");
-	auto _position = GE_Unserialize<Vector2r*>(buffer,bufferUnserialized,version);
-	auto _velocity = GE_Unserialize<Vector2r*>(buffer,bufferUnserialized,version);
-	auto _shape = GE_Unserialize<GE_Rectangler*>(buffer,bufferUnserialized,version);
-	auto mass = GE_Unserialize<double>(buffer,bufferUnserialized,version);
+	auto _position = serialization::unserialize<Vector2r*>(state);
+	auto _velocity = serialization::unserialize<Vector2r*>(state);
+	auto _shape = serialization::unserialize<GE_Rectangler*>(state);
+	auto mass = serialization::unserialize<double>(state);
 	
 	printf("rectw %f\n",_shape->w);
 	//SDL_Delay(10000);
@@ -915,7 +935,7 @@ void InitClasses()
 	typeInGroup[TYPE_PLAYER][GROUP_INTELIGENT] = true;//some players shouldn't be in this, but we'll overlook that
 	typeInGroup[TYPE_REGULAR][GROUP_REGULAROBJECT] = true;
 
-	GE_RegisterUnserializationFunction(TYPE_RESERVED,tester::unserialize);
+//	GE_RegisterUnserializationFunction(TYPE_RESERVED,tester::unserialize);
 	GE_RegisterUnserializationFunction(TYPE_PLAYER,Player::unserialize);
 	GE_RegisterUnserializationFunction(TYPE_ENEMY,Enemie::unserialize);
 	GE_RegisterUnserializationFunction(TYPE_SHIPWALL,Wall::unserialize);

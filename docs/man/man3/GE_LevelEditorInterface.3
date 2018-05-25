@@ -1,0 +1,79 @@
+.TH "GE_LevelEditorInterface" 3 "Fri May 18 2018" "Version 0.1" "2D game engine yet to be properly named" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+GE_LevelEditorInterface
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <levelEditor\&.h>\fP
+.PP
+Inherited by \fBBulletType\fP, \fBEnemie\fP, \fBPlayer\fP, and \fBWall\fP\&.
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "virtual \fBGE_Rectangler\fP \fBgetRectangle\fP (unsigned int UNUSED(id))"
+.br
+.ti -1c
+.RI "virtual void \fBsetRectangle\fP (unsigned int UNUSED(id), \fBGE_Rectangler\fP UNUSED(rectangle))"
+.br
+.ti -1c
+.RI "virtual void \fBsetSize\fP (\fBVector2\fP size)"
+.br
+.ti -1c
+.RI "virtual \fBVector2\fP \fBgetSize\fP ()"
+.br
+.ti -1c
+.RI "virtual void \fBsetPosition\fP (\fBVector2r\fP position)"
+.br
+.ti -1c
+.RI "virtual \fBVector2r\fP \fBgetPosition\fP ()"
+.br
+.in -1c
+.SS "Static Public Attributes"
+
+.in +1c
+.ti -1c
+.RI "static const std::string \fBname\fP"
+.br
+.ti -1c
+.RI "constexpr static const \fBGE_LevelEditorObjectProperties\fP \fBproperties\fP = {0,false,}"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+Classes which register with the editor must inherit from this interface\&.
+.PP
+All static values must be implemented\&. Their presence in this interface is for human readability purposes only (as they are used by the class registration template) 
+.SH "Member Function Documentation"
+.PP 
+.SS "virtual \fBVector2r\fP GE_LevelEditorInterface::getPosition ()\fC [inline]\fP, \fC [virtual]\fP"
+Contains a default implementation -- suitable for most cases 
+.SS "virtual \fBGE_Rectangler\fP GE_LevelEditorInterface::getRectangle (unsigned int  UNUSEDid)\fC [inline]\fP, \fC [virtual]\fP"
+Returns one of the resizable rectangles, in absolute cordinates\&. 
+.SS "virtual \fBVector2\fP GE_LevelEditorInterface::getSize ()\fC [inline]\fP, \fC [virtual]\fP"
+This should be implemented if you set the 'resizeEnabled' property is set 
+.PP
+Reimplemented in \fBWall\fP\&.
+.SS "virtual void GE_LevelEditorInterface::setPosition (\fBVector2r\fP position)\fC [inline]\fP, \fC [virtual]\fP"
+Contains a default implementation -- suitable for most cases 
+.PP
+Reimplemented in \fBPlayer\fP\&.
+.SS "virtual void GE_LevelEditorInterface::setRectangle (unsigned int  UNUSEDid, \fBGE_Rectangler\fP  UNUSEDrectangle)\fC [inline]\fP, \fC [virtual]\fP"
+Sets one of the rectangles\&. Runs with the physics thread locked\&. Given in absolute cordinates\&. 
+.SS "virtual void GE_LevelEditorInterface::setSize (\fBVector2\fP size)\fC [inline]\fP, \fC [virtual]\fP"
+This should be implemented if you set the 'resizeEnabled' property is set 
+.PP
+Reimplemented in \fBWall\fP\&.
+.SH "Field Documentation"
+.PP 
+.SS "const std::string GE_LevelEditorInterface::name\fC [static]\fP"
+Simply holds the human-readable name of this class 
+.SS "constexpr static const \fBGE_LevelEditorObjectProperties\fP GE_LevelEditorInterface::properties = {0,false,}\fC [static]\fP"
+The properties of this object 
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for 2D game engine yet to be properly named from the source code\&.

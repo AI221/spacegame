@@ -1,0 +1,83 @@
+.TH "src/gluePhysicsObject.h" 3 "Fri May 18 2018" "Version 0.1" "2D game engine yet to be properly named" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+src/gluePhysicsObject.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <stdlib\&.h>\fP
+.br
+\fC#include <pthread\&.h>\fP
+.br
+
+.SS "Enumerations"
+
+.in +1c
+.ti -1c
+.RI "enum \fBGE_PULL_ON\fP { \fBGE_PULL_ON_PHYSICS_TICK\fP, \fBGE_PULL_ON_RENDER\fP }"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "int \fBGE_GlueInit\fP ()"
+.br
+.ti -1c
+.RI "void \fBGE_GluePreCallback\fP ()"
+.br
+.ti -1c
+.RI "void \fBGE_GlueCallback\fP ()"
+.br
+.ti -1c
+.RI "\fBGE_GlueTarget\fP * \fBGE_addGlueSubject\fP (void *updateData, void *pullData, GE_PULL_ON pullOn, size_t sizeOfPullData)"
+.br
+.ti -1c
+.RI "void \fBGE_GlueRenderCallback\fP ()"
+.br
+.ti -1c
+.RI "void \fBGE_FreeGlueObject\fP (\fBGE_GlueTarget\fP *subject)"
+.br
+.ti -1c
+.RI "void \fBGE_GlueSetSafeMode\fP (bool _safe)"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "pthread_mutex_t \fBGlueMutex\fP"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+
+.PP
+\fBAuthor:\fP
+.RS 4
+Jackson McNeill
+.RE
+.PP
+'Glues' one value to another, memcpy'ing it during the specified event (physics tick, render frame, etc\&.)\&. Watch for undefined behaviors with this one\&. 
+.SH "Function Documentation"
+.PP 
+.SS "\fBGE_GlueTarget\fP* GE_addGlueSubject (void * updateData, void * pullData, GE_PULL_ON pullOn, size_t sizeOfPullData)"
+Adds values to be set either after a physics tick, or a render cycle\&. updateData will be CHANGED to the value of pullData\&. updateData MUST be at LEAST the size of sizeOfPullData or undefined behaviour\&. sizeOfPullData must be NO GREATER THAN the size of pull data or undefined behaviour\&. Generally, make sure updataData and pullData are the same type, and make the last argument sizeof(yourPullData) You MUST delete this glue object BEFORE deleting updateData or pullData\&. Failing to do so results in undefined behaviour, most likely a crash\&. pullData MUST be initalized or this results in undefined behaviour 
+.SS "void GE_FreeGlueObject (\fBGE_GlueTarget\fP * subject)"
+Frees a GlueObject\&. You MUST delete glue objects BEFORE deleting updateData or pullData\&. Failing to do so results in undefined behaviour, most likely a crash\&. 
+.SS "void GE_GlueCallback ()"
+Updates all glue subjects\&. Will lock both PhysicsEngineMutex and RenderEngineMutex \&. DO NOT CALL AFTER LOCKING THOSE MUTEXES IN THE SAME THREAD\&.
+.PP
+This is an internal engine function, so generally don't call at all\&. 
+.SS "int GE_GlueInit ()"
+Adds a callback to the Physics engine to run GE_GlueCallback after every physics tick 
+.SS "void GE_GluePreCallback ()"
+Update add(Velocity/Position) things\&. Called before a physics tick/ 
+.SS "void GE_GlueRenderCallback ()"
+This is a callback to be called before a render\&. It transfers the contents of the positionBuffer to the subjects\&. 
+.SS "void GE_GlueSetSafeMode (bool _safe)"
+Weather GE_FreeGlueObject should lock the glue mutex, or wheather you will do it yourself\&. 
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for 2D game engine yet to be properly named from the source code\&.

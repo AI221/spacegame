@@ -17,20 +17,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "vector2.h" 
-void Vector2r::addRelativeVelocity(Vector2r adder)
-{
-	GE_Vector2RotationCCW(&adder);
-	x += adder.x;
-	y += adder.y;
-}
-void GE_PhysicsVectorToRenderVector(Vector2r* subject)
-{	
-	subject->r *= RAD_TO_DEG; //SDL uses degrees instead of radians
-}
-void GE_PhysicsRotationToRenderRotation(double* rotation)
-{
-	(*rotation) = (*rotation)*RAD_TO_DEG;
-}
+
+
 
 /*
 Vector2 Vector2::operator=(const IntVector2& subject)
@@ -77,19 +65,4 @@ bool GE_TEST_Vector2()
 }
 
 
-Vector2 GE_PointsToRectangle(Vector2 start, Vector2 end,double rotation)
-{
-	end = end-start;
-	start = {0,0};
 
-	Vector2 centerPoint = (start+end)/2;
-
-	start = start-(centerPoint/2);
-	end = end-(centerPoint/2);
-	GE_Vector2Rotation(&start,rotation);
-	GE_Vector2Rotation(&end,rotation);
-	start = start+(centerPoint/2);
-	end = end+(centerPoint/2);
-
-	return {end.x-start.x,end.y-start.y};
-}

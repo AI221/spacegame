@@ -225,17 +225,8 @@ void GE_PhysicsObject::setVelocity(Vector2r newVelocity)
 	this->newVelocity = newVelocity;
 	setNewVelocity = true;
 }*/
-void GE_AddVelocity(GE_PhysicsObject* physicsObject, Vector2r moreVelocity)
-{
-	physicsObject->velocity.x = physicsObject->velocity.x+moreVelocity.x;
-	physicsObject->velocity.y = physicsObject->velocity.y+moreVelocity.y;
-	physicsObject->velocity.r = physicsObject->velocity.r-moreVelocity.r;
-}
-void GE_AddRelativeVelocity(GE_PhysicsObject* physicsObject, Vector2r moreVelocity)
-{
-	physicsObject->velocity.r = physicsObject->velocity.r-moreVelocity.r;
-	physicsObject->velocity.addRelativeVelocity({moreVelocity.x,moreVelocity.y,physicsObject->position.r}); //TODO: De-OOify
-}
+
+
 
 
 //really deletes the object instead of queing for deletion
@@ -748,7 +739,6 @@ bool GE_IsPointInPhysicsObject(Vector2 point, GE_PhysicsObject* obj)
 		{
 			return true;
 		}
-		printf("physics.cppfailcheck \n");
 	}
 	return false;
 }

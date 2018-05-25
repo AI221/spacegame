@@ -1,0 +1,92 @@
+.TH "src/classes.h" 3 "Fri May 18 2018" "Version 0.1" "2D game engine yet to be properly named" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+src/classes.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'renderedObject\&.h'\fP
+.br
+\fC#include 'physics\&.h'\fP
+.br
+\fC#include 'threadedEventStack\&.h'\fP
+.br
+\fC#include 'serialize\&.h'\fP
+.br
+\fC#include 'serializeObject\&.h'\fP
+.br
+\fC#include 'levelEditor\&.h'\fP
+.br
+\fC#include 'UI\&.h'\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "class \fBSubsystem\fP"
+.br
+.ti -1c
+.RI "class \fBPlayer\fP"
+.br
+.ti -1c
+.RI "class \fBEnemie\fP"
+.br
+.ti -1c
+.RI "class \fBBulletType\fP"
+.br
+.ti -1c
+.RI "class \fBStdBullet\fP"
+.br
+.ti -1c
+.RI "class \fBWall\fP"
+.br
+.in -1c
+.SS "Macros"
+
+.in +1c
+.ti -1c
+.RI "#define \fBMAX_SUBSYSTEMS\fP   40"
+.br
+.ti -1c
+.RI "#define \fBSTD_BULLET_MASS\fP   2"
+.br
+.in -1c
+.SS "Enumerations"
+
+.in +1c
+.ti -1c
+.RI "enum \fBTYPES\fP { \fBTYPE_REGULAR\fP, \fBTYPE_PLAYER\fP, \fBTYPE_ENEMY\fP, \fBTYPE_DESTROYSUB\fP, \fBTYPE_SHIPWALL\fP, \fBTYPE_RESERVED\fP, \fBTYPE_COUNT\fP }"
+.br
+.ti -1c
+.RI "enum \fBGROUPS\fP { \fBGROUP_REGULAROBJECT\fP, \fBGROUP_INTELIGENT\fP, \fBGROUP_COUNT\fP }"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBInitClasses\fP ()"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "bool \fBtypeInGroup\fP [TYPE_COUNT][GROUP_COUNT]"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+
+.PP
+\fBAuthor:\fP
+.RS 4
+Jackson McNeill Game-specific classes (not part of the core engine) Also holds other things specific to this game\&. 
+.RE
+.PP
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for 2D game engine yet to be properly named from the source code\&.

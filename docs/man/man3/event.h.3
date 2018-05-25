@@ -1,0 +1,57 @@
+.TH "src/event.h" 3 "Fri May 18 2018" "Version 0.1" "2D game engine yet to be properly named" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+src/event.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <SDL2/SDL\&.h>\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "class \fBGE_Event\fP"
+.br
+.ti -1c
+.RI "class \fBGE_SDLEvent\fP"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBGE_InitEvents\fP ()"
+.br
+.ti -1c
+.RI "unsigned long long int \fBGE_Event_RegisterEvent\fP ()"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "unsigned long long int \fBGE_EventType_SDLEvent\fP"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+
+.PP
+\fBAuthor:\fP
+.RS 4
+Jackson McNeill
+.RE
+.PP
+Allows the game engine to have a better custom event system than SDL events\&. Also wraps arround SDL events 
+.SH "Function Documentation"
+.PP 
+.SS "unsigned long long int GE_Event_RegisterEvent ()"
+Get a new ID for an event\&. Undefined behaviour if you've registered more events than 2^64\&. 
+.SS "void GE_InitEvents ()"
+Initialize events subsystem 
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for 2D game engine yet to be properly named from the source code\&.

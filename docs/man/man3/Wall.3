@@ -1,0 +1,78 @@
+.TH "Wall" 3 "Fri May 18 2018" "Version 0.1" "2D game engine yet to be properly named" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+Wall
+.SH SYNOPSIS
+.br
+.PP
+.PP
+Inherits \fBGE_PhysicsObject\fP, and \fBGE_LevelEditorInterface\fP\&.
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBWall\fP (SDL_Renderer *renderer, \fBVector2r\fP position, \fBGE_Rectangler\fP shape, double mass)"
+.br
+.ti -1c
+.RI "void \fBC_Destroyed\fP () override"
+.br
+.ti -1c
+.RI "constexpr const void \fBserialize\fP (\fBserialization::serialization_state\fP &state)"
+.br
+.ti -1c
+.RI "\fBGE_Rectangler\fP \fBgetRectangle\fP (unsigned int id) override"
+.br
+.ti -1c
+.RI "void \fBsetRectangle\fP (unsigned int id, \fBGE_Rectangler\fP rectangle) override"
+.br
+.ti -1c
+.RI "\fBVector2\fP \fBgetSize\fP () override"
+.br
+.ti -1c
+.RI "void \fBsetSize\fP (\fBVector2\fP size) override"
+.br
+.in -1c
+.SS "Static Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "static \fBWall\fP * \fBunserialize\fP (\fBserialization::unserialization_state\fP &state)"
+.br
+.ti -1c
+.RI "static \fBGE_PhysicsObject\fP * \fBspawnFromLevelEditor\fP (SDL_Renderer *renderer, \fBVector2r\fP position)"
+.br
+.in -1c
+.SS "Static Public Attributes"
+
+.in +1c
+.ti -1c
+.RI "static const std::string \fBname\fP = std::string('Wall')"
+.br
+.ti -1c
+.RI "constexpr static const \fBGE_LevelEditorObjectProperties\fP \fBproperties\fP = \fBGE_LevelEditorObjectProperties\fP{0,true}"
+.br
+.in -1c
+.SS "Additional Inherited Members"
+.SH "Member Function Documentation"
+.PP 
+.SS "void Wall::C_Destroyed ()\fC [override]\fP, \fC [virtual]\fP"
+A callback called upon deletion\&. Guarnteed to be ran in the same tick as your death\&. Guarnteed to run on the phyiscs thread\&.
+.PP
+Attempting to access memory from this physics object after this function is called is undefined behaviour\&. In most circumstances, you will want to remove yourself from anythingthat utilizes lists of physics objects (minimap, glue, serialization, etc\&.)
+.PP
+This is for tasks such as removing yourself from a minimap, or informing the serialization manager that you're dead\&. Doing this in a destructor is undefined behaviour, as the time between a physics object dying and actually being deallocated is non-deterministic and may happen on another thread\&. 
+.PP
+Reimplemented from \fBGE_PhysicsObject\fP\&.
+.SS "\fBVector2\fP Wall::getSize ()\fC [override]\fP, \fC [virtual]\fP"
+This should be implemented if you set the 'resizeEnabled' property is set 
+.PP
+Reimplemented from \fBGE_LevelEditorInterface\fP\&.
+.SS "void Wall::setSize (\fBVector2\fP size)\fC [override]\fP, \fC [virtual]\fP"
+This should be implemented if you set the 'resizeEnabled' property is set 
+.PP
+Reimplemented from \fBGE_LevelEditorInterface\fP\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for 2D game engine yet to be properly named from the source code\&.

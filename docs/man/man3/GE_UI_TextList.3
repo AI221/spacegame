@@ -1,0 +1,50 @@
+.TH "GE_UI_TextList" 3 "Fri May 18 2018" "Version 0.1" "2D game engine yet to be properly named" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+GE_UI_TextList
+.SH SYNOPSIS
+.br
+.PP
+.PP
+Inherits \fBGE_UI_TopLevelElement\fP\&.
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBGE_UI_TextList\fP (SDL_Renderer *renderer, \fBVector2\fP position, \fBVector2\fP size, std::vector< \fBGE_UI_StringOrDivider\fP > elements, \fBGE_UI_TextListStyle\fP style)"
+.br
+.ti -1c
+.RI "\fBGE_UI_TextList\fP (SDL_Renderer *renderer, \fBVector2\fP position, \fBVector2\fP size, std::vector< \fBGE_UI_StringOrDivider\fP > elements, std::vector< \fBGE_UI_TextList\fP *> dropRightMenus, std::vector< unsigned int > elementsWhichHostDropRightMenus, \fBGE_UI_TextListStyle\fP style)"
+.br
+.ti -1c
+.RI "void \fBgiveEvent\fP (\fBVector2\fP parrentPosition, SDL_Event event)"
+.br
+.ti -1c
+.RI "void \fBrender\fP (\fBVector2\fP parrentPosition)"
+.br
+.ti -1c
+.RI "bool \fBcheckIfFocused\fP (int mousex, int mousey)"
+.br
+.ti -1c
+.RI "\fBGE_UI_ClickedObject\fP \fBgetClicked\fP ()"
+.br
+.ti -1c
+.RI "void \fBsetClicked\fP (bool happened)"
+.br
+.ti -1c
+.RI "double \fBgetPositionOfElement\fP (unsigned int ID)"
+.br
+.ti -1c
+.RI "void \fBsetPosition\fP (\fBVector2\fP position)"
+.br
+.ti -1c
+.RI "\fBVector2\fP \fBgetSize\fP ()"
+.br
+.in -1c
+.SS "Additional Inherited Members"
+
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for 2D game engine yet to be properly named from the source code\&.

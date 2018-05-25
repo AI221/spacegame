@@ -1,0 +1,139 @@
+.TH "src/renderedObject.h" 3 "Fri May 18 2018" "Version 0.1" "2D game engine yet to be properly named" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+src/renderedObject.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <SDL2/SDL\&.h>\fP
+.br
+\fC#include <pthread\&.h>\fP
+.br
+\fC#include <list>\fP
+.br
+\fC#include 'vector2\&.h'\fP
+.br
+\fC#include 'debugRenders\&.h'\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "struct \fBGE_RenderedObject\fP"
+.br
+.in -1c
+.SS "Macros"
+
+.in +1c
+.ti -1c
+.RI "#define \fBrendered_objects_list_t\fP   std::list<\fBGE_RenderedObject\fP*>"
+.br
+.in -1c
+.SS "Enumerations"
+
+.in +1c
+.ti -1c
+.RI "enum \fBGE_LinkedType\fP { \fBLINKED_NONE\fP, \fBLINKED_PHYSICS_OBJECT\fP, \fBLINKED_NETWORK_OBJECT\fP }"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "int \fBGE_RenderedObjectInit\fP ()"
+.br
+.ti -1c
+.RI "void \fBGE_ChangeRenderedObjectSprite\fP (\fBGE_RenderedObject\fP *subject, std::string spriteName)"
+.br
+.ti -1c
+.RI "\fBGE_RenderedObject\fP * \fBGE_CreateRenderedObject\fP (SDL_Renderer *renderer, std::string spriteName)"
+.br
+.ti -1c
+.RI "\fBGE_RenderedObject\fP * \fBGE_CreateRenderedObject\fP (SDL_Renderer *renderer, std::string spriteName, int ID)"
+.br
+.ti -1c
+.RI "void \fBGE_BlitRenderedObject\fP (\fBGE_RenderedObject\fP *subject, \fBCamera\fP *camera, double scale)"
+.br
+.ti -1c
+.RI "void \fBGE_FreeRenderedObject\fP (\fBGE_RenderedObject\fP *subject)"
+.br
+.ti -1c
+.RI "void \fBGE_ScheduleFreeRenderedObject\fP (\fBGE_RenderedObject\fP *subject)"
+.br
+.ti -1c
+.RI "void \fBGE_DeleteRenderedObjectsMarkedForDeletion\fP ()"
+.br
+.ti -1c
+.RI "void \fBGE_ShutdownRenderedObject\fP ()"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "pthread_mutex_t \fBRenderEngineMutex\fP"
+.br
+.ti -1c
+.RI "rendered_objects_list_t \fBrenderedObjects\fP"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+
+.PP
+\fBAuthor:\fP
+.RS 4
+Jackson McNeill
+.RE
+.PP
+A simple object designed to be linked to a networkObject or physicsObject\&. 
+.SH "Enumeration Type Documentation"
+.PP 
+.SS "enum \fBGE_LinkedType\fP"
+The type of object linked to 
+.SH "Function Documentation"
+.PP 
+.SS "void GE_BlitRenderedObject (\fBGE_RenderedObject\fP * subject, \fBCamera\fP * camera, double scale)"
+Blits a rendered object and applys camera offset 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIsubject\fP A pointer to the \fBGE_RenderedObject\fP to use 
+.br
+\fIcamera\fP A pointer to the camera to use 
+.RE
+.PP
+
+.SS "void GE_ChangeRenderedObjectSprite (\fBGE_RenderedObject\fP * subject, std::string spriteName)"
+Changes the sprite for a rendered object 
+.SS "\fBGE_RenderedObject\fP* GE_CreateRenderedObject (SDL_Renderer * renderer, std::string spriteName)"
+Adds a \fBGE_RenderedObject\fP to the global lists of rendered objects, and returns a pointer to it back to you\&.
+.PP
+\fBParameters:\fP
+.RS 4
+\fIrenderer\fP The renderer the \fBGE_RenderedObject\fP will use 
+.br
+\fIspriteName\fP The name of the spirte the \fBGE_RenderedObject\fP will use 
+.RE
+.PP
+
+.SS "void GE_FreeRenderedObject (\fBGE_RenderedObject\fP * subject)"
+Frees a \fBGE_RenderedObject\fP allocated with new\&. Does not destroy its renderer or sprite\&. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIsubject\fP A pointer to the \fBGE_RenderedObject\fP to free 
+.RE
+.PP
+
+.SS "int GE_RenderedObjectInit ()"
+Always call before using a rendered object 
+.SS "void GE_ScheduleFreeRenderedObject (\fBGE_RenderedObject\fP * subject)"
+Schedules the deletion of a rendered object 
+.SS "void GE_ShutdownRenderedObject ()"
+Shuts down the rendered object system -- called by GE_Shutdown 
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for 2D game engine yet to be properly named from the source code\&.

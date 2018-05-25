@@ -28,7 +28,8 @@ class GE_Networkable
 };
 
 struct GE_TrackedObject;
-typedef std::function<GE_PhysicsObject*(char* buffer, size_t* bufferUnserialized, int version)> unserializationFunctionDef_t;
+
+typedef std::function<GE_PhysicsObject*(serialization::unserialization_state&)> unserializationFunctionDef_t;
 
 int GE_Init_SerializeObject();
 
@@ -49,5 +50,5 @@ void GE_SetGameSerializationVersion(int version);
 
 void GE_RegisterUnserializationFunction(unsigned int type, unserializationFunctionDef_t function);
 
-char* GE_SerializedTrackedObjects(size_t* bufferUsed, size_t* bufferSize);
-void GE_UnserializeTrackedObjects(char* buffer);
+void GE_SerializedTrackedObjects(serialization::serialization_state& state);
+void GE_UnserializeTrackedObjects(serialization::unserialization_state& state);

@@ -1,0 +1,71 @@
+.TH "Inventory" 3 "Fri May 18 2018" "Version 0.1" "2D game engine yet to be properly named" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+Inventory
+.SH SYNOPSIS
+.br
+.PP
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBInventory\fP (int maxCapacityMass, \fBGE_PhysicsObject\fP *host)"
+.br
+.ti -1c
+.RI "int \fBadd\fP (\fBItemStack\fP item)"
+.br
+.ti -1c
+.RI "void \fBremove\fP (unsigned int itemID)"
+.br
+.ti -1c
+.RI "int \fBpickup\fP (unsigned int itemID)"
+.br
+.ti -1c
+.RI "int \fBtransferFromPeer\fP (\fBInventory\fP *peer, unsigned int itemID)"
+.br
+.ti -1c
+.RI "int \fBtransferHeldFromPeer\fP (\fBInventory\fP *peer)"
+.br
+.ti -1c
+.RI "void \fBhandleSchedules\fP ()"
+.br
+.ti -1c
+.RI "int \fBgetCurrentMass\fP ()"
+.br
+.ti -1c
+.RI "\fBVector2r\fP \fBgetPosition\fP ()"
+.br
+.ti -1c
+.RI "void \fBschedulePickup\fP (unsigned int itemID)"
+.br
+.ti -1c
+.RI "void \fBscheduleTransferFromPeer\fP (\fBInventory\fP *peer, unsigned int itemID)"
+.br
+.ti -1c
+.RI "void \fBscheduleTransferHeldFromPeer\fP (\fBInventory\fP *peer)"
+.br
+.in -1c
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "std::vector< \fBItemStack\fP > \fBstorage\fP"
+.br
+.ti -1c
+.RI "int \fBmaxHoldingMass\fP"
+.br
+.ti -1c
+.RI "\fBItemStack\fP \fBheld\fP"
+.br
+.ti -1c
+.RI "bool \fBisHoldingItem\fP"
+.br
+.ti -1c
+.RI "int \fBmaxCapacityMass\fP"
+.br
+.in -1c
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for 2D game engine yet to be properly named from the source code\&.

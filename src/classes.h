@@ -99,8 +99,8 @@ class Player : public GE_PhysicsObject, public GE_LevelEditorInterface
 
 		Inventory* inventory;
 
-		void serialize(char** buffer, size_t* bufferUsed,size_t* bufferSize) override;
-		static Player* unserialize(char* buffer, size_t* bufferUnserialized, int version);
+		void serialize(serialization::serialization_state& state) override;
+		static Player* unserialize(serialization::unserialization_state& state);
 
 		static GE_PhysicsObject* spawnFromLevelEditor(SDL_Renderer* renderer, Vector2r position);
 		void setPosition(Vector2r position) override;
@@ -131,8 +131,8 @@ class Enemie : public GE_PhysicsObject, public GE_LevelEditorInterface
 		bool C_Update() override;
 		bool C_Collision(GE_PhysicsObject* victim, int collisionRectangleID) override;
 
-		void serialize(char** buffer, size_t* bufferUsed,size_t* bufferSize) override;
-		static Enemie* unserialize(char* buffer, size_t* bufferUnserialized, int version);
+		void serialize(serialization::serialization_state& state) override;
+		static Enemie* unserialize(serialization::unserialization_state& state);
 		static GE_PhysicsObject* spawnFromLevelEditor(SDL_Renderer* renderer, Vector2r position);
 
 		const static std::string name;
@@ -158,6 +158,7 @@ class BulletType : public GE_PhysicsObject, public GE_LevelEditorInterface
 		~BulletType();
 		int level;
 		bool C_Collision(GE_PhysicsObject* victim, int collisionRectangleID);
+
 	private:
 		GE_RenderedObject* renderObject;
 		
@@ -171,8 +172,12 @@ class StdBullet : public BulletType //Hah
 		~StdBullet();
 		void C_Destroyed();
 
+		void serialize(serialization::serialization_state& state) override;
+		static BulletType* unserialize(serialization::unserialization_state& state);
+
 	private:
 		GE_RenderedObject* renderObject;
+		const char* spriteName;
 };
 
 
@@ -184,8 +189,8 @@ class Wall : public GE_PhysicsObject, public GE_LevelEditorInterface
 		void C_Destroyed() override;
 
 
-		void serialize(char** buffer, size_t* bufferUsed,size_t* bufferSize) override;
-		static Wall* unserialize(char* buffer, size_t* bufferUnserialized, int version);
+		void serialize(serialization::serialization_state& state) override;
+		static Wall* unserialize(serialization::unserialization_state& state);
 		static GE_PhysicsObject* spawnFromLevelEditor(SDL_Renderer* renderer, Vector2r position);
 
 		const static std::string name;

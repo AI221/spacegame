@@ -31,15 +31,15 @@ int GE_Font_Init()
 }
 void GE_Font_LoadFromList(std::string list)
 {
-	std::string parrentPath = GE_GetParrentDirectory(list);
-	std::string buffer = GE_GetStringFromFileString(GE_ReadAllFromFile(list));
+	std::string parrentPath = filesystem::get_parrent_directory(list);
+	std::string buffer = filesystem::read_all_from_file(list);
 	Json::Value root;
 	GE_ReadJson(buffer,&root);
 	Json::Value spritelist = root["fontlist"];
 	for (unsigned int i = 0; i < spritelist.size(); i++)
 	{
 		fontPath_t path = parrentPath+"/"+spritelist[i].asString();
-		fontName_t name = GE_GetBaseName(GE_GetFileNoExtension(path));
+		fontName_t name = filesystem::get_base_filename(filesystem::get_filename_without_extension(path));
 		printf("Font name %s\n",name.c_str());
 		fonts.insert(std::make_pair(name,path));
 	}

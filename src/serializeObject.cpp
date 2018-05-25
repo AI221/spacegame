@@ -25,7 +25,7 @@ struct noUnserializationFunction : std::exception
 	unsigned int type;
 	const char* what() const noexcept { return ("Tried to unserialize type "+std::to_string(type)+" which does not have an unserialize function registered.").c_str(); }
 };
-class GE_TrackedObject : GE_Serializable
+class GE_TrackedObject : public serialization::polymorphic_serialization
 {
 	public:
 		GE_TrackedObject(unsigned int type, GE_PhysicsObject* obj)
@@ -37,15 +37,15 @@ class GE_TrackedObject : GE_Serializable
 
 		unsigned int type;
 		GE_PhysicsObject* obj;
-		void serialize(char** buffer,size_t* bufferUsed, size_t* bufferSize)
+		void serialize(serialization::serialization_state& state) override
 		{
-			GE_Serialize(static_cast<unsigned long long>(padding_bytes),buffer,bufferUsed,bufferSize); //useful for data recovery & diagnostics in a misalignment error.
-			GE_Serialize(type,buffer,bufferUsed,bufferSize);
-			GE_Serialize(obj,buffer,bufferUsed,bufferSize);
+			serialization::serialize(static_cast<unsigned long long>(padding_bytes),state); //useful for data recovery & diagnostics in a misalignment error.
+			serialization::serialize(type,state);
+			serialization::serialize(obj,state);
 		}
-		static GE_TrackedObject* unserialize(char* buffer, size_t* bufferUnserialized,int version)
+		static GE_TrackedObject* unserialize(serialization::unserialization_state& state)
 		{
-			unsigned long long padding = GE_Unserialize<unsigned long long>(buffer,bufferUnserialized,version);
+			unsigned long long padding = serialization::unserialize<unsigned long long>(state);
 #ifdef PADDING_CHECK
 			if (padding != padding_bytes)
 			{
@@ -53,7 +53,7 @@ class GE_TrackedObject : GE_Serializable
 			}
 #endif
 			//read back type
-			unsigned int type = GE_Unserialize<unsigned int>(buffer,bufferUnserialized,version);
+			unsigned int type = serialization::unserialize<unsigned int>(state);
 			//call unserialization function for type
 			
 			auto it = unserializeFunctions.find(type);
@@ -63,7 +63,7 @@ class GE_TrackedObject : GE_Serializable
 				return NULL; //so that the compiler will take a hint and not give me a warning
 			}
 			
-			GE_PhysicsObject* newObject = it->second(buffer,bufferUnserialized,version);
+			GE_PhysicsObject* newObject = it->second(state);
 
 			return new GE_TrackedObject(type,newObject);
 		}
@@ -137,26 +137,18 @@ void GE_RegisterUnserializationFunction(unsigned int type, unserializationFuncti
 	unserializeFunctions.insert(std::make_pair(type,function));	
 }
 
-char* GE_SerializedTrackedObjects(size_t* bufferUsed, size_t* bufferSize)
+void GE_SerializedTrackedObjects(serialization::serialization_state& state)
 {
-	char* buffer = GE_AllocateSerializeString(bufferUsed,bufferSize,currentVersion);
-
-	GE_Serialize(trackedObjects,&buffer,bufferUsed,bufferSize); 
-
-	return buffer;
+	serialization::serialize(trackedObjects, state);
 }
 
 #include <SDL2/SDL.h>
-void GE_UnserializeTrackedObjects(char* buffer)
+void GE_UnserializeTrackedObjects(serialization::unserialization_state& state)
 {
-	size_t bufferUnserialized;
-	int version = GE_GetSerializedVersion(buffer,&bufferUnserialized);
-
 	delete trackedObjects; //remove any existing objects
-
-		trackedObjects = GE_Unserialize<trackedObjects_t*>(buffer,&bufferUnserialized,version);
 	try
 	{
+		trackedObjects = serialization::unserialize<trackedObjects_t*>(state);
 	}
 	catch (std::exception& bad_function_call)
 	{

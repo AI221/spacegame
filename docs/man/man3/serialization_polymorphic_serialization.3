@@ -1,0 +1,28 @@
+.TH "serialization::polymorphic_serialization" 3 "Fri May 18 2018" "Version 0.1" "2D game engine yet to be properly named" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+serialization::polymorphic_serialization
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <serialize\&.h>\fP
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "virtual void \fBserialize\fP (\fBserialization_state\fP &state)=0"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+If a class inherits from this, it must implement serialize and unserializae\&. Unserialize is static, and thus cannot be defined in the base class\&. Unserialize looks like this:
+.PP
+virtual static polymorphic_serialization* unserialize(char* serialized, size_t* bufferUnserialized, int serializationVersion)
+.PP
+\&.\&.\&.and creates a new class, of your class's type, with the 'new' operator\&. Doing anything else results in undefined behaviour\&. 
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for 2D game engine yet to be properly named from the source code\&.

@@ -1,0 +1,104 @@
+.TH "src/debugRenders.h" 3 "Fri May 18 2018" "Version 0.1" "2D game engine yet to be properly named" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+src/debugRenders.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <string>\fP
+.br
+\fC#include 'line\&.h'\fP
+.br
+\fC#include 'shapes\&.h'\fP
+.br
+
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBGE_DEBUG_PassRenderer\fP (SDL_Renderer *yourRenderer, \fBCamera\fP *yourCamera)"
+.br
+.ti -1c
+.RI "void \fBGE_DEBUG_TextAt\fP (std::string text, \fBVector2\fP position)"
+.br
+.ti -1c
+.RI "void \fBGE_DEBUG_TextAt\fP (std::string text, \fBVector2r\fP position)"
+.br
+.ti -1c
+.RI "void \fBGE_DEBUG_TextAt_PhysicsPosition\fP (std::string text, \fBVector2\fP position)"
+.br
+.ti -1c
+.RI "template<class XY > void \fBGE_DEBUG_TextAt_PhysicsPosition\fP (std::string text, XY position)"
+.br
+.ti -1c
+.RI "std::string \fBGE_DEBUG_VectorToString\fP (\fBVector2\fP subject)"
+.br
+.ti -1c
+.RI "std::string \fBGE_DEBUG_VectorToString\fP (\fBVector2r\fP subject)"
+.br
+.ti -1c
+.RI "void \fBGE_DEBUG_Cursor_TextAtCursor\fP ()"
+.br
+.ti -1c
+.RI "\fBVector2\fP \fBGE_DEBUG_QuickAddY\fP (\fBVector2\fP positon, double addx)"
+.br
+.ti -1c
+.RI "\fBVector2r\fP \fBGE_DEBUG_QuickAddY\fP (\fBVector2r\fP positon, double addx)"
+.br
+.ti -1c
+.RI "void \fBGE_DEBUG_DrawLine\fP (\fBVector2\fP start, \fBVector2\fP end, \fBGE_Color\fP color)"
+.br
+.ti -1c
+.RI "void \fBGE_DEBUG_DrawLine\fP (\fBVector2\fP start, \fBVector2\fP end)"
+.br
+.ti -1c
+.RI "void \fBGE_DEBUG_DrawLine\fP (\fBGE_Line\fP shapeLine)"
+.br
+.ti -1c
+.RI "void \fBGE_DEBUG_DrawLine_PhysicsPosition\fP (\fBVector2\fP start, \fBVector2\fP end, \fBGE_Color\fP color)"
+.br
+.ti -1c
+.RI "void \fBGE_DEBUG_DrawLine_PhysicsPosition\fP (\fBVector2\fP start, \fBVector2\fP end)"
+.br
+.ti -1c
+.RI "void \fBGE_DEBUG_DrawRect\fP (\fBGE_Rectangle\fP rect, \fBGE_Color\fP clr)"
+.br
+.ti -1c
+.RI "void \fBGE_DEBUG_DrawRect\fP (\fBGE_Rectangle\fP rect)"
+.br
+.ti -1c
+.RI "void \fBGE_DEBUG_DrawShape\fP (GE_ShapeLines shape)"
+.br
+.ti -1c
+.RI "void \fBGE_DEBUG_DrawRect_PhysicsPosition\fP (\fBGE_Rectangle\fP rect, \fBGE_Color\fP clr)"
+.br
+.ti -1c
+.RI "void \fBGE_DEBUG_DrawRect_PhysicsPosition\fP (\fBGE_Rectangle\fP rect)"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "SDL_Renderer * \fBGE_DEBUG_Renderer\fP"
+.br
+.ti -1c
+.RI "\fBCamera\fP * \fBGE_DEBUG_Camera\fP"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+
+.PP
+\fBAuthor:\fP
+.RS 4
+Jackson McNeill
+.RE
+.PP
+Debug-grade renderers for debugging\&. DO NOT USE WHILE PERFORMANCE TESTING! Debug renders have a tendancy to cause bad and inconsistant performance\&.
+.PP
+_PhysicsPosition functions do not account for rotation - they assume you will lock rotation during debugging\&. 
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for 2D game engine yet to be properly named from the source code\&.

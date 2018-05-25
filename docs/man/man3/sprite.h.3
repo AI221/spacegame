@@ -1,0 +1,160 @@
+.TH "src/sprite.h" 3 "Fri May 18 2018" "Version 0.1" "2D game engine yet to be properly named" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+src/sprite.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <SDL2/SDL\&.h>\fP
+.br
+\fC#include 'vector2\&.h'\fP
+.br
+\fC#include <string>\fP
+.br
+
+.SS "Macros"
+
+.in +1c
+.ti -1c
+.RI "#define \fBMAX_SPRITES_LOADED\fP   1024"
+.br
+.in -1c
+.SS "Enumerations"
+
+.in +1c
+.ti -1c
+.RI "enum \fBGE_Flip\fP { \fBGE_FLIP_NONE\fP, \fBGE_FLIP_HORIZONTAL\fP, \fBGE_FLIP_VERTICAL\fP, \fBGE_FLIP_DIAGONAL\fP }"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "int \fBGE_SpriteInit\fP (SDL_Renderer *renderer)"
+.br
+.ti -1c
+.RI "int \fBGE_LoadSpritesFromDir\fP (SDL_Renderer *renderer, std::string directory)"
+.br
+.ti -1c
+.RI "int \fBGE_LoadSpriteFromPath\fP (SDL_Renderer *renderer, std::string path)"
+.br
+.ti -1c
+.RI "int \fBGE_SpriteNameToID\fP (std::string name)"
+.br
+.ti -1c
+.RI "void \fBGE_BlitSprite\fP (\fBGE_Sprite\fP *sprite, \fBVector2r\fP position, \fBVector2\fP size, \fBGE_Rectangle\fP animation, \fBGE_Flip\fP flip)"
+.br
+.ti -1c
+.RI "void \fBGE_BlitSprite\fP (\fBGE_Sprite\fP *sprite, SDL_Rect renderPosition, SDL_Rect renderAnimation, double rotation, SDL_RendererFlip flip)"
+.br
+.ti -1c
+.RI "\fBGE_Sprite\fP * \fBGE_CreateSprite\fP (SDL_Renderer *renderer, SDL_Texture *spriteTexture)"
+.br
+.ti -1c
+.RI "\fBGE_Sprite\fP * \fBGE_CreateSprite\fP (SDL_Renderer *renderer, std::string path)"
+.br
+.ti -1c
+.RI "int \fBGE_ImgPathToTexture\fP (SDL_Texture **result, SDL_Renderer *renderer, SDL_RWops *data)"
+.br
+.ti -1c
+.RI "int \fBGE_ImgPathToTexture\fP (SDL_Texture **result, SDL_Renderer *renderer, std::string path)"
+.br
+.ti -1c
+.RI "void \fBGE_FreeSprite\fP (\fBGE_Sprite\fP *sprite)"
+.br
+.ti -1c
+.RI "void \fBGE_FreeAllSprites\fP ()"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "\fBGE_Sprite\fP * \fBSprites\fP [MAX_SPRITES_LOADED]"
+.br
+.ti -1c
+.RI "std::string \fBSprite_Names\fP [MAX_SPRITES_LOADED]"
+.br
+.ti -1c
+.RI "int \fBcountSprites\fP"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+
+.PP
+\fBAuthor:\fP
+.RS 4
+Jackson McNeill
+.RE
+.PP
+A sprite system 
+.SH "Enumeration Type Documentation"
+.PP 
+.SS "enum \fBGE_Flip\fP"
+Used to tell how your sprite image is flipped 
+.SH "Function Documentation"
+.PP 
+.SS "void GE_BlitSprite (\fBGE_Sprite\fP * sprite, \fBVector2r\fP position, \fBVector2\fP size, \fBGE_Rectangle\fP animation, \fBGE_Flip\fP flip)"
+Recommended function to use to blit a sprite 
+.SS "void GE_BlitSprite (\fBGE_Sprite\fP * sprite, SDL_Rect renderPosition, SDL_Rect renderAnimation, double rotation, SDL_RendererFlip flip)"
+Internal overload--subject to future change, don't use 
+.SS "\fBGE_Sprite\fP* GE_CreateSprite (SDL_Renderer * renderer, SDL_Texture * spriteTexture)"
+Internal function to create a sprite using a texture 
+.SS "\fBGE_Sprite\fP* GE_CreateSprite (SDL_Renderer * renderer, std::string path)"
+Internal function to create a sprite using a path to an image file 
+.SS "void GE_FreeAllSprites ()"
+Frees all loaded sprites in the Sprite table (This is to be called on game shutdown) 
+.SS "void GE_FreeSprite (\fBGE_Sprite\fP * sprite)"
+Deletes a \fBGE_Sprite\fP that was allocated with new (GE_CreateSprite allocates with new) 
+.SS "int GE_ImgPathToTexture (SDL_Texture ** result, SDL_Renderer * renderer, SDL_RWops * data)"
+Converts an SDL_RWops of a \&.bmp , \&.png , etc\&. to a SDL_Texture
+.PP
+Same as other overload\&. 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIdata\fP Will be deleted 
+.RE
+.PP
+
+.SS "int GE_ImgPathToTexture (SDL_Texture ** result, SDL_Renderer * renderer, std::string path)"
+Converts an image file (\&.bmp , \&.png , etc\&.) to an SDL_Texture
+.PP
+Gives you a SDL_Texture from a path and renderer
+.PP
+\fBParameters:\fP
+.RS 4
+\fIresult\fP The SDL_Texture the result will be put into 
+.br
+\fIrenderer\fP The renderer to use for this 
+.br
+\fIpath\fP The path to grab the BMP image from, relative or absolute\&. 
+.RE
+.PP
+
+.SS "int GE_LoadSpriteFromPath (SDL_Renderer * renderer, std::string path)"
+Loads a sprite from a path and puts it into Sprites 
+.SS "int GE_LoadSpritesFromDir (SDL_Renderer * renderer, std::string directory)"
+Loads all sprites from a directory into Sprites\&. Do not place anything but compatible image types (\&.bmp, \&.png , etc\&.) in this folder\&. This will not recursively search directories\&.
+.PP
+Loads all sprites from a directory\&. Do not place anything but compatible image types (\&.bmp, \&.png , etc\&.) in this folder\&. This will not recursively search directories\&. 
+.SS "int GE_SpriteInit (SDL_Renderer * renderer)"
+Call before using the Sprite subsystem\&. Do not use the sprite subsystem without initializing it first\&.
+.PP
+\fBReturns:\fP
+.RS 4
+An error code, or 0 if it was okay\&. DO NOT use the sprite subsystem if there was an error code\&.
+.RE
+.PP
+Interally, this loads the MissingImage sprite, from memory\&. 
+.SS "int GE_SpriteNameToID (std::string name)"
+Gives the the ID to a sprite from its full path ('name') 
+.SH "Variable Documentation"
+.PP 
+.SS "\fBGE_Sprite\fP* Sprites[MAX_SPRITES_LOADED]"
+List of loaded sprites 
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for 2D game engine yet to be properly named from the source code\&.

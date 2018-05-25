@@ -1,0 +1,44 @@
+.TH "Subsystem" 3 "Fri May 18 2018" "Version 0.1" "2D game engine yet to be properly named" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+Subsystem
+.SH SYNOPSIS
+.br
+.PP
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBSubsystem\fP (SDL_Renderer *renderer, std::string sprite, \fBVector2\fP size, \fBGE_Rectangle\fP animation, \fBVector2r\fP relativePosition, int collisionRectangle, std::string name, \fBVector2\fP *parrentGrid)"
+.br
+.ti -1c
+.RI "void \fBCheckCollision\fP (int checkCollisionRectangle)"
+.br
+.ti -1c
+.RI "void \fBUpdate\fP (\fBVector2r\fP parrentPosition)"
+.br
+.ti -1c
+.RI "bool \fBGetIsOnline\fP ()"
+.br
+.ti -1c
+.RI "int \fBGetLevel\fP ()"
+.br
+.ti -1c
+.RI "void \fBSetLevel\fP (int level)"
+.br
+.in -1c
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "double \fBhealth\fP"
+.br
+.ti -1c
+.RI "std::string \fBname\fP"
+.br
+.in -1c
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for 2D game engine yet to be properly named from the source code\&.

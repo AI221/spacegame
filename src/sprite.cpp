@@ -113,7 +113,7 @@ int GE_LoadSpritesFromDir(SDL_Renderer* renderer, std::string directory)
 
 
 
-	std::string buffer = GE_GetStringFromFileString(GE_ReadAllFromFile(directory));
+	std::string buffer = filesystem::read_all_from_file(directory);
 
 
 	Json::Value root;
@@ -138,7 +138,7 @@ int GE_LoadSpritesFromDir(SDL_Renderer* renderer, std::string directory)
 	};
 	*/
 
-	std::string parrentDirectory = GE_GetParrentDirectory(directory);
+	std::string parrentDirectory = filesystem::get_parrent_directory(directory);
 	for (unsigned int i = 0; i < spritelist.size(); i++)
 	{
 		GE_LoadSpriteFromPath(renderer, (parrentDirectory+"/"+spritelist[i].asString()).c_str() );
@@ -164,7 +164,7 @@ int GE_LoadSpriteFromPath(SDL_Renderer* renderer, std::string path)
 
 	
 
-	path = GE_GetBaseName(path);
+	path = filesystem::get_base_filename(path);
 
 	int dotspot = path.find(".");
 	if (dotspot != 0)

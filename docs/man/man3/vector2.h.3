@@ -1,0 +1,178 @@
+.TH "src/vector2.h" 3 "Fri May 18 2018" "Version 0.1" "2D game engine yet to be properly named" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+src/vector2.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <cmath>\fP
+.br
+\fC#include <type_traits>\fP
+.br
+\fC#include 'GeneralEngineCPP\&.h'\fP
+.br
+\fC#include 'serialize\&.h'\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "struct \fBVector2\fP"
+.br
+.ti -1c
+.RI "struct \fBVector2r\fP"
+.br
+.ti -1c
+.RI "struct \fBIntVector2\fP"
+.br
+.ti -1c
+.RI "struct \fBGE_Rectangle\fP"
+.br
+.ti -1c
+.RI "struct \fBGE_Rectangler\fP"
+.br
+.in -1c
+.SS "Macros"
+
+.in +1c
+.ti -1c
+.RI "#define \fBRAD_TO_DEG\fP   57\&.2957795130823231109784554604402728728018701076507568359375"
+.br
+.ti -1c
+.RI "#define \fBTWO_PI\fP   6\&.283185307179586"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBGE_FORCE_INLINE\fP constexpr void \fBGE_CapRotation\fP (double *rotation)"
+.br
+.ti -1c
+.RI "\fBGE_FORCE_INLINE\fP constexpr double \fBGE_CapRotation\fP (double rotation)"
+.br
+.ti -1c
+.RI "\fBGE_FORCE_INLINE\fP constexpr \fBVector2\fP \fBreverseVector\fP (\fBVector2\fP subject)"
+.br
+.ti -1c
+.RI "constexpr void \fBGE_Vector2RotationCCW\fP (\fBVector2r\fP &subject)"
+.br
+.ti -1c
+.RI "\fBGE_FORCE_INLINE\fP constexpr \fBVector2\fP \fBGE_StripVectorRotation\fP (\fBVector2r\fP vector_subject)"
+.br
+.ti -1c
+.RI "\fBGE_FORCE_INLINE\fP constexpr void \fBGE_Vector2RotationCCW\fP (double *x, double *y, double rotation)"
+.br
+.ti -1c
+.RI "\fBGE_FORCE_INLINE\fP constexpr void \fBGE_Vector2RotationCCW\fP (\fBVector2r\fP *subject)"
+.br
+.ti -1c
+.RI "\fBGE_FORCE_INLINE\fP constexpr void \fBGE_Vector2RotationCCW\fP (\fBVector2r\fP *subject, double rotation)"
+.br
+.ti -1c
+.RI "\fBGE_FORCE_INLINE\fP constexpr void \fBGE_Vector2RotationCCW\fP (\fBVector2\fP *subject, double rotation)"
+.br
+.ti -1c
+.RI "\fBGE_FORCE_INLINE\fP constexpr void \fBGE_Vector2Rotation\fP (double *x, double *y, double rotation)"
+.br
+.ti -1c
+.RI "\fBGE_FORCE_INLINE\fP constexpr void \fBGE_Vector2Rotation\fP (\fBVector2r\fP *subject)"
+.br
+.ti -1c
+.RI "\fBGE_FORCE_INLINE\fP constexpr void \fBGE_Vector2Rotation\fP (\fBVector2r\fP *subject, double rotation)"
+.br
+.ti -1c
+.RI "\fBGE_FORCE_INLINE\fP constexpr void \fBGE_Vector2Rotation\fP (\fBVector2\fP *subject, double rotation)"
+.br
+.ti -1c
+.RI "\fBGE_FORCE_INLINE\fP constexpr double \fBGE_Distance\fP (double x1, double y1, double x2, double y2)"
+.br
+.ti -1c
+.RI "template<class XY1 , class XY2 > \fBGE_FORCE_INLINE\fP constexpr double \fBGE_Distance\fP (XY1 subject, XY2 subject2)"
+.br
+.ti -1c
+.RI "template<class XY > \fBGE_FORCE_INLINE\fP constexpr double \fBGE_Dot\fP (XY subject, XY subject2)"
+.br
+.ti -1c
+.RI "template<class XYR , class XY > \fBGE_FORCE_INLINE\fP constexpr double \fBGE_GetRotationalDistance\fP (XYR subject, XY victim)"
+.br
+.ti -1c
+.RI "constexpr void \fBGE_PhysicsVectorToRenderVector\fP (\fBVector2r\fP *subject)"
+.br
+.ti -1c
+.RI "constexpr void \fBGE_PhysicsRotationToRenderRotation\fP (double *rotation)"
+.br
+.ti -1c
+.RI "template<class XY > constexpr XY \fBGE_ClosestVector\fP (XY origin, XY point1, XY point2)"
+.br
+.ti -1c
+.RI "template<class XY > constexpr XY \fBGE_FurthestVector\fP (XY origin, XY point1, XY point2)"
+.br
+.ti -1c
+.RI "bool \fBGE_TEST_Vector2\fP ()"
+.br
+.ti -1c
+.RI "constexpr \fBVector2\fP \fBGE_PointsToRectangle\fP (\fBVector2\fP start, \fBVector2\fP end, double rotation)"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+
+.PP
+\fBAuthor:\fP
+.RS 4
+Jackson McNeill
+.RE
+.PP
+The vector2 and vector2r structures, as well as math functions to go along with them\&. One of the building blocks of the engine\&. 
+.SH "Function Documentation"
+.PP 
+.SS "\fBGE_FORCE_INLINE\fP constexpr void GE_CapRotation (double * rotation)"
+Prevents rotation from being >2pi 
+.SS "\fBGE_FORCE_INLINE\fP constexpr double GE_Distance (double x1, double y1, double x2, double y2)"
+Distance between x1, y1 and x2, y2 
+.PP
+\fBReturns:\fP
+.RS 4
+The distance between x1, y1 and x2, y2, in a double 
+.RE
+.PP
+
+.SS "template<class XY1 , class XY2 > \fBGE_FORCE_INLINE\fP constexpr double GE_Distance (XY1 subject, XY2 subject2)"
+Distance between 2 vectors 
+.PP
+\fBReturns:\fP
+.RS 4
+The distance between the 2 vectors, in a double 
+.RE
+.PP
+
+.SS "template<class XY > \fBGE_FORCE_INLINE\fP constexpr double GE_Dot (XY subject, XY subject2)"
+Returns the result of a dot product with subject and subject2 
+.SS "template<class XYR , class XY > \fBGE_FORCE_INLINE\fP constexpr double GE_GetRotationalDistance (XYR subject, XY victim)"
+Gives you the angle between a point with rotation, and a point 
+.SS "constexpr void GE_PhysicsRotationToRenderRotation (double * rotation)"
+Converts from radians to degrees 
+.SS "constexpr void GE_PhysicsVectorToRenderVector (\fBVector2r\fP * subject)"
+Converts the rotation from radians to degrees 
+.SS "\fBGE_FORCE_INLINE\fP constexpr void GE_Vector2Rotation (double * x, double * y, double rotation)"
+Adds clockwise rotation to subject's x and y using subject's r 
+.SS "\fBGE_FORCE_INLINE\fP constexpr void GE_Vector2Rotation (\fBVector2r\fP * subject)"
+Adds clockwise rotation to subject's x and y using subject's r 
+.SS "\fBGE_FORCE_INLINE\fP constexpr void GE_Vector2Rotation (\fBVector2r\fP * subject, double rotation)"
+Adds clockwise rotation to subject's x and y using subject's r 
+.SS "\fBGE_FORCE_INLINE\fP constexpr void GE_Vector2Rotation (\fBVector2\fP * subject, double rotation)"
+Adds clockwise rotation to subject's x and y using subject's r 
+.SS "\fBGE_FORCE_INLINE\fP constexpr void GE_Vector2RotationCCW (double * x, double * y, double rotation)"
+Adds counter-clockwise rotation to x and y using rotation 
+.SS "\fBGE_FORCE_INLINE\fP constexpr void GE_Vector2RotationCCW (\fBVector2r\fP * subject)"
+Adds counter-clockwise rotation to subject's x and y using subject's r 
+.SS "\fBGE_FORCE_INLINE\fP constexpr void GE_Vector2RotationCCW (\fBVector2r\fP * subject, double rotation)"
+Adds counter-clockwise rotation to subject's x and y using rotation 
+.SS "\fBGE_FORCE_INLINE\fP constexpr void GE_Vector2RotationCCW (\fBVector2\fP * subject, double rotation)"
+Adds counter-clockwise rotation to subject's x and y using rotation 
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for 2D game engine yet to be properly named from the source code\&.

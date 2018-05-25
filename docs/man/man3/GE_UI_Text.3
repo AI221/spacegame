@@ -1,0 +1,80 @@
+.TH "GE_UI_Text" 3 "Fri May 18 2018" "Version 0.1" "2D game engine yet to be properly named" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+GE_UI_Text
+.SH SYNOPSIS
+.br
+.PP
+.PP
+Inherits \fBGE_UI_Element\fP\&.
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBGE_UI_Text\fP (SDL_Renderer *renderer, \fBVector2\fP position, \fBVector2\fP size, std::string text, \fBGE_Color\fP color, \fBGE_Font\fP font)"
+.br
+.ti -1c
+.RI "\fBGE_UI_Text\fP (SDL_Renderer *renderer, \fBVector2\fP position, \fBVector2\fP size, std::string text, \fBGE_UI_FontStyle\fP style)"
+.br
+.ti -1c
+.RI "void \fBrender\fP (\fBVector2\fP parrentPosition)"
+.br
+.ti -1c
+.RI "void \fBrender\fP ()"
+.br
+.ti -1c
+.RI "void \fBsetText\fP (const char *text)"
+.br
+.ti -1c
+.RI "void \fBsetText\fP (std::string text)"
+.br
+.ti -1c
+.RI "void \fBsetSize\fP (\fBVector2\fP newSize)"
+.br
+.ti -1c
+.RI "\fBVector2\fP \fBgetSize\fP ()"
+.br
+.ti -1c
+.RI "void \fBsetPosition\fP (\fBVector2\fP newPosition)"
+.br
+.ti -1c
+.RI "void \fBcenterX\fP ()"
+.br
+.ti -1c
+.RI "void \fBcenterY\fP ()"
+.br
+.ti -1c
+.RI "void \fBcenter\fP ()"
+.br
+.ti -1c
+.RI "void \fBalignLeft\fP ()"
+.br
+.ti -1c
+.RI "void \fBexpandToTextSize\fP ()"
+.br
+.ti -1c
+.RI "void \fBsetCursor\fP (int pos)"
+.br
+.in -1c
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "SDL_Rect \fBMessage_rect\fP"
+.br
+.in -1c
+.SH "Member Function Documentation"
+.PP 
+.SS "void GE_UI_Text::alignLeft ()"
+Align the text to the left 
+.SS "void GE_UI_Text::center ()"
+Change positions, so that the center of the text becomes the what the position is now\&. 
+.SS "void GE_UI_Text::expandToTextSize ()"
+Expand so that our boundries are equal to the ammount of text we're currently holding at this moment 
+.SS "void GE_UI_Text::setText (const char * text)"
+Note that settings text above 2048 characters, while permitted, will not be optimized for not re-rendering text that is the same as the previous set\&. 
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for 2D game engine yet to be properly named from the source code\&.

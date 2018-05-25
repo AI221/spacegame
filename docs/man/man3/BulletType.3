@@ -1,0 +1,54 @@
+.TH "BulletType" 3 "Fri May 18 2018" "Version 0.1" "2D game engine yet to be properly named" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+BulletType
+.SH SYNOPSIS
+.br
+.PP
+.PP
+Inherits \fBGE_PhysicsObject\fP, and \fBGE_LevelEditorInterface\fP\&.
+.PP
+Inherited by \fBStdBullet\fP\&.
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBBulletType\fP (\fBVector2r\fP position, \fBVector2r\fP velocity, double mass)"
+.br
+.ti -1c
+.RI "bool \fBC_Collision\fP (\fBGE_PhysicsObject\fP *victim, int collisionRectangleID)"
+.br
+.in -1c
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "int \fBlevel\fP"
+.br
+.in -1c
+.SS "Additional Inherited Members"
+.SH "Member Function Documentation"
+.PP 
+.SS "bool BulletType::C_Collision (\fBGE_PhysicsObject\fP * victim, int collisionRectangleID)\fC [virtual]\fP"
+A callback upon collision 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIvictimID\fP the ID of the colliding physics object 
+.br
+\fIcollisionRectangleID\fP The ID of YOUR collision rectangle that was collided with 
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+True if you want YOUR physics object to be deleted\&. 
+.RE
+.PP
+
+.PP
+Reimplemented from \fBGE_PhysicsObject\fP\&.
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for 2D game engine yet to be properly named from the source code\&.

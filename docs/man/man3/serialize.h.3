@@ -1,0 +1,208 @@
+.TH "src/serialize.h" 3 "Fri May 18 2018" "Version 0.1" "2D game engine yet to be properly named" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+src/serialize.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <type_traits>\fP
+.br
+\fC#include <stdlib\&.h>\fP
+.br
+\fC#include <cassert>\fP
+.br
+\fC#include <vector>\fP
+.br
+\fC#include <unordered_set>\fP
+.br
+\fC#include <unordered_map>\fP
+.br
+\fC#include <set>\fP
+.br
+\fC#include <deque>\fP
+.br
+\fC#include <list>\fP
+.br
+\fC#include <map>\fP
+.br
+\fC#include 'GeneralEngineCPP\&.h'\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "struct \fBserialization::serialization_state\fP"
+.br
+.ti -1c
+.RI "struct \fBserialization::unserialization_state\fP"
+.br
+.ti -1c
+.RI "struct \fBserialization::is_vector< a >\fP"
+.br
+.ti -1c
+.RI "struct \fBserialization::is_vector< std::vector< a > >\fP"
+.br
+.ti -1c
+.RI "struct \fBserialization::is_vector< std::vector< a, b > >\fP"
+.br
+.ti -1c
+.RI "struct \fBserialization::is_deque< a >\fP"
+.br
+.ti -1c
+.RI "struct \fBserialization::is_deque< std::deque< a > >\fP"
+.br
+.ti -1c
+.RI "struct \fBserialization::is_deque< std::deque< a, b > >\fP"
+.br
+.ti -1c
+.RI "struct \fBserialization::is_list< a >\fP"
+.br
+.ti -1c
+.RI "struct \fBserialization::is_list< std::list< a > >\fP"
+.br
+.ti -1c
+.RI "struct \fBserialization::is_list< std::list< a, b > >\fP"
+.br
+.ti -1c
+.RI "struct \fBserialization::is_set< a >\fP"
+.br
+.ti -1c
+.RI "struct \fBserialization::is_set< std::set< a > >\fP"
+.br
+.ti -1c
+.RI "struct \fBserialization::is_set< std::set< a, b > >\fP"
+.br
+.ti -1c
+.RI "struct \fBserialization::is_set< std::set< a, b, c > >\fP"
+.br
+.ti -1c
+.RI "struct \fBserialization::is_unordered_set< a >\fP"
+.br
+.ti -1c
+.RI "struct \fBserialization::is_unordered_set< std::unordered_set< a > >\fP"
+.br
+.ti -1c
+.RI "struct \fBserialization::is_unordered_set< std::unordered_set< a, b > >\fP"
+.br
+.ti -1c
+.RI "struct \fBserialization::is_unordered_set< std::unordered_set< a, b, c > >\fP"
+.br
+.ti -1c
+.RI "struct \fBserialization::is_unordered_set< std::unordered_set< a, b, c, d > >\fP"
+.br
+.ti -1c
+.RI "struct \fBserialization::is_map< a >\fP"
+.br
+.ti -1c
+.RI "struct \fBserialization::is_map< std::map< a, b > >\fP"
+.br
+.ti -1c
+.RI "struct \fBserialization::is_map< std::map< a, b, c > >\fP"
+.br
+.ti -1c
+.RI "struct \fBserialization::is_map< std::map< a, b, c, d > >\fP"
+.br
+.ti -1c
+.RI "struct \fBserialization::is_unordered_map< a >\fP"
+.br
+.ti -1c
+.RI "struct \fBserialization::is_unordered_map< std::unordered_map< a, b > >\fP"
+.br
+.ti -1c
+.RI "struct \fBserialization::is_unordered_map< std::unordered_map< a, b, c > >\fP"
+.br
+.ti -1c
+.RI "struct \fBserialization::is_unordered_map< std::unordered_map< a, b, c, d > >\fP"
+.br
+.ti -1c
+.RI "class \fBserialization::polymorphic_serialization\fP"
+.br
+.in -1c
+.SS "Namespaces"
+
+.in +1c
+.ti -1c
+.RI " \fBserialization\fP"
+.br
+.in -1c
+.SS "Typedefs"
+
+.in +1c
+.ti -1c
+.RI "typedef unsigned long long \fBserialization::size_tp\fP"
+.br
+.in -1c
+.SS "Enumerations"
+
+.in +1c
+.ti -1c
+.RI "enum \fBcontainer_classification\fP { \fBnot_a_container\fP, \fBsequence\fP, \fBassociative\fP }"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "template<typename associative_container > associative_container \fBserialization::unserialize_container_associative\fP (unserialization_state &state)"
+.br
+.ti -1c
+.RI "template<typename associative_container > constexpr void \fBserialization::serialize_container_associative\fP (associative_container container, serialization_state &state)"
+.br
+.ti -1c
+.RI "template<typename sequence_container > sequence_container \fBserialization::unserialize_container_sequence\fP (unserialization_state &state)"
+.br
+.ti -1c
+.RI "template<typename sequence_container > constexpr void \fBserialization::serialize_container_sequence\fP (sequence_container container, serialization_state &state)"
+.br
+.ti -1c
+.RI "template<typename array_t > array_t \fBserialization::unserialize_container_array\fP (unserialization_state &state)"
+.br
+.ti -1c
+.RI "template<typename array_t > constexpr void \fBserialization::serialize_container_array\fP (array_t array, serialization_state &state)"
+.br
+.ti -1c
+.RI "template<typename basicDataType > basicDataType \fBserialization::unserialize_basic\fP (unserialization_state &state)"
+.br
+.ti -1c
+.RI "template<typename basicDataType > void \fBserialization::serialize_basic\fP (basicDataType serializeMe, serialization_state &state)"
+.br
+.ti -1c
+.RI "template<class data > constexpr std::enable_if< get_container_classification< std::remove_pointer_t< data > >) !=not_a_container, void >::type \fBserialization::serialize\fP (data serializeMe, serialization_state &state)"
+.br
+.ti -1c
+.RI "template<class data > std::enable_if< std::is_base_of< polymorphic_serialization, typename std::remove_pointer< data >::type >::value, void >::type \fBserialization::serialize\fP (data serializeMe, serialization_state &state)"
+.br
+.ti -1c
+.RI "template<class data > constexpr std::enable_if< std::is_function< decltype(std::remove_pointer< data >::type::serialize)>::value &&!std::is_base_of< polymorphic_serialization, typename std::remove_pointer< data >::type >::value, void >::type \fBserialization::serialize\fP (data serializeMe, serialization_state &state)"
+.br
+.ti -1c
+.RI "template<class data > constexpr std::enable_if< std::is_arithmetic< data >::value, void >::type \fBserialization::serialize\fP (data serializeMe, serialization_state &state)"
+.br
+.ti -1c
+.RI "template<class data > constexpr std::enable_if< std::is_arithmetic< data >::value, data >::type \fBserialization::unserialize\fP (unserialization_state &state)"
+.br
+.ti -1c
+.RI "template<class data > constexpr std::enable_if< std::is_function< decltype(std::remove_pointer< data >::type::unserialize)>::value, data >::type \fBserialization::unserialize\fP (unserialization_state &state)"
+.br
+.ti -1c
+.RI "template<class data > constexpr std::enable_if< get_container_classification< std::remove_pointer_t< data > >) !=not_a_container, data >::type \fBserialization::unserialize\fP (unserialization_state &state)"
+.br
+.ti -1c
+.RI "GE_TEST_TYPE_RETURN \fBserialization::unit_test\fP ()"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+
+.PP
+\fBAuthor:\fP
+.RS 4
+Jackson McNeill
+.RE
+.PP
+Defines a method of data serialization\&. The concept here is that all data types can be serialized using serialize(data,state) and unserialized with unserialize<data-type>(state); This makes it much easier, as things like vectors can be serialized while keeping type safety, and only implementing their serialization method once\&. 
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for 2D game engine yet to be properly named from the source code\&.

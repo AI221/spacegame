@@ -1,0 +1,87 @@
+.TH "src/inventory.h" 3 "Fri May 18 2018" "Version 0.1" "2D game engine yet to be properly named" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+src/inventory.h
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <vector>\fP
+.br
+\fC#include <stack>\fP
+.br
+\fC#include <pthread\&.h>\fP
+.br
+\fC#include <string>\fP
+.br
+\fC#include 'UI\&.h'\fP
+.br
+\fC#include 'vector2\&.h'\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "struct \fBItemStack\fP"
+.br
+.ti -1c
+.RI "class \fBInventory\fP"
+.br
+.ti -1c
+.RI "class \fBUI_FloatingInventoryElement\fP"
+.br
+.ti -1c
+.RI "class \fBUI_InventoryView\fP"
+.br
+.in -1c
+.SS "Macros"
+
+.in +1c
+.ti -1c
+.RI "#define \fBINV_SQUARE_SIZE\fP   35"
+.br
+.in -1c
+.SS "Enumerations"
+
+.in +1c
+.ti -1c
+.RI "enum \fBITEM_NAMES\fP { \fBNONE\fP = 0, \fBIRON\fP =1, \fBDUCT_TAPE\fP =2 }"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "void \fBinitInventory\fP (SDL_Renderer *renderer)"
+.br
+.ti -1c
+.RI "void \fBrenderInventoryBox\fP (\fBItemStack\fP *stack, \fBVector2\fP position, \fBGE_UI_Text\fP *ammountText)"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "std::string \fBitemHumanNames\fP []"
+.br
+.ti -1c
+.RI "std::string \fBitemSpriteNames\fP []"
+.br
+.ti -1c
+.RI "double \fBitemMasses\fP []"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+
+.PP
+\fBAuthor:\fP
+.RS 4
+Jackson McNeill
+.RE
+.PP
+An inventory system 
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for 2D game engine yet to be properly named from the source code\&.

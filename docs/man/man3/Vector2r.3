@@ -1,0 +1,83 @@
+.TH "Vector2r" 3 "Fri May 18 2018" "Version 0.1" "2D game engine yet to be properly named" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+Vector2r
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <vector2\&.h>\fP
+.SS "Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "constexpr void \fBaddRelativeVelocity\fP (\fBVector2r\fP adder)"
+.br
+.ti -1c
+.RI "\fBGE_FORCE_INLINE\fP constexpr \fBVector2r\fP \fBoperator+\fP (\fBVector2r\fP other) const"
+.br
+.ti -1c
+.RI "\fBGE_FORCE_INLINE\fP constexpr \fBVector2r\fP \fBoperator\-\fP (\fBVector2r\fP other) const"
+.br
+.ti -1c
+.RI "\fBGE_FORCE_INLINE\fP constexpr \fBVector2r\fP \fBoperator*\fP (\fBVector2r\fP other) const"
+.br
+.ti -1c
+.RI "\fBGE_FORCE_INLINE\fP constexpr \fBVector2r\fP \fBoperator/\fP (\fBVector2r\fP other) const"
+.br
+.ti -1c
+.RI "\fBGE_FORCE_INLINE\fP constexpr \fBVector2r\fP \fBoperator*\fP (double other) const"
+.br
+.ti -1c
+.RI "\fBGE_FORCE_INLINE\fP constexpr \fBVector2r\fP \fBoperator/\fP (double other) const"
+.br
+.ti -1c
+.RI "\fBGE_FORCE_INLINE\fP void \fBabs\fP ()"
+.br
+.ti -1c
+.RI "\fBGE_FORCE_INLINE\fP constexpr \fBVector2r\fP \fBoperator+\fP (\fBVector2\fP other) const"
+.br
+.ti -1c
+.RI "\fBGE_FORCE_INLINE\fP constexpr \fBVector2r\fP \fBoperator\-\fP (\fBVector2\fP other) const"
+.br
+.ti -1c
+.RI "\fBGE_FORCE_INLINE\fP constexpr \fBVector2r\fP \fBoperator*\fP (\fBVector2\fP other) const"
+.br
+.ti -1c
+.RI "template<class XY > \fBGE_FORCE_INLINE\fP constexpr \fBVector2r\fP \fBoperator=\fP (XY other) const"
+.br
+.ti -1c
+.RI "template<class XYR > \fBGE_FORCE_INLINE\fP constexpr bool \fBoperator==\fP (XYR other) const"
+.br
+.in -1c
+.SS "Static Public Member Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBGE_FORCE_INLINE\fP static constexpr void \fBserialize\fP (\fBVector2r\fP *data, \fBserialization::serialization_state\fP &state)"
+.br
+.ti -1c
+.RI "static \fBVector2r\fP * \fBunserialize\fP (\fBserialization::unserialization_state\fP &state)"
+.br
+.in -1c
+.SS "Data Fields"
+
+.in +1c
+.ti -1c
+.RI "double \fBx\fP"
+.br
+.ti -1c
+.RI "double \fBy\fP"
+.br
+.ti -1c
+.RI "double \fBr\fP"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+A point in 2D space with rotation 
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for 2D game engine yet to be properly named from the source code\&.
