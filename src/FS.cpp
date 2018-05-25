@@ -22,6 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <algorithm>
 #include <new>
 
+#include "GeneralEngineCPP.h"
+
 
 namespace filesystem
 {
@@ -242,13 +244,26 @@ namespace filesystem
 	}
 	void write_to_file(const char* fullfilename, std::string contents)
 	{
-		write_to_file(fullfilename,contents);
+		write_to_file(fullfilename,const_cast<char*>(contents.c_str()),contents.length());
 	}
 	void write_to_file(std::string fullfilename, std::string contents)
 	{
 		write_to_file(fullfilename.c_str(),contents);
 	}
-
+	void append_to_file(const char* fullfilename, char* contents, size_t size)
+	{
+		SDL_RWops *file = SDL_RWFromFile(fullfilename, "a");
+		SDL_RWwrite(file, contents,size,1);
+		SDL_RWclose(file);
+	}
+	void append_to_file(const char* fullfilename, std::string contents)
+	{
+		append_to_file(fullfilename,const_cast<char*>(contents.c_str()),contents.length());
+	}
+	void append_to_file(std::string fullfilename, std::string contents)
+	{
+		append_to_file(fullfilename.c_str(),contents);
+	}
 
 
 

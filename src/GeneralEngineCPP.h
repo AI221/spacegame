@@ -8,6 +8,16 @@
 #pragma once
 
 
+#include <cstdio>
+#ifdef GENERAL_ENGINE_CPP_NO_FS
+	//fs forward declaration
+	namespace filesystem
+	{
+		void append_to_file(const char* fullfilename, char* contents, size_t size);
+	}
+#else
+	#include "FS.h"
+#endif
 
 //Debug?
 #define GE_DEBUG
@@ -83,10 +93,20 @@
 
 typedef bool GE_TEST_TYPE_RETURN;
 
+#define GE_BEGIN_UNIT_TESTS() filesystem::write_to_file("../log/tests.log","");
+
 /*!
  * Log something to the unit/integration test logs with printf syntax
  */
-#define GE_TEST_Log(...) printf(__VA_ARGS__)
+template<typename ...T >
+void GE_TEST_Log(T ... args)
+{
+	printf(args...); 
+	char buffer[2048];
+	int size = snprintf(buffer,sizeof(buffer),args...);
+	filesystem::append_to_file("../log/tests.log",buffer,size);
+}
+
 
 /*!
  * Standard, simple unit testing. Does not test for std's.

@@ -88,7 +88,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
-//#define UNIT_TEST
+#define UNIT_TEST
 
 #define debug //wheather debug draws, menus, etc. is included. 
 
@@ -691,6 +691,7 @@ int main(int argc, char* argv[])
 
 #ifdef UNIT_TEST
 		printf("-------------BEGIN UNIT TESTS-------------\n");
+		GE_BEGIN_UNIT_TESTS();
 		GE_RUN_UNIT_TEST(filesystem::unit_test);
 		GE_RUN_UNIT_TEST(serialization::unit_test);
 		GE_RUN_UNIT_TEST(GE_TEST_Vector2);

@@ -6,10 +6,12 @@
  */
 #pragma once
 
+#define GENERAL_ENGINE_CPP_NO_FS
 #include "GeneralEngineCPP.h"
+#undef GENERAL_ENGINE_CPP_NO_FS
 #ifdef outdatedOS
 
-# include <windows.h>
+#include <windows.h>
 
 #else
 
@@ -97,13 +99,23 @@ namespace filesystem
 	std::string read_all_from_file(const char* fullfilename);
 
 	/*!
-	 * Writes to a file and closes it.
+	 * Overwrites to a file and closes it.
 	 *
 	 * Will create the file if it doesn't exist, or overwrite it if it does.
 	 */
 	void write_to_file(const char* fullfilename, char* contents, size_t size);
 	void write_to_file(const char* fullfilename, std::string contents);
 	void write_to_file(std::string fullfilename, std::string contents);
+
+	/*!
+	 * Overwrites to a file and closes it.
+	 *
+	 * Will create the file if it doesn't exist, or overwrite it if it does.
+	 */
+	void append_to_file(const char* fullfilename, char* contents, size_t size);
+	void append_to_file(const char* fullfilename, std::string contents);
+	void append_to_file(std::string fullfilename, std::string contents);
+
 	/*!
 	 * Returns the base file name
 	 *

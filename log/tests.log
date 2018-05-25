@@ -1,0 +1,73 @@
+-------- BEGIN TEST filesystem::unit_test --------
+[PASS] get_filename_without_extension("my.file.ext"), wanted: my.file, result: my.file
+[PASS] get_filename_extension("my.file.ext"), wanted: ext, result: ext
+[PASS] get_parrent_directory("folder/file"), wanted: folder, result: folder
+[PASS] get_base_filename("folder/file"), wanted: file, result: file
+[PASS] get_filename_without_extension("file"), wanted: file, result: file
+[PASS] get_filename_extension("file"), wanted: file, result: file
+[PASS] get_parrent_directory("folder"), wanted: folder, result: folder
+[PASS] get_base_filename("file"), wanted: file, result: file
+Ensure file IO works
+[PASS][ASSERTION] returnStr[11](=101) == teststr[11](=101)
+Ensure null character works
+[PASS][ASSERTION] returnStr[27](=0) == '\0'(=0)
+-------- PASS filesystem::unit_test --------
+-------- BEGIN TEST serialization::unit_test --------
+[PASS] serialization::unserialize<unsigned int>(state_u), wanted: 4294967295, result: 4294967295
+[PASS] serialization::unserialize<unsigned int>(state_u), wanted: 672214, result: 672214
+[PASS] serialization::unserialize<int>(state_u), wanted: -672214, result: -672214
+[PASS] serialization::unserialize<double>(state_u), wanted: 64563.328125, result: 64563.328125
+Ensure resizing of buffer works
+[PASS][ASSERTION] state.bufferUsed(=8) == 4+versionSize(=8)
+[PASS][ASSERTION] state.bufferSize(=10) >= 4(=4)
+Ensure vector unserialized properly
+[PASS][ASSERTION] *unserialized_vector->begin()(=27) == *preserialized_vector.begin()(=27)
+Ditto
+[PASS][ASSERTION] *(unserialized_vector->begin()+1)(=26) == *(preserialized_vector.begin()+1)(=26)
+Ensure serialization versioning works properly
+[PASS][ASSERTION] state_u.serializedVersion(=994645232) == 994645232(=994645232)
+Ensure unserialization worked
+[PASS][ASSERTION] unserializedclass->returnNumber1()(=1337) == 1337(=1337)
+[PASS][ASSERTION] unserializedclass->returnNumber2()(=88) == 88(=88)
+Ensure unserialization of vector of serializable class worked
+[PASS][ASSERTION] (*unser_classvec->begin())->returnNumber1()(=1) == 1(=1)
+[PASS][ASSERTION] (*unser_classvec->begin())->returnNumber2()(=2) == 2(=2)
+[PASS][ASSERTION] (*(unser_classvec->begin()+1))->returnNumber1()(=3) == 3(=3)
+[PASS][ASSERTION] (*(unser_classvec->begin()+1))->returnNumber2()(=4) == 4(=4)
+[PASS][ASSERTION] (*maptest->begin()).first(=10) == 10(=10)
+Ensure unserialization of map of ints worked (via iteration through the map)
+[PASS][ASSERTION] element.first(=10) == i(=10)
+[PASS][ASSERTION] element.second(=20) == i(=20)
+[PASS][ASSERTION] element.first(=30) == i(=30)
+[PASS][ASSERTION] element.second(=40) == i(=40)
+Ensure empty vector unserialized properly
+[PASS][ASSERTION] unserialized_empty_vector->size()(=0) == 0(=0)
+Ensure list unserialized properly
+[PASS][ASSERTION] *unserialized_list->begin()(=27) == *preserialized_list.begin()(=27)
+Ditto
+Ensure sets work
+[PASS][ASSERTION] *(unser_set->begin())(=1) == 1(=1)
+[PASS][ASSERTION] element(=1) == i(=1)
+[PASS][ASSERTION] element(=2) == i(=2)
+Ensure GE_Rectangle serialization worked
+[PASS][ASSERTION] unser_rect->x(=1.000000) == rect.x(=1.000000)
+[PASS][ASSERTION] unser_rect->y(=2.000000) == rect.y(=2.000000)
+[PASS][ASSERTION] unser_rect->w(=3.000000) == rect.w(=3.000000)
+[PASS][ASSERTION] unser_rect->h(=4.000000) == rect.h(=4.000000)
+-------- PASS serialization::unit_test --------
+-------- BEGIN TEST GE_TEST_Vector2 --------
+Ensure Vector2 adding works
+[PASS][ASSERTION] resultantVector(=4.500000, 6.000000) == (Vector2{4.5,6})(=4.500000, 6.000000)
+Ensure Vector2 multiplication works
+[PASS][ASSERTION] resultantVector(=1.000000, 12.000000) == (Vector2{1,12})(=1.000000, 12.000000)
+Ensure Vector2 division against single double works
+[PASS][ASSERTION] resultantVector(=2.000000, 4.000000) == (Vector2{2,4})(=2.000000, 4.000000)
+-------- PASS GE_TEST_Vector2 --------
+-------- BEGIN TEST GE_TEST_ThreadedDelete --------
+Ensure proper deletion with 4 threads
+[PASS][ASSERTION] numDeleted(=4) == 4(=4)
+Ensure proper deletion with 2 threads
+[PASS][ASSERTION] numDeleted(=4) == 4(=4)
+Ensure proper deletion with 1 thread
+[PASS][ASSERTION] numDeleted(=4) == 4(=4)
+-------- PASS GE_TEST_ThreadedDelete --------
