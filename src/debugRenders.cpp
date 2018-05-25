@@ -131,7 +131,7 @@ void GE_DEBUG_DrawRect(GE_Rectangle rect)
 {
 	GE_DEBUG_DrawRect(rect,{0xff,0xff,0x99,SDL_ALPHA_OPAQUE});
 }
-void GE_DEBUG_DrawShape(GE_ShapeLines shape)
+void GE_DEBUG_DrawShape(GE_ShapePoints shape)
 {
 	auto lastSpot = shape.begin();
 	for (auto spot = shape.begin()+1;spot!= shape.end();spot++)

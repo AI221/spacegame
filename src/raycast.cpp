@@ -9,7 +9,7 @@
 
 
 
-std::optional<Vector2> GE_Raycast(Vector2 start, Vector2 end, GE_ShapeLinesVector obstacles)
+std::optional<Vector2> GE_Raycast(Vector2 start, Vector2 end, GE_ShapePointsVector obstacles)
 {
 	std::optional<Vector2> currentShortest = {};
 	for (auto shape : obstacles)
@@ -60,7 +60,7 @@ ObjectRaycastReturn GE_Raycast(Vector2 start, Vector2 end, std::vector<GE_Physic
 	GE_PhysicsObject* currentShortestObj = NULL;
 	for (GE_PhysicsObject* obj : objects)
 	{
-		GE_ShapeLinesVector shapes;
+		GE_ShapePointsVector shapes;
 		for (int i=0;i<obj->numCollisionRectangles;i++)
 		{
 			Vector2 points[4];
@@ -68,7 +68,7 @@ ObjectRaycastReturn GE_Raycast(Vector2 start, Vector2 end, std::vector<GE_Physic
 			GE_Rectangler x = obj->collisionRectangles[i];
 			GE_Rectangle y = {x.x+obj->position.x,x.y+obj->position.y,x.w,x.h};
 			//GE_DEBUG_DrawRect(y);
-			GE_ShapeLines shapeLines;
+			GE_ShapePoints shapeLines;
 			//connect every point on the rectangle with lines
 			shapeLines.insert(shapeLines.end(),points[0]);
 			shapeLines.insert(shapeLines.end(),points[1]);
@@ -102,7 +102,7 @@ ObjectRaycastReturn GE_Raycast(Vector2 start, Vector2 end, std::vector<GE_Physic
 
 	/*
 	std::vector<GE_PhysicsObject*> collisionRectangleToOwner;
-	GE_ShapeLinesVector shapes;	
+	GE_ShapePointsVector shapes;	
 	int ammountShapes = 0;
 	for (GE_PhysicsObject* obj : objects)
 	{
@@ -110,7 +110,7 @@ ObjectRaycastReturn GE_Raycast(Vector2 start, Vector2 end, std::vector<GE_Physic
 		{
 			Vector2 points[4];
 			GE_RectangleToPoints(obj->collisionRectangles[i],obj->grid,points,obj->position);
-			GE_ShapeLines shapeLines;
+			GE_ShapePoints shapeLines;
 			shapeLines.insert(shapeLines.end(),points[0]);
 			shapeLines.insert(shapeLines.end(),points[1]);
 			shapeLines.insert(shapeLines.end(),points[3]);

@@ -282,6 +282,9 @@ void GE_FreePhysicsObject(GE_PhysicsObject* physicsObject); //MUST be allocated 
  * @param points An array that can contain 4 Vector2* s. 
  * @param hostPosition a Vector2r , note the r, that the GE_Rectangle rect belongs to. It is used to be added to the positions of points, and its rotation will translate them.
  */
+#ifndef PHYSICS_DEBUG_SLOWRENDERS 
+constexpr
+#endif
 void GE_RectangleToPoints(GE_Rectangler rect, Vector2 grid, Vector2* points, Vector2r hostPosition);
 
 /*!

@@ -66,7 +66,7 @@ void GE_DEBUG_DrawRect(GE_Rectangle rect,GE_Color clr);
 
 void GE_DEBUG_DrawRect(GE_Rectangle rect);
 
-void GE_DEBUG_DrawShape(GE_ShapeLines shape);
+void GE_DEBUG_DrawShape(GE_ShapePoints shape);
 
 void GE_DEBUG_DrawRect_PhysicsPosition(GE_Rectangle rect, GE_Color clr);
 

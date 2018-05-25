@@ -88,7 +88,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
-#define UNIT_TEST
+//#define UNIT_TEST
 
 #define debug //wheather debug draws, menus, etc. is included. 
 

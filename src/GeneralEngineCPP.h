@@ -148,7 +148,7 @@ void GE_TEST_Log(T ... args)
 #define GE_ReturnInput(in) (in)
 
 template<class number>
-bool GE_IsInRange(number value, number range1, number range2)
+constexpr bool GE_IsInRange(number value, number range1, number range2)
 {
 	if (value >= range1 && value <= range2)
 	{

@@ -13,8 +13,9 @@
 #include "GeneralEngineCPP.h"
 
 
-typedef std::vector<Vector2> GE_ShapeLines;
-typedef std::vector<GE_ShapeLines> GE_ShapeLinesVector;
+typedef std::vector<Vector2> GE_ShapePoints;
+typedef std::vector<GE_ShapePoints> GE_ShapePointsVector;
+
 
 
 /*!

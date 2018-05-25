@@ -32,6 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "GeneralEngineCPP.h"
 #include "isOn.h"
 #include "threadeddelete.h"
+#include "collision.h"
 
 
 #include <unordered_set>
@@ -398,36 +399,12 @@ InternalResult GE_CollisionFullCheck(GE_PhysicsObject* cObj, GE_PhysicsObject* v
 			for (int me = 0;me < 4; me++)
 			{
 				
-				
-				/*bool check0 = (myPoints[me].x >= theirPoints[0].x) && (myPoints[me].y >= theirPoints[0].y);
-				bool check1 = true;//(myPoints[me].x >= theirPoints[1].x) && (myPoints[me].y <= theirPoints[1].y);
-				bool check2 = (myPoints[me].x <= theirPoints[2].x) && (myPoints[me].y >= theirPoints[2].y);
-				bool check3 = true;//(myPoints[me].x <= theirPoints[3].x) && (myPoints[me].y >= theirPoints[3].y);*/
+				GE_ShapePoints myPointsVector;
+				myPointsVector.insert(myPointsVector.end(),&myPoints[0],&myPoints[3]);
+				GE_ShapePoints theirPointsVector;
+				theirPointsVector.insert(theirPointsVector.end(),&theirPoints[0],&theirPoints[3]);
 
-				bool check = false;
-
-				//Algorithm credits: Raymond Manzoni (https://math.stackexchange.com/users/21783/raymond-manzoni), How to check if a point is inside a rectangle?, URL (version: 2012-09-03): https://math.stackexchange.com/q/190373
-
-				Vector2 AM = myPoints[me]-theirPoints[0]; //M-A
-				Vector2 AB = theirPoints[1]-theirPoints[0];
-				Vector2 AD = theirPoints[2]-theirPoints[0]; //bottom-left minus top left
-
-				/*printf("AM %f,%f\n",AM.x,AM.y);
-				printf("dot %f\n",GE_Dot(AM,AB));
-				printf("check pt1 %d\n",( 0.0 < GE_Dot(AM,AB) < GE_Dot(AB,AB) ));*/
-
-				double AMAB = GE_Dot(AM,AB);
-				double AMAD = GE_Dot(AM,AD);
-				double ABAB = GE_Dot(AB,AB);
-				double ADAD = GE_Dot(AD,AD);
-
-				//TODO: This doesn't work because the points might not intersect but the lines could.
-				check = ( ( 0.0 <= AMAB ) && ( AMAB <= ABAB ) && ( 0.0 <= AMAD ) && ( AMAD <= ADAD ) ) ;
-
-
-				
-
-				if (check)
+				if (GE_ShapeCollision(myPointsVector,theirPointsVector))
 				{
 					bool killMe = false;
 					bool doReturn = false;
@@ -670,6 +647,9 @@ void GE_FreePhysicsObject(GE_PhysicsObject* physicsObject)
 
 
 
+#ifndef PHYSICS_DEBUG_SLOWRENDERS 
+constexpr
+#endif
 void GE_RectangleToPoints(GE_Rectangler rect, Vector2 grid, Vector2* points, Vector2r hostPosition) 
 {
 		
@@ -726,6 +706,7 @@ bool GE_IsPointInPhysicsObject(Vector2 point, GE_PhysicsObject* obj)
 		
 		GE_RectangleToPoints(obj->collisionRectangles[i],obj->grid,rectPoints,obj->position);
 
+		//Algorithm credits: Raymond Manzoni (https://math.stackexchange.com/users/21783/raymond-manzoni), How to check if a point is inside a rectangle?, URL (version: 2012-09-03): https://math.stackexchange.com/q/190373
 		Vector2 AM = point-rectPoints[0]; //M-A
 		Vector2 AB = rectPoints[1]-rectPoints[0];
 		Vector2 AD = rectPoints[2]-rectPoints[0]; //bottom-left minus top left
