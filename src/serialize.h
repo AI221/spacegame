@@ -119,6 +119,7 @@ namespace serialization
 
 	unserialization_state::unserialization_state(char* string)
 	{
+		serialized = string;
 		bufferUnserialized =0;
 		serializedVersion = -1; //unserialize_basic is not supposed to use this value, but initialize it to -1 just in case.
 		serializedVersion = unserialize_basic<int>(*this);

@@ -255,7 +255,7 @@ namespace filesystem
 
 
 
-	bool TEST_FS() //mostly tests string manipulation
+	bool unit_test() //mostly tests string manipulation
 	{
 		bool passedAll = true;
 		GE_TEST_STD(GE_StringifyString,std::string,"my.file",get_filename_without_extension,"my.file.ext");

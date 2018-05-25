@@ -28,7 +28,7 @@ class serialize_test
 		}
 		constexpr static void serialize(serialize_test* me, serialization::serialization_state& state)
 		{
-			serialization::serialize(me,state);
+			serialization::serialize(&me->myintvector,state);
 		}
 		static serialize_test* unserialize(serialization::unserialization_state& state)
 		{
@@ -43,13 +43,14 @@ class serialize_test
 		{
 			return *(myintvector.begin()+1);
 		}
-	private:
+
 		std::vector<int> myintvector;
+	private:
 };
 
 
 
-namespace serialize
+namespace serialization
 {
 	GE_TEST_TYPE_RETURN unit_test()
 	{
@@ -84,18 +85,12 @@ namespace serialize
 
 			serialization::serialization_state& state = *new serialization::serialization_state(0);
 
-			state.bufferSize=4; //dont bother actually changing the size of the char*
+			state.bufferSize=3; //dont bother actually changing the size of the char*
+			auto versionSize = sizeof(int);
 			serialization::serialize((unsigned int)0xffffffff,state);
 
 			GE_TEST_Log("Ensure resizing of buffer works\n");
-			GE_TEST_ASSERT(GE_StringifyNumber,state.bufferUsed, 4, ==);
-			GE_TEST_ASSERT(GE_StringifyNumber,state.bufferSize, 4, >=);
-
-			state.bufferSize=3; //dont bother actually changing the size of the char*
-			serialization::serialize((unsigned int)0xffffffff,state);
-
-			GE_TEST_Log("If this assert failed, next assert is invalidated\n");
-			GE_TEST_ASSERT(GE_StringifyNumber,state.bufferUsed, 4, ==);
+			GE_TEST_ASSERT(GE_StringifyNumber,state.bufferUsed, 4+versionSize, ==);
 			GE_TEST_ASSERT(GE_StringifyNumber,state.bufferSize, 4, >=);
 		}
 
@@ -187,7 +182,6 @@ namespace serialize
 
 			serialization::serialize(maptest,state);
 
-			delete maptest;
 
 			serialization::unserialization_state& state_u = *new serialization::unserialization_state(state.buffer);
 
@@ -204,6 +198,7 @@ namespace serialize
 				GE_TEST_ASSERT(GE_StringifyNumber,element.second,i,==);
 			}
 
+			delete maptest;
 			delete unser_map;
 
 		}

@@ -451,12 +451,17 @@ bool Player::C_Update()
 					*/
 					auto tmpstr_s = filesystem::read_all_from_file("/tmp/REMOVE-tempsave2");
 					tmpstr = tmpstr_s.c_str();
-					printf("READ TMPSTR %s\n",tmpstr);
+					printf("READ TMPSTR \n",tmpstr);
+					std::cout << tmpstr_s << std::endl;
 				}
 				if (event.key.keysym.sym == SDLK_m && tempcandoit) //tmp load
 				{
 					tempcandoit = false;
 					
+					auto tmpstr_s = filesystem::read_all_from_file("/tmp/REMOVE-tempsave2");
+					tmpstr = tmpstr_s.c_str();
+					printf("READ TMPSTR \n",tmpstr);
+					std::cout << tmpstr_s << std::endl;
 					serialization::unserialization_state* TEMP=new  serialization::unserialization_state(const_cast<char*>(tmpstr));
 serialization::unserialization_state& TEMP2 = *TEMP;
 					GE_UnserializeTrackedObjects(TEMP2);

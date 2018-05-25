@@ -112,5 +112,5 @@ namespace filesystem
 	std::string get_base_filename(std::string fullfilename);
 	std::string get_base_filename(const char* fullfilename);
 
-	bool TEST_FS();
+	bool unit_test();
 }
