@@ -120,6 +120,16 @@ class GE_PhysicsObject : public serialization::polymorphic_serialization
 		void addCollisionRectangle(GE_Rectangler newRectangle);
 
 		/*!
+		 * Modifies a collision rectangle and updates cached values
+		 */
+		void changeCollisionRectangle(unsigned int num, GE_Rectangler newRectangle);
+
+		/*!
+		 * Refreshes cached values for collision rectangles -- you may use this after modifications or use add/changeCollisionRectangle
+		 */
+		void refresh_collision_rectangle_cache();
+
+		/*!
 		 * A callback upon collision
 		 * @param victimID the ID of the colliding physics object
 		 * @param collisionRectangleID The ID of YOUR collision rectangle that was collided with 

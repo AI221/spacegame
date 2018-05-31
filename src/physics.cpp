@@ -153,10 +153,19 @@ void GE_PhysicsObject::addCollisionRectangle(GE_Rectangler newRectangle)
 	collisionRectangles[numCollisionRectangles] = newRectangle;
 	numCollisionRectangles++;
 
-	//update cached values
+	this->refresh_collision_rectangle_cache();
+}
+void GE_PhysicsObject::changeCollisionRectangle(unsigned int num, GE_Rectangler newRectangle)
+{
+	collisionRectangles[num] = newRectangle;
+
+	this->refresh_collision_rectangle_cache();
+}
+
+void GE_PhysicsObject::refresh_collision_rectangle_cache()
+{
 	Vector2 myPoints[4] = {};
 	grid = {0,0};
-	///Vector2 minPoint = {0,0};
 	for (int i=0;i<numCollisionRectangles;i++)
 	{
 		GE_RectangleToPoints(collisionRectangles[i],Vector2{0,0},myPoints,Vector2r{0,0,0});
@@ -164,9 +173,6 @@ void GE_PhysicsObject::addCollisionRectangle(GE_Rectangler newRectangle)
 		{
 			grid.x = fmax(grid.x,myPoints[o].x);
 			grid.y = fmax(grid.y,myPoints[o].y);
-
-			//minPoint.x = fmin(minPoint.x,myPoints[o].x);
-			//minPoint.y = fmin(minPoint.y,myPoints[o].y);
 		}
 	}
 	diameter = fmax(grid.x,grid.y);

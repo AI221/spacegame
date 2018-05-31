@@ -907,7 +907,7 @@ Wall* Wall::unserialize(serialization::unserialization_state& state)
 
 GE_PhysicsObject* Wall::spawnFromLevelEditor(SDL_Renderer* renderer, Vector2r position)
 {
-	return static_cast<GE_PhysicsObject*>(new Wall(GE_DEBUG_Renderer,position,GE_Rectangler{0,0,0,100,10},100)); 
+	return static_cast<GE_PhysicsObject*>(new Wall(GE_DEBUG_Renderer,position,GE_Rectangler{0,0,0,100,10},10)); 
 }
 GE_Rectangler Wall::getRectangle(unsigned int rect)
 {
@@ -924,6 +924,7 @@ void Wall::setSize(Vector2 size)
 {
 	collisionRectangles[0].w = size.x;
 	collisionRectangles[0].h = size.y;
+	this->refresh_collision_rectangle_cache();
 	pthread_mutex_lock(&RenderEngineMutex);
 	renderObject->size = size;
 	pthread_mutex_unlock(&RenderEngineMutex);
