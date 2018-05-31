@@ -361,11 +361,7 @@ void UI_InventoryView::render(Vector2 parrentPosition)
 	}
 
 	Vector2 fullSize = Vector2{INV_SQUARE_SIZE,INV_SQUARE_SIZE}+(paddingSize);
-	IntVector2 mouse = GE_UI_GetMousePosition();
-
-	IntVector2 mousePos = mouse;
-
-	mousePos = mousePos - parrentPosition;
+	Vector2 mousePos = GE_UI_GetMousePosition() - parrentPosition;
 
 
 
@@ -379,7 +375,7 @@ void UI_InventoryView::render(Vector2 parrentPosition)
 
 				
 	//    VVV: Check if the mouse is in the UI Element, then check if the mouse is hovering over padding, or over an actual item: only continue if it's an item
-	if ( (mousePos >= IntVector2{0,0}) && (mousePos <= size) && (wraparround_clamp(mousePos.x,fullSize.x) > paddingSize.x) && (wraparround_clamp(mousePos.y,fullSize.y) > paddingSize.y) )
+	if ( (mousePos >= Vector2{0,0}) && (mousePos <= size) && (wraparround_clamp(mousePos.x,fullSize.x) > paddingSize.x) && (wraparround_clamp(mousePos.y,fullSize.y) > paddingSize.y) )
 	{
 		mousePos.x = GE_ReduceAccuracy(mousePos.x,fullSize.x); //put x and y on a grid
 		mousePos.y = GE_ReduceAccuracy(mousePos.y,fullSize.y);
@@ -408,13 +404,13 @@ void UI_InventoryView::giveEvent(Vector2 parrentPosition, SDL_Event event)
 	if (event.type == SDL_MOUSEBUTTONDOWN)
 	{
 		Vector2 fullSize = Vector2{INV_SQUARE_SIZE,INV_SQUARE_SIZE}+(paddingSize);
-		IntVector2 mousePos = GE_UI_GetMousePosition();
+		Vector2 mousePos = GE_UI_GetMousePosition();
 
 		mousePos = mousePos - parrentPosition;
 
 		//    VVV: Check if the mouse is in the UI Element, then check if the mouse is hovering over padding, or over an actual item: only continue if it's an item
 	
-		if ( (mousePos >= IntVector2{0,0}) && (mousePos <= size) && (wraparround_clamp(mousePos.x,fullSize.x) > paddingSize.x) && (wraparround_clamp(mousePos.y,fullSize.y) > paddingSize.y) )
+		if ( (mousePos >= Vector2{0,0}) && (mousePos <= size) && (wraparround_clamp(mousePos.x,fullSize.x) > paddingSize.x) && (wraparround_clamp(mousePos.y,fullSize.y) > paddingSize.y) )
 		{
 			mousePos.x /= INV_SQUARE_SIZE+paddingSize.x; //Do note this calculation is technically slightly off--it doesn't incorporate the start padding x and y from item 0--but because it is only wrong while hovering over padding, it never gives us the wrong value here.
 			mousePos.y /= INV_SQUARE_SIZE+paddingSize.y;

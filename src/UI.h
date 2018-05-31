@@ -666,7 +666,7 @@ bool GE_UI_PullEvents();
 void GE_UI_Render();
 
 
-IntVector2 GE_UI_GetMousePosition();
+Vector2 GE_UI_GetMousePosition();
 
 struct MessageDialog_StringInputOptions
 {

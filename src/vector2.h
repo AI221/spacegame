@@ -33,7 +33,6 @@ GE_FORCE_INLINE constexpr double GE_CapRotation(double rotation)
 
 
 
-struct IntVector2;
 
 /*!
  * A point in 2D space with no rotation. 
@@ -141,7 +140,6 @@ struct Vector2
 		return ( (x == other.x) && (y == other.y) );
 	}
 
-	//Vector2 operator=(const IntVector2& subject);
 	
 
 	GE_FORCE_INLINE constexpr static void serialize(Vector2* serializeMe, serialization::serialization_state& state)
@@ -324,72 +322,6 @@ GE_FORCE_INLINE constexpr Vector2 GE_StripVectorRotation(Vector2r vector_subject
 	return Vector2{vector_subject.x,vector_subject.y};
 }
 
-struct IntVector2
-{
-	int x;
-	int y;
-	template<class XY>
-	GE_FORCE_INLINE IntVector2 operator+(XY other)
-	{
-		IntVector2 newVector = {static_cast<int>(this->x+other.x),static_cast<int>(this->y+other.y)};
-		return newVector;
-	}
-	template<class XY>
-	GE_FORCE_INLINE IntVector2 operator-(XY other)
-	{
-		IntVector2 newVector = {static_cast<int>(this->x-other.x),static_cast<int>(this->y-other.y)};
-		return newVector;
-	}
-	template<class XY>
-	GE_FORCE_INLINE IntVector2 operator*(XY other)
-	{	
-		IntVector2 newVector = {static_cast<int>(this->x*other.x),static_cast<int>(this->y*other.y)};
-		return newVector;
-	}
-	GE_FORCE_INLINE IntVector2 operator*(double other)
-	{
-		IntVector2 newVector = {static_cast<int>(this->x*other),static_cast<int>(this->y*other)};
-		return newVector;
-	}
-	GE_FORCE_INLINE IntVector2 operator/(double other)
-	{
-		IntVector2 newVector = {static_cast<int>(this->x/other),static_cast<int>(this->y/other)};
-		return newVector;
-	}
-	GE_FORCE_INLINE void abs()
-	{
-		x = std::abs(x);
-		y = std::abs(y);
-	}
-
-	template<class XY>
-	GE_FORCE_INLINE bool operator>(XY other)
-	{
-		return ( (x > other.x) && (y > other.y) );
-	}
-	template<class XY>
-	GE_FORCE_INLINE bool operator<(XY other)
-	{
-		return ( (x < other.x) && (y < other.y) );
-	}
-	template<class XY>
-	GE_FORCE_INLINE bool operator>=(XY other)
-	{
-		return ( (x >= other.x) && (y >= other.y) );
-	}
-	template<class XY>
-	GE_FORCE_INLINE bool operator<=(XY other)
-	{
-		return ( (x <= other.x) && (y <= other.y) );
-	}
-	template<class XY>
-	GE_FORCE_INLINE bool operator==(XY other)
-	{
-		return ( (x == other.x) && (y == other.y) );
-	}
-
-
-};
 
 /*
 	x=0;y=0;w=10;h=10;

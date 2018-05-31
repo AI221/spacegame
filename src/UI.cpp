@@ -1716,19 +1716,18 @@ void GE_UI_Render()
 	
 	if (hasCursorFollower)
 	{
-		IntVector2 cursorPos = GE_UI_GetMousePosition();
-		cursorFollower->render(Vector2{static_cast<double>(cursorPos.x),static_cast<double>(cursorPos.y)});
+		cursorFollower->render(GE_UI_GetMousePosition());
 	}
 
 }
 
 
 
-IntVector2 GE_UI_GetMousePosition()
+Vector2 GE_UI_GetMousePosition()
 {
-	IntVector2 returnval;
-	SDL_GetMouseState(&returnval.x,&returnval.y);
-	return returnval;
+	int x,y;
+	SDL_GetMouseState(&x,&y);
+	return Vector2{static_cast<double>(x),static_cast<double>(y)};
 }
 
 

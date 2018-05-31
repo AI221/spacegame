@@ -9,6 +9,10 @@
 
 
 #include <cstdio>
+#include <algorithm>
+#include <math.h>
+#include <type_traits>
+
 #ifdef GENERAL_ENGINE_CPP_NO_FS
 	//fs forward declaration
 	namespace filesystem
@@ -84,7 +88,19 @@
  * Examples:
  * wraparround_clamp(10,25)->25 wraparroundclamp(26,25) ->1 wraparroundclamp(50,25)->0
  */
-#define wraparround_clamp(number,maxval) (  (number)-(std::floor((number)/(maxval))*(maxval))  )
+//#define wraparround_clamp(number,maxval) (  (number)-(std::floor((number)/(maxval))*(maxval))  )
+
+
+template<typename number_type>
+number_type wraparround_clamp(number_type number,number_type maxval)
+{
+	number_type maybe_floored_number = number/maxval;
+	if constexpr(std::is_floating_point<number_type>::value)
+	{
+		maybe_floored_number = std::floor(maybe_floored_number);
+	}
+	return number-((maybe_floored_number)*maxval);
+}
 
 
 #define GE_TEST_INIT() bool passedAll = true; 
