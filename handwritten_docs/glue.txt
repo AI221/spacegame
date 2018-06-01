@@ -1,0 +1,25 @@
+Glue is a threadsafe method of copying trivially copiable data from the physics engine to the rendering engine threads. It utilizes a single buffer both ways.
+
+p = physics engine thread
+r = render engine thread
+
+Beggining of a physics tick:
+Data from r-buffer tranfered to p.
+
+End of a physics tick:
+
+Data from p tranfered to p-buffer
+
+Beginning of a render tick:
+
+Data from o-buffer tranfered to r
+
+End of a render tick:
+
+Data from r transfered to r-buffer
+
+
+
+
+
+

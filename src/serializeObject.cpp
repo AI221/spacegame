@@ -108,30 +108,27 @@ struct noSerializationFunction : std::exception
 	const char* what() const noexcept { return ("Tried to add tracked object of type "+std::to_string(type)+" which does not have an unserialize function registered.").c_str(); }
 };
 
-/*!
- * Okay to call any time (on the physics thread), but you must wait until the end of the physics tick to remove yourself from the buffer or else it won't work.
- */
-GE_TrackedObject* GE_AddTrackedObject(unsigned int type, GE_PhysicsObject* obj)
+
+GE_TrackMeAsSerializable::GE_TrackMeAsSerializable(unsigned int type, GE_PhysicsObject* object)
 {
 	if (!unserializeFunctions[type])
 	{
 		throw new noSerializationFunction(type);
 	}
 		
-	auto newInsert = new GE_TrackedObject{type,obj};
-	trackedObjectsBuffer.push(newInsert);
-	return newInsert;
+	tracked_object = new GE_TrackedObject{type,object};
+	trackedObjectsBuffer.push(tracked_object);
+
+}
+GE_TrackMeAsSerializable::~GE_TrackMeAsSerializable()
+{	
+	//printf("run\n");
+	//trackedObjects->remove(tracked_object);
 }
 
-/*!
- * Do NOT call when you're in a serialization function
- *
- * For example, it is not okay to call this while being serialized, unserialized, or while in your constructor which was called from an unserialization.
- */
-void GE_RemoveTrackedObject(GE_TrackedObject* object)
-{
-	trackedObjects->remove(object);
-}
+
+
+
 void GE_RegisterUnserializationFunction(unsigned int type, unserializationFunctionDef_t function)
 {
 	unserializeFunctions.insert(std::make_pair(type,function));	

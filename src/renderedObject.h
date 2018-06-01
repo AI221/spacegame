@@ -55,6 +55,8 @@ struct GE_RenderedObject
 
 extern rendered_objects_list_t renderedObjects;
 
+rendered_objects_list_t::iterator GE_GetLastReadableRenderObjectIterator();
+
 /*!
  * Always call before using a rendered object
  */
@@ -85,10 +87,12 @@ void GE_BlitRenderedObject(GE_RenderedObject* subject, Camera* camera, double sc
  * Frees a GE_RenderedObject allocated with new. Does not destroy its renderer or sprite. 
  * @param subject A pointer to the GE_RenderedObject to free
  */
-void GE_FreeRenderedObject(GE_RenderedObject* subject); 
+//void GE_FreeRenderedObject(GE_RenderedObject* subject); 
 
 /*!
  * Schedules the deletion of a rendered object
+ * 
+ * Should be called from the physics engine or with its mutex locked.
  */
 void GE_ScheduleFreeRenderedObject(GE_RenderedObject* subject);
 

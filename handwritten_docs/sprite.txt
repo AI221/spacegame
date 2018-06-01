@@ -1,0 +1,3 @@
+Sprites are listed in a json file. At the beginning, they are loaded into memory. A table exists associating the name of the sprite to its ID, and its ID to its pointer.
+
+Generally, sprite pointers are held by the game.

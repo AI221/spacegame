@@ -111,12 +111,14 @@ void* thread(void* thread_data)
 
 		//delete everything in our work queue
 		pthread_mutex_lock(&host->work_mutexs[thread_number]);
+		GE_TEST_StartBenchmark();
 		while(!host->work[thread_number].empty())
 		{
 			jbcount++;
 			delete host->work[thread_number].top();
 			host->work[thread_number].pop();
 		}
+		printf("time took %f\n",GE_TEST_BenchmarkResult());
 		//printf("Thread %d did some work #%d\n",thread_number,jbcount);
 		pthread_mutex_unlock(&host->work_mutexs[thread_number]);
 

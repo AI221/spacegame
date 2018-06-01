@@ -1,0 +1,3 @@
+Rendered objects are sprites with positions in the world.
+
+They are mostly "in the rendering thread", but due to their design, can be added during rendering without significant hiccups. This is because the list "end" position is not updated until the end of a render tick 

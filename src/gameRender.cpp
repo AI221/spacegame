@@ -36,9 +36,12 @@ void GE_UI_GameRender::render(Vector2 parrentPosition)
 	GE_DeleteRenderedObjectsMarkedForDeletion();
 	pthread_mutex_lock(&RenderEngineMutex);
 
-	for (GE_RenderedObject* object : renderedObjects)
+	
+	//do not access renderedObject.end() - might cause threading issues if the phyiscs engine adds a object during rendering
+	auto last_it = GE_GetLastReadableRenderObjectIterator();
+	for (auto object_it = renderedObjects.begin(); object_it != last_it; object_it++)
 	{
-		GE_BlitRenderedObject(object,camera,scale);
+		GE_BlitRenderedObject(*object_it,camera,scale);
 	}
 	pthread_mutex_unlock(&RenderEngineMutex);
 

@@ -178,7 +178,7 @@ void startTheGame()
 	//new Wall(renderer,Vector2r{00,-90,0},GE_Rectangle{0,0,200,10},25);
 	//new Wall(renderer,Vector2r{300,-90,0},GE_Rectangle{0,0,200,10},999);
 	//new Enemie(renderer,{0,-250,0},1);
-	int numobjs = 000;//00;
+	int numobjs = 00000;//00;
 	int iter = sqrt(numobjs);
 
 	for (int y=-(iter/2);y<=iter/2;y++)

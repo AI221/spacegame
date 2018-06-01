@@ -40,8 +40,15 @@ rendered_objects_list_t renderedObjects;
 /*int numRenderedObjects = -1; //Writable by the physics engine AND render engine -- must lock createObjectMutex to write
 int numRenderedObjectsReadable = -1; //pulled on render tick; render objects gaurnteed not to be messed with by the physics engine. DO NOT WRITE TO! Let this be managed by glue.
 //Reason: A race condition could occur where the physics engine starts creating a render object, then the renderer does immediatly after. Physics engine finished and unlocks createObjectMutex, then render engine goes through and finishes and sets numRenderedObjectsReadable to numRenderedObjects. But Physics Engine was still touching its renderedObject, and hadn't finished the tick, thus a race condition has occured. Render engine doesn't need this protection cause it is only 1 thread, and cannot be touching a rendered object and rendering things simultaniously.*/
-rendered_objects_list_t::iterator lastObject;
-rendered_objects_list_t::iterator lastReadableObject;
+rendered_objects_list_t::iterator lastObject = renderedObjects.begin();
+rendered_objects_list_t::iterator lastReadableObject = renderedObjects.begin();
+
+
+rendered_objects_list_t::iterator GE_GetLastReadableRenderObjectIterator()
+{
+	return lastReadableObject;
+}	
+
 
 GE_GlueTarget* numRenderedObjectsToNumRenderedObjectReadableGlue;
 
@@ -108,13 +115,17 @@ void GE_BlitRenderedObject(GE_RenderedObject* subject, Camera* camera, double sc
 	GE_DEBUG_TextAt(std::to_string(position.x) + "," + std::to_string(position.y) + ",m "+std::to_string(maxSize),Vector2{position.x,position.y});
 #endif
 }
-void GE_FreeRenderedObject(GE_RenderedObject* subject) //will not destroy renderer,or sprite. MUST be allocated with new
+
+
+/*!
+ * MUST lock listShiftMutex
+ */
+GE_FORCE_INLINE void GE_FreeRenderedObject(GE_RenderedObject* subject) //will not destroy renderer,or sprite. MUST be allocated with new
 {
-	pthread_mutex_lock(&listShiftMutex);
+
 	renderedObjects.remove(subject);
 	lastObject = renderedObjects.end();
 	lastReadableObject = lastObject;
-	pthread_mutex_unlock(&listShiftMutex);
 
 	delete subject;
 }
@@ -131,12 +142,16 @@ void GE_DeleteRenderedObjectsMarkedForDeletion()
 {
 
 	pthread_mutex_lock(&deleteObjectStackMutex);
+
+	pthread_mutex_lock(&listShiftMutex);
 	while (!scheduleToDelete.empty())
 	{
 		GE_RenderedObject* i = scheduleToDelete.top();
 		scheduleToDelete.pop();
 		GE_FreeRenderedObject(i);
 	}
+	pthread_mutex_unlock(&listShiftMutex);
+
 	pthread_mutex_unlock(&deleteObjectStackMutex);
 }
 

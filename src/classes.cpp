@@ -121,7 +121,7 @@ const std::string Player::name = "Player";
 #define sizePlusDoubleSize(x,y)  {x*2,y*2}, {0,0,x,y}
 #define positionDouble(x,y) {x*2,y*2,0}
 //the above inserts TWO PARAMETERS
-Player::Player(SDL_Renderer* renderer) : GE_PhysicsObject({0,0,0},{0,0,0},25)
+Player::Player(SDL_Renderer* renderer) : GE_PhysicsObject({0,0,0},{0,0,0},25),tracker(TYPE_PLAYER,this)
 {
 
 
@@ -202,12 +202,10 @@ Player::Player(SDL_Renderer* renderer) : GE_PhysicsObject({0,0,0},{0,0,0},25)
 
 	C_Update();
 
-	//tracker = GE_AddTrackedObject(type,this);
 	
 }
 void Player::C_Destroyed()
 {
-	GE_RemoveTrackedObject(tracker);
 	for (int i=0;i<=numIterableSubsystems;i++)
 	{
 		delete iterableSubsystems[i];
@@ -605,7 +603,7 @@ bool Player::GetIsOnline()
 
 
 
-Enemie::Enemie(SDL_Renderer* renderer, Vector2r position, int level) : GE_PhysicsObject(position,{0,0,0},25)
+Enemie::Enemie(SDL_Renderer* renderer, Vector2r position, int level) : GE_PhysicsObject(position,{0,0,0},25),tracker(TYPE_ENEMY,this)
 {
 	this->renderer = renderer;
 
@@ -628,13 +626,14 @@ Enemie::Enemie(SDL_Renderer* renderer, Vector2r position, int level) : GE_Physic
 
 	foundPlayer = false;
 
-	tracker = GE_AddTrackedObject(type,this);
 }
-Enemie::~Enemie(){}
+Enemie::~Enemie()
+{
+	printf("free an enemie\n");
+}
 void Enemie::C_Destroyed()
 {
 	GE_ScheduleFreeMinimapTarget(renderObject);
-	GE_RemoveTrackedObject(tracker);
 	GE_ScheduleFreeRenderedObject(renderObject);
 }
 void Enemie::serialize(serialization::serialization_state& state)
@@ -852,7 +851,7 @@ static BulletType* unserialize(serialization::unserialization_state& state)
 
 
 const std::string Wall::name = std::string("Wall");
-Wall::Wall(SDL_Renderer* renderer, Vector2r position, GE_Rectangler shape, double mass) : GE_PhysicsObject(position,Vector2r{0,0,0},mass)
+Wall::Wall(SDL_Renderer* renderer, Vector2r position, GE_Rectangler shape, double mass) : GE_PhysicsObject(position,Vector2r{0,0,0},mass),tracker(TYPE_SHIPWALL,this)
 {
 	this->shape = shape;
 	this->addCollisionRectangle(shape);
@@ -867,7 +866,7 @@ Wall::Wall(SDL_Renderer* renderer, Vector2r position, GE_Rectangler shape, doubl
 
 
 
-	tracker = GE_AddTrackedObject(type,this);
+	
 }
 
 
@@ -876,8 +875,7 @@ Wall::~Wall()
 }
 void Wall::C_Destroyed()
 {
-	GE_RemoveTrackedObject(tracker);
-	GE_FreeRenderedObject(renderObject);
+	GE_ScheduleFreeRenderedObject(renderObject);
 }
 void Wall::serialize(serialization::serialization_state& state)
 {

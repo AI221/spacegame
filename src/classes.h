@@ -113,7 +113,7 @@ class Player : public GE_PhysicsObject, public GE_LevelEditorInterface
 		int nextTickCanShoot;
 		bool dampeners;
 
-		GE_TrackedObject* tracker;
+		GE_TrackMeAsSerializable tracker;
 		
 
 
@@ -146,7 +146,7 @@ class Enemie : public GE_PhysicsObject, public GE_LevelEditorInterface
 		bool foundPlayer;
 		int lastTimeShotTick;
 
-		GE_TrackedObject* tracker;
+		GE_TrackMeAsSerializable tracker;
 
 };
 
@@ -205,5 +205,5 @@ class Wall : public GE_PhysicsObject, public GE_LevelEditorInterface
 		GE_RenderedObject* renderObject;
 		GE_Rectangler shape;
 
-		GE_TrackedObject* tracker;
+		GE_TrackMeAsSerializable tracker;
 };

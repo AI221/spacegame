@@ -731,10 +731,22 @@ bool GE_IsPointInPhysicsObject(Vector2 point, GE_PhysicsObject* obj)
 }
 
 
+bool is_negative(double number)
+{
+	return number < 0;
+}
+double GE_GetDoubleFromVector(Vector2 vector)
+{
+	double number = std::sqrt(std::pow(vector.x,2)+std::pow(vector.y,2))
+	if (is_negative(vector.x) && is_negative(vector.y))
+	{
+		number = 0-number;
+	}
+	return number;
+}
 
 
-
-void GE_InelasticCollision(GE_PhysicsObject* subject, Vector2 collisionPoint, Vector2r momentum, bool CCW) 
+void GE_InelasticCollision(GE_PhysicsObject* subject, Vector2 collisionPoint, Vector2 momentum, bool CCW) 
 {
 	//newVelocity = newVelocity - subject->velocity;
 
@@ -750,9 +762,13 @@ void GE_InelasticCollision(GE_PhysicsObject* subject, Vector2 collisionPoint, Ve
 	//Vector2 centerOfMass = (subject->grid/2)+subject->position; //NOTE: Changed
 	
 
-	Vector2 centerOfMass = {subject->position.x+subject->centerOfMass.x,subject->position.y+subject->centerOfMass.y}; //TODO temporarily put the com at the centroid
+	Vector2 centerOfMass = {subject->position.x+subject->centerOfMass.x,subject->position.y+subject->centerOfMass.y}; 
 
+	/*
 	double adjacent = std::cos(collisionPoint.x-centerOfMass.x)/(GE_Distance(collisionPoint,centerOfMass));
+
+
+	//momentum += 
 
 
 	//adjacent *= RAD_TO_DEG;
@@ -761,7 +777,15 @@ void GE_InelasticCollision(GE_PhysicsObject* subject, Vector2 collisionPoint, Ve
 
 	//subject->velocity = Vector2r{0,0,0};
 	if (!CCW) adjacent += M_PI; //TODO temp
-	subject->velocity.addRelativeVelocity(Vector2r{momentum.x/subject->mass,momentum.y/subject->mass,adjacent});
+	//subject->velocity.addRelativeVelocity(Vector2r{momentum.x/subject->mass,momentum.y/subject->mass,adjacent});
+	//GE_Vector2RotationCCW(&momentum);
+	*/
+	double momentum_c = GE_GetDoubleFromVector(momentum);
+	double angle = std::asin(momentum.x/momentum_c);
+
+	
+
+	subject->velocity.r = (std::sqrt(std::pow(momentum.x,2)+std::pow(momentum.y,2))/subject->mass)/(GE_Distance(collisionPoint,subject->position));
 	
 	printf("new velocity real %f, %f, %f\n",subject->velocity.x,subject->velocity.y,subject->velocity.r);
 }
