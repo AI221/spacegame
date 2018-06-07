@@ -1,3 +1,8 @@
+#Project moved
+
+This repo is no longer maintained. Please see https://gitlab.com/AI221/spacegame/
+
+
 # About
 
 This is a Gamejam entry based off my 2D engine. I'm still new to C++ (and this project might require some butchering of the engine) so I'm making this a seperate branch.
